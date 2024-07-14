@@ -1,0 +1,26 @@
+{
+  "name": "visually",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b && vite build",
+    "check": "biome check .",
+    "ci": "biome ci .",
+    "dev": "vite",
+    "format": "biome check --apply-unsafe .",
+    "install": "biome migrate --write",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.8.3",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "@vitejs/plugin-react-swc": "3.7.0",
+    "typescript": "5.5.3",
+    "vite": "5.3.3"
+  }
+}
