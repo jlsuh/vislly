@@ -10,9 +10,6 @@
     "rules": {
       "correctness": {
         "useHookAtTopLevel": "error"
-      },
-      "nursery": {
-        "noReactSpecificProps": "error"
       }
     }
   },
