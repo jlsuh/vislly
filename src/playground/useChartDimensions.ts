@@ -23,15 +23,15 @@ function composeChartDimensions(dimensions: Dimensions) {
   };
 }
 
-function useChartDimensions(dimensions: Dimensions) {
+function useChartDimensions(initialDimensions: Dimensions) {
   const [currentHeight, setCurrentHeight] = useState(0);
   const [currentWidth, setCurrentWidth] = useState(0);
   const ref = useRef(null);
 
-  const chartDimensions = composeChartDimensions(dimensions);
+  const initialChartDimensions = composeChartDimensions(initialDimensions);
 
   useEffect(() => {
-    const element = ref.current ?? new HTMLDivElement();
+    const element = ref.current ?? new Element();
     const resizeObserver = new ResizeObserver((entries) => {
       const { contentRect } = entries[0];
       if (currentHeight !== contentRect.height)
@@ -43,13 +43,13 @@ function useChartDimensions(dimensions: Dimensions) {
     return () => resizeObserver.unobserve(element);
   }, [currentHeight, currentWidth]);
 
-  const newDimensions = composeChartDimensions({
-    ...chartDimensions,
-    width: chartDimensions.width || currentWidth,
-    height: chartDimensions.height || currentHeight,
+  const dimensions = composeChartDimensions({
+    ...initialChartDimensions,
+    width: initialChartDimensions.width || currentWidth,
+    height: initialChartDimensions.height || currentHeight,
   });
 
-  return { newDimensions, ref };
+  return { dimensions, ref };
 }
 
 export default useChartDimensions;

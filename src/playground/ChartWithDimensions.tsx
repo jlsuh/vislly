@@ -13,12 +13,12 @@ const chartSettings = {
 };
 
 const ChartWithDimensions = () => {
-  const { ref, newDimensions } = useChartDimensions(chartSettings);
+  const { ref, dimensions } = useChartDimensions(chartSettings);
 
   const xScale = d3
     .scaleLinear()
     .domain([0, 100])
-    .range([0, newDimensions.boundedWidth]);
+    .range([0, dimensions.boundedWidth]);
 
   return (
     <div
@@ -29,18 +29,18 @@ const ChartWithDimensions = () => {
         alignItems: 'center',
       }}
     >
-      <svg width={newDimensions.width} height={newDimensions.height}>
+      <svg width={dimensions.width} height={dimensions.height}>
         <title>A chart showing information</title>
         <g
-          transform={`translate(${[newDimensions.marginLeft, newDimensions.marginTop].join(',')})`}
+          transform={`translate(${[dimensions.marginLeft, dimensions.marginTop].join(',')})`}
         >
           <rect
-            width={newDimensions.boundedWidth}
-            height={newDimensions.boundedHeight}
+            width={dimensions.boundedWidth}
+            height={dimensions.boundedHeight}
             fill="lavender"
           />
           <g
-            transform={`translate(${[0, newDimensions.boundedHeight].join(',')})`}
+            transform={`translate(${[0, dimensions.boundedHeight].join(',')})`}
           >
             <Axis domain={xScale.domain()} range={xScale.range()} />
           </g>

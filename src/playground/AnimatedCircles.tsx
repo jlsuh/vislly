@@ -1,13 +1,13 @@
-function generateCircles() {
-  const data = [];
-  const numItems = Math.ceil(Math.random() * 5);
+// function generateCircles() {
+//   const data = [];
+//   const numItems = Math.ceil(Math.random() * 5);
 
-  for (let i = 0; i < numItems; i++) {
-    data.push(40);
-  }
+//   for (let i = 0; i < numItems; i++) {
+//     data.push(40);
+//   }
 
-  return data;
-}
+//   return data;
+// }
 
 // function AnimatedCircles() {
 //   const [visibleCircles, setVisibleCircles] = useState(generateCircles());
