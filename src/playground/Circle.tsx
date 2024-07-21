@@ -20,7 +20,7 @@ function Circle() {
 */
 
 // Expressive version
-function Circle() {
+function Circle(): JSX.Element {
   return (
     <svg style={{ flex: 1 }}>
       <title>A circle</title>

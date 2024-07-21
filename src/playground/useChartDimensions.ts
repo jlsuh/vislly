@@ -1,13 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
+import { type MutableRefObject, useEffect, useRef, useState } from 'react';
 
-export type Dimensions = {
+interface Dimensions {
+  boundedHeight: number;
+  boundedWidth: number;
   height: number;
   marginBottom: number;
   marginLeft: number;
   marginRight: number;
   marginTop: number;
   width: number;
-};
+}
 
 function composeChartDimensions(dimensions: Dimensions) {
   return {
@@ -23,7 +25,10 @@ function composeChartDimensions(dimensions: Dimensions) {
   };
 }
 
-function useChartDimensions(initialDimensions: Dimensions) {
+function useChartDimensions(initialDimensions: Dimensions): {
+  dimensions: Dimensions;
+  ref: MutableRefObject<null>;
+} {
   const [currentHeight, setCurrentHeight] = useState(0);
   const [currentWidth, setCurrentWidth] = useState(0);
   const ref = useRef(null);

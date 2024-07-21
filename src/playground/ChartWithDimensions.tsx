@@ -3,16 +3,17 @@ import Axis from './Axis';
 import useChartDimensions from './useChartDimensions';
 
 const chartSettings = {
-  width: 0, // If height is 0, the width is calculated
-  // Calculate height to occupy 40% of the viewport
-  height: 500,
-  marginTop: 30,
-  marginRight: 30,
+  boundedHeight: 0,
+  boundedWidth: 0,
+  height: 500, // TODO: Calculate height to occupy 40% of the viewport
   marginBottom: 30,
   marginLeft: 30,
+  marginRight: 30,
+  marginTop: 30,
+  width: 0, // If height is 0, the width is calculated
 };
 
-const ChartWithDimensions = () => {
+const ChartWithDimensions = (): JSX.Element => {
   const { ref, dimensions } = useChartDimensions(chartSettings);
 
   const xScale = d3

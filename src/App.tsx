@@ -1,6 +1,6 @@
 import ChartWithDimensions from './playground/ChartWithDimensions';
 
-function App() {
+function App(): JSX.Element {
   return (
     // <div
     //   style={{

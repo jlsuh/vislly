@@ -1,6 +1,12 @@
 import * as d3 from 'd3';
 
-const Axis = ({ domain = [0, 100], range = [10, 290] }) => {
+const Axis = ({
+  domain = [0, 100],
+  range = [10, 290],
+}: {
+  domain?: number[];
+  range?: number[];
+}): JSX.Element => {
   const xScale = d3.scaleLinear().domain(domain).range(range);
 
   const width = range[1] - range[0];

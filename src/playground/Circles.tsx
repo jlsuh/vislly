@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { JSX } from 'react/jsx-runtime';
 import generateDataset from './generateDataset';
 import useInterval from './useInterval';
 
@@ -29,7 +30,7 @@ function Circles() {
 */
 
 // Expressive version
-function Circles() {
+function Circles(): JSX.Element {
   const [dataset, setDataset] = useState(generateDataset());
 
   useInterval(() => {

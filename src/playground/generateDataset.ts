@@ -1,4 +1,4 @@
-function generateDataset() {
+function generateDataset(): number[][] {
   return Array(100)
     .fill(0)
     .map((_, i) => [i, Math.random() * 80 + 10, Math.random() * 35 + 10]);

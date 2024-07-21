@@ -1,4 +1,4 @@
-export default function Svg() {
+export default function Svg(): JSX.Element {
   return (
     <svg
       style={{
