@@ -10,7 +10,7 @@ const chartSettings = {
   marginLeft: 30,
   marginRight: 30,
   marginTop: 30,
-  width: 0, // If height is 0, the width is calculated
+  width: 0, // If height is 0, width is calculated
 };
 
 const ChartWithDimensions = (): JSX.Element => {

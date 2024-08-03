@@ -1,4 +1,4 @@
-import ChartWithDimensions from './playground/ChartWithDimensions';
+import BouncingBall from './playground/brownian-motion/BouncingBall';
 
 function App(): JSX.Element {
   return (
@@ -14,7 +14,11 @@ function App(): JSX.Element {
     //   <Circles />
     //   <CartesianAxis />
     // </div>
-    <ChartWithDimensions />
+
+    // TODO: Already working for width
+    // <ChartWithDimensions />
+
+    <BouncingBall />
   );
 }
 
