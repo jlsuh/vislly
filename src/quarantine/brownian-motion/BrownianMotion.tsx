@@ -13,7 +13,7 @@ const chartSettings = {
   width: 0, // If height is 0, the width is calculated
 };
 
-// function drawBall(
+// function drawParticle(
 //   e:
 //     | React.MouseEvent<SVGGElement, MouseEvent>
 //     | React.KeyboardEvent<SVGGElement>,
@@ -31,7 +31,7 @@ const chartSettings = {
 // }
 
 function test(
-  ball: {
+  particle: {
     x: number;
     y: number;
     dx: number;
@@ -42,24 +42,21 @@ function test(
   height: number,
 ) {
   if (
-    ball.x + ball.dx > width - ball.radius ||
-    ball.x + ball.dx < ball.radius
+    particle.x + particle.dx > width - particle.radius ||
+    particle.x + particle.dx < particle.radius
   ) {
-    ball.dx = -ball.dx;
+    particle.dx = -particle.dx;
   }
   if (
-    ball.y + ball.dy > height - ball.radius ||
-    ball.y + ball.dy < ball.radius
+    particle.y + particle.dy > height - particle.radius ||
+    particle.y + particle.dy < particle.radius
   ) {
-    ball.dy = -ball.dy;
+    particle.dy = -particle.dy;
   }
-
-  ball.x += ball.dx;
-  ball.y += ball.dy;
 }
 
-function drawBall(
-  ball: {
+function drawParticle(
+  particle: {
     x: number;
     y: number;
     dx: number;
@@ -69,15 +66,19 @@ function drawBall(
   width: number,
   height: number,
   current: HTMLDivElement | null,
+  id: string,
 ) {
   const svg = d3.select(current).select('svg');
-  const ballElement = svg.selectAll('circle').data([ball]);
+  const particleElement = svg.selectAll(`#particle-${id}`).data([particle]);
 
-  ballElement.enter().append('circle');
+  particleElement.enter().append('circle').attr('id', `particle-${id}`);
 
-  test(ball, width, height);
+  test(particle, width, height);
 
-  ballElement
+  particle.x += particle.dx;
+  particle.y += particle.dy;
+
+  particleElement
     .attr('cx', (d) => d.x)
     .attr('cy', (d) => d.y)
     .attr('r', (d) => d.radius)
@@ -93,7 +94,21 @@ function BrownianMotion(): JSX.Element {
     // dy: -10,
     // dx: Math.random() * 10 + 3,
     // dy: Math.random() * 10 + 3,
-    const ball = {
+    const particle1 = {
+      x: dimensions.boundedWidth / 2,
+      y: dimensions.boundedHeight / 2,
+      dx: Math.random() * 10 + 3,
+      dy: Math.random() * 10 + 3,
+      radius: 10,
+    };
+    const particle2 = {
+      x: dimensions.boundedWidth / 2,
+      y: dimensions.boundedHeight / 2,
+      dx: Math.random() * 10 + 3,
+      dy: Math.random() * 10 + 3,
+      radius: 10,
+    };
+    const particle3 = {
       x: dimensions.boundedWidth / 2,
       y: dimensions.boundedHeight / 2,
       dx: Math.random() * 10 + 3,
@@ -101,11 +116,26 @@ function BrownianMotion(): JSX.Element {
       radius: 10,
     };
     const timer = d3.interval(() => {
-      drawBall(
-        ball,
+      drawParticle(
+        particle1,
         dimensions.boundedWidth,
         dimensions.boundedHeight,
         ref.current,
+        '1',
+      );
+      drawParticle(
+        particle2,
+        dimensions.boundedWidth,
+        dimensions.boundedHeight,
+        ref.current,
+        '2',
+      );
+      drawParticle(
+        particle3,
+        dimensions.boundedWidth,
+        dimensions.boundedHeight,
+        ref.current,
+        '3',
       );
     });
     return () => timer.stop();
