@@ -73,13 +73,7 @@ function drawBall(
   const svg = d3.select(current).select('svg');
   const ballElement = svg.selectAll('circle').data([ball]);
 
-  ballElement
-    .enter()
-    .append('circle')
-    .attr('cx', (d) => d.x)
-    .attr('cy', (d) => d.y)
-    .attr('r', (d) => d.radius)
-    .attr('fill', 'black');
+  ballElement.enter().append('circle');
 
   test(ball, width, height);
 
@@ -92,7 +86,13 @@ function drawBall(
 
 function BouncingBall(): JSX.Element {
   const { ref, dimensions } = useChartDimensions(chartSettings);
+
   useEffect(() => {
+    // TODO: Consider 10 as masimum velocity
+    // dx: 10,
+    // dy: -10,
+    // dx: Math.random() * 10 + 3,
+    // dy: Math.random() * 10 + 3,
     const ball = {
       x: dimensions.boundedWidth / 2,
       y: dimensions.boundedHeight / 2,
@@ -107,7 +107,7 @@ function BouncingBall(): JSX.Element {
         dimensions.boundedHeight,
         ref.current,
       );
-    }, 0);
+    });
   }, [dimensions.boundedWidth, dimensions.boundedHeight, ref.current]);
 
   return (
