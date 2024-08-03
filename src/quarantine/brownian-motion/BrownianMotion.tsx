@@ -65,10 +65,10 @@ function drawParticle(
   },
   width: number,
   height: number,
-  current: HTMLDivElement | null,
+  container: HTMLDivElement | null,
   id: string,
 ) {
-  const svg = d3.select(current).select('svg');
+  const svg = d3.select(container).select('svg');
   const particleElement = svg.selectAll(`#particle-${id}`).data([particle]);
 
   particleElement.enter().append('circle').attr('id', `particle-${id}`);
@@ -85,61 +85,50 @@ function drawParticle(
     .attr('fill', 'black');
 }
 
+function getRandomFromInterval(min: number, max: number) {
+  return Math.random() * (max - min) + min;
+}
+
+function composeParticles(width: number, height: number) {
+  const particles = [];
+  for (let i = 0; i < 500; i++) {
+    particles.push({
+      x: width / 2,
+      y: height / 2,
+      dx: getRandomFromInterval(-10, 10),
+      dy: getRandomFromInterval(-10, 10),
+      radius: 5,
+    });
+  }
+  return particles;
+}
+
 function BrownianMotion(): JSX.Element {
   const { ref, dimensions } = useChartDimensions(chartSettings);
 
   useEffect(() => {
+    const particles = composeParticles(
+      dimensions.boundedWidth,
+      dimensions.boundedHeight,
+    );
     // TODO: Consider 10 as masimum velocity
     // dx: 10,
     // dy: -10,
     // dx: Math.random() * 10 + 3,
     // dy: Math.random() * 10 + 3,
-    const particle1 = {
-      x: dimensions.boundedWidth / 2,
-      y: dimensions.boundedHeight / 2,
-      dx: Math.random() * 10 + 3,
-      dy: Math.random() * 10 + 3,
-      radius: 10,
-    };
-    const particle2 = {
-      x: dimensions.boundedWidth / 2,
-      y: dimensions.boundedHeight / 2,
-      dx: Math.random() * 10 + 3,
-      dy: Math.random() * 10 + 3,
-      radius: 10,
-    };
-    const particle3 = {
-      x: dimensions.boundedWidth / 2,
-      y: dimensions.boundedHeight / 2,
-      dx: Math.random() * 10 + 3,
-      dy: Math.random() * 10 + 3,
-      radius: 10,
-    };
     const timer = d3.interval(() => {
-      drawParticle(
-        particle1,
-        dimensions.boundedWidth,
-        dimensions.boundedHeight,
-        ref.current,
-        '1',
-      );
-      drawParticle(
-        particle2,
-        dimensions.boundedWidth,
-        dimensions.boundedHeight,
-        ref.current,
-        '2',
-      );
-      drawParticle(
-        particle3,
-        dimensions.boundedWidth,
-        dimensions.boundedHeight,
-        ref.current,
-        '3',
-      );
+      particles.forEach((particle, index) => {
+        drawParticle(
+          particle,
+          dimensions.boundedWidth,
+          dimensions.boundedHeight,
+          ref.current,
+          index.toString(),
+        );
+      });
     });
     return () => timer.stop();
-  }, [dimensions.boundedWidth, dimensions.boundedHeight, ref.current]);
+  }, [dimensions.boundedHeight, dimensions.boundedWidth, ref]);
 
   return (
     <div
