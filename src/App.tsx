@@ -18,7 +18,10 @@ function App(): JSX.Element {
     // TODO: Already working for width
     // <ChartWithDimensions />
 
-    <BouncingBall />
+    <>
+      <BouncingBall />
+      <BouncingBall />
+    </>
   );
 }
 

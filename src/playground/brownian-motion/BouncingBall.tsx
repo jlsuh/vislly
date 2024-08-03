@@ -68,8 +68,9 @@ function drawBall(
   },
   width: number,
   height: number,
+  current: HTMLDivElement | null,
 ) {
-  const svg = d3.select('svg');
+  const svg = d3.select(current).select('svg');
   const ballElement = svg.selectAll('circle').data([ball]);
 
   ballElement
@@ -100,9 +101,14 @@ function BouncingBall(): JSX.Element {
       radius: 10,
     };
     d3.interval(() => {
-      drawBall(ball, dimensions.boundedWidth, dimensions.boundedHeight);
+      drawBall(
+        ball,
+        dimensions.boundedWidth,
+        dimensions.boundedHeight,
+        ref.current,
+      );
     }, 0);
-  }, [dimensions.boundedWidth, dimensions.boundedHeight]);
+  }, [dimensions.boundedWidth, dimensions.boundedHeight, ref.current]);
 
   return (
     <div
