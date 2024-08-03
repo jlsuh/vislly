@@ -1,4 +1,4 @@
-import BouncingBall from './quarantine/brownian-motion/BouncingBall';
+import BrownianMotion from './quarantine/brownian-motion/BrownianMotion';
 
 function App(): JSX.Element {
   return (
@@ -18,18 +18,20 @@ function App(): JSX.Element {
     // TODO: Already working for width
     // <ChartWithDimensions />
 
-    <>
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '30px',
-        }}
-      >
-        <BouncingBall />
-        <BouncingBall />
-      </div>
-    </>
+    // <>
+    //   <div
+    //     style={{
+    //       display: 'flex',
+    //       flexDirection: 'column',
+    //       gap: '30px',
+    //     }}
+    //   >
+    //     <BouncingBall />
+    //     <BouncingBall />
+    //   </div>
+    // </>
+
+    <BrownianMotion />
   );
 }
 

@@ -2,8 +2,6 @@ import * as d3 from 'd3';
 import { useEffect } from 'react';
 import useChartDimensions from '../useChartDimensions';
 
-// First approach
-
 const chartSettings = {
   boundedHeight: 0,
   boundedWidth: 0,
@@ -86,7 +84,7 @@ function drawBall(
     .attr('fill', 'black');
 }
 
-function BouncingBall(): JSX.Element {
+function BrownianMotion(): JSX.Element {
   const { ref, dimensions } = useChartDimensions(chartSettings);
 
   useEffect(() => {
@@ -133,4 +131,4 @@ function BouncingBall(): JSX.Element {
   );
 }
 
-export default BouncingBall;
+export default BrownianMotion;
