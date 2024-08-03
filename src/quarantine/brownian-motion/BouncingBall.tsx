@@ -100,7 +100,7 @@ function BouncingBall(): JSX.Element {
       dy: Math.random() * 10 + 3,
       radius: 10,
     };
-    d3.interval(() => {
+    const timer = d3.interval(() => {
       drawBall(
         ball,
         dimensions.boundedWidth,
@@ -108,6 +108,7 @@ function BouncingBall(): JSX.Element {
         ref.current,
       );
     });
+    return () => timer.stop();
   }, [dimensions.boundedWidth, dimensions.boundedHeight, ref.current]);
 
   return (

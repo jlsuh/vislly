@@ -19,8 +19,16 @@ function App(): JSX.Element {
     // <ChartWithDimensions />
 
     <>
-      <BouncingBall />
-      <BouncingBall />
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '30px',
+        }}
+      >
+        <BouncingBall />
+        <BouncingBall />
+      </div>
     </>
   );
 }
