@@ -1,4 +1,4 @@
-import BouncingBall from './playground/brownian-motion/BouncingBall';
+import BouncingBall from './quarantine/brownian-motion/BouncingBall';
 
 function App(): JSX.Element {
   return (
