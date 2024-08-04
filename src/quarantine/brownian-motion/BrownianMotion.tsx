@@ -113,13 +113,11 @@ function collide(first: Particle, second: Particle) {
   }
 }
 
-function checkForCollisions(particles: Particle[]) {
-  for (const first of particles) {
-    for (const second of particles) {
-      if (first === second) continue;
-      if (first.isCollidingWith(second)) {
-        collide(first, second);
-      }
+function checkForCollisions(particle: Particle, particles: Particle[]) {
+  for (const second of particles) {
+    if (particle === second) continue;
+    if (particle.isCollidingWith(second)) {
+      collide(particle, second);
     }
   }
 }
@@ -134,12 +132,34 @@ function update(
     drawParticle(particle, ref.current, index.toString());
     testForWalls(particle, width, height);
     particle.move();
-    checkForCollisions(particles);
+    checkForCollisions(particle, particles);
   });
 }
 
+function addParticle(
+  particles: Particle[],
+  radius: number,
+  width: number,
+  height: number,
+  fill: string,
+) {
+  const diameter = radius * 2;
+  const minX = diameter;
+  const minY = diameter;
+  const maxX = width - diameter;
+  const maxY = height - diameter;
+  const x = Math.random() * (maxX - minX) + minX;
+  const y = Math.random() * (maxY - minY) + minY;
+  const initialAngle = Math.random() * Math.PI * 2;
+  particles.push(
+    new Particle(x, y, radius, initialAngle, Math.random() * 10 + 3, fill),
+  );
+}
+
 // TODO: Generate logic for maximum of 200 particles
-const NUMBER_OF_PARTICLES = 100;
+const NUMBER_OF_PARTICLES = 500;
+const RADIUS = 5;
+const FILL = 'black';
 
 // TODO: Consider 10 as masimum velocity
 // dx: 10,
@@ -149,16 +169,7 @@ const NUMBER_OF_PARTICLES = 100;
 function composeParticles(width: number, height: number) {
   const particles: Particle[] = [];
   for (let i = 0; i < NUMBER_OF_PARTICLES; i++) {
-    particles.push(
-      new Particle(
-        width / 2,
-        height / 2,
-        5,
-        Math.random() * Math.PI * 2,
-        Math.random() * 10 + 3,
-        'black',
-      ),
-    );
+    addParticle(particles, RADIUS, width, height, FILL);
   }
   return particles;
 }
