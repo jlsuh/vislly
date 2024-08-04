@@ -90,31 +90,10 @@ function drawParticle(particle: Particle, container: HTMLDivElement | null) {
     .attr('r', (d) => d.radius)
     .attr('fill', (d) => d.fill);
   if (particle.id === 'tracked-particle') {
-    const path = d3.path();
-
-    const trackedParticle = particle;
-    path.moveTo(trackedParticle.x, trackedParticle.y);
-    path.lineTo(
-      trackedParticle.x + trackedParticle.dx * 0.5,
-      trackedParticle.y + trackedParticle.dy * 0.5,
-    );
-    const line = svg.selectAll(`#path-${particle.id}`).data([particle]);
-    line
-      .enter()
-      .append('path')
-      .attr('id', `path-${particle.id}`)
-      .attr('d', path.toString())
-      .attr('stroke', 'grey')
-      .attr('stroke-width', 2)
-      .attr('stroke-linejoin', 'round')
-      .attr('stroke-linecap', 'round')
-      .attr('stroke-miterlimit', 2);
-
     // TODO: draw a line from the tracked particle to the other particles
     // const line = svg.selectAll(`#path-${particle.id}`).data([particle]);
+    // line.enter().append('path');
     // line
-    //   .enter()
-    //   .append('path')
     //   .attr('id', `path-${particle.id}`)
     //   .attr(
     //     'd',
@@ -147,6 +126,29 @@ function collide(first: Particle, second: Particle) {
       (-massDifference * second.dx + 2 * first.mass * first.dx) / totalMass;
     const vy2 =
       (-massDifference * second.dy + 2 * first.mass * first.dy) / totalMass;
+
+    // TODO: Maybe use inelastic collision and make coefficient of restitution variable
+    // const cr = 1;
+    // const vx1 =
+    //   (cr * second.mass * (second.dx - first.dx) +
+    //     first.mass * first.dx +
+    //     second.mass * second.dx) /
+    //   totalMass;
+    // const vy1 =
+    //   (cr * second.mass * (second.dy - first.dy) +
+    //     first.mass * first.dy +
+    //     second.mass * second.dy) /
+    //   totalMass;
+    // const vx2 =
+    //   (cr * first.mass * (first.dx - second.dx) +
+    //     first.mass * first.dx +
+    //     second.mass * second.dx) /
+    //   totalMass;
+    // const vy2 =
+    //   (cr * first.mass * (first.dy - second.dy) +
+    //     first.mass * first.dy +
+    //     second.mass * second.dy) /
+    //   totalMass;
 
     first.dx = vx1;
     first.dy = vy1;
@@ -200,24 +202,19 @@ function addParticle(
       y,
       radius,
       initialAngle,
-      Math.random() * INITIAL_SPEED,
+      Math.random() * INITIAL_SPEED + 3,
       fill,
       id,
     ),
   );
 }
 
-// TODO: Generate logic for maximum of 200 particles
-const NUMBER_OF_PARTICLES = 500;
+const NUMBER_OF_PARTICLES = 200;
 const RADIUS = 6;
 const FILL = 'black';
-const INITIAL_SPEED = 6;
+const INITIAL_SPEED = 1;
 
 // TODO: Consider 10 as masimum velocity
-// dx: 10,
-// dy: -10,
-// dx: Math.random() * 10 + 3,
-// dy: Math.random() * 10 + 3,
 function composeParticles(width: number, height: number) {
   const particles: Particle[] = [];
   addParticle(particles, RADIUS * 3, width, height, 'red', 'tracked-particle');
