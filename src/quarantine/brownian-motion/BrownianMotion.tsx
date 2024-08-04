@@ -90,26 +90,41 @@ function drawParticle(particle: Particle, container: HTMLDivElement | null) {
     .attr('r', (d) => d.radius)
     .attr('fill', (d) => d.fill);
   if (particle.id === 'tracked-particle') {
-    // TODO: draw a line from the tracked particle to the other particles
-    // svg
-    //   .append('line')
-    //   .attr('x1', particle.x)
-    //   .attr('y1', particle.y)
-    //   .attr('x2', particle.x + particle.dx)
-    //   .attr('y2', particle.y + particle.dy)
-    //   .attr('stroke', 'black')
-    //   .attr('stroke-width', 2);
-    svg
+    const path = d3.path();
+
+    const trackedParticle = particle;
+    path.moveTo(trackedParticle.x, trackedParticle.y);
+    path.lineTo(
+      trackedParticle.x + trackedParticle.dx * 0.5,
+      trackedParticle.y + trackedParticle.dy * 0.5,
+    );
+    const line = svg.selectAll(`#path-${particle.id}`).data([particle]);
+    line
+      .enter()
       .append('path')
-      .attr(
-        'd',
-        `M${particle.x},${particle.y} L${particle.x + particle.dx},${particle.y + particle.dy}`,
-      )
+      .attr('id', `path-${particle.id}`)
+      .attr('d', path.toString())
       .attr('stroke', 'grey')
-      .attr('stroke-width', 0.5)
+      .attr('stroke-width', 2)
       .attr('stroke-linejoin', 'round')
       .attr('stroke-linecap', 'round')
       .attr('stroke-miterlimit', 2);
+
+    // TODO: draw a line from the tracked particle to the other particles
+    // const line = svg.selectAll(`#path-${particle.id}`).data([particle]);
+    // line
+    //   .enter()
+    //   .append('path')
+    //   .attr('id', `path-${particle.id}`)
+    //   .attr(
+    //     'd',
+    //     `M${particle.x},${particle.y} L${particle.x + particle.dx * 0.5},${particle.y + particle.dy * 0.5}`,
+    //   )
+    //   .attr('stroke', 'grey')
+    //   .attr('stroke-width', 2)
+    //   .attr('stroke-linejoin', 'round')
+    //   .attr('stroke-linecap', 'round')
+    //   .attr('stroke-miterlimit', 2);
   }
 }
 
@@ -129,17 +144,14 @@ function collide(first: Particle, second: Particle) {
     const vy1 =
       (massDifference * first.dy + 2 * second.mass * second.dy) / totalMass;
     const vx2 =
-      (2 * first.mass * first.dx - massDifference * second.dx) / totalMass;
+      (-massDifference * second.dx + 2 * first.mass * first.dx) / totalMass;
     const vy2 =
-      (2 * first.mass * first.dy - massDifference * second.dy) / totalMass;
+      (-massDifference * second.dy + 2 * first.mass * first.dy) / totalMass;
 
     first.dx = vx1;
     first.dy = vy1;
     second.dx = vx2;
     second.dy = vy2;
-
-    first.move();
-    second.move();
   }
 }
 
@@ -188,7 +200,7 @@ function addParticle(
       y,
       radius,
       initialAngle,
-      Math.random() * INITIAL_SPEED + 3,
+      Math.random() * INITIAL_SPEED,
       fill,
       id,
     ),
@@ -197,9 +209,9 @@ function addParticle(
 
 // TODO: Generate logic for maximum of 200 particles
 const NUMBER_OF_PARTICLES = 500;
-const RADIUS = 5;
+const RADIUS = 6;
 const FILL = 'black';
-const INITIAL_SPEED = 5;
+const INITIAL_SPEED = 6;
 
 // TODO: Consider 10 as masimum velocity
 // dx: 10,
@@ -208,7 +220,14 @@ const INITIAL_SPEED = 5;
 // dy: Math.random() * 10 + 3,
 function composeParticles(width: number, height: number) {
   const particles: Particle[] = [];
-  addParticle(particles, RADIUS * 2, width, height, 'red', 'tracked-particle');
+  addParticle(
+    particles,
+    RADIUS * 2.5,
+    width,
+    height,
+    'red',
+    'tracked-particle',
+  );
   for (let i = 0; i < NUMBER_OF_PARTICLES; i++) {
     addParticle(particles, RADIUS, width, height, FILL, i.toString());
   }
