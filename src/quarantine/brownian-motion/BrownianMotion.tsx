@@ -74,26 +74,33 @@ function testForWalls(particle: Particle, width: number, height: number) {
 
 function drawParticle(
   particle: Particle,
-  width: number,
-  height: number,
   container: HTMLDivElement | null,
   id: string,
 ) {
   const svg = d3.select(container).select('svg');
   const particleElement = svg.selectAll(`#particle-${id}`).data([particle]);
-
   particleElement.enter().append('circle').attr('id', `particle-${id}`);
-
-  testForWalls(particle, width, height);
-
-  particle.move();
-
   particleElement
     .attr('cx', (d) => d.x)
     .attr('cy', (d) => d.y)
     .attr('r', (d) => d.radius)
     .attr('fill', (d) => d.fill);
 }
+
+function update(
+  particles: Particle[],
+  width: number,
+  height: number,
+  ref: React.MutableRefObject<null>,
+) {
+  particles.forEach((particle, index) => {
+    drawParticle(particle, ref.current, index.toString());
+    testForWalls(particle, width, height);
+    particle.move();
+  });
+}
+
+const NUMBER_OF_PARTICLES = 200;
 
 // TODO: Consider 10 as masimum velocity
 // dx: 10,
@@ -102,7 +109,7 @@ function drawParticle(
 // dy: Math.random() * 10 + 3,
 function composeParticles(width: number, height: number) {
   const particles: Particle[] = [];
-  for (let i = 0; i < 500; i++) {
+  for (let i = 0; i < NUMBER_OF_PARTICLES; i++) {
     particles.push(
       new Particle(
         width / 2,
@@ -126,18 +133,10 @@ function BrownianMotion(): JSX.Element {
       dimensions.boundedHeight,
     );
     const timer = d3.interval(() => {
-      particles.forEach((particle, index) => {
-        drawParticle(
-          particle,
-          dimensions.boundedWidth,
-          dimensions.boundedHeight,
-          ref.current,
-          index.toString(),
-        );
-      });
+      update(particles, dimensions.boundedWidth, dimensions.boundedHeight, ref);
     });
     return () => timer.stop();
-  }, [dimensions.boundedHeight, dimensions.boundedWidth, ref]);
+  }, [dimensions.boundedWidth, dimensions.boundedHeight, ref]);
 
   return (
     <div
