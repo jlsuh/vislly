@@ -220,14 +220,7 @@ const INITIAL_SPEED = 6;
 // dy: Math.random() * 10 + 3,
 function composeParticles(width: number, height: number) {
   const particles: Particle[] = [];
-  addParticle(
-    particles,
-    RADIUS * 2.5,
-    width,
-    height,
-    'red',
-    'tracked-particle',
-  );
+  addParticle(particles, RADIUS * 3, width, height, 'red', 'tracked-particle');
   for (let i = 0; i < NUMBER_OF_PARTICLES; i++) {
     addParticle(particles, RADIUS, width, height, FILL, i.toString());
   }
