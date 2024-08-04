@@ -23,6 +23,7 @@ class Particle {
   dx: number;
   dy: number;
   fill: string;
+  id: string;
 
   constructor(
     x: number,
@@ -31,6 +32,7 @@ class Particle {
     initialAngle: number,
     speed: number,
     fill: string,
+    id: string,
   ) {
     this.x = x;
     this.y = y;
@@ -41,6 +43,7 @@ class Particle {
     this.dx = this.speed * Math.cos(this.initialAngle);
     this.dy = this.speed * Math.sin(this.initialAngle);
     this.fill = fill;
+    this.id = id;
   }
 
   move() {
@@ -53,7 +56,7 @@ class Particle {
     const dy = this.y - particle.y;
     const squaredDistance = dx ** 2 + dy ** 2;
     const squaredRadius = (this.radius + particle.radius) ** 2;
-    return squaredDistance <= squaredRadius;
+    return squaredDistance < squaredRadius;
   }
 }
 
@@ -72,19 +75,23 @@ function testForWalls(particle: Particle, width: number, height: number) {
   }
 }
 
-function drawParticle(
-  particle: Particle,
-  container: HTMLDivElement | null,
-  id: string,
-) {
+function drawParticle(particle: Particle, container: HTMLDivElement | null) {
   const svg = d3.select(container).select('svg');
-  const particleElement = svg.selectAll(`#particle-${id}`).data([particle]);
-  particleElement.enter().append('circle').attr('id', `particle-${id}`);
+  const particleElement = svg
+    .selectAll(`#particle-${particle.id}`)
+    .data([particle]);
+  particleElement
+    .enter()
+    .append('circle')
+    .attr('id', `particle-${particle.id}`);
   particleElement
     .attr('cx', (d) => d.x)
     .attr('cy', (d) => d.y)
     .attr('r', (d) => d.radius)
     .attr('fill', (d) => d.fill);
+  if (particle.id === 'tracked-particle') {
+    // TODO: draw a line from the tracked particle to the other particles
+  }
 }
 
 function collide(first: Particle, second: Particle) {
@@ -95,18 +102,22 @@ function collide(first: Particle, second: Particle) {
   const dotProduct = dx * vx + dy * vy;
 
   if (dotProduct > 0) {
-    const collisionScale = dotProduct / (dx ** 2 + dy ** 2);
-    const collisionX = dx * collisionScale;
-    const collisionY = dy * collisionScale;
+    const totalMass = first.mass + second.mass;
+    const massDifference = first.mass - second.mass;
 
-    const combinedMass = first.mass + second.mass;
-    const collisionWeightFirst = (2 * second.mass) / combinedMass;
-    const collisionWeightSecond = (2 * first.mass) / combinedMass;
+    const vx1 =
+      (massDifference * first.dx + 2 * second.mass * second.dx) / totalMass;
+    const vy1 =
+      (massDifference * first.dy + 2 * second.mass * second.dy) / totalMass;
+    const vx2 =
+      (2 * first.mass * first.dx - massDifference * second.dx) / totalMass;
+    const vy2 =
+      (2 * first.mass * first.dy - massDifference * second.dy) / totalMass;
 
-    first.dx += collisionWeightFirst * collisionX;
-    first.dy += collisionWeightFirst * collisionY;
-    second.dx -= collisionWeightSecond * collisionX;
-    second.dy -= collisionWeightSecond * collisionY;
+    first.dx = vx1;
+    first.dy = vy1;
+    second.dx = vx2;
+    second.dy = vy2;
 
     first.move();
     second.move();
@@ -128,12 +139,12 @@ function update(
   height: number,
   ref: React.MutableRefObject<null>,
 ) {
-  particles.forEach((particle, index) => {
-    drawParticle(particle, ref.current, index.toString());
+  for (const particle of particles) {
+    drawParticle(particle, ref.current);
     testForWalls(particle, width, height);
     particle.move();
     checkForCollisions(particle, particles);
-  });
+  }
 }
 
 function addParticle(
@@ -142,6 +153,7 @@ function addParticle(
   width: number,
   height: number,
   fill: string,
+  id: string,
 ) {
   const diameter = radius * 2;
   const minX = diameter;
@@ -152,7 +164,15 @@ function addParticle(
   const y = Math.random() * (maxY - minY) + minY;
   const initialAngle = Math.random() * Math.PI * 2;
   particles.push(
-    new Particle(x, y, radius, initialAngle, Math.random() * 10 + 3, fill),
+    new Particle(
+      x,
+      y,
+      radius,
+      initialAngle,
+      Math.random() * INITIAL_SPEED,
+      fill,
+      id,
+    ),
   );
 }
 
@@ -160,6 +180,7 @@ function addParticle(
 const NUMBER_OF_PARTICLES = 500;
 const RADIUS = 5;
 const FILL = 'black';
+const INITIAL_SPEED = 5;
 
 // TODO: Consider 10 as masimum velocity
 // dx: 10,
@@ -168,8 +189,9 @@ const FILL = 'black';
 // dy: Math.random() * 10 + 3,
 function composeParticles(width: number, height: number) {
   const particles: Particle[] = [];
+  addParticle(particles, RADIUS * 2, width, height, 'red', 'tracked-particle');
   for (let i = 0; i < NUMBER_OF_PARTICLES; i++) {
-    addParticle(particles, RADIUS, width, height, FILL);
+    addParticle(particles, RADIUS, width, height, FILL, i.toString());
   }
   return particles;
 }
