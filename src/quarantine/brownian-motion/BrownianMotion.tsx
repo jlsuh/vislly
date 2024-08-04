@@ -87,6 +87,43 @@ function drawParticle(
     .attr('fill', (d) => d.fill);
 }
 
+function collide(first: Particle, second: Particle) {
+  const dx = first.x - second.x;
+  const dy = first.y - second.y;
+  const vx = second.dx - first.dx;
+  const vy = second.dy - first.dy;
+  const dotProduct = dx * vx + dy * vy;
+
+  if (dotProduct > 0) {
+    const collisionScale = dotProduct / (dx ** 2 + dy ** 2);
+    const collisionX = dx * collisionScale;
+    const collisionY = dy * collisionScale;
+
+    const combinedMass = first.mass + second.mass;
+    const collisionWeightFirst = (2 * second.mass) / combinedMass;
+    const collisionWeightSecond = (2 * first.mass) / combinedMass;
+
+    first.dx += collisionWeightFirst * collisionX;
+    first.dy += collisionWeightFirst * collisionY;
+    second.dx -= collisionWeightSecond * collisionX;
+    second.dy -= collisionWeightSecond * collisionY;
+
+    first.move();
+    second.move();
+  }
+}
+
+function checkForCollisions(particles: Particle[]) {
+  for (const first of particles) {
+    for (const second of particles) {
+      if (first === second) continue;
+      if (first.isCollidingWith(second)) {
+        collide(first, second);
+      }
+    }
+  }
+}
+
 function update(
   particles: Particle[],
   width: number,
@@ -97,10 +134,12 @@ function update(
     drawParticle(particle, ref.current, index.toString());
     testForWalls(particle, width, height);
     particle.move();
+    checkForCollisions(particles);
   });
 }
 
-const NUMBER_OF_PARTICLES = 200;
+// TODO: Generate logic for maximum of 200 particles
+const NUMBER_OF_PARTICLES = 100;
 
 // TODO: Consider 10 as masimum velocity
 // dx: 10,
@@ -135,7 +174,10 @@ function BrownianMotion(): JSX.Element {
     const timer = d3.interval(() => {
       update(particles, dimensions.boundedWidth, dimensions.boundedHeight, ref);
     });
-    return () => timer.stop();
+    return () => {
+      d3.select(ref.current).select('svg').selectAll('circle').remove();
+      timer.stop();
+    };
   }, [dimensions.boundedWidth, dimensions.boundedHeight, ref]);
 
   return (
