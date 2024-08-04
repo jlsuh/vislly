@@ -13,34 +13,51 @@ const chartSettings = {
   width: 0, // If height is 0, the width is calculated
 };
 
-// function drawParticle(
-//   e:
-//     | React.MouseEvent<SVGGElement, MouseEvent>
-//     | React.KeyboardEvent<SVGGElement>,
-//   width: number,
-//   height: number,
-// ) {
-//   const { target } = e;
-//   const [x, y] = d3.pointer(e, target);
-//   d3.select(target as SVGGElement)
-//     .append('circle')
-//     .attr('cx', Math.min(width, x))
-//     .attr('cy', Math.min(height, y))
-//     .attr('r', 5)
-//     .attr('fill', 'black');
-// }
+class Particle {
+  x: number;
+  y: number;
+  radius: number;
+  mass: number;
+  initialAngle: number;
+  speed: number;
+  dx: number;
+  dy: number;
+  fill: string;
 
-function test(
-  particle: {
-    x: number;
-    y: number;
-    dx: number;
-    dy: number;
-    radius: number;
-  },
-  width: number,
-  height: number,
-) {
+  constructor(
+    x: number,
+    y: number,
+    radius: number,
+    initialAngle: number,
+    speed: number,
+    fill: string,
+  ) {
+    this.x = x;
+    this.y = y;
+    this.radius = radius;
+    this.mass = radius;
+    this.initialAngle = initialAngle;
+    this.speed = speed;
+    this.dx = this.speed * Math.cos(this.initialAngle);
+    this.dy = this.speed * Math.sin(this.initialAngle);
+    this.fill = fill;
+  }
+
+  move() {
+    this.x += this.dx;
+    this.y += this.dy;
+  }
+
+  isCollidingWith(particle: Particle) {
+    const dx = this.x - particle.x;
+    const dy = this.y - particle.y;
+    const squaredDistance = dx ** 2 + dy ** 2;
+    const squaredRadius = (this.radius + particle.radius) ** 2;
+    return squaredDistance <= squaredRadius;
+  }
+}
+
+function testForWalls(particle: Particle, width: number, height: number) {
   if (
     particle.x + particle.dx > width - particle.radius ||
     particle.x + particle.dx < particle.radius
@@ -56,13 +73,7 @@ function test(
 }
 
 function drawParticle(
-  particle: {
-    x: number;
-    y: number;
-    dx: number;
-    dy: number;
-    radius: number;
-  },
+  particle: Particle,
   width: number,
   height: number,
   container: HTMLDivElement | null,
@@ -73,32 +84,35 @@ function drawParticle(
 
   particleElement.enter().append('circle').attr('id', `particle-${id}`);
 
-  test(particle, width, height);
+  testForWalls(particle, width, height);
 
-  particle.x += particle.dx;
-  particle.y += particle.dy;
+  particle.move();
 
   particleElement
     .attr('cx', (d) => d.x)
     .attr('cy', (d) => d.y)
     .attr('r', (d) => d.radius)
-    .attr('fill', 'black');
+    .attr('fill', (d) => d.fill);
 }
 
-function getRandomFromInterval(min: number, max: number) {
-  return Math.random() * (max - min) + min;
-}
-
+// TODO: Consider 10 as masimum velocity
+// dx: 10,
+// dy: -10,
+// dx: Math.random() * 10 + 3,
+// dy: Math.random() * 10 + 3,
 function composeParticles(width: number, height: number) {
-  const particles = [];
+  const particles: Particle[] = [];
   for (let i = 0; i < 500; i++) {
-    particles.push({
-      x: width / 2,
-      y: height / 2,
-      dx: getRandomFromInterval(-10, 10),
-      dy: getRandomFromInterval(-10, 10),
-      radius: 5,
-    });
+    particles.push(
+      new Particle(
+        width / 2,
+        height / 2,
+        5,
+        Math.random() * Math.PI * 2,
+        Math.random() * 10 + 3,
+        'black',
+      ),
+    );
   }
   return particles;
 }
@@ -111,11 +125,6 @@ function BrownianMotion(): JSX.Element {
       dimensions.boundedWidth,
       dimensions.boundedHeight,
     );
-    // TODO: Consider 10 as masimum velocity
-    // dx: 10,
-    // dy: -10,
-    // dx: Math.random() * 10 + 3,
-    // dy: Math.random() * 10 + 3,
     const timer = d3.interval(() => {
       particles.forEach((particle, index) => {
         drawParticle(
