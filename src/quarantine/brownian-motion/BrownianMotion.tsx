@@ -62,14 +62,14 @@ class Particle {
 
 function testForWalls(particle: Particle, width: number, height: number) {
   if (
-    particle.x + particle.dx > width - particle.radius ||
-    particle.x + particle.dx < particle.radius
+    particle.x + particle.dx >= width - particle.radius ||
+    particle.x + particle.dx <= particle.radius
   ) {
     particle.dx = -particle.dx;
   }
   if (
-    particle.y + particle.dy > height - particle.radius ||
-    particle.y + particle.dy < particle.radius
+    particle.y + particle.dy >= height - particle.radius ||
+    particle.y + particle.dy <= particle.radius
   ) {
     particle.dy = -particle.dy;
   }
@@ -91,6 +91,25 @@ function drawParticle(particle: Particle, container: HTMLDivElement | null) {
     .attr('fill', (d) => d.fill);
   if (particle.id === 'tracked-particle') {
     // TODO: draw a line from the tracked particle to the other particles
+    // svg
+    //   .append('line')
+    //   .attr('x1', particle.x)
+    //   .attr('y1', particle.y)
+    //   .attr('x2', particle.x + particle.dx)
+    //   .attr('y2', particle.y + particle.dy)
+    //   .attr('stroke', 'black')
+    //   .attr('stroke-width', 2);
+    svg
+      .append('path')
+      .attr(
+        'd',
+        `M${particle.x},${particle.y} L${particle.x + particle.dx},${particle.y + particle.dy}`,
+      )
+      .attr('stroke', 'grey')
+      .attr('stroke-width', 0.5)
+      .attr('stroke-linejoin', 'round')
+      .attr('stroke-linecap', 'round')
+      .attr('stroke-miterlimit', 2);
   }
 }
 
@@ -169,7 +188,7 @@ function addParticle(
       y,
       radius,
       initialAngle,
-      Math.random() * INITIAL_SPEED,
+      Math.random() * INITIAL_SPEED + 3,
       fill,
       id,
     ),
