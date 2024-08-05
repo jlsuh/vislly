@@ -14,8 +14,10 @@ const chartSettings = {
 };
 
 class Particle {
-  x: number;
-  y: number;
+  currX: number;
+  currY: number;
+  prevX: number;
+  prevY: number;
   r: number;
   mass: number;
   dx: number;
@@ -26,14 +28,18 @@ class Particle {
   constructor(
     x: number,
     y: number,
+    prevX: number,
+    prevY: number,
     r: number,
     initialAngle: number,
     initialVelocity: number,
     fill: string,
     id: string,
   ) {
-    this.x = x;
-    this.y = y;
+    this.currX = x;
+    this.currY = y;
+    this.prevX = prevX;
+    this.prevY = prevY;
     this.r = r;
     this.mass = r;
     this.dx = initialVelocity * Math.cos(initialAngle);
@@ -43,13 +49,15 @@ class Particle {
   }
 
   move() {
-    this.x += this.dx;
-    this.y += this.dy;
+    this.prevX = this.currX;
+    this.prevY = this.currY;
+    this.currX += this.dx;
+    this.currY += this.dy;
   }
 
   isCollidingWith(p: Particle) {
-    const dx = this.x - p.x;
-    const dy = this.y - p.y;
+    const dx = this.currX - p.currX;
+    const dy = this.currY - p.currY;
     const dSqrd = dx ** 2 + dy ** 2;
     const rSqrd = (this.r + p.r) ** 2;
     return dSqrd < rSqrd;
@@ -57,17 +65,9 @@ class Particle {
 }
 
 function testForWalls(p: Particle, width: number, height: number) {
-  if (p.x + p.r > width) {
-    p.x = width - p.r;
+  if (p.currX + p.r > width || p.currX - p.r < 0) {
     p.dx = -p.dx;
-  } else if (p.y + p.r > height) {
-    p.y = height - p.r;
-    p.dy = -p.dy;
-  } else if (p.x - p.r < 0) {
-    p.x = p.r;
-    p.dx = -p.dx;
-  } else if (p.y - p.r < 0) {
-    p.y = p.r;
+  } else if (p.currY + p.r > height || p.currY - p.r < 0) {
     p.dy = -p.dy;
   }
 }
@@ -82,16 +82,15 @@ function drawParticle(p: Particle, container: HTMLDivElement | null) {
     '2d',
   ) as CanvasRenderingContext2D;
   particlesContext.beginPath();
-  particlesContext.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+  particlesContext.arc(p.currX, p.currY, p.r, 0, Math.PI * 2);
   particlesContext.fillStyle = p.fill;
   particlesContext.fill();
   particlesContext.closePath();
 }
 
-// TODO: Make coefficient of restitution variable
 function collide(p1: Particle, p2: Particle) {
-  const dx = p1.x - p2.x;
-  const dy = p1.y - p2.y;
+  const dx = p1.currX - p2.currX;
+  const dy = p1.currY - p2.currY;
   const dvx = p1.dx - p2.dx;
   const dvy = p1.dy - p2.dy;
   const dot = dx * -dvx + dy * -dvy;
@@ -99,7 +98,7 @@ function collide(p1: Particle, p2: Particle) {
   if (dot > 0) {
     const mt = p1.mass + p2.mass;
     const dSqrd = dx ** 2 + dy ** 2;
-    const cr = 1;
+    const cr = 1; // TODO: Make coefficient of restitution variable
 
     const v1x =
       p1.dx - ((1 + cr) * p2.mass * (dvx * dx + dvy * dy) * dx) / (dSqrd * mt);
@@ -124,40 +123,42 @@ function checkForCollisions(p1: Particle, particles: Particle[]) {
   }
 }
 
+function drawHistoricalPath(p: Particle, container: HTMLDivElement | null) {
+  const historicalCanvas = d3
+    .select(container)
+    .select('#historical')
+    .node() as HTMLCanvasElement;
+  const historicalContext = historicalCanvas.getContext(
+    '2d',
+  ) as CanvasRenderingContext2D;
+  historicalContext.beginPath();
+  historicalContext.moveTo(p.prevX, p.prevY);
+  historicalContext.lineJoin = 'round';
+  historicalContext.lineCap = 'round';
+  historicalContext.strokeStyle = 'purple';
+  historicalContext.lineTo(p.currX, p.currY);
+  historicalContext.stroke();
+  historicalContext.closePath();
+}
+
 function update(
   particles: Particle[],
   width: number,
   height: number,
   ref: React.MutableRefObject<null>,
 ) {
-  const canvas = d3
+  const particleCanvas = d3
     .select(ref.current)
-    .select('canvas')
+    .select('#particles')
     .node() as HTMLCanvasElement;
-  const context = canvas.getContext('2d') as CanvasRenderingContext2D;
-  context.clearRect(0, 0, width, height);
+  const particleContext = particleCanvas.getContext(
+    '2d',
+  ) as CanvasRenderingContext2D;
+  particleContext.clearRect(0, 0, width, height);
   for (const p of particles) {
     drawParticle(p, ref.current);
-    // TODO: Put this into another function
     if (p.id === 'tracked-particle') {
-      const historicalCanvas = d3
-        .select(ref.current)
-        .select('#historical')
-        .node() as HTMLCanvasElement;
-      const historicalContext = historicalCanvas.getContext(
-        '2d',
-      ) as CanvasRenderingContext2D;
-      historicalContext.beginPath();
-      historicalContext.moveTo(p.x, p.y);
-      historicalContext.lineWidth = 2;
-      historicalContext.lineJoin = 'round';
-      historicalContext.lineCap = 'round';
-      historicalContext.miterLimit = 2;
-      historicalContext.strokeStyle = 'blue';
-      // TODO: Maybe improve stroke spikes
-      historicalContext.lineTo(p.x + p.dx * 0.5, p.y + p.dy * 0.5);
-      historicalContext.stroke();
-      historicalContext.closePath();
+      drawHistoricalPath(p, ref.current);
     }
     testForWalls(p, width, height);
     p.move();
@@ -185,9 +186,11 @@ function addParticle(
     new Particle(
       x,
       y,
+      x,
+      y,
       r, // Math.random() * r + r,
       initialAngle,
-      Math.random() * INITIAL_SPEED + 3,
+      Math.random() * INITIAL_VELOCITY + 3,
       fill,
       id,
     ),
@@ -196,8 +199,8 @@ function addParticle(
 
 const NUMBER_OF_PARTICLES = 200;
 const RADIUS = 8;
-const FILL = 'black';
-const INITIAL_SPEED = 0;
+const FILL = 'blue';
+const INITIAL_VELOCITY = 1;
 
 // TODO: Consider 10 as masimum velocity
 function composeParticles(width: number, height: number) {
