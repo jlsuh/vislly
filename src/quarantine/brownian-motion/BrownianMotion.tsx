@@ -16,7 +16,7 @@ const chartSettings = {
 class Particle {
   x: number;
   y: number;
-  radius: number;
+  r: number;
   mass: number;
   dx: number;
   dy: number;
@@ -26,7 +26,7 @@ class Particle {
   constructor(
     x: number,
     y: number,
-    radius: number,
+    r: number,
     initialAngle: number,
     initialVelocity: number,
     fill: string,
@@ -34,8 +34,8 @@ class Particle {
   ) {
     this.x = x;
     this.y = y;
-    this.radius = radius;
-    this.mass = radius;
+    this.r = r;
+    this.mass = r;
     this.dx = initialVelocity * Math.cos(initialAngle);
     this.dy = initialVelocity * Math.sin(initialAngle);
     this.fill = fill;
@@ -50,19 +50,15 @@ class Particle {
   isCollidingWith(p: Particle) {
     const dx = this.x - p.x;
     const dy = this.y - p.y;
-    const squaredDistance = dx ** 2 + dy ** 2;
-    const squaredRadius = (this.radius + p.radius) ** 2;
-    return squaredDistance < squaredRadius;
+    const dSqrd = dx ** 2 + dy ** 2;
+    const rSqrd = (this.r + p.r) ** 2;
+    return dSqrd < rSqrd;
   }
 }
 
 function testForWalls(p: Particle, width: number, height: number) {
-  if (p.x + p.dx >= width - p.radius || p.x + p.dx <= p.radius) {
-    p.dx = -p.dx;
-  }
-  if (p.y + p.dy >= height - p.radius || p.y + p.dy <= p.radius) {
-    p.dy = -p.dy;
-  }
+  if (p.x + p.dx >= width - p.r || p.x + p.dx <= p.r) p.dx = -p.dx;
+  if (p.y + p.dy >= height - p.r || p.y + p.dy <= p.r) p.dy = -p.dy;
 }
 
 function drawParticle(p: Particle, container: HTMLDivElement | null) {
@@ -70,10 +66,10 @@ function drawParticle(p: Particle, container: HTMLDivElement | null) {
   const particleElement = svg.selectAll(`#particle-${p.id}`).data([p]);
   particleElement.enter().append('circle').attr('id', `particle-${p.id}`);
   particleElement
-    .attr('cx', (d) => d.x)
-    .attr('cy', (d) => d.y)
-    .attr('r', (d) => d.radius)
-    .attr('fill', (d) => d.fill);
+    .attr('cx', (p) => p.x)
+    .attr('cy', (p) => p.y)
+    .attr('r', (p) => p.r)
+    .attr('fill', (p) => p.fill);
   if (p.id === 'tracked-particle') {
     // TODO: draw a line from the tracked particle to the other particles
     // const line = svg.selectAll(`#path-${particle.id}`).data([particle]);
@@ -144,13 +140,13 @@ function update(
 
 function addParticle(
   particles: Particle[],
-  radius: number,
+  r: number,
   width: number,
   height: number,
   fill: string,
   id: string,
 ) {
-  const diameter = radius * 2;
+  const diameter = r * 2;
   const minX = diameter;
   const minY = diameter;
   const maxX = width - diameter;
@@ -162,8 +158,8 @@ function addParticle(
     new Particle(
       x,
       y,
-      radius,
-      // Math.random() * radius + radius,
+      r,
+      // Math.random() * r + r,
       initialAngle,
       Math.random() * INITIAL_SPEED + 3,
       fill,
