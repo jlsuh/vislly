@@ -18,8 +18,6 @@ class Particle {
   y: number;
   radius: number;
   mass: number;
-  initialAngle: number;
-  velocity: number;
   dx: number;
   dy: number;
   fill: string;
@@ -30,7 +28,7 @@ class Particle {
     y: number,
     radius: number,
     initialAngle: number,
-    velocity: number,
+    initialVelocity: number,
     fill: string,
     id: string,
   ) {
@@ -38,10 +36,8 @@ class Particle {
     this.y = y;
     this.radius = radius;
     this.mass = radius;
-    this.initialAngle = initialAngle;
-    this.velocity = velocity;
-    this.dx = this.velocity * Math.cos(this.initialAngle);
-    this.dy = this.velocity * Math.sin(this.initialAngle);
+    this.dx = initialVelocity * Math.cos(initialAngle);
+    this.dy = initialVelocity * Math.sin(initialAngle);
     this.fill = fill;
     this.id = id;
   }
@@ -106,21 +102,17 @@ function collide(p1: Particle, p2: Particle) {
 
   if (dot >= 0) {
     const mt = p1.mass + p2.mass;
-    const dSquared = dx ** 2 + dy ** 2;
+    const dSqrd = dx ** 2 + dy ** 2;
     const cr = 1;
 
     const v1x =
-      p1.dx +
-      ((1 + cr) * p2.mass * (-dvx * dx - dvy * dy) * dx) / (dSquared * mt);
+      p1.dx - ((1 + cr) * p2.mass * (dvx * dx + dvy * dy) * dx) / (dSqrd * mt);
     const v1y =
-      p1.dy +
-      ((1 + cr) * p2.mass * (-dvx * dx - dvy * dy) * dy) / (dSquared * mt);
+      p1.dy - ((1 + cr) * p2.mass * (dvx * dx + dvy * dy) * dy) / (dSqrd * mt);
     const v2x =
-      p2.dx +
-      ((1 + cr) * p1.mass * (dvx * -dx + dvy * -dy) * -dx) / (dSquared * mt);
+      p2.dx + ((1 + cr) * p1.mass * (dvx * dx + dvy * dy) * dx) / (dSqrd * mt);
     const v2y =
-      p2.dy +
-      ((1 + cr) * p1.mass * (dvx * -dx + dvy * -dy) * -dy) / (dSquared * mt);
+      p2.dy + ((1 + cr) * p1.mass * (dvx * dx + dvy * dy) * dy) / (dSqrd * mt);
 
     p1.dx = v1x;
     p1.dy = v1y;
