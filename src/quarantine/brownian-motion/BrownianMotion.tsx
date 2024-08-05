@@ -172,7 +172,7 @@ function addParticle(
   );
 }
 
-const NUMBER_OF_PARTICLES = 100;
+const NUMBER_OF_PARTICLES = 500;
 const RADIUS = 9;
 const FILL = 'black';
 const INITIAL_SPEED = 0;
