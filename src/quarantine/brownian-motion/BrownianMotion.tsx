@@ -19,7 +19,7 @@ class Particle {
   radius: number;
   mass: number;
   initialAngle: number;
-  speed: number;
+  velocity: number;
   dx: number;
   dy: number;
   fill: string;
@@ -30,7 +30,7 @@ class Particle {
     y: number,
     radius: number,
     initialAngle: number,
-    speed: number,
+    velocity: number,
     fill: string,
     id: string,
   ) {
@@ -39,9 +39,9 @@ class Particle {
     this.radius = radius;
     this.mass = radius;
     this.initialAngle = initialAngle;
-    this.speed = speed;
-    this.dx = this.speed * Math.cos(this.initialAngle);
-    this.dy = this.speed * Math.sin(this.initialAngle);
+    this.velocity = velocity;
+    this.dx = this.velocity * Math.cos(this.initialAngle);
+    this.dy = this.velocity * Math.sin(this.initialAngle);
     this.fill = fill;
     this.id = id;
   }
@@ -51,45 +51,34 @@ class Particle {
     this.y += this.dy;
   }
 
-  isCollidingWith(particle: Particle) {
-    const dx = this.x - particle.x;
-    const dy = this.y - particle.y;
+  isCollidingWith(p: Particle) {
+    const dx = this.x - p.x;
+    const dy = this.y - p.y;
     const squaredDistance = dx ** 2 + dy ** 2;
-    const squaredRadius = (this.radius + particle.radius) ** 2;
+    const squaredRadius = (this.radius + p.radius) ** 2;
     return squaredDistance < squaredRadius;
   }
 }
 
-function testForWalls(particle: Particle, width: number, height: number) {
-  if (
-    particle.x + particle.dx >= width - particle.radius ||
-    particle.x + particle.dx <= particle.radius
-  ) {
-    particle.dx = -particle.dx;
+function testForWalls(p: Particle, width: number, height: number) {
+  if (p.x + p.dx >= width - p.radius || p.x + p.dx <= p.radius) {
+    p.dx = -p.dx;
   }
-  if (
-    particle.y + particle.dy >= height - particle.radius ||
-    particle.y + particle.dy <= particle.radius
-  ) {
-    particle.dy = -particle.dy;
+  if (p.y + p.dy >= height - p.radius || p.y + p.dy <= p.radius) {
+    p.dy = -p.dy;
   }
 }
 
-function drawParticle(particle: Particle, container: HTMLDivElement | null) {
+function drawParticle(p: Particle, container: HTMLDivElement | null) {
   const svg = d3.select(container).select('svg');
-  const particleElement = svg
-    .selectAll(`#particle-${particle.id}`)
-    .data([particle]);
-  particleElement
-    .enter()
-    .append('circle')
-    .attr('id', `particle-${particle.id}`);
+  const particleElement = svg.selectAll(`#particle-${p.id}`).data([p]);
+  particleElement.enter().append('circle').attr('id', `particle-${p.id}`);
   particleElement
     .attr('cx', (d) => d.x)
     .attr('cy', (d) => d.y)
     .attr('r', (d) => d.radius)
     .attr('fill', (d) => d.fill);
-  if (particle.id === 'tracked-particle') {
+  if (p.id === 'tracked-particle') {
     // TODO: draw a line from the tracked particle to the other particles
     // const line = svg.selectAll(`#path-${particle.id}`).data([particle]);
     // line.enter().append('path');
@@ -107,62 +96,43 @@ function drawParticle(particle: Particle, container: HTMLDivElement | null) {
   }
 }
 
-function collide(first: Particle, second: Particle) {
-  const dx = first.x - second.x;
-  const dy = first.y - second.y;
-  const vx = second.dx - first.dx;
-  const vy = second.dy - first.dy;
-  const dotProduct = dx * vx + dy * vy;
+// TODO: Make coefficient of restitution variable
+function collide(p1: Particle, p2: Particle) {
+  const dx = p1.x - p2.x;
+  const dy = p1.y - p2.y;
+  const dvx = p1.dx - p2.dx;
+  const dvy = p1.dy - p2.dy;
+  const dot = dx * -dvx + dy * -dvy;
 
-  if (dotProduct > 0) {
-    const totalMass = first.mass + second.mass;
-    const massDifference = first.mass - second.mass;
+  if (dot >= 0) {
+    const mt = p1.mass + p2.mass;
+    const dSquared = dx ** 2 + dy ** 2;
+    const cr = 1;
 
-    const vx1 =
-      (massDifference * first.dx + 2 * second.mass * second.dx) / totalMass;
-    const vy1 =
-      (massDifference * first.dy + 2 * second.mass * second.dy) / totalMass;
-    const vx2 =
-      (-massDifference * second.dx + 2 * first.mass * first.dx) / totalMass;
-    const vy2 =
-      (-massDifference * second.dy + 2 * first.mass * first.dy) / totalMass;
+    const v1x =
+      p1.dx +
+      ((1 + cr) * p2.mass * (-dvx * dx - dvy * dy) * dx) / (dSquared * mt);
+    const v1y =
+      p1.dy +
+      ((1 + cr) * p2.mass * (-dvx * dx - dvy * dy) * dy) / (dSquared * mt);
+    const v2x =
+      p2.dx +
+      ((1 + cr) * p1.mass * (dvx * -dx + dvy * -dy) * -dx) / (dSquared * mt);
+    const v2y =
+      p2.dy +
+      ((1 + cr) * p1.mass * (dvx * -dx + dvy * -dy) * -dy) / (dSquared * mt);
 
-    // TODO: Maybe use inelastic collision and make coefficient of restitution variable
-    // const cr = 1;
-    // const vx1 =
-    //   (cr * second.mass * (second.dx - first.dx) +
-    //     first.mass * first.dx +
-    //     second.mass * second.dx) /
-    //   totalMass;
-    // const vy1 =
-    //   (cr * second.mass * (second.dy - first.dy) +
-    //     first.mass * first.dy +
-    //     second.mass * second.dy) /
-    //   totalMass;
-    // const vx2 =
-    //   (cr * first.mass * (first.dx - second.dx) +
-    //     first.mass * first.dx +
-    //     second.mass * second.dx) /
-    //   totalMass;
-    // const vy2 =
-    //   (cr * first.mass * (first.dy - second.dy) +
-    //     first.mass * first.dy +
-    //     second.mass * second.dy) /
-    //   totalMass;
-
-    first.dx = vx1;
-    first.dy = vy1;
-    second.dx = vx2;
-    second.dy = vy2;
+    p1.dx = v1x;
+    p1.dy = v1y;
+    p2.dx = v2x;
+    p2.dy = v2y;
   }
 }
 
-function checkForCollisions(particle: Particle, particles: Particle[]) {
-  for (const second of particles) {
-    if (particle === second) continue;
-    if (particle.isCollidingWith(second)) {
-      collide(particle, second);
-    }
+function checkForCollisions(p1: Particle, particles: Particle[]) {
+  for (const p2 of particles) {
+    if (p1 === p2) continue;
+    if (p1.isCollidingWith(p2)) collide(p1, p2);
   }
 }
 
@@ -201,6 +171,7 @@ function addParticle(
       x,
       y,
       radius,
+      // Math.random() * radius + radius,
       initialAngle,
       Math.random() * INITIAL_SPEED + 3,
       fill,
@@ -209,10 +180,10 @@ function addParticle(
   );
 }
 
-const NUMBER_OF_PARTICLES = 200;
-const RADIUS = 6;
+const NUMBER_OF_PARTICLES = 100;
+const RADIUS = 9;
 const FILL = 'black';
-const INITIAL_SPEED = 1;
+const INITIAL_SPEED = 0;
 
 // TODO: Consider 10 as masimum velocity
 function composeParticles(width: number, height: number) {
