@@ -153,8 +153,9 @@ function update(
       historicalContext.lineJoin = 'round';
       historicalContext.lineCap = 'round';
       historicalContext.miterLimit = 2;
-      historicalContext.strokeStyle = 'yellow';
-      historicalContext.lineTo(p.x + p.dx, p.y + p.dy);
+      historicalContext.strokeStyle = 'blue';
+      // TODO: Maybe improve stroke spikes
+      historicalContext.lineTo(p.x + p.dx * 0.5, p.y + p.dy * 0.5);
       historicalContext.stroke();
       historicalContext.closePath();
     }
