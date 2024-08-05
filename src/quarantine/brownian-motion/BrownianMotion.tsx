@@ -57,8 +57,19 @@ class Particle {
 }
 
 function testForWalls(p: Particle, width: number, height: number) {
-  if (p.x + p.dx >= width - p.r || p.x + p.dx <= p.r) p.dx = -p.dx;
-  if (p.y + p.dy >= height - p.r || p.y + p.dy <= p.r) p.dy = -p.dy;
+  if (p.x + p.r > width) {
+    p.x = width - p.r;
+    p.dx = -p.dx;
+  } else if (p.y + p.r > height) {
+    p.y = height - p.r;
+    p.dy = -p.dy;
+  } else if (p.x - p.r < 0) {
+    p.x = p.r;
+    p.dx = -p.dx;
+  } else if (p.y - p.r < 0) {
+    p.y = p.r;
+    p.dy = -p.dy;
+  }
 }
 
 function drawParticle(p: Particle, container: HTMLDivElement | null) {
@@ -96,7 +107,7 @@ function collide(p1: Particle, p2: Particle) {
   const dvy = p1.dy - p2.dy;
   const dot = dx * -dvx + dy * -dvy;
 
-  if (dot >= 0) {
+  if (dot > 0) {
     const mt = p1.mass + p2.mass;
     const dSqrd = dx ** 2 + dy ** 2;
     const cr = 1;
@@ -168,7 +179,7 @@ function addParticle(
   );
 }
 
-const NUMBER_OF_PARTICLES = 500;
+const NUMBER_OF_PARTICLES = 10;
 const RADIUS = 9;
 const FILL = 'black';
 const INITIAL_SPEED = 0;
