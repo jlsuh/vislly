@@ -73,27 +73,49 @@ function testForWalls(p: Particle, width: number, height: number) {
 }
 
 function drawParticle(p: Particle, container: HTMLDivElement | null) {
-  const svg = d3.select(container).select('svg');
-  const particleElement = svg.selectAll(`#particle-${p.id}`).data([p]);
-  particleElement.enter().append('circle').attr('id', `particle-${p.id}`);
-  particleElement
-    .attr('cx', (p) => p.x)
-    .attr('cy', (p) => p.y)
-    .attr('r', (p) => p.r)
-    .attr('fill', (p) => p.fill);
+  const canvas = d3
+    .select(container)
+    .select('canvas')
+    .node() as HTMLCanvasElement;
+  const context = canvas.getContext('2d') as CanvasRenderingContext2D;
+  context.beginPath();
+  context.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+  context.fillStyle = p.fill;
+  context.fill();
+  context.closePath();
   if (p.id === 'tracked-particle') {
-    const pathElement = svg.selectAll(`#path-${p.id}`).data([p]);
-    pathElement.enter().append('path').attr('id', `path-${p.id}`);
-    const lastPath = pathElement.attr('d') ?? '';
-    const newPath = `${lastPath} M${p.x},${p.y} L${p.x + p.dx},${p.y + p.dy}`;
-    pathElement
-      .attr('d', newPath)
-      .attr('stroke', 'black')
-      .attr('stroke-width', 3)
-      .attr('stroke-linejoin', 'round')
-      .attr('stroke-linecap', 'round')
-      .attr('stroke-miterlimit', 2);
+    // Draw a line to track the particlez
+    // context.beginPath();
+    // context.moveTo(p.x, p.y);
+    // context.lineTo(p.x + p.dx, p.y + p.dy);
+    // context.strokeStyle = 'black';
+    // context.lineWidth = 3;
+    // context.lineJoin = 'round';
+    // context.lineCap = 'round';
+    // context.miterLimit = 2;
+    // context.stroke();
+    // context.closePath();
   }
+  // const particleElement = canvas.selectAll(`#particle-${p.id}`).data([p]);
+  // particleElement.enter().append('circle').attr('id', `particle-${p.id}`);
+  // particleElement
+  //   .attr('cx', (p) => p.x)
+  //   .attr('cy', (p) => p.y)
+  //   .attr('r', (p) => p.r)
+  //   .attr('fill', (p) => p.fill);
+  // if (p.id === 'tracked-particle') {
+  //   const pathElement = canvas.selectAll(`#path-${p.id}`).data([p]);
+  //   pathElement.enter().append('path').attr('id', `path-${p.id}`);
+  //   const lastPath = pathElement.attr('d') ?? '';
+  //   const newPath = `${lastPath} M${p.x},${p.y} L${p.x + p.dx},${p.y + p.dy}`;
+  //   pathElement
+  //     .attr('d', newPath)
+  //     .attr('stroke', 'black')
+  //     .attr('stroke-width', 3)
+  //     .attr('stroke-linejoin', 'round')
+  //     .attr('stroke-linecap', 'round')
+  //     .attr('stroke-miterlimit', 2);
+  // }
 }
 
 // TODO: Make coefficient of restitution variable
@@ -138,6 +160,12 @@ function update(
   height: number,
   ref: React.MutableRefObject<null>,
 ) {
+  const canvas = d3
+    .select(ref.current)
+    .select('canvas')
+    .node() as HTMLCanvasElement;
+  const context = canvas.getContext('2d') as CanvasRenderingContext2D;
+  context.clearRect(0, 0, width, height);
   for (const particle of particles) {
     drawParticle(particle, ref.current);
     testForWalls(particle, width, height);
@@ -176,8 +204,8 @@ function addParticle(
   );
 }
 
-const NUMBER_OF_PARTICLES = 100;
-const RADIUS = 9;
+const NUMBER_OF_PARTICLES = 500;
+const RADIUS = 8;
 const FILL = 'black';
 const INITIAL_SPEED = 0;
 
@@ -203,8 +231,8 @@ function BrownianMotion(): JSX.Element {
       update(particles, dimensions.boundedWidth, dimensions.boundedHeight, ref);
     });
     return () => {
-      d3.select(ref.current).select('svg').selectAll('circle').remove();
-      d3.select(ref.current).select('svg').selectAll('path').remove();
+      d3.select(ref.current).select('canvas').selectAll('circle').remove();
+      d3.select(ref.current).select('canvas').selectAll('path').remove();
       timer.stop();
     };
   }, [dimensions.boundedWidth, dimensions.boundedHeight, ref]);
@@ -218,7 +246,9 @@ function BrownianMotion(): JSX.Element {
         alignItems: 'center',
       }}
     >
-      <svg
+      <canvas
+        width={dimensions.boundedWidth}
+        height={dimensions.boundedHeight}
         style={{
           width: dimensions.boundedWidth,
           height: dimensions.boundedHeight,
