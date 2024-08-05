@@ -82,20 +82,17 @@ function drawParticle(p: Particle, container: HTMLDivElement | null) {
     .attr('r', (p) => p.r)
     .attr('fill', (p) => p.fill);
   if (p.id === 'tracked-particle') {
-    // TODO: draw a line from the tracked particle to the other particles
-    // const line = svg.selectAll(`#path-${particle.id}`).data([particle]);
-    // line.enter().append('path');
-    // line
-    //   .attr('id', `path-${particle.id}`)
-    //   .attr(
-    //     'd',
-    //     `M${particle.x},${particle.y} L${particle.x + particle.dx * 0.5},${particle.y + particle.dy * 0.5}`,
-    //   )
-    //   .attr('stroke', 'grey')
-    //   .attr('stroke-width', 2)
-    //   .attr('stroke-linejoin', 'round')
-    //   .attr('stroke-linecap', 'round')
-    //   .attr('stroke-miterlimit', 2);
+    const pathElement = svg.selectAll(`#path-${p.id}`).data([p]);
+    pathElement.enter().append('path').attr('id', `path-${p.id}`);
+    const lastPath = pathElement.attr('d') ?? '';
+    const newPath = `${lastPath} M${p.x},${p.y} L${p.x + p.dx},${p.y + p.dy}`;
+    pathElement
+      .attr('d', newPath)
+      .attr('stroke', 'black')
+      .attr('stroke-width', 3)
+      .attr('stroke-linejoin', 'round')
+      .attr('stroke-linecap', 'round')
+      .attr('stroke-miterlimit', 2);
   }
 }
 
@@ -179,7 +176,7 @@ function addParticle(
   );
 }
 
-const NUMBER_OF_PARTICLES = 10;
+const NUMBER_OF_PARTICLES = 100;
 const RADIUS = 9;
 const FILL = 'black';
 const INITIAL_SPEED = 0;
@@ -207,6 +204,7 @@ function BrownianMotion(): JSX.Element {
     });
     return () => {
       d3.select(ref.current).select('svg').selectAll('circle').remove();
+      d3.select(ref.current).select('svg').selectAll('path').remove();
       timer.stop();
     };
   }, [dimensions.boundedWidth, dimensions.boundedHeight, ref]);
