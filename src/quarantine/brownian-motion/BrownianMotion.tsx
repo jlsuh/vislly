@@ -72,50 +72,20 @@ function testForWalls(p: Particle, width: number, height: number) {
   }
 }
 
+// TODO: Maybe id isn't needed in particle
 function drawParticle(p: Particle, container: HTMLDivElement | null) {
-  const canvas = d3
+  const particleCanvas = d3
     .select(container)
-    .select('canvas')
+    .select('#particles')
     .node() as HTMLCanvasElement;
-  const context = canvas.getContext('2d') as CanvasRenderingContext2D;
-  context.beginPath();
-  context.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-  context.fillStyle = p.fill;
-  context.fill();
-  context.closePath();
-  if (p.id === 'tracked-particle') {
-    // Draw a line to track the particlez
-    // context.beginPath();
-    // context.moveTo(p.x, p.y);
-    // context.lineTo(p.x + p.dx, p.y + p.dy);
-    // context.strokeStyle = 'black';
-    // context.lineWidth = 3;
-    // context.lineJoin = 'round';
-    // context.lineCap = 'round';
-    // context.miterLimit = 2;
-    // context.stroke();
-    // context.closePath();
-  }
-  // const particleElement = canvas.selectAll(`#particle-${p.id}`).data([p]);
-  // particleElement.enter().append('circle').attr('id', `particle-${p.id}`);
-  // particleElement
-  //   .attr('cx', (p) => p.x)
-  //   .attr('cy', (p) => p.y)
-  //   .attr('r', (p) => p.r)
-  //   .attr('fill', (p) => p.fill);
-  // if (p.id === 'tracked-particle') {
-  //   const pathElement = canvas.selectAll(`#path-${p.id}`).data([p]);
-  //   pathElement.enter().append('path').attr('id', `path-${p.id}`);
-  //   const lastPath = pathElement.attr('d') ?? '';
-  //   const newPath = `${lastPath} M${p.x},${p.y} L${p.x + p.dx},${p.y + p.dy}`;
-  //   pathElement
-  //     .attr('d', newPath)
-  //     .attr('stroke', 'black')
-  //     .attr('stroke-width', 3)
-  //     .attr('stroke-linejoin', 'round')
-  //     .attr('stroke-linecap', 'round')
-  //     .attr('stroke-miterlimit', 2);
-  // }
+  const particlesContext = particleCanvas.getContext(
+    '2d',
+  ) as CanvasRenderingContext2D;
+  particlesContext.beginPath();
+  particlesContext.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+  particlesContext.fillStyle = p.fill;
+  particlesContext.fill();
+  particlesContext.closePath();
 }
 
 // TODO: Make coefficient of restitution variable
@@ -166,11 +136,31 @@ function update(
     .node() as HTMLCanvasElement;
   const context = canvas.getContext('2d') as CanvasRenderingContext2D;
   context.clearRect(0, 0, width, height);
-  for (const particle of particles) {
-    drawParticle(particle, ref.current);
-    testForWalls(particle, width, height);
-    particle.move();
-    checkForCollisions(particle, particles);
+  for (const p of particles) {
+    drawParticle(p, ref.current);
+    // TODO: Put this into another function
+    if (p.id === 'tracked-particle') {
+      const historicalCanvas = d3
+        .select(ref.current)
+        .select('#historical')
+        .node() as HTMLCanvasElement;
+      const historicalContext = historicalCanvas.getContext(
+        '2d',
+      ) as CanvasRenderingContext2D;
+      historicalContext.beginPath();
+      historicalContext.moveTo(p.x, p.y);
+      historicalContext.lineWidth = 2;
+      historicalContext.lineJoin = 'round';
+      historicalContext.lineCap = 'round';
+      historicalContext.miterLimit = 2;
+      historicalContext.strokeStyle = 'yellow';
+      historicalContext.lineTo(p.x + p.dx, p.y + p.dy);
+      historicalContext.stroke();
+      historicalContext.closePath();
+    }
+    testForWalls(p, width, height);
+    p.move();
+    checkForCollisions(p, particles);
   }
 }
 
@@ -194,8 +184,7 @@ function addParticle(
     new Particle(
       x,
       y,
-      r,
-      // Math.random() * r + r,
+      r, // Math.random() * r + r,
       initialAngle,
       Math.random() * INITIAL_SPEED + 3,
       fill,
@@ -204,7 +193,7 @@ function addParticle(
   );
 }
 
-const NUMBER_OF_PARTICLES = 500;
+const NUMBER_OF_PARTICLES = 200;
 const RADIUS = 8;
 const FILL = 'black';
 const INITIAL_SPEED = 0;
@@ -212,7 +201,14 @@ const INITIAL_SPEED = 0;
 // TODO: Consider 10 as masimum velocity
 function composeParticles(width: number, height: number) {
   const particles: Particle[] = [];
-  addParticle(particles, RADIUS * 3, width, height, 'red', 'tracked-particle');
+  addParticle(
+    particles,
+    RADIUS * 2.5,
+    width,
+    height,
+    'red',
+    'tracked-particle',
+  );
   for (let i = 0; i < NUMBER_OF_PARTICLES; i++) {
     addParticle(particles, RADIUS, width, height, FILL, i.toString());
   }
@@ -231,8 +227,6 @@ function BrownianMotion(): JSX.Element {
       update(particles, dimensions.boundedWidth, dimensions.boundedHeight, ref);
     });
     return () => {
-      d3.select(ref.current).select('canvas').selectAll('circle').remove();
-      d3.select(ref.current).select('canvas').selectAll('path').remove();
       timer.stop();
     };
   }, [dimensions.boundedWidth, dimensions.boundedHeight, ref]);
@@ -241,12 +235,14 @@ function BrownianMotion(): JSX.Element {
     <div
       ref={ref}
       style={{
+        position: 'relative',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
       }}
     >
       <canvas
+        id="particles"
         width={dimensions.boundedWidth}
         height={dimensions.boundedHeight}
         style={{
@@ -254,6 +250,16 @@ function BrownianMotion(): JSX.Element {
           height: dimensions.boundedHeight,
           border: '1px solid black',
         }}
+      />
+      <canvas
+        id="historical"
+        style={{
+          position: 'absolute',
+          width: dimensions.boundedWidth,
+          height: dimensions.boundedHeight,
+        }}
+        width={dimensions.boundedWidth}
+        height={dimensions.boundedHeight}
       />
     </div>
   );
