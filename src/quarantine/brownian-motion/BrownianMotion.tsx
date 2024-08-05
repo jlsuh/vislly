@@ -67,7 +67,8 @@ class Particle {
 function testForWalls(p: Particle, width: number, height: number) {
   if (p.currX + p.r > width || p.currX - p.r < 0) {
     p.dx = -p.dx;
-  } else if (p.currY + p.r > height || p.currY - p.r < 0) {
+  }
+  if (p.currY + p.r > height || p.currY - p.r < 0) {
     p.dy = -p.dy;
   }
 }
