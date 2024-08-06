@@ -76,14 +76,8 @@ function testForWalls(p: Particle, width: number, height: number) {
   }
 }
 
-function drawParticle(p: Particle, container: HTMLDivElement | null) {
-  const particleCanvas = d3
-    .select(container)
-    .select('#particles')
-    .node() as HTMLCanvasElement;
-  const particlesContext = particleCanvas.getContext(
-    '2d',
-  ) as CanvasRenderingContext2D;
+function drawParticle(p: Particle) {
+  const particlesContext = getCanvasCtxById('particles');
   particlesContext.beginPath();
   particlesContext.arc(p.currX, p.currY, p.r, 0, Math.PI * 2);
   particlesContext.fillStyle = p.fill;
@@ -126,43 +120,34 @@ function checkForCollisions(p1: Particle, particles: Particle[]) {
   }
 }
 
-function drawHistoricalPath(p: Particle, container: HTMLDivElement | null) {
-  const historicalCanvas = d3
-    .select(container)
-    .select('#historical')
-    .node() as HTMLCanvasElement;
-  const historicalContext = historicalCanvas.getContext(
-    '2d',
-  ) as CanvasRenderingContext2D;
-  historicalContext.beginPath();
-  historicalContext.moveTo(p.prevX, p.prevY);
+function drawHistoricalPath(p: Particle) {
+  const historicalContext = getCanvasCtxById('historical');
   historicalContext.lineWidth = 1.5;
   historicalContext.lineJoin = 'round';
   historicalContext.lineCap = 'round';
   historicalContext.strokeStyle = 'purple';
+  historicalContext.beginPath();
+  historicalContext.moveTo(p.prevX, p.prevY);
   historicalContext.lineTo(p.currX, p.currY);
   historicalContext.stroke();
   historicalContext.closePath();
 }
 
-function update(
-  particles: Particle[],
-  width: number,
-  height: number,
-  ref: React.MutableRefObject<null>,
-) {
-  const particleCanvas = d3
-    .select(ref.current)
-    .select('#particles')
-    .node() as HTMLCanvasElement;
-  const particleContext = particleCanvas.getContext(
-    '2d',
-  ) as CanvasRenderingContext2D;
-  particleContext.clearRect(0, 0, width, height);
+function getCanvasCtxById(id: string) {
+  const canvas = d3.select(`#${id}`).node() as HTMLCanvasElement;
+  return canvas.getContext('2d') as CanvasRenderingContext2D;
+}
+
+function resetCanvas(width: number, height: number) {
+  getCanvasCtxById('particles').clearRect(0, 0, width, height);
+}
+
+function update(particles: Particle[], width: number, height: number) {
+  resetCanvas(width, height);
   for (const p of particles) {
-    drawParticle(p, ref.current);
+    drawParticle(p);
     if (p.isTracked) {
-      drawHistoricalPath(p, ref.current);
+      drawHistoricalPath(p);
     }
     testForWalls(p, width, height);
     p.move();
@@ -232,10 +217,10 @@ function BrownianMotion(): JSX.Element {
       ),
     ];
     const timer = d3.interval(() =>
-      update(particles, dimensions.boundedWidth, dimensions.boundedHeight, ref),
+      update(particles, dimensions.boundedWidth, dimensions.boundedHeight),
     );
     return () => timer.stop();
-  }, [dimensions.boundedHeight, dimensions.boundedWidth, ref]);
+  }, [dimensions.boundedHeight, dimensions.boundedWidth]);
 
   return (
     <div
