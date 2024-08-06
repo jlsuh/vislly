@@ -13,42 +13,19 @@ const chartSettings = {
   width: 0, // If height is 0, the width is calculated
 };
 
-function getRandomAngle() {
-  return Math.random() * Math.PI * 2;
-}
-
-type Point2 = {
+interface Point2 {
   x: number;
   y: number;
-};
+}
 
-class Vector2 {
-  private _p: Point2;
-
-  constructor(x: number, y: number) {
-    this._p = { x, y };
-  }
-
-  get x() {
-    return this._p.x;
-  }
-
-  get y() {
-    return this._p.y;
-  }
-
-  set x(x: number) {
-    this._p.x = x;
-  }
-
-  set y(y: number) {
-    this._p.y = y;
-  }
+interface Vector2 {
+  x: number;
+  y: number;
 }
 
 class Particle {
-  currPos: Point2;
-  prevPos: Point2;
+  curr: Point2;
+  prev: Point2;
   r: number;
   mass: number;
   v: Vector2;
@@ -60,42 +37,63 @@ class Particle {
     y: number,
     r: number,
     speed: number,
+    initialAngle: number,
     fill: string,
     isTracked: boolean,
   ) {
-    this.currPos = { x, y };
-    this.prevPos = { x, y };
+    this.curr = { x, y };
+    this.prev = { x, y };
     this.r = r;
     this.mass = r;
-    this.v = new Vector2(
-      speed * Math.cos(getRandomAngle()),
-      speed * Math.sin(getRandomAngle()),
-    );
+    this.v = {
+      x: speed * Math.cos(initialAngle),
+      y: speed * Math.sin(initialAngle),
+    };
     this.fill = fill;
     this.isTracked = isTracked;
   }
 
   move() {
-    this.prevPos.x = this.currPos.x;
-    this.prevPos.y = this.currPos.y;
-    this.currPos.x = this.currPos.x + this.v.x;
-    this.currPos.y = this.currPos.y + this.v.y;
+    this.prev.x = this.curr.x;
+    this.prev.y = this.curr.y;
+    this.curr.x = this.curr.x + this.v.x;
+    this.curr.y = this.curr.y + this.v.y;
+  }
+
+  dx(p: Particle) {
+    return this.curr.x - p.curr.x;
+  }
+
+  dy(p: Particle) {
+    return this.curr.y - p.curr.y;
+  }
+
+  dvx(p: Particle) {
+    return this.v.x - p.v.x;
+  }
+
+  dvy(p: Particle) {
+    return this.v.y - p.v.y;
+  }
+
+  dSqrd(p: Particle) {
+    return this.dx(p) ** 2 + this.dy(p) ** 2;
+  }
+
+  rSqrd(p: Particle) {
+    return (this.r + p.r) ** 2;
   }
 
   isCollidingWith(p: Particle) {
-    const dx = this.currPos.x - p.currPos.x;
-    const dy = this.currPos.y - p.currPos.y;
-    const dSqrd = dx ** 2 + dy ** 2;
-    const rSqrd = (this.r + p.r) ** 2;
-    return dSqrd < rSqrd;
+    return this.dSqrd(p) < this.rSqrd(p);
   }
 }
 
 function testForWalls(p: Particle, width: number, height: number) {
-  if (p.currPos.x + p.r > width || p.currPos.x - p.r < 0) {
+  if (p.curr.x + p.r > width || p.curr.x - p.r < 0) {
     p.v.x = -p.v.x;
   }
-  if (p.currPos.y + p.r > height || p.currPos.y - p.r < 0) {
+  if (p.curr.y + p.r > height || p.curr.y - p.r < 0) {
     p.v.y = -p.v.y;
   }
 }
@@ -103,22 +101,22 @@ function testForWalls(p: Particle, width: number, height: number) {
 function drawParticle(p: Particle) {
   const particlesContext = getCanvasCtxById('particles');
   particlesContext.beginPath();
-  particlesContext.arc(p.currPos.x, p.currPos.y, p.r, 0, Math.PI * 2);
+  particlesContext.arc(p.curr.x, p.curr.y, p.r, 0, Math.PI * 2);
   particlesContext.fillStyle = p.fill;
   particlesContext.fill();
   particlesContext.closePath();
 }
 
 function collide(p1: Particle, p2: Particle) {
-  const dx = p1.currPos.x - p2.currPos.x;
-  const dy = p1.currPos.y - p2.currPos.y;
-  const dvx = p1.v.x - p2.v.x;
-  const dvy = p1.v.y - p2.v.y;
+  const dx = p1.dx(p2);
+  const dy = p1.dy(p2);
+  const dvx = p1.dvx(p2);
+  const dvy = p1.dvy(p2);
   const dot = dx * -dvx + dy * -dvy;
 
   if (dot > 0) {
     const mt = p1.mass + p2.mass;
-    const dSqrd = dx ** 2 + dy ** 2;
+    const dSqrd = p1.dSqrd(p2);
     const cr = 1; // TODO: Make coefficient of restitution variable
 
     const v1x =
@@ -151,8 +149,8 @@ function drawHistoricalPath(p: Particle) {
   historicalContext.lineCap = 'round';
   historicalContext.strokeStyle = 'purple';
   historicalContext.beginPath();
-  historicalContext.moveTo(p.prevPos.x, p.prevPos.y);
-  historicalContext.lineTo(p.currPos.x, p.currPos.y);
+  historicalContext.moveTo(p.prev.x, p.prev.y);
+  historicalContext.lineTo(p.curr.x, p.curr.y);
   historicalContext.stroke();
   historicalContext.closePath();
 }
@@ -179,6 +177,10 @@ function update(particles: Particle[], width: number, height: number) {
   }
 }
 
+function getRandomAngle() {
+  return Math.random() * Math.PI * 2;
+}
+
 const NUMBER_OF_PARTICLES = 50;
 const RADIUS = 8;
 const INITIAL_SPEED = 6; // TODO: Consider 10 as masimum speed
@@ -199,7 +201,7 @@ function composeParticle(
   const x = Math.random() * (maxX - minX) + minX;
   const y = Math.random() * (maxY - minY) + minY;
   const speed = Math.random() * initialSpeed;
-  return new Particle(x, y, r, speed, fill, isTracked);
+  return new Particle(x, y, r, speed, getRandomAngle(), fill, isTracked);
 }
 
 function composeParticles(
