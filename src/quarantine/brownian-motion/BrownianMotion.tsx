@@ -17,9 +17,13 @@ function getRandomAngle() {
   return Math.random() * Math.PI * 2;
 }
 
+type Point2d = {
+  x: number;
+  y: number;
+};
+
 class Particle {
-  currX: number;
-  currY: number;
+  curr: Point2d;
   prevX: number;
   prevY: number;
   r: number;
@@ -39,8 +43,7 @@ class Particle {
     fill: string,
     isTracking: boolean,
   ) {
-    this.currX = x;
-    this.currY = y;
+    this.curr = { x, y };
     this.prevX = prevX;
     this.prevY = prevY;
     this.r = r;
@@ -52,15 +55,15 @@ class Particle {
   }
 
   move() {
-    this.prevX = this.currX;
-    this.prevY = this.currY;
-    this.currX += this.vx;
-    this.currY += this.vy;
+    this.prevX = this.curr.x;
+    this.prevY = this.curr.y;
+    this.curr.x += this.vx;
+    this.curr.y += this.vy;
   }
 
   isCollidingWith(p: Particle) {
-    const vx = this.currX - p.currX;
-    const vy = this.currY - p.currY;
+    const vx = this.curr.x - p.curr.x;
+    const vy = this.curr.y - p.curr.y;
     const dSqrd = vx ** 2 + vy ** 2;
     const rSqrd = (this.r + p.r) ** 2;
     return dSqrd < rSqrd;
@@ -68,10 +71,10 @@ class Particle {
 }
 
 function testForWalls(p: Particle, width: number, height: number) {
-  if (p.currX + p.r > width || p.currX - p.r < 0) {
+  if (p.curr.x + p.r > width || p.curr.x - p.r < 0) {
     p.vx = -p.vx;
   }
-  if (p.currY + p.r > height || p.currY - p.r < 0) {
+  if (p.curr.y + p.r > height || p.curr.y - p.r < 0) {
     p.vy = -p.vy;
   }
 }
@@ -79,15 +82,15 @@ function testForWalls(p: Particle, width: number, height: number) {
 function drawParticle(p: Particle) {
   const particlesContext = getCanvasCtxById('particles');
   particlesContext.beginPath();
-  particlesContext.arc(p.currX, p.currY, p.r, 0, Math.PI * 2);
+  particlesContext.arc(p.curr.x, p.curr.y, p.r, 0, Math.PI * 2);
   particlesContext.fillStyle = p.fill;
   particlesContext.fill();
   particlesContext.closePath();
 }
 
 function collide(p1: Particle, p2: Particle) {
-  const dx = p1.currX - p2.currX;
-  const dy = p1.currY - p2.currY;
+  const dx = p1.curr.x - p2.curr.x;
+  const dy = p1.curr.y - p2.curr.y;
   const dvx = p1.vx - p2.vx;
   const dvy = p1.vy - p2.vy;
   const dot = dx * -dvx + dy * -dvy;
@@ -128,7 +131,7 @@ function drawHistoricalPath(p: Particle) {
   historicalContext.strokeStyle = 'purple';
   historicalContext.beginPath();
   historicalContext.moveTo(p.prevX, p.prevY);
-  historicalContext.lineTo(p.currX, p.currY);
+  historicalContext.lineTo(p.curr.x, p.curr.y);
   historicalContext.stroke();
   historicalContext.closePath();
 }
