@@ -22,12 +22,36 @@ type Point2 = {
   y: number;
 };
 
+class Vector2 {
+  private _p: Point2;
+
+  constructor(x: number, y: number) {
+    this._p = { x, y };
+  }
+
+  get x() {
+    return this._p.x;
+  }
+
+  get y() {
+    return this._p.y;
+  }
+
+  set x(x: number) {
+    this._p.x = x;
+  }
+
+  set y(y: number) {
+    this._p.y = y;
+  }
+}
+
 class Particle {
   curr: Point2;
   prev: Point2;
   r: number;
   mass: number;
-  v: Point2;
+  v: Vector2;
   fill: string;
   isTracked: boolean;
 
@@ -43,10 +67,10 @@ class Particle {
     this.prev = { x, y };
     this.r = r;
     this.mass = r;
-    this.v = {
-      x: speed * Math.cos(getRandomAngle()),
-      y: speed * Math.sin(getRandomAngle()),
-    };
+    this.v = new Vector2(
+      speed * Math.cos(getRandomAngle()),
+      speed * Math.sin(getRandomAngle()),
+    );
     this.fill = fill;
     this.isTracked = isTracking;
   }
