@@ -13,6 +13,10 @@ const chartSettings = {
   width: 0, // If height is 0, the width is calculated
 };
 
+function getRandomAngle() {
+  return Math.random() * Math.PI * 2;
+}
+
 class Particle {
   currX: number;
   currY: number;
@@ -20,10 +24,10 @@ class Particle {
   prevY: number;
   r: number;
   mass: number;
-  dx: number;
-  dy: number;
+  vx: number;
+  vy: number;
   fill: string;
-  id: string;
+  isTracked: boolean;
 
   constructor(
     x: number,
@@ -31,10 +35,9 @@ class Particle {
     prevX: number,
     prevY: number,
     r: number,
-    initialAngle: number,
-    initialVelocity: number,
+    speed: number,
     fill: string,
-    id: string,
+    isTracking: boolean,
   ) {
     this.currX = x;
     this.currY = y;
@@ -42,23 +45,23 @@ class Particle {
     this.prevY = prevY;
     this.r = r;
     this.mass = r;
-    this.dx = initialVelocity * Math.cos(initialAngle);
-    this.dy = initialVelocity * Math.sin(initialAngle);
+    this.vx = speed * Math.cos(getRandomAngle());
+    this.vy = speed * Math.sin(getRandomAngle());
     this.fill = fill;
-    this.id = id;
+    this.isTracked = isTracking;
   }
 
   move() {
     this.prevX = this.currX;
     this.prevY = this.currY;
-    this.currX += this.dx;
-    this.currY += this.dy;
+    this.currX += this.vx;
+    this.currY += this.vy;
   }
 
   isCollidingWith(p: Particle) {
-    const dx = this.currX - p.currX;
-    const dy = this.currY - p.currY;
-    const dSqrd = dx ** 2 + dy ** 2;
+    const vx = this.currX - p.currX;
+    const vy = this.currY - p.currY;
+    const dSqrd = vx ** 2 + vy ** 2;
     const rSqrd = (this.r + p.r) ** 2;
     return dSqrd < rSqrd;
   }
@@ -66,14 +69,13 @@ class Particle {
 
 function testForWalls(p: Particle, width: number, height: number) {
   if (p.currX + p.r > width || p.currX - p.r < 0) {
-    p.dx = -p.dx;
+    p.vx = -p.vx;
   }
   if (p.currY + p.r > height || p.currY - p.r < 0) {
-    p.dy = -p.dy;
+    p.vy = -p.vy;
   }
 }
 
-// TODO: Maybe id isn't needed in particle
 function drawParticle(p: Particle, container: HTMLDivElement | null) {
   const particleCanvas = d3
     .select(container)
@@ -92,8 +94,8 @@ function drawParticle(p: Particle, container: HTMLDivElement | null) {
 function collide(p1: Particle, p2: Particle) {
   const dx = p1.currX - p2.currX;
   const dy = p1.currY - p2.currY;
-  const dvx = p1.dx - p2.dx;
-  const dvy = p1.dy - p2.dy;
+  const dvx = p1.vx - p2.vx;
+  const dvy = p1.vy - p2.vy;
   const dot = dx * -dvx + dy * -dvy;
 
   if (dot > 0) {
@@ -102,18 +104,18 @@ function collide(p1: Particle, p2: Particle) {
     const cr = 1; // TODO: Make coefficient of restitution variable
 
     const v1x =
-      p1.dx - ((1 + cr) * p2.mass * (dvx * dx + dvy * dy) * dx) / (dSqrd * mt);
+      p1.vx - ((1 + cr) * p2.mass * (dvx * dx + dvy * dy) * dx) / (dSqrd * mt);
     const v1y =
-      p1.dy - ((1 + cr) * p2.mass * (dvx * dx + dvy * dy) * dy) / (dSqrd * mt);
+      p1.vy - ((1 + cr) * p2.mass * (dvx * dx + dvy * dy) * dy) / (dSqrd * mt);
     const v2x =
-      p2.dx + ((1 + cr) * p1.mass * (dvx * dx + dvy * dy) * dx) / (dSqrd * mt);
+      p2.vx + ((1 + cr) * p1.mass * (dvx * dx + dvy * dy) * dx) / (dSqrd * mt);
     const v2y =
-      p2.dy + ((1 + cr) * p1.mass * (dvx * dx + dvy * dy) * dy) / (dSqrd * mt);
+      p2.vy + ((1 + cr) * p1.mass * (dvx * dx + dvy * dy) * dy) / (dSqrd * mt);
 
-    p1.dx = v1x;
-    p1.dy = v1y;
-    p2.dx = v2x;
-    p2.dy = v2y;
+    p1.vx = v1x;
+    p1.vy = v1y;
+    p2.vx = v2x;
+    p2.vy = v2y;
   }
 }
 
@@ -134,6 +136,7 @@ function drawHistoricalPath(p: Particle, container: HTMLDivElement | null) {
   ) as CanvasRenderingContext2D;
   historicalContext.beginPath();
   historicalContext.moveTo(p.prevX, p.prevY);
+  historicalContext.lineWidth = 1.5;
   historicalContext.lineJoin = 'round';
   historicalContext.lineCap = 'round';
   historicalContext.strokeStyle = 'purple';
@@ -158,7 +161,7 @@ function update(
   particleContext.clearRect(0, 0, width, height);
   for (const p of particles) {
     drawParticle(p, ref.current);
-    if (p.id === 'tracked-particle') {
+    if (p.isTracked) {
       drawHistoricalPath(p, ref.current);
     }
     testForWalls(p, width, height);
@@ -167,104 +170,102 @@ function update(
   }
 }
 
-function addParticle(
-  particles: Particle[],
-  r: number,
-  width: number,
+const NUMBER_OF_PARTICLES = 50;
+const RADIUS = 8;
+const INITIAL_VELOCITY = 6; // TODO: Consider 10 as masimum velocity
+
+function composeParticle(
   height: number,
+  width: number,
+  isTracked: boolean,
+  r: number,
+  vi: number,
   fill: string,
-  id: string,
 ) {
   const diameter = r * 2;
-  const minX = diameter;
-  const minY = diameter;
   const maxX = width - diameter;
   const maxY = height - diameter;
+  const minX = diameter;
+  const minY = diameter;
   const x = Math.random() * (maxX - minX) + minX;
   const y = Math.random() * (maxY - minY) + minY;
-  const initialAngle = Math.random() * Math.PI * 2;
-  particles.push(
-    new Particle(
-      x,
-      y,
-      x,
-      y,
-      r, // Math.random() * r + r,
-      initialAngle,
-      Math.random() * INITIAL_VELOCITY + 3,
-      fill,
-      id,
-    ),
-  );
+  const velocity = Math.random() * vi;
+  return new Particle(x, y, x, y, r, velocity, fill, isTracked);
 }
 
-const NUMBER_OF_PARTICLES = 200;
-const RADIUS = 8;
-const FILL = 'blue';
-const INITIAL_VELOCITY = 1;
-
-// TODO: Consider 10 as masimum velocity
-function composeParticles(width: number, height: number) {
-  const particles: Particle[] = [];
-  addParticle(
-    particles,
-    RADIUS * 2.5,
-    width,
-    height,
-    'red',
-    'tracked-particle',
+function composeParticles(
+  height: number,
+  width: number,
+  isTracked: boolean,
+  r: number,
+  vi: number,
+  fill: string,
+  numberOfParticles: number,
+) {
+  return Array.from({ length: numberOfParticles }, () =>
+    composeParticle(height, width, isTracked, r, vi, fill),
   );
-  for (let i = 0; i < NUMBER_OF_PARTICLES; i++) {
-    addParticle(particles, RADIUS, width, height, FILL, i.toString());
-  }
-  return particles;
 }
 
 function BrownianMotion(): JSX.Element {
   const { ref, dimensions } = useChartDimensions(chartSettings);
 
   useEffect(() => {
-    const particles = composeParticles(
-      dimensions.boundedWidth,
-      dimensions.boundedHeight,
+    const particles = [
+      ...composeParticles(
+        dimensions.boundedHeight,
+        dimensions.boundedWidth,
+        true,
+        RADIUS * 2.5,
+        INITIAL_VELOCITY,
+        'red',
+        1,
+      ),
+      ...composeParticles(
+        dimensions.boundedHeight,
+        dimensions.boundedWidth,
+        false,
+        RADIUS,
+        INITIAL_VELOCITY,
+        'blue',
+        NUMBER_OF_PARTICLES,
+      ),
+    ];
+    const timer = d3.interval(() =>
+      update(particles, dimensions.boundedWidth, dimensions.boundedHeight, ref),
     );
-    const timer = d3.interval(() => {
-      update(particles, dimensions.boundedWidth, dimensions.boundedHeight, ref);
-    });
-    return () => {
-      timer.stop();
-    };
-  }, [dimensions.boundedWidth, dimensions.boundedHeight, ref]);
+    return () => timer.stop();
+  }, [dimensions.boundedHeight, dimensions.boundedWidth, ref]);
 
   return (
     <div
       ref={ref}
       style={{
-        position: 'relative',
+        alignItems: 'center',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
+        position: 'relative',
       }}
     >
       <canvas
-        id="particles"
-        width={dimensions.boundedWidth}
         height={dimensions.boundedHeight}
+        id="particles"
         style={{
-          width: dimensions.boundedWidth,
-          height: dimensions.boundedHeight,
           border: '1px solid black',
+          height: dimensions.boundedHeight,
+          width: dimensions.boundedWidth,
         }}
+        width={dimensions.boundedWidth}
       />
       <canvas
+        height={dimensions.boundedHeight}
         id="historical"
         style={{
+          height: dimensions.boundedHeight,
           position: 'absolute',
           width: dimensions.boundedWidth,
-          height: dimensions.boundedHeight,
         }}
         width={dimensions.boundedWidth}
-        height={dimensions.boundedHeight}
       />
     </div>
   );
