@@ -17,18 +17,17 @@ function getRandomAngle() {
   return Math.random() * Math.PI * 2;
 }
 
-type Point2d = {
+type Point2 = {
   x: number;
   y: number;
 };
 
 class Particle {
-  curr: Point2d;
-  prev: Point2d;
+  curr: Point2;
+  prev: Point2;
   r: number;
   mass: number;
-  vx: number;
-  vy: number;
+  v: Point2;
   fill: string;
   isTracked: boolean;
 
@@ -44,8 +43,10 @@ class Particle {
     this.prev = { x, y };
     this.r = r;
     this.mass = r;
-    this.vx = speed * Math.cos(getRandomAngle());
-    this.vy = speed * Math.sin(getRandomAngle());
+    this.v = {
+      x: speed * Math.cos(getRandomAngle()),
+      y: speed * Math.sin(getRandomAngle()),
+    };
     this.fill = fill;
     this.isTracked = isTracking;
   }
@@ -53,8 +54,8 @@ class Particle {
   move() {
     this.prev.x = this.curr.x;
     this.prev.y = this.curr.y;
-    this.curr.x += this.vx;
-    this.curr.y += this.vy;
+    this.curr.x = this.curr.x + this.v.x;
+    this.curr.y = this.curr.y + this.v.y;
   }
 
   isCollidingWith(p: Particle) {
@@ -68,10 +69,10 @@ class Particle {
 
 function testForWalls(p: Particle, width: number, height: number) {
   if (p.curr.x + p.r > width || p.curr.x - p.r < 0) {
-    p.vx = -p.vx;
+    p.v.x = -p.v.x;
   }
   if (p.curr.y + p.r > height || p.curr.y - p.r < 0) {
-    p.vy = -p.vy;
+    p.v.y = -p.v.y;
   }
 }
 
@@ -87,8 +88,8 @@ function drawParticle(p: Particle) {
 function collide(p1: Particle, p2: Particle) {
   const dx = p1.curr.x - p2.curr.x;
   const dy = p1.curr.y - p2.curr.y;
-  const dvx = p1.vx - p2.vx;
-  const dvy = p1.vy - p2.vy;
+  const dvx = p1.v.x - p2.v.x;
+  const dvy = p1.v.y - p2.v.y;
   const dot = dx * -dvx + dy * -dvy;
 
   if (dot > 0) {
@@ -97,18 +98,18 @@ function collide(p1: Particle, p2: Particle) {
     const cr = 1; // TODO: Make coefficient of restitution variable
 
     const v1x =
-      p1.vx - ((1 + cr) * p2.mass * (dvx * dx + dvy * dy) * dx) / (dSqrd * mt);
+      p1.v.x - ((1 + cr) * p2.mass * (dvx * dx + dvy * dy) * dx) / (dSqrd * mt);
     const v1y =
-      p1.vy - ((1 + cr) * p2.mass * (dvx * dx + dvy * dy) * dy) / (dSqrd * mt);
+      p1.v.y - ((1 + cr) * p2.mass * (dvx * dx + dvy * dy) * dy) / (dSqrd * mt);
     const v2x =
-      p2.vx + ((1 + cr) * p1.mass * (dvx * dx + dvy * dy) * dx) / (dSqrd * mt);
+      p2.v.x + ((1 + cr) * p1.mass * (dvx * dx + dvy * dy) * dx) / (dSqrd * mt);
     const v2y =
-      p2.vy + ((1 + cr) * p1.mass * (dvx * dx + dvy * dy) * dy) / (dSqrd * mt);
+      p2.v.y + ((1 + cr) * p1.mass * (dvx * dx + dvy * dy) * dy) / (dSqrd * mt);
 
-    p1.vx = v1x;
-    p1.vy = v1y;
-    p2.vx = v2x;
-    p2.vy = v2y;
+    p1.v.x = v1x;
+    p1.v.y = v1y;
+    p2.v.x = v2x;
+    p2.v.y = v2y;
   }
 }
 
@@ -156,14 +157,14 @@ function update(particles: Particle[], width: number, height: number) {
 
 const NUMBER_OF_PARTICLES = 50;
 const RADIUS = 8;
-const INITIAL_VELOCITY = 6; // TODO: Consider 10 as masimum velocity
+const INITIAL_SPEED = 6; // TODO: Consider 10 as masimum speed
 
 function composeParticle(
   height: number,
   width: number,
   isTracked: boolean,
   r: number,
-  vi: number,
+  initialSpeed: number,
   fill: string,
 ) {
   const diameter = r * 2;
@@ -173,8 +174,8 @@ function composeParticle(
   const minY = diameter;
   const x = Math.random() * (maxX - minX) + minX;
   const y = Math.random() * (maxY - minY) + minY;
-  const velocity = Math.random() * vi;
-  return new Particle(x, y, r, velocity, fill, isTracked);
+  const speed = Math.random() * initialSpeed;
+  return new Particle(x, y, r, speed, fill, isTracked);
 }
 
 function composeParticles(
@@ -201,7 +202,7 @@ function BrownianMotion(): JSX.Element {
         dimensions.boundedWidth,
         true,
         RADIUS * 2.5,
-        INITIAL_VELOCITY,
+        INITIAL_SPEED,
         'red',
         1,
       ),
@@ -210,7 +211,7 @@ function BrownianMotion(): JSX.Element {
         dimensions.boundedWidth,
         false,
         RADIUS,
-        INITIAL_VELOCITY,
+        INITIAL_SPEED,
         'blue',
         NUMBER_OF_PARTICLES,
       ),
