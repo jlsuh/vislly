@@ -24,8 +24,7 @@ type Point2d = {
 
 class Particle {
   curr: Point2d;
-  prevX: number;
-  prevY: number;
+  prev: Point2d;
   r: number;
   mass: number;
   vx: number;
@@ -36,16 +35,13 @@ class Particle {
   constructor(
     x: number,
     y: number,
-    prevX: number,
-    prevY: number,
     r: number,
     speed: number,
     fill: string,
     isTracking: boolean,
   ) {
     this.curr = { x, y };
-    this.prevX = prevX;
-    this.prevY = prevY;
+    this.prev = { x, y };
     this.r = r;
     this.mass = r;
     this.vx = speed * Math.cos(getRandomAngle());
@@ -55,8 +51,8 @@ class Particle {
   }
 
   move() {
-    this.prevX = this.curr.x;
-    this.prevY = this.curr.y;
+    this.prev.x = this.curr.x;
+    this.prev.y = this.curr.y;
     this.curr.x += this.vx;
     this.curr.y += this.vy;
   }
@@ -130,7 +126,7 @@ function drawHistoricalPath(p: Particle) {
   historicalContext.lineCap = 'round';
   historicalContext.strokeStyle = 'purple';
   historicalContext.beginPath();
-  historicalContext.moveTo(p.prevX, p.prevY);
+  historicalContext.moveTo(p.prev.x, p.prev.y);
   historicalContext.lineTo(p.curr.x, p.curr.y);
   historicalContext.stroke();
   historicalContext.closePath();
@@ -178,7 +174,7 @@ function composeParticle(
   const x = Math.random() * (maxX - minX) + minX;
   const y = Math.random() * (maxY - minY) + minY;
   const velocity = Math.random() * vi;
-  return new Particle(x, y, x, y, r, velocity, fill, isTracked);
+  return new Particle(x, y, r, velocity, fill, isTracked);
 }
 
 function composeParticles(
