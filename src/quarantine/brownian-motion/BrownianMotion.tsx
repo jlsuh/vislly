@@ -47,8 +47,8 @@ class Vector2 {
 }
 
 class Particle {
-  curr: Point2;
-  prev: Point2;
+  currPos: Point2;
+  prevPos: Point2;
   r: number;
   mass: number;
   v: Vector2;
@@ -61,10 +61,10 @@ class Particle {
     r: number,
     speed: number,
     fill: string,
-    isTracking: boolean,
+    isTracked: boolean,
   ) {
-    this.curr = { x, y };
-    this.prev = { x, y };
+    this.currPos = { x, y };
+    this.prevPos = { x, y };
     this.r = r;
     this.mass = r;
     this.v = new Vector2(
@@ -72,30 +72,30 @@ class Particle {
       speed * Math.sin(getRandomAngle()),
     );
     this.fill = fill;
-    this.isTracked = isTracking;
+    this.isTracked = isTracked;
   }
 
   move() {
-    this.prev.x = this.curr.x;
-    this.prev.y = this.curr.y;
-    this.curr.x = this.curr.x + this.v.x;
-    this.curr.y = this.curr.y + this.v.y;
+    this.prevPos.x = this.currPos.x;
+    this.prevPos.y = this.currPos.y;
+    this.currPos.x = this.currPos.x + this.v.x;
+    this.currPos.y = this.currPos.y + this.v.y;
   }
 
   isCollidingWith(p: Particle) {
-    const vx = this.curr.x - p.curr.x;
-    const vy = this.curr.y - p.curr.y;
-    const dSqrd = vx ** 2 + vy ** 2;
+    const dx = this.currPos.x - p.currPos.x;
+    const dy = this.currPos.y - p.currPos.y;
+    const dSqrd = dx ** 2 + dy ** 2;
     const rSqrd = (this.r + p.r) ** 2;
     return dSqrd < rSqrd;
   }
 }
 
 function testForWalls(p: Particle, width: number, height: number) {
-  if (p.curr.x + p.r > width || p.curr.x - p.r < 0) {
+  if (p.currPos.x + p.r > width || p.currPos.x - p.r < 0) {
     p.v.x = -p.v.x;
   }
-  if (p.curr.y + p.r > height || p.curr.y - p.r < 0) {
+  if (p.currPos.y + p.r > height || p.currPos.y - p.r < 0) {
     p.v.y = -p.v.y;
   }
 }
@@ -103,15 +103,15 @@ function testForWalls(p: Particle, width: number, height: number) {
 function drawParticle(p: Particle) {
   const particlesContext = getCanvasCtxById('particles');
   particlesContext.beginPath();
-  particlesContext.arc(p.curr.x, p.curr.y, p.r, 0, Math.PI * 2);
+  particlesContext.arc(p.currPos.x, p.currPos.y, p.r, 0, Math.PI * 2);
   particlesContext.fillStyle = p.fill;
   particlesContext.fill();
   particlesContext.closePath();
 }
 
 function collide(p1: Particle, p2: Particle) {
-  const dx = p1.curr.x - p2.curr.x;
-  const dy = p1.curr.y - p2.curr.y;
+  const dx = p1.currPos.x - p2.currPos.x;
+  const dy = p1.currPos.y - p2.currPos.y;
   const dvx = p1.v.x - p2.v.x;
   const dvy = p1.v.y - p2.v.y;
   const dot = dx * -dvx + dy * -dvy;
@@ -151,8 +151,8 @@ function drawHistoricalPath(p: Particle) {
   historicalContext.lineCap = 'round';
   historicalContext.strokeStyle = 'purple';
   historicalContext.beginPath();
-  historicalContext.moveTo(p.prev.x, p.prev.y);
-  historicalContext.lineTo(p.curr.x, p.curr.y);
+  historicalContext.moveTo(p.prevPos.x, p.prevPos.y);
+  historicalContext.lineTo(p.currPos.x, p.currPos.y);
   historicalContext.stroke();
   historicalContext.closePath();
 }
