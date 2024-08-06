@@ -2,26 +2,27 @@ import * as d3 from 'd3';
 import { useEffect } from 'react';
 import useChartDimensions from '../useChartDimensions';
 
-const chartSettings = {
-  boundedHeight: 0,
-  boundedWidth: 0,
-  height: 500, // TODO: Calculate height to occupy 40% of the viewport
-  marginBottom: 30,
-  marginLeft: 30,
-  marginRight: 30,
-  marginTop: 30,
-  width: 0, // If height is 0, the width is calculated
+type Point2 = {
+  x: number;
+  y: number;
 };
 
-interface Point2 {
+type Vector2 = {
   x: number;
   y: number;
-}
+};
 
-interface Vector2 {
+type Limit = number;
+
+type ParticleSettings = {
   x: number;
   y: number;
-}
+  r: number;
+  speed: number;
+  initialAngle: number;
+  fillColor: string;
+  isTracked: boolean;
+};
 
 class Particle {
   curr: Point2;
@@ -29,72 +30,63 @@ class Particle {
   r: number;
   mass: number;
   v: Vector2;
-  fill: string;
+  fillColor: string;
   isTracked: boolean;
 
-  constructor(
-    x: number,
-    y: number,
-    r: number,
-    speed: number,
-    initialAngle: number,
-    fill: string,
-    isTracked: boolean,
-  ) {
-    this.curr = { x, y };
-    this.prev = { x, y };
-    this.r = r;
-    this.mass = r;
+  constructor(settings: ParticleSettings) {
+    this.curr = { x: settings.x, y: settings.y };
+    this.prev = { x: settings.x, y: settings.y };
+    this.r = settings.r;
+    this.mass = settings.r;
     this.v = {
-      x: speed * Math.cos(initialAngle),
-      y: speed * Math.sin(initialAngle),
+      x: settings.speed * Math.cos(settings.initialAngle),
+      y: settings.speed * Math.sin(settings.initialAngle),
     };
-    this.fill = fill;
-    this.isTracked = isTracked;
+    this.fillColor = settings.fillColor;
+    this.isTracked = settings.isTracked;
   }
 
-  move() {
+  public move() {
     this.prev.x = this.curr.x;
     this.prev.y = this.curr.y;
     this.curr.x = this.curr.x + this.v.x;
     this.curr.y = this.curr.y + this.v.y;
   }
 
-  dx(p: Particle) {
+  public dx(p: Particle) {
     return this.curr.x - p.curr.x;
   }
 
-  dy(p: Particle) {
+  public dy(p: Particle) {
     return this.curr.y - p.curr.y;
   }
 
-  dvx(p: Particle) {
+  public dvx(p: Particle) {
     return this.v.x - p.v.x;
   }
 
-  dvy(p: Particle) {
+  public dvy(p: Particle) {
     return this.v.y - p.v.y;
   }
 
-  dSqrd(p: Particle) {
+  public dSqrd(p: Particle) {
     return this.dx(p) ** 2 + this.dy(p) ** 2;
   }
 
-  rSqrd(p: Particle) {
+  public rSqrd(p: Particle) {
     return (this.r + p.r) ** 2;
   }
 
-  isCollidingWith(p: Particle) {
+  public isCollidingWithParticle(p: Particle) {
     return this.dSqrd(p) < this.rSqrd(p);
   }
-}
 
-function testForWalls(p: Particle, width: number, height: number) {
-  if (p.curr.x + p.r > width || p.curr.x - p.r < 0) {
-    p.v.x = -p.v.x;
+  public isHorizontalWallCollision(width: Limit) {
+    return this.curr.x - this.r < 0 || this.curr.x + this.r > width;
   }
-  if (p.curr.y + p.r > height || p.curr.y - p.r < 0) {
-    p.v.y = -p.v.y;
+
+  public isVerticalWallCollision(height: Limit) {
+    return this.curr.y - this.r < 0 || this.curr.y + this.r > height;
   }
 }
 
@@ -102,7 +94,7 @@ function drawParticle(p: Particle) {
   const particlesContext = getCanvasCtxById('particles');
   particlesContext.beginPath();
   particlesContext.arc(p.curr.x, p.curr.y, p.r, 0, Math.PI * 2);
-  particlesContext.fillStyle = p.fill;
+  particlesContext.fillStyle = p.fillColor;
   particlesContext.fill();
   particlesContext.closePath();
 }
@@ -135,13 +127,6 @@ function collide(p1: Particle, p2: Particle) {
   }
 }
 
-function checkForCollisions(p1: Particle, particles: Particle[]) {
-  for (const p2 of particles) {
-    if (p1 === p2) continue;
-    if (p1.isCollidingWith(p2)) collide(p1, p2);
-  }
-}
-
 function drawHistoricalPath(p: Particle) {
   const historicalContext = getCanvasCtxById('historical');
   historicalContext.lineWidth = 1.5;
@@ -164,24 +149,26 @@ function resetCanvas(width: number, height: number) {
   getCanvasCtxById('particles').clearRect(0, 0, width, height);
 }
 
-function update(particles: Particle[], width: number, height: number) {
+const update = (particles: Particle[], width: number, height: number) => {
   resetCanvas(width, height);
-  for (const p of particles) {
-    drawParticle(p);
-    if (p.isTracked) {
-      drawHistoricalPath(p);
+  for (const p1 of particles) {
+    drawParticle(p1);
+    if (p1.isTracked) drawHistoricalPath(p1);
+    if (p1.isHorizontalWallCollision(width)) p1.v.x = -p1.v.x;
+    if (p1.isVerticalWallCollision(height)) p1.v.y = -p1.v.y;
+    p1.move();
+    for (const p2 of particles) {
+      if (p1 === p2) continue;
+      if (p1.isCollidingWithParticle(p2)) collide(p1, p2);
     }
-    testForWalls(p, width, height);
-    p.move();
-    checkForCollisions(p, particles);
   }
-}
+};
 
 function getRandomAngle() {
   return Math.random() * Math.PI * 2;
 }
 
-const NUMBER_OF_PARTICLES = 50;
+const NUMBER_OF_PARTICLES = 20;
 const RADIUS = 8;
 const INITIAL_SPEED = 6; // TODO: Consider 10 as masimum speed
 
@@ -191,7 +178,7 @@ function composeParticle(
   isTracked: boolean,
   r: number,
   initialSpeed: number,
-  fill: string,
+  fillColor: string,
 ) {
   const diameter = r * 2;
   const maxX = width - diameter;
@@ -201,7 +188,15 @@ function composeParticle(
   const x = Math.random() * (maxX - minX) + minX;
   const y = Math.random() * (maxY - minY) + minY;
   const speed = Math.random() * initialSpeed;
-  return new Particle(x, y, r, speed, getRandomAngle(), fill, isTracked);
+  return new Particle({
+    x,
+    y,
+    r,
+    speed,
+    initialAngle: getRandomAngle(),
+    fillColor: fillColor,
+    isTracked,
+  });
 }
 
 function composeParticles(
@@ -209,14 +204,29 @@ function composeParticles(
   width: number,
   isTracked: boolean,
   r: number,
-  vi: number,
-  fill: string,
+  initialSpeed: number,
+  fillColor: string,
   numberOfParticles: number,
 ) {
   return Array.from({ length: numberOfParticles }, () =>
-    composeParticle(height, width, isTracked, r, vi, fill),
+    composeParticle(height, width, isTracked, r, initialSpeed, fillColor),
   );
 }
+
+const chartSettings = {
+  boundedHeight: 0,
+  boundedWidth: 0,
+  height: 500, // TODO: Calculate height to occupy 40% of the viewport
+  marginBottom: 0,
+  marginLeft: 0,
+  marginRight: 0,
+  marginTop: 0,
+  width: 0, // If height is 0, the width is calculated
+};
+
+const disableContextMenu = (
+  e: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
+) => e.preventDefault();
 
 function BrownianMotion(): JSX.Element {
   const { ref, dimensions } = useChartDimensions(chartSettings);
@@ -261,6 +271,7 @@ function BrownianMotion(): JSX.Element {
       <canvas
         height={dimensions.boundedHeight}
         id="particles"
+        onContextMenu={disableContextMenu}
         style={{
           border: '1px solid black',
           height: dimensions.boundedHeight,
@@ -271,6 +282,7 @@ function BrownianMotion(): JSX.Element {
       <canvas
         height={dimensions.boundedHeight}
         id="historical"
+        onContextMenu={disableContextMenu}
         style={{
           height: dimensions.boundedHeight,
           position: 'absolute',
