@@ -213,15 +213,16 @@ function composeParticles(
   );
 }
 
+// NOTE: If height or width is 0, the canvas will calculate max value for viewport
 const chartSettings = {
   boundedHeight: 0,
   boundedWidth: 0,
-  height: 500, // TODO: Calculate height to occupy 40% of the viewport
-  marginBottom: 0,
-  marginLeft: 0,
-  marginRight: 0,
-  marginTop: 0,
-  width: 0, // If height is 0, the width is calculated
+  marginBottom: 30,
+  marginLeft: 30,
+  marginRight: 30,
+  marginTop: 30,
+  height: 0,
+  width: 0,
 };
 
 const disableContextMenu = (
@@ -264,8 +265,10 @@ function BrownianMotion(): JSX.Element {
       style={{
         alignItems: 'center',
         display: 'flex',
-        flexDirection: 'column',
+        justifyContent: 'center',
         position: 'relative',
+        maxHeight: 'calc(100vh)',
+        minHeight: 'calc(100vh)',
       }}
     >
       <canvas
