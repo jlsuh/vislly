@@ -3,8 +3,8 @@ import { useEffect } from 'react';
 import useChartDimensions from '../useChartDimensions';
 
 class Vector2 {
-  x: number;
-  y: number;
+  readonly x: number;
+  readonly y: number;
 
   constructor(x = 0, y = 0) {
     this.x = x;
@@ -15,60 +15,29 @@ class Vector2 {
     return new Vector2(this.x, this.y);
   }
 
-  set(x: number, y: number): this {
-    this.x = x;
-    this.y = y;
-    return this;
+  add(that: Vector2): Vector2 {
+    return new Vector2(this.x + that.x, this.y + that.y);
   }
 
-  add(that: Vector2): this {
-    this.x += that.x;
-    this.y += that.y;
-    return this;
+  sub(that: Vector2): Vector2 {
+    return new Vector2(this.x - that.x, this.y - that.y);
   }
 
-  sub(that: Vector2): this {
-    this.x -= that.x;
-    this.y -= that.y;
-    return this;
-  }
-
-  mul(that: Vector2): this {
-    this.x *= that.x;
-    this.y *= that.y;
-    return this;
-  }
-
-  sqrLength(): number {
+  sqrLength() {
     return this.x * this.x + this.y * this.y;
   }
 
-  length(): number {
-    return Math.sqrt(this.sqrLength());
-  }
-
-  scale(value: number): this {
-    this.x *= value;
-    this.y *= value;
-    return this;
-  }
-
-  norm(): this {
-    const l = this.length();
-    return l === 0 ? this : this.scale(1 / l);
-  }
-
-  sqrDistanceTo(that: Vector2): number {
+  sqrDistanceTo(that: Vector2) {
     const dx = that.x - this.x;
     const dy = that.y - this.y;
     return dx * dx + dy * dy;
   }
 
-  distanceTo(that: Vector2): number {
+  distanceTo(that: Vector2) {
     return Math.sqrt(this.sqrDistanceTo(that));
   }
 
-  dot(that: Vector2): number {
+  dot(that: Vector2) {
     return this.x * that.x + this.y * that.y;
   }
 }
@@ -179,10 +148,8 @@ function collide(p1: Particle, p2: Particle) {
     const v2y =
       p2.v.y + ((1 + cr) * p1.mass * (dvx * dx + dvy * dy) * dy) / (dSqrd * mt);
 
-    p1.v.x = v1x;
-    p1.v.y = v1y;
-    p2.v.x = v2x;
-    p2.v.y = v2y;
+    p1.v = new Vector2(v1x, v1y);
+    p2.v = new Vector2(v2x, v2y);
   }
 }
 
@@ -217,8 +184,12 @@ const update = (particles: Particle[], width: number, height: number) => {
   for (const p1 of particles) {
     drawParticle(p1);
     if (p1.isTracked) drawHistoricalPath(p1);
-    if (p1.isHorizontalWallCollision(width)) p1.v.x = -p1.v.x;
-    if (p1.isVerticalWallCollision(height)) p1.v.y = -p1.v.y;
+    if (p1.isHorizontalWallCollision(width)) {
+      p1.v = new Vector2(-p1.v.x, p1.v.y);
+    }
+    if (p1.isVerticalWallCollision(height)) {
+      p1.v = new Vector2(p1.v.x, -p1.v.y);
+    }
     p1.move();
     for (const p2 of particles) {
       if (p1 === p2) continue;
