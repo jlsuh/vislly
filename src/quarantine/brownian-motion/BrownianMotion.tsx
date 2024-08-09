@@ -31,10 +31,6 @@ class Vector2 {
     return new Vector2(this._x - that._x, this._y - that._y);
   }
 
-  public sqrLength() {
-    return this._x * this._x + this._y * this._y;
-  }
-
   public sqrDistanceTo(that: Vector2) {
     const dx = that._x - this._x;
     const dy = that._y - this._y;
@@ -105,16 +101,13 @@ class Particle {
     return this.v.y - p.v.y;
   }
 
-  public dSqrd(p: Particle) {
-    return this.dx(p) ** 2 + this.dy(p) ** 2;
-  }
-
   public rSqrd(p: Particle) {
-    return (this.r + p.r) ** 2;
+    const rt = this.r + p.r;
+    return rt * rt;
   }
 
   public isCollidingWithParticle(p: Particle) {
-    return this.dSqrd(p) < this.rSqrd(p);
+    return this.curr.sqrDistanceTo(p.curr) < this.rSqrd(p);
   }
 
   public isHorizontalWallCollision(width: Limit) {
@@ -144,7 +137,8 @@ function collide(p1: Particle, p2: Particle) {
 
   if (dot > 0) {
     const mt = p1.mass + p2.mass;
-    const dSqrd = p1.dSqrd(p2);
+    // const dSqrd = p1.dSqrd(p2);
+    const dSqrd = p1.curr.sqrDistanceTo(p2.curr);
     const cr = 1; // TODO: Make coefficient of restitution variable
 
     const v1x =
