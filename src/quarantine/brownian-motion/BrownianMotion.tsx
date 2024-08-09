@@ -2,15 +2,76 @@ import * as d3 from 'd3';
 import { useEffect } from 'react';
 import useChartDimensions from '../useChartDimensions';
 
-type Point2 = {
+class Vector2 {
   x: number;
   y: number;
-};
 
-type Vector2 = {
-  x: number;
-  y: number;
-};
+  constructor(x = 0, y = 0) {
+    this.x = x;
+    this.y = y;
+  }
+
+  clone(): Vector2 {
+    return new Vector2(this.x, this.y);
+  }
+
+  set(x: number, y: number): this {
+    this.x = x;
+    this.y = y;
+    return this;
+  }
+
+  add(that: Vector2): this {
+    this.x += that.x;
+    this.y += that.y;
+    return this;
+  }
+
+  sub(that: Vector2): this {
+    this.x -= that.x;
+    this.y -= that.y;
+    return this;
+  }
+
+  mul(that: Vector2): this {
+    this.x *= that.x;
+    this.y *= that.y;
+    return this;
+  }
+
+  sqrLength(): number {
+    return this.x * this.x + this.y * this.y;
+  }
+
+  length(): number {
+    return Math.sqrt(this.sqrLength());
+  }
+
+  scale(value: number): this {
+    this.x *= value;
+    this.y *= value;
+    return this;
+  }
+
+  norm(): this {
+    const l = this.length();
+    return l === 0 ? this : this.scale(1 / l);
+  }
+
+  sqrDistanceTo(that: Vector2): number {
+    const dx = that.x - this.x;
+    const dy = that.y - this.y;
+    return dx * dx + dy * dy;
+  }
+
+  distanceTo(that: Vector2): number {
+    return Math.sqrt(this.sqrDistanceTo(that));
+  }
+
+  dot(that: Vector2): number {
+    return this.x * that.x + this.y * that.y;
+  }
+}
 
 type Limit = number;
 
@@ -25,8 +86,8 @@ type ParticleSettings = {
 };
 
 class Particle {
-  curr: Point2;
-  prev: Point2;
+  curr: Vector2;
+  prev: Vector2;
   r: number;
   mass: number;
   v: Vector2;
@@ -34,23 +95,21 @@ class Particle {
   isTracked: boolean;
 
   constructor(settings: ParticleSettings) {
-    this.curr = { x: settings.x, y: settings.y };
-    this.prev = { x: settings.x, y: settings.y };
+    this.curr = new Vector2(settings.x, settings.y);
+    this.prev = new Vector2(settings.x, settings.y);
     this.r = settings.r;
     this.mass = settings.r;
-    this.v = {
-      x: settings.speed * Math.cos(settings.initialAngle),
-      y: settings.speed * Math.sin(settings.initialAngle),
-    };
+    this.v = new Vector2(
+      settings.speed * Math.cos(settings.initialAngle),
+      settings.speed * Math.sin(settings.initialAngle),
+    );
     this.fillColor = settings.fillColor;
     this.isTracked = settings.isTracked;
   }
 
   public move() {
-    this.prev.x = this.curr.x;
-    this.prev.y = this.curr.y;
-    this.curr.x = this.curr.x + this.v.x;
-    this.curr.y = this.curr.y + this.v.y;
+    this.prev = this.curr.clone();
+    this.curr = this.curr.add(this.v);
   }
 
   public dx(p: Particle) {
