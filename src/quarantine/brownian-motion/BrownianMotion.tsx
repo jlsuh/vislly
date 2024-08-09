@@ -129,15 +129,19 @@ function collide(p1: Particle, p2: Particle) {
 
 function drawHistoricalPath(p: Particle) {
   const historicalContext = getCanvasCtxById('historical');
-  historicalContext.lineWidth = 1.5;
-  historicalContext.lineJoin = 'round';
-  historicalContext.lineCap = 'round';
-  historicalContext.strokeStyle = 'purple';
   historicalContext.beginPath();
   historicalContext.moveTo(p.prev.x, p.prev.y);
   historicalContext.lineTo(p.curr.x, p.curr.y);
-  historicalContext.stroke();
   historicalContext.closePath();
+  historicalContext.stroke();
+}
+
+function configureHistoricalCanvas() {
+  const historicalContext = getCanvasCtxById('historical');
+  historicalContext.lineCap = 'round';
+  historicalContext.lineJoin = 'round';
+  historicalContext.lineWidth = 0.5;
+  historicalContext.strokeStyle = 'purple';
 }
 
 function getCanvasCtxById(id: string) {
@@ -170,7 +174,7 @@ function getRandomAngle() {
 
 const NUMBER_OF_PARTICLES = 20;
 const RADIUS = 8;
-const INITIAL_SPEED = 6; // TODO: Consider 10 as masimum speed
+const INITIAL_SPEED = 10; // TODO: Consider 10 as masimum speed
 
 function composeParticle(
   height: number,
@@ -233,6 +237,7 @@ function BrownianMotion(): JSX.Element {
   const { ref, dimensions } = useChartDimensions(chartSettings);
 
   useEffect(() => {
+    configureHistoricalCanvas();
     const particles = [
       ...composeParticles(
         dimensions.boundedHeight,
