@@ -3,42 +3,50 @@ import { useEffect } from 'react';
 import useChartDimensions from '../useChartDimensions';
 
 class Vector2 {
-  readonly x: number;
-  readonly y: number;
+  private readonly _x: number;
+  private readonly _y: number;
 
-  constructor(x = 0, y = 0) {
-    this.x = x;
-    this.y = y;
+  constructor(x: number, y: number) {
+    this._x = x;
+    this._y = y;
   }
 
-  clone(): Vector2 {
-    return new Vector2(this.x, this.y);
+  get x() {
+    return this._x;
   }
 
-  add(that: Vector2): Vector2 {
-    return new Vector2(this.x + that.x, this.y + that.y);
+  get y() {
+    return this._y;
   }
 
-  sub(that: Vector2): Vector2 {
-    return new Vector2(this.x - that.x, this.y - that.y);
+  public clone(): Vector2 {
+    return new Vector2(this._x, this._y);
   }
 
-  sqrLength() {
-    return this.x * this.x + this.y * this.y;
+  public add(that: Vector2): Vector2 {
+    return new Vector2(this._x + that._x, this._y + that._y);
   }
 
-  sqrDistanceTo(that: Vector2) {
-    const dx = that.x - this.x;
-    const dy = that.y - this.y;
+  public sub(that: Vector2): Vector2 {
+    return new Vector2(this._x - that._x, this._y - that._y);
+  }
+
+  public sqrLength() {
+    return this._x * this._x + this._y * this._y;
+  }
+
+  public sqrDistanceTo(that: Vector2) {
+    const dx = that._x - this._x;
+    const dy = that._y - this._y;
     return dx * dx + dy * dy;
   }
 
-  distanceTo(that: Vector2) {
+  public distanceTo(that: Vector2) {
     return Math.sqrt(this.sqrDistanceTo(that));
   }
 
-  dot(that: Vector2) {
-    return this.x * that.x + this.y * that.y;
+  public dot(that: Vector2) {
+    return this._x * that._x + this._y * that._y;
   }
 }
 
