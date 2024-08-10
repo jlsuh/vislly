@@ -60,16 +60,17 @@ class Particle {
   isTracked: boolean;
 
   constructor(settings: ParticleSettings) {
-    this.curr = new Vector2(settings.x, settings.y);
-    this.prev = new Vector2(settings.x, settings.y);
-    this.r = settings.r;
-    this.mass = settings.r;
+    const { x, y, r, speed, initialAngle, fillColor, isTracked } = settings;
+    this.curr = new Vector2(x, y);
+    this.prev = new Vector2(x, y);
+    this.r = r;
+    this.mass = r;
     this.v = new Vector2(
-      settings.speed * Math.cos(settings.initialAngle),
-      settings.speed * Math.sin(settings.initialAngle),
+      speed * Math.cos(initialAngle),
+      speed * Math.sin(initialAngle),
     );
-    this.fillColor = settings.fillColor;
-    this.isTracked = settings.isTracked;
+    this.fillColor = fillColor;
+    this.isTracked = isTracked;
   }
 
   private rSqrd(that: Particle) {
