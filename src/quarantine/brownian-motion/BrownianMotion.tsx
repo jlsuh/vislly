@@ -3,40 +3,28 @@ import { useEffect } from 'react';
 import useChartDimensions from '../useChartDimensions';
 
 class Vector2 {
-  private readonly _x: number;
-  private readonly _y: number;
+  readonly x: number;
+  readonly y: number;
 
   constructor(x: number, y: number) {
-    this._x = x;
-    this._y = y;
+    this.x = x;
+    this.y = y;
   }
 
-  get x() {
-    return this._x;
-  }
-
-  get y() {
-    return this._y;
-  }
-
-  public clone(): Vector2 {
-    return new Vector2(this.x, this.y);
-  }
-
-  public add(that: Vector2): Vector2 {
+  public add(that: Vector2) {
     return new Vector2(this.x + that.x, this.y + that.y);
   }
 
-  public sub(that: Vector2): Vector2 {
-    return new Vector2(this.x - that.x, this.y - that.y);
+  public clone() {
+    return new Vector2(this.x, this.y);
   }
 
-  public dx(that: Vector2): number {
-    return this.sub(that).x;
+  public dot(that: Vector2) {
+    return this.x * that.x + this.y * that.y;
   }
 
-  public dy(that: Vector2): number {
-    return this.sub(that).y;
+  public map(fn: (x: number) => number) {
+    return new Vector2(fn(this.x), fn(this.y));
   }
 
   public sqrdDistanceTo(that: Vector2) {
@@ -45,8 +33,8 @@ class Vector2 {
     return dx * dx + dy * dy;
   }
 
-  public dot(that: Vector2) {
-    return this.x * that.x + this.y * that.y;
+  public sub(that: Vector2) {
+    return new Vector2(this.x - that.x, this.y - that.y);
   }
 }
 
@@ -94,22 +82,6 @@ class Particle {
     this.curr = this.curr.add(this.v);
   }
 
-  public dx(that: Particle) {
-    return this.curr.dx(that.curr);
-  }
-
-  public dy(that: Particle) {
-    return this.curr.dy(that.curr);
-  }
-
-  public dvx(that: Particle) {
-    return this.v.dx(that.v);
-  }
-
-  public dvy(that: Particle) {
-    return this.v.dy(that.v);
-  }
-
   public isCollidingWithParticle(that: Particle) {
     return this.curr.sqrdDistanceTo(that.curr) < this.rSqrd(that);
   }
@@ -133,26 +105,19 @@ function drawParticle(p: Particle) {
 }
 
 function collide(p1: Particle, p2: Particle) {
-  const dx = p1.dx(p2);
-  const dy = p1.dy(p2);
-  const dvx = p1.dvx(p2);
-  const dvy = p1.dvy(p2);
-  const dot = dx * -dvx + dy * -dvy;
-
-  if (dot > 0) {
+  const d = p1.curr.sub(p2.curr);
+  const v = p1.v.sub(p2.v);
+  const minusV = v.map((x) => -x);
+  const minusVDot = d.dot(minusV);
+  if (minusVDot > 0) {
     const mt = p1.mass + p2.mass;
     const dSqrd = p1.curr.sqrdDistanceTo(p2.curr);
     const cr = 1; // TODO: Make coefficient of restitution variable
-
-    const v1x =
-      p1.v.x - ((1 + cr) * p2.mass * (dvx * dx + dvy * dy) * dx) / (dSqrd * mt);
-    const v1y =
-      p1.v.y - ((1 + cr) * p2.mass * (dvx * dx + dvy * dy) * dy) / (dSqrd * mt);
-    const v2x =
-      p2.v.x + ((1 + cr) * p1.mass * (dvx * dx + dvy * dy) * dx) / (dSqrd * mt);
-    const v2y =
-      p2.v.y + ((1 + cr) * p1.mass * (dvx * dx + dvy * dy) * dy) / (dSqrd * mt);
-
+    const dot = d.dot(v);
+    const v1x = p1.v.x - ((1 + cr) * p2.mass * dot * d.x) / (dSqrd * mt);
+    const v1y = p1.v.y - ((1 + cr) * p2.mass * dot * d.y) / (dSqrd * mt);
+    const v2x = p2.v.x + ((1 + cr) * p1.mass * dot * d.x) / (dSqrd * mt);
+    const v2y = p2.v.y + ((1 + cr) * p1.mass * dot * d.y) / (dSqrd * mt);
     p1.v = new Vector2(v1x, v1y);
     p2.v = new Vector2(v2x, v2y);
   }
