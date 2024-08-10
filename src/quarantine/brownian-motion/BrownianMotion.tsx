@@ -202,33 +202,6 @@ const NUMBER_OF_PARTICLES = 20;
 const RADIUS = 8;
 const INITIAL_SPEED = 5; // TODO: Consider 10 as masimum speed
 
-function composeParticle(
-  height: Limit,
-  width: Limit,
-  isTracked: boolean,
-  r: Radius,
-  initialSpeed: Speed,
-  fillColor: RGBA,
-) {
-  const diameter = r * 2;
-  const maxX = width - diameter;
-  const maxY = height - diameter;
-  const minX = diameter;
-  const minY = diameter;
-  const x = Math.random() * (maxX - minX) + minX;
-  const y = Math.random() * (maxY - minY) + minY;
-  const speed = Math.random() * initialSpeed;
-  return new Particle({
-    x,
-    y,
-    r,
-    speed,
-    initialAngle: getRandomAngle(),
-    fillColor,
-    isTracked,
-  });
-}
-
 function composeParticles(
   height: Limit,
   width: Limit,
@@ -238,9 +211,25 @@ function composeParticles(
   fillColor: RGBA,
   numberOfParticles: number,
 ) {
-  return Array.from({ length: numberOfParticles }, () =>
-    composeParticle(height, width, isTracked, r, initialSpeed, fillColor),
-  );
+  return Array.from({ length: numberOfParticles }, () => {
+    const diameter = r * 2;
+    const maxX = width - diameter;
+    const maxY = height - diameter;
+    const minX = diameter;
+    const minY = diameter;
+    const x = Math.random() * (maxX - minX) + minX;
+    const y = Math.random() * (maxY - minY) + minY;
+    const speed = Math.random() * initialSpeed;
+    return new Particle({
+      x,
+      y,
+      r,
+      speed,
+      initialAngle: getRandomAngle(),
+      fillColor,
+      isTracked,
+    });
+  });
 }
 
 // NOTE: If height or width is 0, the canvas will calculate max value for viewport
