@@ -320,10 +320,12 @@ const CHART_SETTINGS = {
   height: 0,
   width: 0,
 };
-const NUMBER_OF_PARTICLES = 1000;
+const NUMBER_OF_PARTICLES = 1000; // TODO: Consider 1000 as maximum number of particles
 const RADIUS = 8;
-const INITIAL_SPEED = 7; // TODO: Consider 10 as masimum speed
+const INITIAL_SPEED = 10; // TODO: Consider 10 as masimum speed
 // const PARTICLE_BUILDER = new ParticleBuilder();
+const RED = new RGBA(255, 0, 0, 1);
+const BLUE = new RGBA(0, 0, 255, 1);
 
 function BrownianMotion(): JSX.Element {
   const { ref, dimensions } = useChartDimensions(CHART_SETTINGS);
@@ -337,7 +339,7 @@ function BrownianMotion(): JSX.Element {
         true,
         RADIUS * 2.5,
         INITIAL_SPEED,
-        new RGBA(255, 0, 0, 1),
+        RED,
         1,
       ),
       ...composeParticles(
@@ -346,7 +348,7 @@ function BrownianMotion(): JSX.Element {
         false,
         RADIUS,
         INITIAL_SPEED,
-        new RGBA(0, 0, 255, 1),
+        BLUE,
         NUMBER_OF_PARTICLES,
       ),
     ];
