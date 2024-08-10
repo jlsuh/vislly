@@ -39,22 +39,10 @@ class Vector2 {
     return this.sub(that).y;
   }
 
-  private sqrdLength(): number {
-    return this.x * this.x + this.x * this.x;
-  }
-
-  public length(): number {
-    return Math.sqrt(this.sqrdLength());
-  }
-
   public sqrdDistanceTo(that: Vector2) {
     const dx = that.x - this.x;
     const dy = that.y - this.y;
     return dx * dx + dy * dy;
-  }
-
-  public distanceTo(that: Vector2) {
-    return Math.sqrt(this.sqrdDistanceTo(that));
   }
 
   public dot(that: Vector2) {
@@ -209,8 +197,9 @@ const update = (particles: Particle[], width: number, height: number) => {
     }
     p1.move();
     for (const p2 of particles) {
-      if (p1 === p2) continue;
-      if (p1.isCollidingWithParticle(p2)) collide(p1, p2);
+      if (p1 !== p2 && p1.isCollidingWithParticle(p2)) {
+        collide(p1, p2);
+      }
     }
   }
 };
@@ -219,9 +208,9 @@ function getRandomAngle() {
   return Math.random() * Math.PI * 2;
 }
 
-const NUMBER_OF_PARTICLES = 50;
+const NUMBER_OF_PARTICLES = 20;
 const RADIUS = 8;
-const INITIAL_SPEED = 10; // TODO: Consider 10 as masimum speed
+const INITIAL_SPEED = 5; // TODO: Consider 10 as masimum speed
 
 function composeParticle(
   height: number,
