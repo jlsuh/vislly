@@ -2,21 +2,37 @@ import * as d3 from 'd3';
 import { useEffect } from 'react';
 import useChartDimensions from '../useChartDimensions';
 
-type ParticleSettings = {
-  x: number;
-  y: number;
-  r: number;
-  speed: number;
-  initialAngle: number;
-  fillColor: string;
-  isTracked: boolean;
-};
+type Angle = number;
+type Channel = number;
+type Coord = number;
+type Limit = number;
+type Mass = number;
+type Radius = number;
+type Speed = number;
+
+class RGBA {
+  readonly r: Channel;
+  readonly g: Channel;
+  readonly b: Channel;
+  readonly a: Channel;
+
+  constructor(r: Channel, g: Channel, b: Channel, a: Channel) {
+    this.r = r;
+    this.g = g;
+    this.b = b;
+    this.a = a;
+  }
+
+  public toStyle() {
+    return `rgba(${Math.floor(this.r * 255)}, ${Math.floor(this.g * 255)}, ${Math.floor(this.b * 255)}, ${this.a})`;
+  }
+}
 
 class Vector2 {
-  readonly x: number;
-  readonly y: number;
+  readonly x: Coord;
+  readonly y: Coord;
 
-  constructor(x: number, y: number) {
+  constructor(x: Coord, y: Coord) {
     this.x = x;
     this.y = y;
   }
@@ -48,13 +64,23 @@ class Vector2 {
   }
 }
 
+type ParticleSettings = {
+  x: Coord;
+  y: Coord;
+  r: Radius;
+  speed: Speed;
+  initialAngle: Angle;
+  fillColor: RGBA;
+  isTracked: boolean;
+};
+
 class Particle {
   curr: Vector2;
   prev: Vector2;
-  r: number;
-  mass: number;
+  r: Radius;
+  mass: Mass;
   v: Vector2;
-  fillColor: string;
+  fillColor: RGBA;
   isTracked: boolean;
 
   constructor(settings: ParticleSettings) {
@@ -85,11 +111,11 @@ class Particle {
     return this.curr.sqrdDistanceTo(that.curr) < this.rSqrd(that);
   }
 
-  public isHorizontalWallCollision(width: number) {
+  public isHorizontalWallCollision(width: Limit) {
     return this.curr.x - this.r < 0 || this.curr.x + this.r > width;
   }
 
-  public isVerticalWallCollision(height: number) {
+  public isVerticalWallCollision(height: Limit) {
     return this.curr.y - this.r < 0 || this.curr.y + this.r > height;
   }
 }
@@ -98,7 +124,7 @@ function drawParticle(p: Particle) {
   const particlesContext = getCanvasCtxById('particles');
   particlesContext.beginPath();
   particlesContext.arc(p.curr.x, p.curr.y, p.r, 0, Math.PI * 2);
-  particlesContext.fillStyle = p.fillColor;
+  particlesContext.fillStyle = p.fillColor.toStyle();
   particlesContext.fill();
   particlesContext.closePath();
 }
@@ -144,11 +170,11 @@ function getCanvasCtxById(id: string) {
   return canvas.getContext('2d') as CanvasRenderingContext2D;
 }
 
-function resetCanvas(width: number, height: number) {
+function resetCanvas(width: Limit, height: Limit) {
   getCanvasCtxById('particles').clearRect(0, 0, width, height);
 }
 
-const update = (particles: Particle[], width: number, height: number) => {
+const update = (particles: Particle[], width: Limit, height: Limit) => {
   resetCanvas(width, height);
   for (const p1 of particles) {
     drawParticle(p1);
@@ -177,12 +203,12 @@ const RADIUS = 8;
 const INITIAL_SPEED = 5; // TODO: Consider 10 as masimum speed
 
 function composeParticle(
-  height: number,
-  width: number,
+  height: Limit,
+  width: Limit,
   isTracked: boolean,
-  r: number,
-  initialSpeed: number,
-  fillColor: string,
+  r: Radius,
+  initialSpeed: Speed,
+  fillColor: RGBA,
 ) {
   const diameter = r * 2;
   const maxX = width - diameter;
@@ -198,18 +224,18 @@ function composeParticle(
     r,
     speed,
     initialAngle: getRandomAngle(),
-    fillColor: fillColor,
+    fillColor,
     isTracked,
   });
 }
 
 function composeParticles(
-  height: number,
-  width: number,
+  height: Limit,
+  width: Limit,
   isTracked: boolean,
-  r: number,
-  initialSpeed: number,
-  fillColor: string,
+  r: Radius,
+  initialSpeed: Speed,
+  fillColor: RGBA,
   numberOfParticles: number,
 ) {
   return Array.from({ length: numberOfParticles }, () =>
@@ -245,7 +271,7 @@ function BrownianMotion(): JSX.Element {
         true,
         RADIUS * 2.5,
         INITIAL_SPEED,
-        'red',
+        new RGBA(255, 0, 0, 1),
         1,
       ),
       ...composeParticles(
@@ -254,7 +280,7 @@ function BrownianMotion(): JSX.Element {
         false,
         RADIUS,
         INITIAL_SPEED,
-        'blue',
+        new RGBA(0, 0, 255, 1),
         NUMBER_OF_PARTICLES,
       ),
     ];
