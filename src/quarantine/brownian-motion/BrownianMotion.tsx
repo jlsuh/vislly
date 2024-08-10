@@ -2,6 +2,16 @@ import * as d3 from 'd3';
 import { useEffect } from 'react';
 import useChartDimensions from '../useChartDimensions';
 
+type ParticleSettings = {
+  x: number;
+  y: number;
+  r: number;
+  speed: number;
+  initialAngle: number;
+  fillColor: string;
+  isTracked: boolean;
+};
+
 class Vector2 {
   readonly x: number;
   readonly y: number;
@@ -37,18 +47,6 @@ class Vector2 {
     return new Vector2(this.x - that.x, this.y - that.y);
   }
 }
-
-type Limit = number;
-
-type ParticleSettings = {
-  x: number;
-  y: number;
-  r: number;
-  speed: number;
-  initialAngle: number;
-  fillColor: string;
-  isTracked: boolean;
-};
 
 class Particle {
   curr: Vector2;
@@ -87,11 +85,11 @@ class Particle {
     return this.curr.sqrdDistanceTo(that.curr) < this.rSqrd(that);
   }
 
-  public isHorizontalWallCollision(width: Limit) {
+  public isHorizontalWallCollision(width: number) {
     return this.curr.x - this.r < 0 || this.curr.x + this.r > width;
   }
 
-  public isVerticalWallCollision(height: Limit) {
+  public isVerticalWallCollision(height: number) {
     return this.curr.y - this.r < 0 || this.curr.y + this.r > height;
   }
 }
