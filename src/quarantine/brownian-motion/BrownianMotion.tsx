@@ -20,29 +20,45 @@ class Vector2 {
   }
 
   public clone(): Vector2 {
-    return new Vector2(this._x, this._y);
+    return new Vector2(this.x, this.y);
   }
 
   public add(that: Vector2): Vector2 {
-    return new Vector2(this._x + that._x, this._y + that._y);
+    return new Vector2(this.x + that.x, this.y + that.y);
   }
 
   public sub(that: Vector2): Vector2 {
-    return new Vector2(this._x - that._x, this._y - that._y);
+    return new Vector2(this.x - that.x, this.y - that.y);
   }
 
-  public sqrDistanceTo(that: Vector2) {
-    const dx = that._x - this._x;
-    const dy = that._y - this._y;
+  public dx(that: Vector2): number {
+    return this.sub(that).x;
+  }
+
+  public dy(that: Vector2): number {
+    return this.sub(that).y;
+  }
+
+  private sqrdLength(): number {
+    return this.x * this.x + this.x * this.x;
+  }
+
+  public length(): number {
+    return Math.sqrt(this.sqrdLength());
+  }
+
+  public sqrdDistanceTo(that: Vector2) {
+    const dx = that.x - this.x;
+    const dy = that.y - this.y;
     return dx * dx + dy * dy;
   }
 
   public distanceTo(that: Vector2) {
-    return Math.sqrt(this.sqrDistanceTo(that));
+    return Math.sqrt(this.sqrdDistanceTo(that));
   }
 
   public dot(that: Vector2) {
-    return this._x * that._x + this._y * that._y;
+    return this.x * that.x + this.y * that.y;
   }
 }
 
@@ -80,34 +96,34 @@ class Particle {
     this.isTracked = settings.isTracked;
   }
 
+  private rSqrd(that: Particle) {
+    const rt = this.r + that.r;
+    return rt * rt;
+  }
+
   public move() {
     this.prev = this.curr.clone();
     this.curr = this.curr.add(this.v);
   }
 
-  public dx(p: Particle) {
-    return this.curr.x - p.curr.x;
+  public dx(that: Particle) {
+    return this.curr.dx(that.curr);
   }
 
-  public dy(p: Particle) {
-    return this.curr.y - p.curr.y;
+  public dy(that: Particle) {
+    return this.curr.dy(that.curr);
   }
 
-  public dvx(p: Particle) {
-    return this.v.x - p.v.x;
+  public dvx(that: Particle) {
+    return this.v.dx(that.v);
   }
 
-  public dvy(p: Particle) {
-    return this.v.y - p.v.y;
+  public dvy(that: Particle) {
+    return this.v.dy(that.v);
   }
 
-  public rSqrd(p: Particle) {
-    const rt = this.r + p.r;
-    return rt * rt;
-  }
-
-  public isCollidingWithParticle(p: Particle) {
-    return this.curr.sqrDistanceTo(p.curr) < this.rSqrd(p);
+  public isCollidingWithParticle(that: Particle) {
+    return this.curr.sqrdDistanceTo(that.curr) < this.rSqrd(that);
   }
 
   public isHorizontalWallCollision(width: Limit) {
@@ -137,8 +153,7 @@ function collide(p1: Particle, p2: Particle) {
 
   if (dot > 0) {
     const mt = p1.mass + p2.mass;
-    // const dSqrd = p1.dSqrd(p2);
-    const dSqrd = p1.curr.sqrDistanceTo(p2.curr);
+    const dSqrd = p1.curr.sqrdDistanceTo(p2.curr);
     const cr = 1; // TODO: Make coefficient of restitution variable
 
     const v1x =
@@ -204,7 +219,7 @@ function getRandomAngle() {
   return Math.random() * Math.PI * 2;
 }
 
-const NUMBER_OF_PARTICLES = 20;
+const NUMBER_OF_PARTICLES = 500;
 const RADIUS = 8;
 const INITIAL_SPEED = 10; // TODO: Consider 10 as masimum speed
 
