@@ -120,6 +120,75 @@ class Particle {
   }
 }
 
+// class ParticleBuilder {
+//   private particle: Particle = new Particle({
+//     x: 0,
+//     y: 0,
+//     r: 0,
+//     speed: 0,
+//     initialAngle: 0,
+//     fillColor: new RGBA(0, 0, 0, 0),
+//     isTracked: false,
+//   });
+
+//   constructor() {
+//     this.reset();
+//   }
+
+//   public curr(x: Coord, y: Coord) {
+//     this.particle.curr = new Vector2(x, y);
+//     return this;
+//   }
+
+//   public prev(x: Coord, y: Coord) {
+//     this.particle.prev = new Vector2(x, y);
+//     return this;
+//   }
+
+//   public r(r: Radius) {
+//     this.particle.r = r;
+//     return this;
+//   }
+
+//   public mass(mass: Mass) {
+//     this.particle.mass = mass;
+//     return this;
+//   }
+
+//   public v(vx: Coord, vy: Coord) {
+//     this.particle.v = new Vector2(vx, vy);
+//     return this;
+//   }
+
+//   public fillColor(fillColor: RGBA) {
+//     this.particle.fillColor = fillColor;
+//     return this;
+//   }
+
+//   public isTracked(isTracked: boolean) {
+//     this.particle.isTracked = isTracked;
+//     return this;
+//   }
+
+//   private reset() {
+//     this.particle = new Particle({
+//       x: 0,
+//       y: 0,
+//       r: 0,
+//       speed: 0,
+//       initialAngle: 0,
+//       fillColor: new RGBA(0, 0, 0, 0),
+//       isTracked: false,
+//     });
+//   }
+
+//   public build() {
+//     const particle = this.particle;
+//     this.reset();
+//     return particle;
+//   }
+// }
+
 function drawParticle(p: Particle) {
   const particlesContext = getCanvasCtxById('particles');
   particlesContext.beginPath();
@@ -198,9 +267,10 @@ function getRandomAngle() {
   return Math.random() * Math.PI * 2;
 }
 
-const NUMBER_OF_PARTICLES = 20;
+const NUMBER_OF_PARTICLES = 500;
 const RADIUS = 8;
-const INITIAL_SPEED = 5; // TODO: Consider 10 as masimum speed
+const INITIAL_SPEED = 10; // TODO: Consider 10 as masimum speed
+// const PARTICLE_BUILDER = new ParticleBuilder();
 
 function composeParticles(
   height: Limit,
@@ -229,6 +299,14 @@ function composeParticles(
       fillColor,
       isTracked,
     });
+    // return PARTICLE_BUILDER.curr(x, y)
+    //   .prev(x, y)
+    //   .r(r)
+    //   .mass(r)
+    //   .v(speed * Math.cos(getRandomAngle()), speed * Math.sin(getRandomAngle()))
+    //   .fillColor(fillColor)
+    //   .isTracked(isTracked)
+    //   .build();
   });
 }
 
