@@ -219,7 +219,7 @@ function getRandomAngle() {
   return Math.random() * Math.PI * 2;
 }
 
-const NUMBER_OF_PARTICLES = 500;
+const NUMBER_OF_PARTICLES = 50;
 const RADIUS = 8;
 const INITIAL_SPEED = 10; // TODO: Consider 10 as masimum speed
 
