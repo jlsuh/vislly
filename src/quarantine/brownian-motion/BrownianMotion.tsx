@@ -163,8 +163,8 @@ function drawParticle(p: Particle) {
   particlesContext.beginPath();
   particlesContext.arc(p.curr.x, p.curr.y, p.r, 0, Math.PI * 2);
   particlesContext.fillStyle = p.fillColor.toStyle();
-  particlesContext.fill();
   particlesContext.closePath();
+  particlesContext.fill();
 }
 
 function drawHistoricalPath(p: Particle) {
