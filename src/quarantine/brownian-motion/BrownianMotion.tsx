@@ -3,7 +3,7 @@ import { type MouseEvent, useEffect } from 'react';
 import useChartDimensions from '../useChartDimensions';
 
 type Angle = number;
-type ColorChannel = number;
+type RGBAChannel = number;
 type CoefficientOfRestitution = number;
 type Coord = number;
 type Limit = number;
@@ -11,17 +11,12 @@ type Mass = number;
 type Radius = number;
 
 class RGBA {
-  readonly r: ColorChannel;
-  readonly g: ColorChannel;
-  readonly b: ColorChannel;
-  readonly a: ColorChannel;
+  readonly r: RGBAChannel;
+  readonly g: RGBAChannel;
+  readonly b: RGBAChannel;
+  readonly a: RGBAChannel;
 
-  constructor(
-    r: ColorChannel,
-    g: ColorChannel,
-    b: ColorChannel,
-    a: ColorChannel,
-  ) {
+  constructor(r: RGBAChannel, g: RGBAChannel, b: RGBAChannel, a: RGBAChannel) {
     this.r = r;
     this.g = g;
     this.b = b;
@@ -220,13 +215,10 @@ function composeParticles(
   numberOfParticles: number,
   particleSettings: () => ParticleSettings,
 ) {
-  const particles: Particle[] = [];
-  for (
-    let i = 0;
-    i < numberOfParticles;
-    particles[i++] = new Particle(particleSettings())
+  return Array.from(
+    { length: numberOfParticles },
+    () => new Particle(particleSettings()),
   );
-  return particles;
 }
 
 const DIMENSIONS = {
@@ -239,8 +231,10 @@ const DIMENSIONS = {
   height: 0,
   width: 0,
 };
+
 const BLUE = new RGBA(0, 0, 255, 1);
 const RED = new RGBA(255, 0, 0, 1);
+
 const COR = 1;
 const INITIAL_SPEED = 10;
 const NUMBER_OF_PARTICLES = 800;
