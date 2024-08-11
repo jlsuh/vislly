@@ -4,11 +4,11 @@ import useChartDimensions from '../useChartDimensions';
 
 type Angle = number;
 type Channel = number;
+type CoefficientOfRestitution = number;
 type Coord = number;
 type Limit = number;
 type Mass = number;
 type Radius = number;
-type CoefficientOfRestitution = number;
 
 class RGBA {
   readonly r: Channel;
