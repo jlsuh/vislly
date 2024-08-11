@@ -93,11 +93,21 @@ class Particle {
     );
   }
 
-  private isCollidingWith(that: Particle) {
+  private rSqrd(that: Particle) {
+    const rt = this.r + that.r;
+    return rt * rt;
+  }
+
+  public move() {
+    this.prev = this.curr;
+    this.curr = this.curr.add(this.v);
+  }
+
+  public isCollidingWithParticle(that: Particle) {
     return this.curr.sqrdDistanceTo(that.curr) < this.rSqrd(that);
   }
 
-  private isGoingTowards(that: Particle) {
+  public isGoingTowards(that: Particle) {
     const d = this.curr.sub(that.curr);
     const v = this.v.sub(that.v);
     const minusV = v.map((x) => -x);
@@ -105,11 +115,15 @@ class Particle {
     return minusVDot > 0;
   }
 
-  private rSqrd(that: Particle) {
-    const rt = this.r + that.r;
-    return rt * rt;
+  public isHorizontalWallCollision(width: Limit) {
+    return this.curr.x - this.r < 0 || this.curr.x + this.r > width;
   }
 
+  public isVerticalWallCollision(height: Limit) {
+    return this.curr.y - this.r < 0 || this.curr.y + this.r > height;
+  }
+
+  // TODO: Make coefficient of restitution variable
   public collide(that: Particle, cor: number) {
     const mt = this.mass + that.mass;
     const dSqrd = this.curr.sqrdDistanceTo(that.curr);
@@ -124,22 +138,11 @@ class Particle {
     that.v = new Vector2(v2x, v2y);
   }
 
-  public move() {
-    this.prev = this.curr;
-    this.curr = this.curr.add(this.v);
-  }
-
-  public isHorizontalWallCollision(width: Limit) {
-    return this.curr.x - this.r < 0 || this.curr.x + this.r > width;
-  }
-
-  public isVerticalWallCollision(height: Limit) {
-    return this.curr.y - this.r < 0 || this.curr.y + this.r > height;
-  }
-
-  public shouldCollide(that: Particle) {
+  public shouldCollideWith(that: Particle) {
     return (
-      this !== that && this.isGoingTowards(that) && this.isCollidingWith(that)
+      this !== that &&
+      this.isCollidingWithParticle(that) &&
+      this.isGoingTowards(that)
     );
   }
 }
@@ -196,12 +199,13 @@ const update = (
       p1.v = new Vector2(p1.v.x, -p1.v.y);
     }
     p1.move();
-    for (const p2 of particles) if (p1.shouldCollide(p2)) p1.collide(p2, cor);
+    for (const p2 of particles)
+      if (p1.shouldCollideWith(p2)) p1.collide(p2, cor);
   }
 };
 
 function getRandomAngle() {
-  return Math.random() * Math.PI * 2;
+  return Math.random() * 2 * Math.PI;
 }
 
 function composeParticles(
@@ -254,7 +258,7 @@ const RED = new RGBA(255, 0, 0, 1);
 
 const COR = 1;
 const INITIAL_SPEED = 10; // TODO: Consider 10 as masimum speed
-const NUMBER_OF_PARTICLES = 50; // TODO: Consider 1000 as masimum speed
+const NUMBER_OF_PARTICLES = 1000; // TODO: Consider 1000 as masimum number of particles
 const RADIUS = 8;
 
 function BrownianMotion(): JSX.Element {
