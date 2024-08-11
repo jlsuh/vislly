@@ -60,14 +60,21 @@ class Vector2 {
   }
 }
 
+function getRandomAngle(): Angle {
+  return Math.random() * 2 * Math.PI;
+}
+
+function getRandomBetween(min: number, max: number): Coord {
+  return Math.random() * (max - min) + min;
+}
+
 type ParticleSettings = {
-  x: Coord;
-  y: Coord;
-  r: Radius;
-  speed: Speed;
-  initialAngle: Angle;
   fillColor: RGBA;
+  initialSpeed: Speed;
   isTracked: boolean;
+  r: Radius;
+  height: Limit;
+  width: Limit;
 };
 
 class Particle {
@@ -80,34 +87,29 @@ class Particle {
   v: Vector2;
 
   constructor(settings: ParticleSettings) {
-    const { x, y, r, speed, initialAngle, fillColor, isTracked } = settings;
+    const { fillColor, initialSpeed, isTracked, r, height, width } = settings;
+    const speed = Math.random() * initialSpeed;
+    const diameter = r * 2;
     this.fillColor = fillColor;
     this.isTracked = isTracked;
     this.mass = r;
     this.r = r;
-    this.curr = new Vector2(x, y);
-    this.prev = new Vector2(x, y);
+    this.curr = new Vector2(
+      getRandomBetween(diameter, width - diameter),
+      getRandomBetween(diameter, height - diameter),
+    );
+    this.prev = this.curr;
     this.v = new Vector2(
-      speed * Math.cos(initialAngle),
-      speed * Math.sin(initialAngle),
+      speed * Math.cos(getRandomAngle()),
+      speed * Math.sin(getRandomAngle()),
     );
   }
 
-  private rSqrd(that: Particle) {
-    const rt = this.r + that.r;
-    return rt * rt;
-  }
-
-  public move() {
-    this.prev = this.curr;
-    this.curr = this.curr.add(this.v);
-  }
-
-  public isCollidingWithParticle(that: Particle) {
+  private isCollidingWithParticle(that: Particle) {
     return this.curr.sqrdDistanceTo(that.curr) < this.rSqrd(that);
   }
 
-  public isGoingTowards(that: Particle) {
+  private isGoingTowards(that: Particle) {
     const d = this.curr.sub(that.curr);
     const v = this.v.sub(that.v);
     const minusV = v.map((x) => -x);
@@ -115,15 +117,11 @@ class Particle {
     return minusVDot > 0;
   }
 
-  public isHorizontalWallCollision(width: Limit) {
-    return this.curr.x - this.r < 0 || this.curr.x + this.r > width;
+  private rSqrd(that: Particle) {
+    const rt = this.r + that.r;
+    return rt * rt;
   }
 
-  public isVerticalWallCollision(height: Limit) {
-    return this.curr.y - this.r < 0 || this.curr.y + this.r > height;
-  }
-
-  // TODO: Make coefficient of restitution variable
   public collide(that: Particle, cor: number) {
     const mt = this.mass + that.mass;
     const dSqrd = this.curr.sqrdDistanceTo(that.curr);
@@ -138,6 +136,19 @@ class Particle {
     that.v = new Vector2(v2x, v2y);
   }
 
+  public isHorizontalWallCollision(width: Limit) {
+    return this.curr.x - this.r < 0 || this.curr.x + this.r > width;
+  }
+
+  public isVerticalWallCollision(height: Limit) {
+    return this.curr.y - this.r < 0 || this.curr.y + this.r > height;
+  }
+
+  public move() {
+    this.prev = this.curr;
+    this.curr = this.curr.add(this.v);
+  }
+
   public shouldCollideWith(that: Particle) {
     return (
       this !== that &&
@@ -145,6 +156,11 @@ class Particle {
       this.isGoingTowards(that)
     );
   }
+}
+
+function getCanvasCtxById(id: string) {
+  const canvas = d3.select(`#${id}`).node() as HTMLCanvasElement;
+  return canvas.getContext('2d') as CanvasRenderingContext2D;
 }
 
 function drawParticle(p: Particle) {
@@ -173,11 +189,6 @@ function configureHistoricalCanvas() {
   historicalContext.strokeStyle = 'purple';
 }
 
-function getCanvasCtxById(id: string) {
-  const canvas = d3.select(`#${id}`).node() as HTMLCanvasElement;
-  return canvas.getContext('2d') as CanvasRenderingContext2D;
-}
-
 function resetCanvas(width: Limit, height: Limit) {
   getCanvasCtxById('particles').clearRect(0, 0, width, height);
 }
@@ -204,45 +215,20 @@ const update = (
   }
 };
 
-function getRandomAngle() {
-  return Math.random() * 2 * Math.PI;
-}
-
 function composeParticles(
-  height: Limit,
-  width: Limit,
-  isTracked: boolean,
-  r: Radius,
-  initialSpeed: Speed,
-  fillColor: RGBA,
+  particleSettings: ParticleSettings,
   numberOfParticles: number,
 ) {
-  return Array.from({ length: numberOfParticles }, () => {
-    const diameter = r * 2;
-    const maxX = width - diameter;
-    const maxY = height - diameter;
-    const minX = diameter;
-    const minY = diameter;
-    const x = Math.random() * (maxX - minX) + minX;
-    const y = Math.random() * (maxY - minY) + minY;
-    const speed = Math.random() * initialSpeed;
-    return new Particle({
-      x,
-      y,
-      r,
-      speed,
-      initialAngle: getRandomAngle(),
-      fillColor,
-      isTracked,
-    });
-  });
+  return Array.from(
+    { length: numberOfParticles },
+    () => new Particle(particleSettings),
+  );
 }
 
 const disableContextMenu = (e: MouseEvent<HTMLCanvasElement>) =>
   e.preventDefault();
 
-// NOTE: If height or width is 0, the canvas will calculate max value for viewport
-const CHART_SETTINGS = {
+const DIMENSIONS = {
   boundedHeight: 0,
   boundedWidth: 0,
   marginBottom: 50,
@@ -258,43 +244,35 @@ const RED = new RGBA(255, 0, 0, 1);
 
 const COR = 1;
 const INITIAL_SPEED = 10; // TODO: Consider 10 as masimum speed
-const NUMBER_OF_PARTICLES = 1000; // TODO: Consider 1000 as masimum number of particles
+const NUMBER_OF_PARTICLES = 500; // TODO: Consider 1000 as masimum number of particles
 const RADIUS = 8;
 
 function BrownianMotion(): JSX.Element {
-  const { ref, dimensions } = useChartDimensions(CHART_SETTINGS);
-
-  /*
-type ParticleSettings = {
-  x: Coord;
-  y: Coord;
-  r: Radius;
-  speed: Speed;
-  initialAngle: Angle;
-  fillColor: RGBA;
-  isTracked: boolean;
-};
-*/
+  const { ref, dimensions } = useChartDimensions(DIMENSIONS);
 
   useEffect(() => {
     configureHistoricalCanvas();
     const particles = [
       ...composeParticles(
-        dimensions.boundedHeight,
-        dimensions.boundedWidth,
-        true,
-        RADIUS * 2.5,
-        INITIAL_SPEED,
-        RED,
+        {
+          height: dimensions.boundedHeight,
+          width: dimensions.boundedWidth,
+          isTracked: true,
+          r: RADIUS * 2.5,
+          initialSpeed: INITIAL_SPEED,
+          fillColor: RED,
+        },
         1,
       ),
       ...composeParticles(
-        dimensions.boundedHeight,
-        dimensions.boundedWidth,
-        false,
-        RADIUS,
-        INITIAL_SPEED,
-        BLUE,
+        {
+          height: dimensions.boundedHeight,
+          width: dimensions.boundedWidth,
+          isTracked: false,
+          r: RADIUS,
+          initialSpeed: INITIAL_SPEED,
+          fillColor: BLUE,
+        },
         NUMBER_OF_PARTICLES,
       ),
     ];

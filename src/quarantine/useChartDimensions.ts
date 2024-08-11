@@ -3,25 +3,33 @@ import { type MutableRefObject, useEffect, useRef, useState } from 'react';
 interface Dimensions {
   boundedHeight: number;
   boundedWidth: number;
-  height: number;
   marginBottom: number;
   marginLeft: number;
   marginRight: number;
   marginTop: number;
+  /**
+   * Will be set to the current height of the ref element if set to 0.
+   * Otherwise, height will be fixed to the provided height.
+   *
+   * @see {@link useChartDimensions}
+   */
+  height: number;
+  /**
+   * Will be set to the current width of the ref element if set to 0.
+   * Otherwise, width will be fixed to the provided width.
+   *
+   * @see {@link useChartDimensions}
+   */
   width: number;
 }
 
 function composeChartDimensions(dimensions: Dimensions) {
+  const { height, width, marginTop, marginRight, marginBottom, marginLeft } =
+    dimensions;
   return {
     ...dimensions,
-    boundedHeight: Math.max(
-      dimensions.height - dimensions.marginTop - dimensions.marginBottom,
-      0,
-    ),
-    boundedWidth: Math.max(
-      dimensions.width - dimensions.marginLeft - dimensions.marginRight,
-      0,
-    ),
+    boundedHeight: Math.max(height - marginTop - marginBottom, 0),
+    boundedWidth: Math.max(width - marginLeft - marginRight, 0),
   };
 }
 
