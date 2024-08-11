@@ -3,7 +3,7 @@ import { type MouseEvent, useEffect } from 'react';
 import useChartDimensions from '../useChartDimensions';
 
 type Angle = number;
-type Channel = number;
+type ColorChannel = number;
 type CoefficientOfRestitution = number;
 type Coord = number;
 type Limit = number;
@@ -11,12 +11,17 @@ type Mass = number;
 type Radius = number;
 
 class RGBA {
-  readonly r: Channel;
-  readonly g: Channel;
-  readonly b: Channel;
-  readonly a: Channel;
+  readonly r: ColorChannel;
+  readonly g: ColorChannel;
+  readonly b: ColorChannel;
+  readonly a: ColorChannel;
 
-  constructor(r: Channel, g: Channel, b: Channel, a: Channel) {
+  constructor(
+    r: ColorChannel,
+    g: ColorChannel,
+    b: ColorChannel,
+    a: ColorChannel,
+  ) {
     this.r = r;
     this.g = g;
     this.b = b;
