@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { useEffect } from 'react';
+import { type MouseEvent, useEffect } from 'react';
 import useChartDimensions from '../useChartDimensions';
 
 type Angle = number;
@@ -93,18 +93,40 @@ class Particle {
     );
   }
 
+  private isCollidingWith(that: Particle) {
+    return this.curr.sqrdDistanceTo(that.curr) < this.rSqrd(that);
+  }
+
+  private isGoingTowards(that: Particle) {
+    const d = this.curr.sub(that.curr);
+    const v = this.v.sub(that.v);
+    const minusV = v.map((x) => -x);
+    const minusVDot = d.dot(minusV);
+    return minusVDot > 0;
+  }
+
   private rSqrd(that: Particle) {
     const rt = this.r + that.r;
     return rt * rt;
   }
 
+  public collide(that: Particle, cor: number) {
+    const mt = this.mass + that.mass;
+    const dSqrd = this.curr.sqrdDistanceTo(that.curr);
+    const d = this.curr.sub(that.curr);
+    const v = this.v.sub(that.v);
+    const dot = d.dot(v);
+    const v1x = this.v.x - ((1 + cor) * that.mass * dot * d.x) / (dSqrd * mt);
+    const v1y = this.v.y - ((1 + cor) * that.mass * dot * d.y) / (dSqrd * mt);
+    const v2x = that.v.x + ((1 + cor) * this.mass * dot * d.x) / (dSqrd * mt);
+    const v2y = that.v.y + ((1 + cor) * this.mass * dot * d.y) / (dSqrd * mt);
+    this.v = new Vector2(v1x, v1y);
+    that.v = new Vector2(v2x, v2y);
+  }
+
   public move() {
     this.prev = this.curr;
     this.curr = this.curr.add(this.v);
-  }
-
-  public isCollidingWithParticle(that: Particle) {
-    return this.curr.sqrdDistanceTo(that.curr) < this.rSqrd(that);
   }
 
   public isHorizontalWallCollision(width: Limit) {
@@ -113,6 +135,12 @@ class Particle {
 
   public isVerticalWallCollision(height: Limit) {
     return this.curr.y - this.r < 0 || this.curr.y + this.r > height;
+  }
+
+  public shouldCollide(that: Particle) {
+    return (
+      this !== that && this.isGoingTowards(that) && this.isCollidingWith(that)
+    );
   }
 }
 
@@ -123,25 +151,6 @@ function drawParticle(p: Particle) {
   particlesContext.fillStyle = p.fillColor.toStyle();
   particlesContext.fill();
   particlesContext.closePath();
-}
-
-function collide(p1: Particle, p2: Particle) {
-  const d = p1.curr.sub(p2.curr);
-  const v = p1.v.sub(p2.v);
-  const minusV = v.map((x) => -x);
-  const minusVDot = d.dot(minusV);
-  if (minusVDot > 0) {
-    const mt = p1.mass + p2.mass;
-    const dSqrd = p1.curr.sqrdDistanceTo(p2.curr);
-    const cr = 1; // TODO: Make coefficient of restitution variable
-    const dot = d.dot(v);
-    const v1x = p1.v.x - ((1 + cr) * p2.mass * dot * d.x) / (dSqrd * mt);
-    const v1y = p1.v.y - ((1 + cr) * p2.mass * dot * d.y) / (dSqrd * mt);
-    const v2x = p2.v.x + ((1 + cr) * p1.mass * dot * d.x) / (dSqrd * mt);
-    const v2y = p2.v.y + ((1 + cr) * p1.mass * dot * d.y) / (dSqrd * mt);
-    p1.v = new Vector2(v1x, v1y);
-    p2.v = new Vector2(v2x, v2y);
-  }
 }
 
 function drawHistoricalPath(p: Particle) {
@@ -170,7 +179,12 @@ function resetCanvas(width: Limit, height: Limit) {
   getCanvasCtxById('particles').clearRect(0, 0, width, height);
 }
 
-const update = (particles: Particle[], width: Limit, height: Limit) => {
+const update = (
+  particles: Particle[],
+  width: Limit,
+  height: Limit,
+  cor: number,
+) => {
   resetCanvas(width, height);
   for (const p1 of particles) {
     drawParticle(p1);
@@ -182,11 +196,7 @@ const update = (particles: Particle[], width: Limit, height: Limit) => {
       p1.v = new Vector2(p1.v.x, -p1.v.y);
     }
     p1.move();
-    for (const p2 of particles) {
-      if (p1 !== p2 && p1.isCollidingWithParticle(p2)) {
-        collide(p1, p2);
-      }
-    }
+    for (const p2 of particles) if (p1.shouldCollide(p2)) p1.collide(p2, cor);
   }
 };
 
@@ -224,9 +234,8 @@ function composeParticles(
   });
 }
 
-const disableContextMenu = (
-  e: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
-) => e.preventDefault();
+const disableContextMenu = (e: MouseEvent<HTMLCanvasElement>) =>
+  e.preventDefault();
 
 // NOTE: If height or width is 0, the canvas will calculate max value for viewport
 const CHART_SETTINGS = {
@@ -243,6 +252,7 @@ const CHART_SETTINGS = {
 const BLUE = new RGBA(0, 0, 255, 1);
 const RED = new RGBA(255, 0, 0, 1);
 
+const COR = 1;
 const INITIAL_SPEED = 10; // TODO: Consider 10 as masimum speed
 const NUMBER_OF_PARTICLES = 50; // TODO: Consider 1000 as masimum speed
 const RADIUS = 8;
@@ -285,7 +295,7 @@ type ParticleSettings = {
       ),
     ];
     const timer = d3.interval(() =>
-      update(particles, dimensions.boundedWidth, dimensions.boundedHeight),
+      update(particles, dimensions.boundedWidth, dimensions.boundedHeight, COR),
     );
     return () => timer.stop();
   }, [dimensions.boundedHeight, dimensions.boundedWidth]);
