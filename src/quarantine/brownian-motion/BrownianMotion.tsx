@@ -98,7 +98,7 @@ class Particle {
     this.v = new Vector2(vix, viy);
   }
 
-  private isCollidingWithParticle(that: Particle) {
+  private isCollidingWith(that: Particle) {
     return this.curr.sqrdDistanceTo(that.curr) < this.rSqrd(that);
   }
 
@@ -148,9 +148,7 @@ class Particle {
 
   public shouldCollideWith(that: Particle) {
     return (
-      this !== that &&
-      this.isCollidingWithParticle(that) &&
-      this.isGoingTowards(that)
+      this !== that && this.isCollidingWith(that) && this.isGoingTowards(that)
     );
   }
 }
