@@ -41,10 +41,6 @@ class Vector2 {
     return new Vector2(this.x + that.x, this.y + that.y);
   }
 
-  public clone() {
-    return new Vector2(this.x, this.y);
-  }
-
   public dot(that: Vector2) {
     return this.x * that.x + this.y * that.y;
   }
@@ -75,26 +71,26 @@ type ParticleSettings = {
 };
 
 class Particle {
+  readonly fillColor: RGBA;
+  readonly isTracked: boolean;
+  readonly mass: Mass;
+  readonly r: Radius;
   curr: Vector2;
   prev: Vector2;
-  r: Radius;
-  mass: Mass;
   v: Vector2;
-  fillColor: RGBA;
-  isTracked: boolean;
 
   constructor(settings: ParticleSettings) {
     const { x, y, r, speed, initialAngle, fillColor, isTracked } = settings;
+    this.fillColor = fillColor;
+    this.isTracked = isTracked;
+    this.mass = r;
+    this.r = r;
     this.curr = new Vector2(x, y);
     this.prev = new Vector2(x, y);
-    this.r = r;
-    this.mass = r;
     this.v = new Vector2(
       speed * Math.cos(initialAngle),
       speed * Math.sin(initialAngle),
     );
-    this.fillColor = fillColor;
-    this.isTracked = isTracked;
   }
 
   private rSqrd(that: Particle) {
@@ -103,7 +99,7 @@ class Particle {
   }
 
   public move() {
-    this.prev = this.curr.clone();
+    this.prev = this.curr;
     this.curr = this.curr.add(this.v);
   }
 
@@ -236,21 +232,35 @@ const disableContextMenu = (
 const CHART_SETTINGS = {
   boundedHeight: 0,
   boundedWidth: 0,
-  marginBottom: 30,
-  marginLeft: 30,
-  marginRight: 30,
-  marginTop: 30,
+  marginBottom: 50,
+  marginLeft: 50,
+  marginRight: 50,
+  marginTop: 50,
   height: 0,
   width: 0,
 };
-const NUMBER_OF_PARTICLES = 1000; // TODO: Consider 1000 as masimum speed
-const RADIUS = 8;
-const INITIAL_SPEED = 10; // TODO: Consider 10 as masimum speed
-const RED = new RGBA(255, 0, 0, 1);
+
 const BLUE = new RGBA(0, 0, 255, 1);
+const RED = new RGBA(255, 0, 0, 1);
+
+const INITIAL_SPEED = 10; // TODO: Consider 10 as masimum speed
+const NUMBER_OF_PARTICLES = 50; // TODO: Consider 1000 as masimum speed
+const RADIUS = 8;
 
 function BrownianMotion(): JSX.Element {
   const { ref, dimensions } = useChartDimensions(CHART_SETTINGS);
+
+  /*
+type ParticleSettings = {
+  x: Coord;
+  y: Coord;
+  r: Radius;
+  speed: Speed;
+  initialAngle: Angle;
+  fillColor: RGBA;
+  isTracked: boolean;
+};
+*/
 
   useEffect(() => {
     configureHistoricalCanvas();
@@ -288,8 +298,8 @@ function BrownianMotion(): JSX.Element {
         display: 'flex',
         justifyContent: 'center',
         position: 'relative',
-        maxHeight: 'calc(100vh)',
-        minHeight: 'calc(100vh)',
+        maxHeight: '100vh',
+        minHeight: '100vh',
       }}
     >
       <canvas
