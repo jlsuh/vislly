@@ -115,6 +115,10 @@ class Particle {
     return rt * rt;
   }
 
+  /**
+   * @see {@link https://physics.stackexchange.com/questions/708495/angle-free-two-dimensional-inelastic-collision-formula | Angle-free two-dimensional inelastic collision formula}
+   * @see {@link https://en.wikipedia.org/wiki/Elastic_collision#Two-dimensional_collision_with_two_moving_objects | Elastic collision}
+   */
   public collide(that: Particle, cor: CoefficientOfRestitution) {
     const mt = this.mass + that.mass;
     const dSqrd = this.curr.sqrdDistanceTo(that.curr);
