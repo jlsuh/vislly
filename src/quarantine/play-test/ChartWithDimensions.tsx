@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
+import useChartDimensions from '../useChartDimensions';
 import Axis from './Axis';
-import useChartDimensions from './useChartDimensions';
 
 const chartSettings = {
   boundedHeight: 0,
