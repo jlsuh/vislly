@@ -1,30 +1,48 @@
 import * as d3 from 'd3';
 import { type MouseEvent, useEffect } from 'react';
+import type { Dimensions } from '../types';
 import useChartDimensions from '../useChartDimensions';
 
 type Angle = number;
-type RGBAChannel = number;
+type Channel = number;
 type CoefficientOfRestitution = number;
 type Coord = number;
+type FillColor = string;
 type Limit = number;
 type Mass = number;
+type ParticleSettings = {
+  readonly fillColor: FillColor;
+  readonly isTracked: boolean;
+  readonly r: Radius;
+  readonly vix: Coord;
+  readonly viy: Coord;
+  readonly x: Coord;
+  readonly y: Coord;
+};
 type Radius = number;
 
-class RGBA {
-  readonly r: RGBAChannel;
-  readonly g: RGBAChannel;
-  readonly b: RGBAChannel;
-  readonly a: RGBAChannel;
+class RGBAColorModel {
+  readonly r: Channel;
+  readonly g: Channel;
+  readonly b: Channel;
+  readonly a: Channel;
 
-  constructor(r: RGBAChannel, g: RGBAChannel, b: RGBAChannel, a: RGBAChannel) {
+  constructor(r: Channel, g: Channel, b: Channel, a: Channel) {
+    if (this.containsInvalidValues([r, g, b, a])) {
+      throw new RangeError('RGBA channel value must be between 0 and 1');
+    }
     this.r = r;
     this.g = g;
     this.b = b;
     this.a = a;
   }
 
+  private containsInvalidValues(values: Channel[]) {
+    return values.some((value) => value < 0 || value > 1);
+  }
+
   public toStyle() {
-    return `rgba(${Math.floor(this.r * 255)}, ${Math.floor(this.g * 255)}, ${Math.floor(this.b * 255)}, ${this.a})`;
+    return `rgba(${this.r * 255}, ${this.g * 255}, ${this.b * 255}, ${this.a})`;
   }
 }
 
@@ -60,26 +78,8 @@ class Vector2 {
   }
 }
 
-function getRandomAngle(): Angle {
-  return Math.random() * 2 * Math.PI;
-}
-
-function getRandomBetween(min: Limit, max: Limit): Coord {
-  return Math.random() * (max - min) + min;
-}
-
-type ParticleSettings = {
-  fillColor: RGBA;
-  isTracked: boolean;
-  r: Radius;
-  vix: Coord;
-  viy: Coord;
-  x: Coord;
-  y: Coord;
-};
-
 class Particle {
-  readonly fillColor: RGBA;
+  readonly fillColor: FillColor;
   readonly isTracked: boolean;
   readonly mass: Mass;
   readonly r: Radius;
@@ -153,6 +153,14 @@ class Particle {
   }
 }
 
+function getRandomAngle(): Angle {
+  return Math.random() * 2 * Math.PI;
+}
+
+function getRandomBetween(min: Limit, max: Limit): Coord {
+  return Math.random() * (max - min) + min;
+}
+
 function getCanvasCtxById(id: string) {
   const canvas = d3.select(`#${id}`).node() as HTMLCanvasElement;
   return canvas.getContext('2d') as CanvasRenderingContext2D;
@@ -162,7 +170,7 @@ function drawParticle(p: Particle) {
   const particlesContext = getCanvasCtxById('particles');
   particlesContext.beginPath();
   particlesContext.arc(p.curr.x, p.curr.y, p.r, 0, Math.PI * 2);
-  particlesContext.fillStyle = p.fillColor.toStyle();
+  particlesContext.fillStyle = p.fillColor;
   particlesContext.closePath();
   particlesContext.fill();
 }
@@ -188,6 +196,23 @@ function resetCanvas(width: Limit, height: Limit) {
   getCanvasCtxById('particles').clearRect(0, 0, width, height);
 }
 
+function handleParticleCollisions(
+  p1: Particle,
+  p2: Particle,
+  cor: CoefficientOfRestitution,
+) {
+  if (p1.shouldCollideWith(p2)) p1.collide(p2, cor);
+}
+
+function handleWallCollision(p: Particle, width: Limit, height: Limit) {
+  if (p.isHorizontalWallCollision(width)) p.v = new Vector2(-p.v.x, p.v.y);
+  if (p.isVerticalWallCollision(height)) p.v = new Vector2(p.v.x, -p.v.y);
+}
+
+function handleHistoricalPath(p: Particle) {
+  if (p.isTracked) drawHistoricalPath(p);
+}
+
 const update = (
   particles: Particle[],
   width: Limit,
@@ -197,21 +222,12 @@ const update = (
   resetCanvas(width, height);
   for (const p1 of particles) {
     drawParticle(p1);
-    if (p1.isTracked) drawHistoricalPath(p1);
-    if (p1.isHorizontalWallCollision(width)) {
-      p1.v = new Vector2(-p1.v.x, p1.v.y);
-    }
-    if (p1.isVerticalWallCollision(height)) {
-      p1.v = new Vector2(p1.v.x, -p1.v.y);
-    }
+    handleHistoricalPath(p1);
+    handleWallCollision(p1, width, height);
     p1.move();
-    for (const p2 of particles)
-      if (p1.shouldCollideWith(p2)) p1.collide(p2, cor);
+    for (const p2 of particles) handleParticleCollisions(p1, p2, cor);
   }
 };
-
-const disableContextMenu = (e: MouseEvent<HTMLCanvasElement>) =>
-  e.preventDefault();
 
 function composeParticles(
   numberOfParticles: number,
@@ -223,7 +239,10 @@ function composeParticles(
   );
 }
 
-const DIMENSIONS = {
+const disableContextMenu = (e: MouseEvent<HTMLCanvasElement>) =>
+  e.preventDefault();
+
+const DIMENSIONS: Dimensions = {
   boundedHeight: 0,
   boundedWidth: 0,
   marginBottom: 50,
@@ -234,12 +253,12 @@ const DIMENSIONS = {
   width: 0,
 };
 
-const BLUE = new RGBA(0, 0, 255, 1);
-const RED = new RGBA(255, 0, 0, 1);
+const BLUE = new RGBAColorModel(0, 0, 1, 1);
+const RED = new RGBAColorModel(1, 0, 0, 1);
 
-const COR = 1;
+const COR: CoefficientOfRestitution = 1;
 const INITIAL_SPEED = 10;
-const NUMBER_OF_PARTICLES = 800;
+const NUMBER_OF_PARTICLES = 100;
 const RADIUS = 8;
 const DIAMETER = RADIUS * 2;
 
@@ -250,7 +269,7 @@ function BrownianMotion(): JSX.Element {
     configureHistoricalCanvas();
     const particles = [
       ...composeParticles(1, () => ({
-        fillColor: RED,
+        fillColor: RED.toStyle(),
         isTracked: true,
         r: RADIUS * 2.5,
         vix: Math.random() * INITIAL_SPEED * Math.cos(getRandomAngle()),
@@ -259,7 +278,7 @@ function BrownianMotion(): JSX.Element {
         y: dimensions.boundedHeight / 2,
       })),
       ...composeParticles(NUMBER_OF_PARTICLES, () => ({
-        fillColor: BLUE,
+        fillColor: BLUE.toStyle(),
         isTracked: false,
         r: RADIUS,
         vix: Math.random() * INITIAL_SPEED * Math.cos(getRandomAngle()),
