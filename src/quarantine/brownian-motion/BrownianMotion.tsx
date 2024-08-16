@@ -4,7 +4,7 @@ import type { Dimensions } from '../types';
 import useChartDimensions from '../useChartDimensions';
 
 type Angle = number;
-type Channel = number;
+type ChannelIntensity = number;
 type CoefficientOfRestitution = number;
 type Coord = number;
 type FillColor = string;
@@ -22,12 +22,17 @@ type ParticleSettings = {
 type Radius = number;
 
 class RGBAColorModel {
-  readonly r: Channel;
-  readonly g: Channel;
-  readonly b: Channel;
-  readonly a: Channel;
+  readonly r: ChannelIntensity;
+  readonly g: ChannelIntensity;
+  readonly b: ChannelIntensity;
+  readonly a: ChannelIntensity;
 
-  constructor(r: Channel, g: Channel, b: Channel, a: Channel) {
+  constructor(
+    r: ChannelIntensity,
+    g: ChannelIntensity,
+    b: ChannelIntensity,
+    a: ChannelIntensity,
+  ) {
     if (this.containsInvalidValues([r, g, b, a])) {
       throw new RangeError('RGBA channel value must be between 0 and 1');
     }
@@ -37,7 +42,7 @@ class RGBAColorModel {
     this.a = a;
   }
 
-  private containsInvalidValues(values: Channel[]) {
+  private containsInvalidValues(values: ChannelIntensity[]) {
     return values.some((value) => value < 0 || value > 1);
   }
 
