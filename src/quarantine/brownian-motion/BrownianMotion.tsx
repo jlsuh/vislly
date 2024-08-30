@@ -21,7 +21,7 @@ type ParticleSettings = {
 };
 type Radius = number;
 
-class RGBAColorModel {
+class RGBA {
   readonly r: Channel;
   readonly g: Channel;
   readonly b: Channel;
@@ -253,8 +253,8 @@ const DIMENSIONS: Dimensions = {
   width: 0,
 };
 
-const BLUE = new RGBAColorModel(0, 0, 1, 1);
-const RED = new RGBAColorModel(1, 0, 0, 1);
+const BLUE = new RGBA(0, 0, 1, 1);
+const RED = new RGBA(1, 0, 0, 1);
 
 const COR: CoefficientOfRestitution = 1;
 const INITIAL_SPEED = 10;
