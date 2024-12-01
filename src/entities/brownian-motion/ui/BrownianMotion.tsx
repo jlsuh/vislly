@@ -1,7 +1,16 @@
 import useChartDimensions from '@/shared/lib/chart/useChartDimensions';
 import { interval, select } from 'd3';
 import { type MouseEvent, useEffect } from 'react';
-import { Angle, CoefficientOfRestitution, Coord, Limit, Particle, ParticleSettings, RGBA, Vector2 } from '../model/brownian-motion';
+import {
+  type Angle,
+  type CoefficientOfRestitution,
+  type Coord,
+  type Limit,
+  Particle,
+  type ParticleSettings,
+  RGBA,
+  Vector2,
+} from '../model/brownian-motion';
 
 function getRandomAngle(): Angle {
   return Math.random() * 2 * Math.PI;

@@ -7,7 +7,7 @@
     "check": "biome check .",
     "ci": "biome ci .",
     "dev": "vite",
-    "format": "biome check --apply-unsafe .",
+    "format": "biome check --write --unsafe .",
     "install": "biome migrate --write",
     "preview": "vite preview"
   },
