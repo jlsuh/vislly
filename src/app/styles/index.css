@@ -1,0 +1,31 @@
+@import "normalize.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: 12 25 141;
+    --color-secondary: 144 144 144;
+    --color-success: 108 202 222;
+    --color-danger: 138 23 11;
+    --color-info: 255 255 255;
+    --color-label: 255 255 255;
+
+    --font-primary: 3rem;
+    --font-label: 2rem;
+  }
+  /* :root[data-theme='dark'] { */
+  .light {
+    --color-primary: 255 255 34;
+    --color-secondary: 75 85 99;
+    --color-success: 16 185 129;
+    --color-danger: 239 68 68;
+    --color-info: 243 244 246;
+    --color-label: 156 163 175;
+
+    --font-primary: 3rem;
+    --font-label: 2rem;
+  }
+}

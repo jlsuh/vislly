@@ -23,7 +23,8 @@
     "resolveJsonModule": true,
     "strict": true,
     "target": "ESNext",
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo"
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo",
+    "types": ["node"]
   },
   "include": ["src"]
 }

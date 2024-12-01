@@ -1,7 +1,29 @@
 import { type MutableRefObject, useEffect, useRef, useState } from 'react';
-import type { Dimensions } from './types';
 
-function composeChartDimensions(dimensions: Dimensions) {
+type ChartDimensions = {
+  boundedHeight: number;
+  boundedWidth: number;
+  marginBottom: number;
+  marginLeft: number;
+  marginRight: number;
+  marginTop: number;
+  /**
+   * Will be set to the current height of the ref element if set to 0.
+   * Otherwise, height will be fixed to the provided height.
+   *
+   * @see {@link useChartDimensions}
+   */
+  height: number;
+  /**
+   * Will be set to the current width of the ref element if set to 0.
+   * Otherwise, width will be fixed to the provided width.
+   *
+   * @see {@link useChartDimensions}
+   */
+  width: number;
+};
+
+function composeChartDimensions(dimensions: ChartDimensions) {
   const { height, width, marginTop, marginRight, marginBottom, marginLeft } =
     dimensions;
   return {
@@ -11,8 +33,8 @@ function composeChartDimensions(dimensions: Dimensions) {
   };
 }
 
-function useChartDimensions(initialDimensions: Dimensions): {
-  dimensions: Dimensions;
+function useChartDimensions(initialDimensions: ChartDimensions): {
+  dimensions: ChartDimensions;
   ref: MutableRefObject<null>;
 } {
   const [currentHeight, setCurrentHeight] = useState(0);
