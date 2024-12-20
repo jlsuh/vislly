@@ -1,4 +1,4 @@
-import { type MutableRefObject, useEffect, useRef, useState } from 'react';
+import { type RefObject, useEffect, useRef, useState } from 'react';
 
 type ChartDimensions = {
   boundedHeight: number;
@@ -35,7 +35,7 @@ function composeChartDimensions(dimensions: ChartDimensions) {
 
 function useChartDimensions(initialDimensions: ChartDimensions): {
   dimensions: ChartDimensions;
-  ref: MutableRefObject<null>;
+  ref: RefObject<null>;
 } {
   const [currentHeight, setCurrentHeight] = useState(0);
   const [currentWidth, setCurrentWidth] = useState(0);
