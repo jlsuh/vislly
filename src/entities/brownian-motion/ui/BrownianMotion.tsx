@@ -145,10 +145,10 @@ function BrownianMotion(): JSX.Element {
         y: getRandomBetween(DIAMETER, dimensions.boundedHeight - DIAMETER),
       })),
     ];
-    const timer = setInterval(() =>
+    const intervalID = setInterval(() =>
       update(particles, dimensions.boundedWidth, dimensions.boundedHeight, COR),
     );
-    return () => clearInterval(timer);
+    return () => clearInterval(intervalID);
   }, [dimensions.boundedHeight, dimensions.boundedWidth]);
 
   return (
