@@ -1,5 +1,5 @@
 import BrownianMotion from '@/entities/brownian-motion/ui/BrownianMotion';
-import type { ChangeEvent } from 'react';
+import type { ChangeEvent, JSX } from 'react';
 
 const changeTheme = (e: ChangeEvent<HTMLSelectElement>) => {
   const { value } = e.target;
