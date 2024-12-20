@@ -19,6 +19,8 @@ function Circle() {
 }
 */
 
+import type { JSX } from 'react';
+
 // Expressive version
 function Circle(): JSX.Element {
   return (

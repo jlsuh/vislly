@@ -1,6 +1,6 @@
+import useChartDimensions from '@/shared/lib/chart/useChartDimensions';
 import * as d3 from 'd3';
-import { useEffect } from 'react';
-import useChartDimensions from '../useChartDimensions';
+import { type JSX, useEffect } from 'react';
 
 // First approach
 

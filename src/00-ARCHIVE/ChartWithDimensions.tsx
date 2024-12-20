@@ -1,5 +1,6 @@
+import useChartDimensions from '@/shared/lib/chart/useChartDimensions';
 import * as d3 from 'd3';
-import useChartDimensions from '../useChartDimensions';
+import type { JSX } from 'react';
 import Axis from './Axis';
 
 const chartSettings = {

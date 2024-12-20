@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import type { JSX } from 'react/jsx-runtime';
+import { type JSX, useState } from 'react';
 import generateDataset from './generateDataset';
 import useInterval from './useInterval';
 
