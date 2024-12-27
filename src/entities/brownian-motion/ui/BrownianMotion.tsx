@@ -1,4 +1,5 @@
 import useChartDimensions from '@/shared/lib/chart/useChartDimensions';
+import { interval, select } from 'd3';
 import { type JSX, type MouseEvent, useEffect } from 'react';
 import {
   type Angle,
@@ -20,7 +21,7 @@ function getRandomBetween(min: Limit, max: Limit): Coord {
 }
 
 function getCanvasCtxById(id: string) {
-  const canvas = document.getElementById(id) as HTMLCanvasElement;
+  const canvas = select(`#${id}`).node() as HTMLCanvasElement;
   return canvas.getContext('2d') as CanvasRenderingContext2D;
 }
 
@@ -115,7 +116,7 @@ const BLUE = new RGBA(0, 0, 1, 1);
 const RED = new RGBA(1, 0, 0, 1);
 
 const COR: CoefficientOfRestitution = 1;
-const INITIAL_SPEED = 3;
+const INITIAL_SPEED = 10;
 const NUMBER_OF_PARTICLES = 400;
 const RADIUS = 8;
 const DIAMETER = RADIUS * 2;
@@ -145,10 +146,10 @@ function BrownianMotion(): JSX.Element {
         y: getRandomBetween(DIAMETER, dimensions.boundedHeight - DIAMETER),
       })),
     ];
-    const intervalID = setInterval(() =>
+    const timer = interval(() =>
       update(particles, dimensions.boundedWidth, dimensions.boundedHeight, COR),
     );
-    return () => clearInterval(intervalID);
+    return () => timer.stop();
   }, [dimensions.boundedHeight, dimensions.boundedWidth]);
 
   return (
