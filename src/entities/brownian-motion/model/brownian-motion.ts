@@ -37,7 +37,7 @@ class RGBA {
   }
 
   public toStyle() {
-    return `rgba(${this.r * 255}, ${this.g * 255}, ${this.b * 255}, ${this.a})`;
+    return `rgb(${this.r * 255} ${this.g * 255} ${this.b * 255} / ${this.a})`;
   }
 }
 
