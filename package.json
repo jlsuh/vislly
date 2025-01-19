@@ -3,12 +3,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "biome:check": "biome check .",
+    "biome:ci": "biome ci .",
+    "biome:format": "biome check --write --unsafe .",
+    "biome:migrate": "biome migrate --write",
     "build": "tsc && vite build",
-    "check": "biome check .",
-    "ci": "biome ci .",
     "dev": "vite",
-    "format": "biome check --write --unsafe .",
-    "install": "biome migrate --write",
     "preview": "vite preview"
   },
   "dependencies": {
