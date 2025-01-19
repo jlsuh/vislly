@@ -17,7 +17,7 @@ function App(): JSX.Element {
         className="border-info text-info text-center p-5 rounded-5 text-sm bg-primary"
         id="theme"
         onChange={changeTheme}
-        title='Select theme'
+        title="Select theme"
       >
         <option value="dark">Dark</option>
         <option value="light">Light</option>
