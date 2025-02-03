@@ -1,0 +1,28 @@
+:root {
+  /* Light mode */
+  --light-text: #222430;
+  --light-bg: #f7f7f7;
+  --light-theme: #d34a97;
+
+  /* Dark mode */
+  --dark-text: #f7f7f7;
+  --dark-bg: #222430;
+  --dark-theme: #bd93f9;
+
+  background: var(--bg-color);
+  color: var(--text-color);
+  transition: color 2s, background-color 2s;
+}
+
+/* Switched mode */
+:root[data-theme="dark"] {
+  --text-color: var(--dark-text);
+  --bg-color: var(--dark-bg);
+  --theme-color: var(--dark-theme);
+}
+
+:root[data-theme="light"] {
+  --text-color: var(--light-text);
+  --bg-color: var(--light-bg);
+  --theme-color: var(--light-theme);
+}

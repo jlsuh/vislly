@@ -3,10 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="node_modules/modern-normalize/modern-normalize.css"
+    />
+    <link rel="stylesheet" href="src/app/ui/index.css" />
     <title>Visually</title>
+    <script>
+      const currentTheme = localStorage.getItem('theme') ?? 'dark';
+      document.documentElement.dataset.theme = currentTheme;
+    </script>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <script defer type="module" src="/src/main.tsx"></script>
   </body>
 </html>
