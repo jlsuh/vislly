@@ -2,20 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="stylesheet"
-      href="node_modules/modern-normalize/modern-normalize.css"
-    />
-    <link rel="stylesheet" href="src/app/ui/index.css" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Visually</title>
-    <script>
-      const currentTheme = localStorage.getItem('theme') ?? 'dark';
-      document.documentElement.dataset.theme = currentTheme;
-    </script>
+    <script defer src="/src/main.tsx" type="module"></script>
   </head>
   <body>
     <div id="root"></div>
-    <script defer type="module" src="/src/main.tsx"></script>
   </body>
 </html>
