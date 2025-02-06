@@ -1,26 +1,17 @@
 @import "modern-normalize/modern-normalize.css";
 
 :root {
+  color-scheme: light dark;
+
   --light-text: #222430;
   --light-bg: #f7f7f7;
-  --light-theme: #d34a97;
 
   --dark-text: #f7f7f7;
   --dark-bg: #222430;
-  --dark-theme: #bd93f9;
+
+  --text-color: light-dark(var(--light-text), var(--dark-text));
+  --bg-color: light-dark(var(--light-bg), var(--dark-bg));
 
   background: var(--bg-color);
   color: var(--text-color);
-}
-
-:root[data-theme="dark"] {
-  --text-color: var(--dark-text);
-  --bg-color: var(--dark-bg);
-  --theme-color: var(--dark-theme);
-}
-
-:root[data-theme="light"] {
-  --text-color: var(--light-text);
-  --bg-color: var(--light-bg);
-  --theme-color: var(--light-theme);
 }

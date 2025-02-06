@@ -17,6 +17,7 @@ function All(): JSX.Element {
         title="Select theme"
         value={theme}
       >
+        <option value="light dark">System Default</option>
         <option value="dark">Dark</option>
         <option value="light">Light</option>
       </select>
