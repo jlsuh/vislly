@@ -1,21 +1,21 @@
 import BrownianMotion from '@/entities/brownian-motion/ui/BrownianMotion';
 import { type JSX, use } from 'react';
-import ThemeContext from './ui/ThemeContext';
-import ThemeProvider from './ui/ThemeProvider';
-import isTheme from './ui/isTheme';
+import isColorSchemeValue from './lib/isColorSchemeValue';
+import ColorSchemeContext from './providers/ColorSchemeContext';
+import ColorSchemeProvider from './providers/ColorSchemeProvider';
 
 function All(): JSX.Element {
-  const { changeTheme, theme } = use(ThemeContext);
+  const { changeColorScheme, colorScheme } = use(ColorSchemeContext);
 
   return (
     <>
       <select
         onChange={(e) => {
           const value = e.target.value;
-          if (isTheme(value)) changeTheme(value);
+          if (isColorSchemeValue(value)) changeColorScheme(value);
         }}
-        title="Select theme"
-        value={theme}
+        title="Select Color Scheme"
+        value={colorScheme}
       >
         <option value="light dark">System Default</option>
         <option value="dark">Dark</option>
@@ -29,9 +29,9 @@ function All(): JSX.Element {
 
 function App(): JSX.Element {
   return (
-    <ThemeProvider>
+    <ColorSchemeProvider>
       <All />
-    </ThemeProvider>
+    </ColorSchemeProvider>
   );
 }
 
