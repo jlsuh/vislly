@@ -1,16 +1,18 @@
 import { type Context, createContext } from 'react';
-import type { ColorSchemeValue } from '../model/color-scheme';
-import ColorScheme from '../model/color-scheme';
+import {
+  type ColorSchemeValue,
+  INITIAL_COLOR_SCHEME,
+} from '../model/color-scheme';
 
-const ColorSchemeContext: Context<{
+interface ColorSchemeContextType {
   changeColorScheme: (newColorScheme: ColorSchemeValue) => void;
   colorScheme: ColorSchemeValue;
-}> = createContext<{
-  changeColorScheme: (newColorScheme: ColorSchemeValue) => void;
-  colorScheme: ColorSchemeValue;
-}>({
-  changeColorScheme: (_: ColorSchemeValue) => {},
-  colorScheme: ColorScheme.Dark,
-});
+}
+
+const ColorSchemeContext: Context<ColorSchemeContextType> =
+  createContext<ColorSchemeContextType>({
+    changeColorScheme: (_: ColorSchemeValue) => {},
+    colorScheme: INITIAL_COLOR_SCHEME,
+  });
 
 export default ColorSchemeContext;
