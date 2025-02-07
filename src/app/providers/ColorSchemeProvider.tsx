@@ -11,8 +11,6 @@ interface ColorSchemeProviderProps {
 }
 
 const COLOR_SCHEME_KEY = 'color-scheme';
-const TRANSITION_DURATION_MILLIS = 300;
-const TRANSITION_VALUE = `color ${TRANSITION_DURATION_MILLIS}ms, background-color ${TRANSITION_DURATION_MILLIS}ms`;
 
 const getInitialColorScheme = () => {
   const currentColorScheme = localStorage.getItem(COLOR_SCHEME_KEY);
@@ -22,11 +20,7 @@ const getInitialColorScheme = () => {
 };
 
 function triggerColorSchemeTransition() {
-  document.documentElement.style.transition = TRANSITION_VALUE;
-  setTimeout(
-    () => document.documentElement.style.removeProperty('transition'),
-    TRANSITION_DURATION_MILLIS,
-  );
+  document.documentElement.classList.add('color-scheme-transition');
 }
 
 function ColorSchemeProvider({
