@@ -149,6 +149,9 @@ class Particle {
 }
 
 export {
+  Particle,
+  RGBA,
+  Vector2,
   type Angle,
   type Channel,
   type CoefficientOfRestitution,
@@ -157,7 +160,4 @@ export {
   type Limit,
   type Mass,
   type ParticleSettings,
-  Particle,
-  RGBA,
-  Vector2,
 };
