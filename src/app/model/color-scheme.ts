@@ -1,7 +1,7 @@
 const ColorScheme = {
   Auto: 'light dark',
-  Dark: 'dark',
-  Light: 'light',
+  Dark: 'only dark',
+  Light: 'only light',
 } as const;
 
 const INITIAL_COLOR_SCHEME: ColorSchemeValue = ColorScheme.Dark;
