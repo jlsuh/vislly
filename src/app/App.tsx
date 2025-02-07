@@ -1,7 +1,7 @@
 import BrownianMotion from '@/entities/brownian-motion/ui/BrownianMotion';
 import { type JSX, use } from 'react';
 import isColorSchemeValue from './lib/isColorSchemeValue';
-import ColorScheme from './model/color-scheme';
+import { ColorScheme } from './model/color-scheme';
 import ColorSchemeContext from './providers/ColorSchemeContext';
 import ColorSchemeProvider from './providers/ColorSchemeProvider';
 
@@ -17,6 +17,7 @@ function Main(): JSX.Element {
         }}
         title="Select Color Scheme"
         value={colorScheme}
+        id="color-scheme-select"
       >
         <option value={ColorScheme.Auto}>System Default</option>
         <option value={ColorScheme.Dark}>Dark</option>
