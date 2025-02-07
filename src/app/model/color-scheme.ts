@@ -4,6 +4,8 @@ const ColorScheme = {
   Light: 'light',
 } as const;
 
-export type ColorSchemeValue = (typeof ColorScheme)[keyof typeof ColorScheme];
+const INITIAL_COLOR_SCHEME: ColorSchemeValue = ColorScheme.Dark;
 
-export default ColorScheme;
+type ColorSchemeValue = (typeof ColorScheme)[keyof typeof ColorScheme];
+
+export { ColorScheme, INITIAL_COLOR_SCHEME, type ColorSchemeValue };

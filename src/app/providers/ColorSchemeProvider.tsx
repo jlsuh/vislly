@@ -1,6 +1,9 @@
 import { type JSX, useLayoutEffect, useState } from 'react';
 import isColorSchemeValue from '../lib/isColorSchemeValue';
-import ColorScheme, { type ColorSchemeValue } from '../model/color-scheme';
+import {
+  type ColorSchemeValue,
+  INITIAL_COLOR_SCHEME,
+} from '../model/color-scheme';
 import ColorSchemeContext from './ColorSchemeContext';
 
 interface ColorSchemeProviderProps {
@@ -15,7 +18,7 @@ const getInitialColorScheme = () => {
   const currentColorScheme = localStorage.getItem(COLOR_SCHEME_KEY);
   return isColorSchemeValue(currentColorScheme)
     ? currentColorScheme
-    : ColorScheme.Dark;
+    : INITIAL_COLOR_SCHEME;
 };
 
 function triggerColorSchemeTransition() {
