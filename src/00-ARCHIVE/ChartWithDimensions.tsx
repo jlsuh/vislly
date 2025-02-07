@@ -1,4 +1,4 @@
-import useChartDimensions from '@/shared/lib/chart/useChartDimensions';
+import useChartDimensions from '@/shared/lib/useChartDimensions';
 import * as d3 from 'd3';
 import type { JSX } from 'react';
 import Axis from './Axis';
