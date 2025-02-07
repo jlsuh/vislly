@@ -11,12 +11,12 @@ const COLOR_SCHEME_KEY = 'color-scheme';
 const TRANSITION_DURATION_MILLIS = 300;
 const TRANSITION_VALUE = `color ${TRANSITION_DURATION_MILLIS}ms, background-color ${TRANSITION_DURATION_MILLIS}ms`;
 
-function getInitialColorScheme() {
+const getInitialColorScheme = () => {
   const currentColorScheme = localStorage.getItem(COLOR_SCHEME_KEY);
   return isColorSchemeValue(currentColorScheme)
     ? currentColorScheme
     : ColorScheme.Dark;
-}
+};
 
 function triggerColorSchemeTransition() {
   document.documentElement.style.transition = TRANSITION_VALUE;
