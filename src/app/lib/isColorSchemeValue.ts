@@ -1,5 +1,4 @@
-import type { ColorSchemeValue } from '../model/color-scheme';
-import ColorScheme from '../model/color-scheme';
+import { ColorScheme, type ColorSchemeValue } from '../model/color-scheme';
 
 function isColorSchemeValue(
   colorScheme: string | null,
