@@ -11,6 +11,7 @@ import {
   RGBA,
   Vector2,
 } from '../model/brownian-motion';
+import styles from './brownian-motion.module.css';
 
 function getRandomAngle(): Angle {
   return Math.random() * 2 * Math.PI;
@@ -153,37 +154,19 @@ function BrownianMotion(): JSX.Element {
   }, [dimensions.boundedHeight, dimensions.boundedWidth]);
 
   return (
-    <div
-      ref={ref}
-      style={{
-        alignItems: 'center',
-        display: 'flex',
-        justifyContent: 'center',
-        position: 'relative',
-        maxHeight: '100vh',
-        minHeight: '100vh',
-      }}
-    >
+    <div className={styles.brownianMotion} ref={ref}>
       <canvas
+        className={styles.brownianMotion__particlesCanvas}
         height={dimensions.boundedHeight}
         id="particles"
         onContextMenu={disableContextMenu}
-        style={{
-          border: '1px solid black',
-          height: dimensions.boundedHeight,
-          width: dimensions.boundedWidth,
-        }}
         width={dimensions.boundedWidth}
       />
       <canvas
+        className={styles.brownianMotion__historicalCanvas}
         height={dimensions.boundedHeight}
         id="historical"
         onContextMenu={disableContextMenu}
-        style={{
-          height: dimensions.boundedHeight,
-          position: 'absolute',
-          width: dimensions.boundedWidth,
-        }}
         width={dimensions.boundedWidth}
       />
     </div>
