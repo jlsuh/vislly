@@ -1,19 +1,24 @@
-@import "modern-normalize/modern-normalize.css";
+@layer reset.modern-normalize, themes, components;
 
-:root {
-  --light-text: #222430;
-  --light-bg: #f7f7f7;
+@import url("modern-normalize/modern-normalize.css")
+  layer(reset.modern-normalize);
 
-  --dark-text: #f7f7f7;
-  --dark-bg: #222430;
+@layer themes {
+  .root {
+    --light-text: #222430;
+    --light-bg: #f7f7f7;
 
-  --text-color: light-dark(var(--light-text), var(--dark-text));
-  --bg-color: light-dark(var(--light-bg), var(--dark-bg));
+    --dark-text: #f7f7f7;
+    --dark-bg: #222430;
 
-  background: var(--bg-color);
-  color: var(--text-color);
-}
+    --text-color: light-dark(var(--light-text), var(--dark-text));
+    --bg-color: light-dark(var(--light-bg), var(--dark-bg));
 
-.color-scheme-transition {
-  transition: color .4s, background-color .4s;
+    background: var(--bg-color);
+    color: var(--text-color);
+  }
+
+  .root_transition_enabled {
+    transition: color .4s, background-color .4s;
+  }
 }
