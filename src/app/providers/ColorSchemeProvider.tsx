@@ -11,7 +11,7 @@ interface ColorSchemeProviderProps {
 }
 
 const COLOR_SCHEME_KEY = 'color-scheme';
-const COLOR_SCHEME_TRANSITION_CLASS = 'color-scheme-transition';
+const COLOR_SCHEME_TRANSITION_CLASS = 'root_transition_enabled';
 
 const getInitialColorScheme = () => {
   const currentColorScheme = localStorage.getItem(COLOR_SCHEME_KEY);
