@@ -1,0 +1,10 @@
+import { Theme, type ThemeValue } from './theme';
+
+function isThemeValue(theme: string | null): theme is ThemeValue {
+  return (
+    theme !== null &&
+    Object.values(Theme).some((themeValue) => themeValue === theme)
+  );
+}
+
+export default isThemeValue;

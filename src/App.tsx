@@ -1,28 +1,28 @@
 import BrownianMotion from '@/entities/brownian-motion/ui/BrownianMotion';
 import { type ComponentType, type JSX, type ReactNode, use } from 'react';
 import { BrowserRouter } from 'react-router';
-import ColorSchemeContext from './app/providers/ColorSchemeContext';
-import ColorSchemeProvider from './app/providers/ColorSchemeProvider';
-import { ColorScheme } from './shared/ui/theme/color-scheme';
-import isColorSchemeValue from './shared/ui/theme/isColorSchemeValue';
+import ThemeContext from './app/providers/ThemeContext';
+import ThemeProvider from './app/providers/ThemeProvider';
+import isThemeValue from './shared/ui/theme/isThemeValue';
+import { Theme } from './shared/ui/theme/theme';
 
 function Main(): JSX.Element {
-  const { changeColorScheme, colorScheme } = use(ColorSchemeContext);
+  const { changeTheme, theme } = use(ThemeContext);
 
   return (
     <>
       <select
         onChange={(e) => {
           const value = e.target.value;
-          if (isColorSchemeValue(value)) changeColorScheme(value);
+          if (isThemeValue(value)) changeTheme(value);
         }}
-        title="Select Color Scheme"
-        value={colorScheme}
-        id="color-scheme-select"
+        title="Select Theme"
+        value={theme}
+        id="theme-select"
       >
-        <option value={ColorScheme.Auto}>System Default</option>
-        <option value={ColorScheme.Dark}>Dark</option>
-        <option value={ColorScheme.Light}>Light</option>
+        <option value={Theme.Auto}>System Default</option>
+        <option value={Theme.Dark}>Dark</option>
+        <option value={Theme.Light}>Light</option>
       </select>
       <h1>Hello world!</h1>
       <BrownianMotion />
@@ -48,7 +48,7 @@ function withProvider(
   return WithProvider;
 }
 
-const providers = [BrowserRouter, ColorSchemeProvider];
+const providers = [BrowserRouter, ThemeProvider];
 
 function withProviders(Component: ComponentType) {
   return providers.reduceRight((AccumulatedComponent, Provider) => {
