@@ -1,4 +1,4 @@
-import useResizeDimensions from '@/shared/lib/resize/useResizeDimensions';
+import useResizeDimensions from '@/shared/lib/resize-dimension/useResizeDimensions';
 import { interval, select } from 'd3';
 import { type JSX, type MouseEvent, useEffect } from 'react';
 import {
