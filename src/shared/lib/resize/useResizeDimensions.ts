@@ -1,6 +1,6 @@
 import { type RefObject, useEffect, useRef, useState } from 'react';
 
-type ChartDimensions = {
+type ResizeDimensions = {
   boundedHeight: number;
   boundedWidth: number;
   marginBottom: number;
@@ -11,19 +11,19 @@ type ChartDimensions = {
    * Will be set to the current height of the ref element if set to 0.
    * Otherwise, height will be fixed to the provided height.
    *
-   * @see {@link useChartDimensions}
+   * @see {@link useResizeDimensions}
    */
   height: number;
   /**
    * Will be set to the current width of the ref element if set to 0.
    * Otherwise, width will be fixed to the provided width.
    *
-   * @see {@link useChartDimensions}
+   * @see {@link useResizeDimensions}
    */
   width: number;
 };
 
-function composeChartDimensions(dimensions: ChartDimensions) {
+function composeResizeDimensions(dimensions: ResizeDimensions) {
   const { height, width, marginTop, marginRight, marginBottom, marginLeft } =
     dimensions;
   return {
@@ -33,15 +33,15 @@ function composeChartDimensions(dimensions: ChartDimensions) {
   };
 }
 
-function useChartDimensions(initialDimensions: ChartDimensions): {
-  dimensions: ChartDimensions;
+function useResizeDimensions(initialDimensions: ResizeDimensions): {
+  dimensions: ResizeDimensions;
   ref: RefObject<null>;
 } {
   const [currentHeight, setCurrentHeight] = useState(0);
   const [currentWidth, setCurrentWidth] = useState(0);
   const ref = useRef(null);
 
-  const initialChartDimensions = composeChartDimensions(initialDimensions);
+  const initialResizeDimensions = composeResizeDimensions(initialDimensions);
 
   useEffect(() => {
     const element = ref.current ?? new Element();
@@ -56,13 +56,13 @@ function useChartDimensions(initialDimensions: ChartDimensions): {
     return () => resizeObserver.unobserve(element);
   }, [currentHeight, currentWidth]);
 
-  const dimensions = composeChartDimensions({
-    ...initialChartDimensions,
-    width: initialChartDimensions.width || currentWidth,
-    height: initialChartDimensions.height || currentHeight,
+  const dimensions = composeResizeDimensions({
+    ...initialResizeDimensions,
+    width: initialResizeDimensions.width || currentWidth,
+    height: initialResizeDimensions.height || currentHeight,
   });
 
   return { dimensions, ref };
 }
 
-export default useChartDimensions;
+export default useResizeDimensions;

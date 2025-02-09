@@ -1,10 +1,10 @@
-import useChartDimensions from '@/shared/lib/chart/useChartDimensions';
+import useResizeDimensions from '@/shared/lib/resize/useResizeDimensions';
 import * as d3 from 'd3';
 import { type JSX, useEffect } from 'react';
 
 // First approach
 
-const chartSettings = {
+const resizeDimensionSettings = {
   boundedHeight: 0,
   boundedWidth: 0,
   height: 500, // TODO: Calculate height to occupy 40% of the viewport
@@ -87,7 +87,7 @@ function drawBall(
 }
 
 function BouncingBall(): JSX.Element {
-  const { ref, dimensions } = useChartDimensions(chartSettings);
+  const { ref, dimensions } = useResizeDimensions(resizeDimensionSettings);
 
   useEffect(() => {
     // TODO: Consider 10 as masimum velocity

@@ -1,4 +1,4 @@
-import useChartDimensions from '@/shared/lib/chart/useChartDimensions';
+import useResizeDimensions from '@/shared/lib/resize/useResizeDimensions';
 import { interval, select } from 'd3';
 import { type JSX, type MouseEvent, useEffect } from 'react';
 import {
@@ -102,7 +102,7 @@ function composeParticles(
 const disableContextMenu = (e: MouseEvent<HTMLCanvasElement>) =>
   e.preventDefault();
 
-const CHART_DIMENSIONS = {
+const RESIZE_DIMENSIONS = {
   boundedHeight: 0,
   boundedWidth: 0,
   marginBottom: 50,
@@ -123,7 +123,7 @@ const RADIUS = 8;
 const DIAMETER = RADIUS * 2;
 
 function BrownianMotion(): JSX.Element {
-  const { ref, dimensions } = useChartDimensions(CHART_DIMENSIONS);
+  const { ref, dimensions } = useResizeDimensions(RESIZE_DIMENSIONS);
 
   useEffect(() => {
     configureHistoricalCanvas();
