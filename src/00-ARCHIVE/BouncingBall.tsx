@@ -1,4 +1,4 @@
-import useResizeDimensions from '@/shared/lib/resize-dimension/useResizeDimensions';
+import useResizeDimensions from '@/shared/lib/resize-dimensions/useResizeDimensions';
 import * as d3 from 'd3';
 import { type JSX, useEffect } from 'react';
 
