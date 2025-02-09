@@ -1,5 +1,5 @@
-import isThemeValue from '@/shared/ui/theme/isThemeValue';
-import { DEFAULT_THEME, type ThemeValue } from '@/shared/ui/theme/theme';
+import isThemeValue from '@/shared/lib/theme/isThemeValue';
+import { DEFAULT_THEME, type ThemeValue } from '@/shared/lib/theme/theme';
 import { type JSX, useLayoutEffect, useState } from 'react';
 import ThemeContext from './ThemeContext';
 

@@ -1,4 +1,4 @@
-import { DEFAULT_THEME, type ThemeValue } from '@/shared/ui/theme/theme';
+import { DEFAULT_THEME, type ThemeValue } from '@/shared/lib/theme/theme';
 import { type Context, createContext } from 'react';
 
 interface ThemeContextType {

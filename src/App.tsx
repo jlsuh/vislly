@@ -3,8 +3,8 @@ import { type ComponentType, type JSX, type ReactNode, use } from 'react';
 import { BrowserRouter } from 'react-router';
 import ThemeContext from './app/providers/ThemeContext';
 import ThemeProvider from './app/providers/ThemeProvider';
-import isThemeValue from './shared/ui/theme/isThemeValue';
-import { Theme } from './shared/ui/theme/theme';
+import isThemeValue from './shared/lib/theme/isThemeValue';
+import { Theme } from './shared/lib/theme/theme';
 
 function Main(): JSX.Element {
   const { changeTheme, theme } = use(ThemeContext);
