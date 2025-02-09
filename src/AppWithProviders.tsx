@@ -1,9 +1,9 @@
+import ThemeContext from '@/app/providers/ThemeContext';
+import withProviders from '@/app/providers/withProviders';
 import BrownianMotion from '@/entities/brownian-motion/ui/BrownianMotion';
+import isThemeValue from '@/shared/lib/theme/isThemeValue';
+import { Theme } from '@/shared/lib/theme/theme';
 import { type ComponentType, type JSX, use } from 'react';
-import ThemeContext from './app/providers/ThemeContext';
-import withProviders from './app/providers/withProviders';
-import isThemeValue from './shared/lib/theme/isThemeValue';
-import { Theme } from './shared/lib/theme/theme';
 
 function App(): JSX.Element {
   const { changeTheme, theme } = use(ThemeContext);
