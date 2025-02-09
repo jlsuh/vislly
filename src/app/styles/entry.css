@@ -6,9 +6,6 @@
 @layer themes {
   .root {
     color-scheme: light dark;
-
-    --system-ui: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif,
-      "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     font-family: "DankMono", var(--system-ui);
 
     --light-text: #222430;
@@ -22,6 +19,9 @@
 
     background: var(--bg-color);
     color: var(--text-color);
+
+    --system-ui: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif,
+      "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   }
 
   .root_transition_enabled {
