@@ -1,10 +1,10 @@
 import BrownianMotion from '@/entities/brownian-motion/ui/BrownianMotion';
 import { type ComponentType, type JSX, type ReactNode, use } from 'react';
 import { BrowserRouter } from 'react-router';
-import isColorSchemeValue from './app/lib/isColorSchemeValue';
-import { ColorScheme } from './app/model/color-scheme';
 import ColorSchemeContext from './app/providers/ColorSchemeContext';
 import ColorSchemeProvider from './app/providers/ColorSchemeProvider';
+import { ColorScheme } from './shared/ui/theme/color-scheme';
+import isColorSchemeValue from './shared/ui/theme/isColorSchemeValue';
 
 function Main(): JSX.Element {
   const { changeColorScheme, colorScheme } = use(ColorSchemeContext);

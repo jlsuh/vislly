@@ -2,7 +2,7 @@ import { type Context, createContext } from 'react';
 import {
   type ColorSchemeValue,
   INITIAL_COLOR_SCHEME,
-} from '../model/color-scheme';
+} from '../../shared/ui/theme/color-scheme';
 
 interface ColorSchemeContextType {
   changeColorScheme: (newColorScheme: ColorSchemeValue) => void;

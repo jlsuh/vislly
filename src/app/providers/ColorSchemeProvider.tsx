@@ -1,9 +1,9 @@
-import { type JSX, useLayoutEffect, useState } from 'react';
-import isColorSchemeValue from '../lib/isColorSchemeValue';
 import {
   type ColorSchemeValue,
   INITIAL_COLOR_SCHEME,
-} from '../model/color-scheme';
+} from '@/shared/ui/theme/color-scheme';
+import isColorSchemeValue from '@/shared/ui/theme/isColorSchemeValue';
+import { type JSX, useLayoutEffect, useState } from 'react';
 import ColorSchemeContext from './ColorSchemeContext';
 
 interface ColorSchemeProviderProps {
