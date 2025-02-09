@@ -32,7 +32,8 @@
 @layer utilities {
   @font-face {
     font-family: "DankMono";
-    src: url("/fonts/DankMono-Regular.woff2") format("woff2"),
+    src: local("DankMono"), local("DankMono-Regular"),
+      url("/fonts/DankMono-Regular.woff2") format("woff2"),
       url("/fonts/DankMono-Regular.woff") format("woff");
   }
 }
