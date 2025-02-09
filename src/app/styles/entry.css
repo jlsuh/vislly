@@ -1,10 +1,16 @@
-@layer reset.modern-normalize, themes, components;
+@layer reset.modern-normalize, themes, components, utilities;
 
 @import url("modern-normalize/modern-normalize.css")
   layer(reset.modern-normalize);
 
 @layer themes {
   .root {
+    color-scheme: light dark;
+
+    --system-ui: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif,
+      "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-family: "DankMono", var(--system-ui);
+
     --light-text: #222430;
     --light-bg: #f7f7f7;
 
@@ -20,5 +26,13 @@
 
   .root_transition_enabled {
     transition: color .4s, background-color .4s;
+  }
+}
+
+@layer utilities {
+  @font-face {
+    font-family: "DankMono";
+    src: url("./fonts/DankMono-Regular.woff2") format("woff2"),
+      url("./fonts/DankMono-Regular.woff") format("woff");
   }
 }
