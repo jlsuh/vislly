@@ -1,4 +1,4 @@
-import useChartDimensions from '@/shared/lib/useChartDimensions';
+import useChartDimensions from '@/shared/lib/chart/useChartDimensions';
 import { interval, select } from 'd3';
 import { type JSX, type MouseEvent, useEffect } from 'react';
 import {
