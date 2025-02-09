@@ -1,14 +1,13 @@
 import isThemeValue from '@/shared/lib/theme/isThemeValue';
 import { DEFAULT_THEME, type ThemeValue } from '@/shared/lib/theme/theme';
-import { type JSX, useLayoutEffect, useState } from 'react';
+import { type JSX, type ReactNode, useLayoutEffect, useState } from 'react';
 import ThemeContext from './ThemeContext';
 
 interface ThemeProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 const THEME_KEY = 'theme';
-const COLOR_SCHEME_STYLE = 'color-scheme';
 const THEME_TRANSITION_CLASS = 'root_transition_enabled';
 
 const getInitialTheme = () => {
@@ -30,7 +29,7 @@ function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
 
   useLayoutEffect(() => {
     localStorage.setItem(THEME_KEY, theme);
-    document.documentElement.style.setProperty(COLOR_SCHEME_STYLE, theme);
+    document.documentElement.style.colorScheme = theme;
   }, [theme]);
 
   return (
