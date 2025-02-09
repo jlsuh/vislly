@@ -1,6 +1,6 @@
-import isThemeValue from '@/shared/lib/theme/isThemeValue';
-import { DEFAULT_THEME, type ThemeValue } from '@/shared/lib/theme/theme';
 import { type JSX, type ReactNode, useLayoutEffect, useState } from 'react';
+import { DEFAULT_THEME, type ThemeValue } from '../constant/theme';
+import isThemeValue from '../lib/isThemeValue';
 import ThemeContext from './ThemeContext';
 
 interface ThemeProviderProps {

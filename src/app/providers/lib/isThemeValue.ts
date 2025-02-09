@@ -1,4 +1,4 @@
-import { Theme, type ThemeValue } from './theme';
+import { Theme, type ThemeValue } from '../constant/theme';
 
 function isThemeValue(theme: string | null): theme is ThemeValue {
   return (

@@ -1,5 +1,5 @@
-import { DEFAULT_THEME, type ThemeValue } from '@/shared/lib/theme/theme';
 import { type Context, createContext } from 'react';
+import { DEFAULT_THEME, type ThemeValue } from '../constant/theme';
 
 interface ThemeContextType {
   changeTheme: (newTheme: ThemeValue) => void;

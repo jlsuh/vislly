@@ -1,8 +1,8 @@
-import ThemeContext from '@/app/providers/ThemeContext';
-import withProviders from '@/app/providers/withProviders';
+import { Theme } from '@/app/providers/constant/theme';
+import isThemeValue from '@/app/providers/lib/isThemeValue';
+import ThemeContext from '@/app/providers/ui/ThemeContext';
+import withProviders from '@/app/providers/ui/withProviders';
 import BrownianMotion from '@/entities/brownian-motion/ui/BrownianMotion';
-import isThemeValue from '@/shared/lib/theme/isThemeValue';
-import { Theme } from '@/shared/lib/theme/theme';
 import { type ComponentType, type JSX, use } from 'react';
 
 function App(): JSX.Element {
