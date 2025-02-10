@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+const CHANGE_EVENT = 'change';
 const PREFERS_DARK_COLOR_SCHEME_QUERY = '(prefers-color-scheme: dark)';
 
 const getCurrentColorSchemePreference = globalThis.matchMedia(
@@ -20,12 +21,12 @@ function useSystemAppearance(): {
       PREFERS_DARK_COLOR_SCHEME_QUERY,
     );
     prefersDarkColorSchemeMediaQueryList.addEventListener(
-      'change',
+      CHANGE_EVENT,
       mediaQueryListListener,
     );
     return () =>
       prefersDarkColorSchemeMediaQueryList.removeEventListener(
-        'change',
+        CHANGE_EVENT,
         mediaQueryListListener,
       );
   }, []);
