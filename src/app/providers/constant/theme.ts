@@ -1,14 +1,14 @@
-const LIGHT_DARK = 'light dark';
+const DARK_LIGHT = 'dark light';
 const ONLY_DARK = 'only dark';
 const ONLY_LIGHT = 'only light';
 
-const LIGHT_DARK_LABEL = 'System';
+const DARK_LIGHT_LABEL = 'System';
 const ONLY_DARK_LABEL = 'Always Dark';
 const ONLY_LIGHT_LABEL = 'Always Light';
 
 const Theme: Record<ThemeValue, ThemeObject> = {
-  [`${LIGHT_DARK}`]: {
-    label: LIGHT_DARK_LABEL,
+  [`${DARK_LIGHT}`]: {
+    label: DARK_LIGHT_LABEL,
     shouldTriggerViewTransition(
       destinationTheme: ThemeValue,
       userPrefersDarkTheme: boolean,
@@ -17,7 +17,7 @@ const Theme: Record<ThemeValue, ThemeObject> = {
         ? destinationTheme === ONLY_LIGHT
         : destinationTheme === ONLY_DARK;
     },
-    value: LIGHT_DARK,
+    value: DARK_LIGHT,
   },
   [`${ONLY_LIGHT}`]: {
     label: ONLY_LIGHT_LABEL,
@@ -43,11 +43,11 @@ const Theme: Record<ThemeValue, ThemeObject> = {
 
 const FALLBACK_THEME_VALUE: ThemeValue = ONLY_DARK;
 
-type ThemeValue = typeof LIGHT_DARK | typeof ONLY_DARK | typeof ONLY_LIGHT;
+type ThemeValue = typeof DARK_LIGHT | typeof ONLY_DARK | typeof ONLY_LIGHT;
 type ThemeLabel =
+  | typeof DARK_LIGHT_LABEL
   | typeof ONLY_DARK_LABEL
-  | typeof ONLY_LIGHT_LABEL
-  | typeof LIGHT_DARK_LABEL;
+  | typeof ONLY_LIGHT_LABEL;
 type ThemeObject = {
   label: ThemeLabel;
   shouldTriggerViewTransition: (
