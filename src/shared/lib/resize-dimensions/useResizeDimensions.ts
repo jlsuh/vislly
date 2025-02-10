@@ -23,7 +23,9 @@ type ResizeDimensions = {
   width: number;
 };
 
-function composeResizeDimensions(dimensions: ResizeDimensions) {
+function composeResizeDimensions(
+  dimensions: ResizeDimensions,
+): ResizeDimensions {
   const { height, width, marginTop, marginRight, marginBottom, marginLeft } =
     dimensions;
   return {
