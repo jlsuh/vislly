@@ -6,7 +6,7 @@ import BrownianMotion from '@/entities/brownian-motion/ui/BrownianMotion';
 import { type ComponentType, type JSX, use } from 'react';
 
 function App(): JSX.Element {
-  const { changeTheme, theme } = use(ThemeContext);
+  const { changeTheme, currentThemeValue } = use(ThemeContext);
 
   return (
     <>
@@ -16,12 +16,14 @@ function App(): JSX.Element {
           if (isThemeValue(value)) changeTheme(value);
         }}
         title="Select Theme"
-        value={theme}
+        value={currentThemeValue}
         id="theme-select"
       >
-        <option value={Theme.Auto}>System Default</option>
-        <option value={Theme.Dark}>Dark</option>
-        <option value={Theme.Light}>Light</option>
+        {Object.values(Theme).map(({ label, value }) => (
+          <option key={value} value={value}>
+            {label}
+          </option>
+        ))}
       </select>
       <h1>Hello world!</h1>
       <BrownianMotion />

@@ -1,9 +1,11 @@
 import { Theme, type ThemeValue } from '../constant/theme';
 
-function isThemeValue(theme: string | null): theme is ThemeValue {
+function isThemeValue(themeValue: string | null): themeValue is ThemeValue {
   return (
-    theme !== null &&
-    Object.values(Theme).some((themeValue) => themeValue === theme)
+    themeValue !== null &&
+    Object.values(Theme)
+      .map(({ value }) => value)
+      .some((knownThemeValue) => knownThemeValue === themeValue)
   );
 }
 

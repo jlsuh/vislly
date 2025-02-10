@@ -4,10 +4,7 @@
   layer(reset.modern-normalize);
 
 @layer themes {
-  .root {
-    color-scheme: light dark;
-    font-family: "DankMono", var(--system-ui);
-
+  :root {
     --light-text: #222430;
     --light-bg: #f7f7f7;
 
@@ -22,10 +19,32 @@
 
     --system-ui: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif,
       "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-family: "DankMono", var(--system-ui);
   }
 
-  .root_transition_enabled {
-    transition: color .4s, background-color .4s;
+  ::view-transition-group(root) {
+    --expo-out: cubic-bezier(0.19, 1, 0.22, 1);
+    animation-timing-function: var(--expo-out);
+  }
+
+  ::view-transition-new(root) {
+    mask: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><defs><filter id="blur"><feGaussianBlur stdDeviation="2"/></filter></defs><circle cx="0" cy="0" r="18" fill="white" filter="url(%23blur)"/></svg>')
+      top left / 0 no-repeat;
+    mask-origin: content-box;
+    animation: scale 1s;
+    transform-origin: top left;
+  }
+
+  ::view-transition-old(root) {
+    animation: scale 1s;
+    transform-origin: top left;
+    z-index: -1;
+  }
+
+  @keyframes scale {
+    to {
+      mask-size: 350vmax;
+    }
   }
 }
 

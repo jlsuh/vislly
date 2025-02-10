@@ -1,6 +1,11 @@
 import { type JSX, type ReactNode, useLayoutEffect, useState } from 'react';
-import { DEFAULT_THEME, type ThemeValue } from '../constant/theme';
+import {
+  FALLBACK_THEME_VALUE,
+  Theme,
+  type ThemeValue,
+} from '../constant/theme';
 import isThemeValue from '../lib/isThemeValue';
+import useSystemAppearance from '../lib/useSystemAppearance';
 import ThemeContext from './ThemeContext';
 
 interface ThemeProviderProps {
@@ -8,32 +13,41 @@ interface ThemeProviderProps {
 }
 
 const THEME_KEY = 'theme';
-const THEME_TRANSITION_CLASS = 'root_transition_enabled';
 
-const getInitialTheme = () => {
-  const currentTheme = localStorage.getItem(THEME_KEY);
-  return isThemeValue(currentTheme) ? currentTheme : DEFAULT_THEME;
+const getInitialThemeValue = () => {
+  const currentThemeValue = localStorage.getItem(THEME_KEY);
+  return isThemeValue(currentThemeValue)
+    ? currentThemeValue
+    : FALLBACK_THEME_VALUE;
 };
 
-function triggerThemeTransition() {
-  document.documentElement.classList.add(THEME_TRANSITION_CLASS);
-}
-
 function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
-  const [theme, setTheme] = useState(getInitialTheme);
+  const [currentThemeValue, setCurrentThemeValue] =
+    useState(getInitialThemeValue);
 
-  function changeTheme(newTheme: ThemeValue) {
-    setTheme(newTheme);
-    triggerThemeTransition();
+  const { isDarkAppearance } = useSystemAppearance();
+
+  function changeTheme(newThemeValue: ThemeValue) {
+    const { value } = Theme[newThemeValue];
+    const { shouldTriggerViewTransition } = Theme[currentThemeValue];
+    if (
+      shouldTriggerViewTransition(value, isDarkAppearance) &&
+      document.startViewTransition
+    )
+      document.startViewTransition(() => setCurrentThemeValue(value));
+    else setCurrentThemeValue(value);
+    localStorage.setItem(THEME_KEY, value);
   }
 
   useLayoutEffect(() => {
-    localStorage.setItem(THEME_KEY, theme);
-    document.documentElement.style.colorScheme = theme;
-  }, [theme]);
+    document
+      .querySelector('meta[name="color-scheme"]')
+      ?.setAttribute('content', currentThemeValue);
+    localStorage.setItem(THEME_KEY, currentThemeValue);
+  }, [currentThemeValue]);
 
   return (
-    <ThemeContext value={{ changeTheme: changeTheme, theme: theme }}>
+    <ThemeContext value={{ changeTheme, currentThemeValue }}>
       {children}
     </ThemeContext>
   );
