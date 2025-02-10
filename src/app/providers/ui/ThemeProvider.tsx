@@ -1,4 +1,10 @@
-import { type JSX, type ReactNode, useLayoutEffect, useState } from 'react';
+import {
+  type JSX,
+  type ReactNode,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import {
   FALLBACK_THEME_VALUE,
   Theme,
@@ -24,6 +30,7 @@ const getInitialThemeValue = () => {
 function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
   const [currentThemeValue, setCurrentThemeValue] =
     useState(getInitialThemeValue);
+  const documentRef = useRef(document);
 
   const { isDarkAppearance } = useSystemAppearance();
 
@@ -32,9 +39,11 @@ function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
     const { shouldTriggerViewTransition } = Theme[currentThemeValue];
     if (
       shouldTriggerViewTransition(value, isDarkAppearance) &&
-      document.startViewTransition
+      documentRef.current.startViewTransition
     )
-      document.startViewTransition(() => setCurrentThemeValue(value));
+      documentRef.current.startViewTransition(() =>
+        setCurrentThemeValue(value),
+      );
     else setCurrentThemeValue(value);
     localStorage.setItem(THEME_KEY, value);
   }
