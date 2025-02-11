@@ -1,5 +1,5 @@
 import type { JSX } from 'react';
-import styles from './styles.module.css';
+import styles from './button.module.css';
 
 function concatClasses(...classes: string[]): string {
   return classes.join(' ');

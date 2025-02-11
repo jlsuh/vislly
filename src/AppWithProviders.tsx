@@ -3,7 +3,7 @@ import isThemeValue from '@/app/providers/lib/isThemeValue';
 import ThemeContext from '@/app/providers/ui/ThemeContext';
 import withProviders from '@/app/providers/ui/withProviders';
 import BrownianMotion from '@/entities/brownian-motion/ui/BrownianMotion';
-import Button from '@/shared/ui/Button';
+import Button from '@/shared/ui/Button/Button';
 import { type ComponentType, type JSX, use } from 'react';
 
 function App(): JSX.Element {
