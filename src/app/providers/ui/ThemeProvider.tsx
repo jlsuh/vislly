@@ -51,7 +51,7 @@ function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
   }
 
   useLayoutEffect(() => {
-    document
+    documentRef.current
       .querySelector(META_COLOR_SCHEME_NAME_SELECTOR)
       ?.setAttribute(CONTENT, currentThemeValue);
     localStorage.setItem(THEME_KEY, currentThemeValue);
