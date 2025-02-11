@@ -15,6 +15,7 @@ type ParticleSettings = {
   readonly y: Coord;
 };
 type Radius = number;
+type RGBAChannels = ConstructorParameters<typeof RGBA>;
 
 class RGBA {
   readonly r: Channel;
@@ -32,8 +33,8 @@ class RGBA {
     this.a = a;
   }
 
-  private containsInvalidValues(values: Channel[]) {
-    return values.some((value) => value < 0 || value > 1);
+  private containsInvalidValues(rgbaChannels: RGBAChannels) {
+    return rgbaChannels.some((value: Channel) => value < 0 || value > 1);
   }
 
   public toStyle() {
