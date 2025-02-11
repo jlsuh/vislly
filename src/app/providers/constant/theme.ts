@@ -12,32 +12,32 @@ const Theme: ReadonlyDeep<Record<ThemeValue, ThemeObject>> = {
   [DARK_LIGHT]: {
     label: DARK_LIGHT_LABEL,
     shouldTriggerViewTransition(
-      destinationTheme: ThemeValue,
+      targetTheme: ThemeValue,
       userPrefersDarkTheme: boolean,
     ) {
       return userPrefersDarkTheme
-        ? destinationTheme === ONLY_LIGHT
-        : destinationTheme === ONLY_DARK;
+        ? targetTheme === ONLY_LIGHT
+        : targetTheme === ONLY_DARK;
     },
     value: DARK_LIGHT,
   },
   [ONLY_LIGHT]: {
     label: ONLY_LIGHT_LABEL,
     shouldTriggerViewTransition(
-      destinationTheme: ThemeValue,
+      targetTheme: ThemeValue,
       userPrefersDarkTheme: boolean,
     ) {
-      return userPrefersDarkTheme ? true : destinationTheme === ONLY_DARK;
+      return userPrefersDarkTheme ? true : targetTheme === ONLY_DARK;
     },
     value: ONLY_LIGHT,
   },
   [ONLY_DARK]: {
     label: ONLY_DARK_LABEL,
     shouldTriggerViewTransition(
-      destinationTheme: ThemeValue,
+      targetTheme: ThemeValue,
       userPrefersDarkTheme: boolean,
     ) {
-      return userPrefersDarkTheme ? destinationTheme === ONLY_LIGHT : true;
+      return userPrefersDarkTheme ? targetTheme === ONLY_LIGHT : true;
     },
     value: ONLY_DARK,
   },
@@ -53,7 +53,7 @@ type ThemeLabel =
 type ThemeObject = {
   label: ThemeLabel;
   shouldTriggerViewTransition: (
-    destinationTheme: ThemeValue,
+    targetTheme: ThemeValue,
     userPrefersDarkTheme: boolean,
   ) => boolean;
   value: ThemeValue;
