@@ -10,7 +10,6 @@ import {
   Theme,
   type ThemeValue,
 } from '../constant/theme';
-import isThemeValue from '../lib/isThemeValue';
 import useSystemAppearance from '../lib/useSystemAppearance';
 import ThemeContext from './ThemeContext';
 
@@ -21,6 +20,15 @@ interface ThemeProviderProps {
 const CONTENT = 'content';
 const META_COLOR_SCHEME_NAME_SELECTOR = 'meta[name="color-scheme"]';
 const THEME_KEY = 'theme';
+
+function isThemeValue(themeValue: string | null): themeValue is ThemeValue {
+  return (
+    themeValue !== null &&
+    Object.values(Theme)
+      .map(({ value }) => value)
+      .some((knownThemeValue) => knownThemeValue === themeValue)
+  );
+}
 
 const getInitialThemeValue = () => {
   const currentThemeValue = localStorage.getItem(THEME_KEY);
@@ -36,18 +44,19 @@ function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
 
   const { isDarkAppearance } = useSystemAppearance();
 
-  function changeTheme(newThemeValue: ThemeValue) {
-    const { value } = Theme[newThemeValue];
-    const { shouldTriggerViewTransition } = Theme[currentThemeValue];
-    if (
-      shouldTriggerViewTransition(value, isDarkAppearance) &&
-      documentRef.current.startViewTransition
-    )
-      documentRef.current.startViewTransition(() =>
-        setCurrentThemeValue(value),
-      );
-    else setCurrentThemeValue(value);
-    localStorage.setItem(THEME_KEY, value);
+  function changeTheme(newThemeValue: string) {
+    if (isThemeValue(newThemeValue)) {
+      const { shouldTriggerViewTransition } = Theme[currentThemeValue];
+      if (
+        shouldTriggerViewTransition(newThemeValue, isDarkAppearance) &&
+        documentRef.current.startViewTransition
+      )
+        documentRef.current.startViewTransition(() =>
+          setCurrentThemeValue(newThemeValue),
+        );
+      else setCurrentThemeValue(newThemeValue);
+      localStorage.setItem(THEME_KEY, newThemeValue);
+    }
   }
 
   useLayoutEffect(() => {

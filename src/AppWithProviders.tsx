@@ -1,5 +1,4 @@
 import { Theme } from '@/app/providers/constant/theme';
-import isThemeValue from '@/app/providers/lib/isThemeValue';
 import ThemeContext from '@/app/providers/ui/ThemeContext';
 import withProviders from '@/app/providers/ui/withProviders';
 import BrownianMotion from '@/entities/brownian-motion/ui/BrownianMotion';
@@ -12,10 +11,7 @@ function App(): JSX.Element {
   return (
     <>
       <select
-        onChange={(e) => {
-          const value = e.target.value;
-          if (isThemeValue(value)) changeTheme(value);
-        }}
+        onChange={(e) => changeTheme(e.target.value)}
         title="Select Theme"
         value={currentThemeValue}
         id="theme-select"
