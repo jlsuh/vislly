@@ -1,15 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const CHANGE_EVENT = 'change';
 const PREFERS_DARK_COLOR_SCHEME_QUERY = '(prefers-color-scheme: dark)';
 
-const getCurrentColorSchemePreference = globalThis.matchMedia(
-  PREFERS_DARK_COLOR_SCHEME_QUERY,
-).matches;
-
 function useSystemAppearance(): {
   isDarkAppearance: boolean;
 } {
+  const windowRef = useRef(window);
+
+  const getCurrentColorSchemePreference = windowRef.current.matchMedia(
+    PREFERS_DARK_COLOR_SCHEME_QUERY,
+  ).matches;
+
   const [isDarkAppearance, setIsDarkAppearance] = useState(
     getCurrentColorSchemePreference,
   );
@@ -17,7 +19,7 @@ function useSystemAppearance(): {
   useEffect(() => {
     const mediaQueryListListener = ({ matches }: MediaQueryListEvent) =>
       setIsDarkAppearance(matches);
-    const prefersDarkColorSchemeMediaQueryList = globalThis.matchMedia(
+    const prefersDarkColorSchemeMediaQueryList = windowRef.current.matchMedia(
       PREFERS_DARK_COLOR_SCHEME_QUERY,
     );
     prefersDarkColorSchemeMediaQueryList.addEventListener(
