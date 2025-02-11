@@ -18,6 +18,8 @@ interface ThemeProviderProps {
   children: ReactNode;
 }
 
+const CONTENT = 'content';
+const META_COLOR_SCHEME_NAME_SELECTOR = 'meta[name="color-scheme"]';
 const THEME_KEY = 'theme';
 
 const getInitialThemeValue = () => {
@@ -50,8 +52,8 @@ function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
 
   useLayoutEffect(() => {
     document
-      .querySelector('meta[name="color-scheme"]')
-      ?.setAttribute('content', currentThemeValue);
+      .querySelector(META_COLOR_SCHEME_NAME_SELECTOR)
+      ?.setAttribute(CONTENT, currentThemeValue);
     localStorage.setItem(THEME_KEY, currentThemeValue);
   }, [currentThemeValue]);
 
