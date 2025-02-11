@@ -1,4 +1,4 @@
-import type { Immutable } from '@/shared/lib/utility-types/immutable';
+import type { ReadonlyDeep } from 'type-fest';
 
 const DARK_LIGHT = 'dark light';
 const ONLY_DARK = 'only dark';
@@ -8,8 +8,8 @@ const DARK_LIGHT_LABEL = 'System';
 const ONLY_DARK_LABEL = 'Always Dark';
 const ONLY_LIGHT_LABEL = 'Always Light';
 
-const Theme: Immutable<Record<ThemeValue, ThemeObject>> = {
-  [`${DARK_LIGHT}`]: {
+const Theme: ReadonlyDeep<Record<ThemeValue, ThemeObject>> = {
+  [DARK_LIGHT]: {
     label: DARK_LIGHT_LABEL,
     shouldTriggerViewTransition(
       destinationTheme: ThemeValue,
@@ -21,7 +21,7 @@ const Theme: Immutable<Record<ThemeValue, ThemeObject>> = {
     },
     value: DARK_LIGHT,
   },
-  [`${ONLY_LIGHT}`]: {
+  [ONLY_LIGHT]: {
     label: ONLY_LIGHT_LABEL,
     shouldTriggerViewTransition(
       destinationTheme: ThemeValue,
@@ -31,7 +31,7 @@ const Theme: Immutable<Record<ThemeValue, ThemeObject>> = {
     },
     value: ONLY_LIGHT,
   },
-  [`${ONLY_DARK}`]: {
+  [ONLY_DARK]: {
     label: ONLY_DARK_LABEL,
     shouldTriggerViewTransition(
       destinationTheme: ThemeValue,
