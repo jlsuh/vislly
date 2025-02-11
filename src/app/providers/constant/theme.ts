@@ -1,3 +1,5 @@
+import type { Immutable } from '@/shared/lib/utility-types/immutable';
+
 const DARK_LIGHT = 'dark light';
 const ONLY_DARK = 'only dark';
 const ONLY_LIGHT = 'only light';
@@ -6,7 +8,7 @@ const DARK_LIGHT_LABEL = 'System';
 const ONLY_DARK_LABEL = 'Always Dark';
 const ONLY_LIGHT_LABEL = 'Always Light';
 
-const Theme: Record<ThemeValue, ThemeObject> = {
+const Theme: Immutable<Record<ThemeValue, ThemeObject>> = {
   [`${DARK_LIGHT}`]: {
     label: DARK_LIGHT_LABEL,
     shouldTriggerViewTransition(
@@ -39,7 +41,7 @@ const Theme: Record<ThemeValue, ThemeObject> = {
     },
     value: ONLY_DARK,
   },
-} as const;
+};
 
 const FALLBACK_THEME_VALUE: ThemeValue = ONLY_DARK;
 
