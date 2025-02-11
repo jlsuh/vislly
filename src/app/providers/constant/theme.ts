@@ -59,6 +59,6 @@ const Theme: ReadonlyDeep<Record<ThemeValue, ThemeType>> = {
   },
 };
 
-const FALLBACK_THEME_VALUE: ThemeValue = ONLY_DARK;
+const FALLBACK_THEME_VALUE: ThemeValue = DARK_LIGHT;
 
 export { FALLBACK_THEME_VALUE, Theme, type ThemeValue };
