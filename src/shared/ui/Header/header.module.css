@@ -24,12 +24,16 @@
     justify-content: center;
   }
 
+  .header__githubIconLink {
+    display: inline-flex;
+  }
+
   .header__githubIcon {
     height: 2.5rem;
     width: 2.5rem;
   }
 
-  .header__githubIcon_path {
+  .header__githubIconPath {
     --dark-github-icon: #24292f;
     --light-github-icon: #fff;
     fill: light-dark(var(--dark-github-icon), var(--light-github-icon));
