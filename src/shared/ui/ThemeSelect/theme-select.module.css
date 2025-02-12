@@ -1,0 +1,6 @@
+@layer components {
+  .select {
+    width: 100%;
+    max-width: fit-content;
+  }
+}
