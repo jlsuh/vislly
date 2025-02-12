@@ -8,11 +8,7 @@ function concatClasses(...classes: string[]): string {
 function Button(): JSX.Element {
   return (
     <button
-      className={concatClasses(
-        styles.button,
-        styles.button_theme_islands,
-        styles.button_size_m,
-      )}
+      className={concatClasses(styles.button)}
       type="button"
       onClick={() => console.log('asdfasdf')}
     >

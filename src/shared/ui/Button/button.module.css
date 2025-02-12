@@ -1,85 +1,36 @@
 @layer components {
   .button {
-    position: relative;
-    margin: 0;
-    padding: 0;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    color: #000;
-    border: 0;
-    border-radius: 3px;
-    outline: 0;
-    background: rgba(0, 0, 0, 0.2);
-    text-align: center;
-    white-space: nowrap;
-    -webkit-tap-highlight-color: transparent;
     cursor: pointer;
-    background: rgba(0, 0, 0, 0.3);
-    font-size: 13px;
-    line-height: 28px;
-  }
-
-  .button:before {
-    position: absolute;
-    top: 1px;
-    right: 1px;
-    bottom: 1px;
-    left: 1px;
-    content: "";
-    border-radius: 2px;
-    background: #fff;
-  }
-
-  @keyframes button-action-focus {
-    from {
-      background-color: #ffdb4d;
-    }
-    to {
-      background-color: #fc0;
-    }
+    border-radius: 0.5rem;
+    border-bottom-width: 4px;
+    --tw-border-opacity: 1;
+    border-color: rgb(37 99 235 / var(--tw-border-opacity));
+    --tw-bg-opacity: 1;
+    background-color: rgb(59 130 246 / var(--tw-bg-opacity));
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    --tw-text-opacity: 1;
+    color: rgb(255 255 255 / var(--tw-text-opacity));
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
   }
 
   .button:hover {
-    animation: button-action-focus .5s infinite linear alternate;
-    box-shadow: none;
+    --tw-translate-y: -1px;
+    transform: translate(0, var(--tw-translate-y)) rotate(0) skewX(0)
+      skewY(var(0)) scaleX(1) scaleY(1);
+    --tw-brightness: brightness(1.1);
+    filter: var(--tw-brightness);
   }
 
-  .button__text {
-    position: relative;
-    display: inline-block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    vertical-align: top;
-    margin: 0 13px;
-  }
-
-  .icon {
-    position: relative;
-    width: 28px;
-    min-width: 1em;
-    display: inline-block;
-    text-align: center;
-    background: 50% no-repeat;
-  }
-
-  .icon + .button__text {
-    margin-left: 0;
-  }
-
-  .icon:empty:after {
-    visibility: hidden;
-    content: "\00A0";
-  }
-
-  .icon > img,
-  .icon > svg {
-    margin: -5.15em 0 -5em;
-    vertical-align: middle;
-  }
-
-  .icon_social_twitter {
-    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABPElEQVQ4y2NgGDTg3fdf/LjE+47fLajbf6Nx3vmHCTAxDPX+K89shClABvqzDl9gmHLmP8O0C/8ZJp7877Dg6H75SfsezLvwOAlFof22x6dAChI2nJ8PM/3c8w8GDEse/2dY8w6BF97/z7/mxefzr744oRgw7/bnOrCCOTf+C3TvegcyKH/PzSkomqF4/ZMfFf///+dBMcBhzbWjcEUrX4ENYph55T82A4BABCOwzr/9Eca/4d1nbBqQscGej7exxgLISXWXv8wnZMi8O18acUblviefw/V3vL2Nz3agRRI4DQBK8p97+zMq4OjnQ9g0v//51x5nIgKFukDHtncMnXv/M8y/jaI5/vSXbSDNQAuYcdnMDMQa59//Tqi7+m0hDM+7/6Pz3pc/4SA5nJrRAxKI5ZGwBBCzMwxqAADz8kerOr7ibwAAAABJRU5ErkJggg==");
+  .button:active {
+    --tw-translate-y: 2px;
+    transform: translate(0, var(--tw-translate-y)) rotate(0) skewX(0)
+      skewY(var(0)) scaleX(1) scaleY(1);
+    --tw-brightness: brightness(0.9);
+    filter: var(--tw-brightness);
   }
 }
