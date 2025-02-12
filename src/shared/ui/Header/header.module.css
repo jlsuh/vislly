@@ -1,0 +1,37 @@
+@layer components {
+  .header {
+    background-color: var(--color-surface-container-high);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .header__leftContainer {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+  }
+
+  .header__brand {
+    color: var(--color-primary);
+    font-size: 3rem;
+    text-decoration: none;
+  }
+
+  .header__rightContainer {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+  }
+
+  .header__githubIcon {
+    height: 2.5rem;
+    width: 2.5rem;
+  }
+
+  .header__githubIcon_path {
+    --dark-github-icon: #24292f;
+    --light-github-icon: #fff;
+    fill: light-dark(var(--dark-github-icon), var(--light-github-icon));
+  }
+}
