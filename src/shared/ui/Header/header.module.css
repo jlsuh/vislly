@@ -1,6 +1,6 @@
 @layer components {
   .header {
-    background-color: var(--color-surface-container-high);
+    background-color: var(--color-surface-container);
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -13,9 +13,54 @@
   }
 
   .header__brand {
-    color: var(--color-primary);
+    color: var(--color-on-surface);
+    /* color: var(--color-on-surface-variant); */
     font-size: 3rem;
     text-decoration: none;
+    /* outline: auto; */
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+  }
+
+  .text {
+    /* outline: auto; */
+    width: auto;
+    max-width: 0%;
+    white-space: nowrap;
+    overflow: hidden;
+    transition: .4s ease-in-out;
+  }
+
+  .header__brandLogo {
+    transition: transform .4s ease-in-out;
+    will-change: transform;
+    /* outline: auto; */
+  }
+
+  .header__logoIris {
+    fill: var(--color-on-surface-variant); /*#444748*/
+  }
+
+  .header__logoPartOnSurface {
+    stroke: var(--color-on-surface); /*#1c1b1b*/
+  }
+
+  .header__logoPartSegment {
+    fill: var(--color-on-surface); /*#1c1b1b*/
+  }
+
+  .header__brand:hover .header__brandLogo {
+    /* background-color: red; */
+    transform: rotate(-90deg);
+  }
+
+  .header__brand:hover .text {
+    max-width: 100%;
+  }
+
+  .text::first-letter {
+    font-size: 0;
   }
 
   .header__rightContainer {
@@ -24,7 +69,7 @@
     justify-content: center;
   }
 
-  .header__githubIconLink {
+  .header__githubLink {
     display: inline-flex;
   }
 
