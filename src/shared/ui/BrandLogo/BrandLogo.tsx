@@ -24,20 +24,20 @@ function BrandLogo(): JSX.Element {
           <path
             className={styles.header__brandSegment_stroke_colorOnSurface}
             d="M3 39L4.06686 37.2787C8.42208 30.2517 15.8806 25.7369 24.1259 25.1365V25.1365C25.3737 25.0456 26.6263 25.0456 27.8741 25.1365V25.1365C36.1194 25.7369 43.5779 30.2517 47.9331 37.2787L49 39"
-            stroke-linecap="square"
-            stroke-width="3"
+            strokeLinecap="square"
+            strokeWidth="3"
           />
           <path
             className={styles.header__brandSegment_stroke_colorOnSurface}
             d="M18 27.5L20.0554 28.4823C21.3444 29.0983 22.7185 29.5173 24.1319 29.7251V29.7251C25.3718 29.9074 26.6303 29.9256 27.8749 29.7792L28.2188 29.7387C30.0602 29.5221 31.8534 29.0037 33.5263 28.2042L35 27.5"
-            stroke-linecap="round"
-            stroke-width="1.2"
+            strokeLinecap="round"
+            strokeWidth="1.2"
           />
           <path
             className={styles.header__brandSegment_stroke_colorOnSurface}
             d="M15 34L18.527 36.0154C20.8029 37.3159 23.3788 38 26 38V38V38C28.6212 38 31.1971 37.3159 33.473 36.0154L37 34"
-            stroke-linecap="round"
-            stroke-width="1.6"
+            strokeLinecap="round"
+            strokeWidth="1.6"
           />
         </g>
         <path
