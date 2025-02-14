@@ -1,0 +1,28 @@
+@layer components {
+  .header__brand {
+    align-items: center;
+    color: var(--color-on-surface);
+    display: inline-flex;
+    &:hover .header__brandEye {
+      transform: rotate(90deg);
+    }
+  }
+
+  .header__brandEye {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform .3s ease-in-out;
+  }
+
+  .header__brandSegment_fill_colorOnSurface {
+    fill: var(--color-on-surface);
+  }
+
+  .header__brandSegment_fill_colorOnSurfaceVariant {
+    fill: var(--color-on-surface-variant);
+  }
+
+  .header__brandSegment_stroke_colorOnSurface {
+    stroke: var(--color-on-surface);
+  }
+}

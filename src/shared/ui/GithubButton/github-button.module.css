@@ -1,0 +1,9 @@
+@layer components {
+  .githubButton_icon {
+    vertical-align: middle;
+  }
+
+  .githubButton_iconPath {
+    fill: var(--color-on-surface);
+  }
+}

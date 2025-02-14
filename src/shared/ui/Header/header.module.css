@@ -12,55 +12,10 @@
     justify-content: center;
   }
 
-  .header__brand {
-    color: var(--color-on-surface);
-    font-size: 3rem;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-  }
-
-  .header__brandLogo {
-    transform-origin: center;
-    transform-box: fill-box;
-    transition: transform .4s ease-in-out;
-  }
-
-  .header__logoIris {
-    fill: var(--color-on-surface-variant); /*#444748*/
-  }
-
-  .header__logoPartOnSurface {
-    stroke: var(--color-on-surface); /*#1c1b1b*/
-  }
-
-  .header__logoPartSegment {
-    fill: var(--color-on-surface); /*#1c1b1b*/
-  }
-
-  .header__brand:hover .header__brandLogo {
-    transform: rotate(90deg);
-  }
-
   .header__rightContainer {
     align-items: center;
     display: flex;
     justify-content: center;
-  }
-
-  .header__githubLink {
-    display: inline-flex;
-  }
-
-  .header__githubIcon {
-    height: 2.5rem;
-    width: 2.5rem;
-  }
-
-  .header__githubIconPath {
-    --dark-github-icon: #24292f;
-    --light-github-icon: #fff;
-    fill: light-dark(var(--dark-github-icon), var(--light-github-icon));
   }
 
   /* @media (max-width: 900px) {
