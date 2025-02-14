@@ -14,28 +14,16 @@
 
   .header__brand {
     color: var(--color-on-surface);
-    /* color: var(--color-on-surface-variant); */
     font-size: 3rem;
     text-decoration: none;
-    /* outline: auto; */
     display: flex;
     align-items: center;
-    margin-left: 10px;
-  }
-
-  .text {
-    /* outline: auto; */
-    width: auto;
-    max-width: 0%;
-    white-space: nowrap;
-    overflow: hidden;
-    transition: .4s ease-in-out;
   }
 
   .header__brandLogo {
+    transform-origin: center;
+    transform-box: fill-box;
     transition: transform .4s ease-in-out;
-    will-change: transform;
-    /* outline: auto; */
   }
 
   .header__logoIris {
@@ -51,16 +39,7 @@
   }
 
   .header__brand:hover .header__brandLogo {
-    /* background-color: red; */
-    transform: rotate(-90deg);
-  }
-
-  .header__brand:hover .text {
-    max-width: 100%;
-  }
-
-  .text::first-letter {
-    font-size: 0;
+    transform: rotate(90deg);
   }
 
   .header__rightContainer {
