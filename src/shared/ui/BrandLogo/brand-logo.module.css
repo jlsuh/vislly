@@ -5,6 +5,12 @@
     display: inline-flex;
   }
 
+  .header__brandEye {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform .3s ease-in-out;
+  }
+
   .header__brandSegment_fill_colorOnSurface {
     fill: var(--color-on-surface);
   }
@@ -17,15 +23,20 @@
     stroke: var(--color-on-surface);
   }
 
+  .header__brandWithoutV {
+    fill: var(--color-on-surface);
+    display: none;
+  }
+
   @media screen and (hover: hover) {
     .header__brand:hover .header__brandEye {
       transform: rotate(90deg);
     }
+  }
 
-    .header__brandEye {
-      transform-box: fill-box;
-      transform-origin: center;
-      transition: transform .3s ease-in-out;
+  @media screen and (width >= 20em) {
+    .header__brandWithoutV {
+      display: inline;
     }
   }
 }
