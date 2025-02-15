@@ -3,6 +3,13 @@
 @import url("modern-normalize/modern-normalize.css")
   layer(reset.modern-normalize);
 
+@layer reset {
+  html,
+  body {
+    overflow-x: hidden;
+  }
+}
+
 @layer themes {
   :root {
     overflow-wrap: anywhere;
