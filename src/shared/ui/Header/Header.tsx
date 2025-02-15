@@ -1,6 +1,5 @@
 import type { JSX } from 'react';
 import BrandLogo from '../BrandLogo/BrandLogo';
-import GithubButton from '../GithubButton/GithubButton';
 import styles from './header.module.css';
 
 function Header(): JSX.Element {
@@ -11,7 +10,7 @@ function Header(): JSX.Element {
           <BrandLogo />
         </div>
         <div className={styles.header__rightContainer}>
-          <GithubButton />
+          {/* <GithubButton /> */}
         </div>
       </div>
     </header>
