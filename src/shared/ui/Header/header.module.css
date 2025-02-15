@@ -18,21 +18,4 @@
     display: flex;
     justify-content: center;
   }
-
-  /* @media (max-width: 900px) {
-    .navbar {
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .navbar__brand {
-      text-align: center;
-      width: 100%;
-      font-size: 34px;
-    }
-
-    .navbar__list a {
-      font-size: 18px;
-    }
-  } */
 }
