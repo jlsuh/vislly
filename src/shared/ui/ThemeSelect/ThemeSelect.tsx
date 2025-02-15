@@ -1,4 +1,4 @@
-import type { JSX } from 'react';
+import { type JSX, useRef } from 'react';
 import styles from './theme-select.module.css';
 
 interface ThemeSelectProps {
@@ -10,6 +10,12 @@ function ThemeSelect({
   changeTheme,
   currentThemeValue,
 }: ThemeSelectProps): JSX.Element {
+  const checkboxRef = useRef<HTMLInputElement>(null);
+
+  function handleOnClickRadioInput() {
+    if (checkboxRef.current) checkboxRef.current.checked = false;
+  }
+
   return (
     <div className={styles.themePopup}>
       <input
@@ -17,21 +23,29 @@ function ThemeSelect({
         name="theme"
         id="default"
         defaultChecked
-        onChange={() => console.log('>>>>>>>> default')}
+        onFocus={() => console.log('radio default')}
+        // onClick={handleOnClickRadioInput}
       />
       <input
         type="radio"
         name="theme"
         id="light"
-        onChange={() => console.log('>>>>>>>> light')}
+        onFocus={() => console.log('radio light')}
+        // onClick={handleOnClickRadioInput}
       />
       <input
         type="radio"
         name="theme"
         id="dark"
-        onChange={() => console.log('>>>>>>>> dark')}
+        onFocus={() => console.log('radio dark')}
+        // onClick={handleOnClickRadioInput}
       />
-      <input type="checkbox" id="checkbox" />
+      <input
+        type="checkbox"
+        id="checkbox"
+        ref={checkboxRef}
+        onFocus={() => console.log('checkbox')}
+      />
       <label htmlFor="checkbox" className={styles.themePopup__button}>
         <span className={styles.themePopup__icons}>
           <svg

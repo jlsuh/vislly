@@ -37,24 +37,11 @@
     --list_position_right: unset;
   }
 
-  .themePopup__button .themePopup__icons svg,
-  input[id="light"],
-  input[id="dark"],
-  input[id="default"],
-  input[id="checkbox"],
-  .themePopup__listContainer {
-    display: none;
-  }
-
   .themePopup {
     color: var(--total_text_color);
     font-family: var(--total_font_family);
     position: relative;
     user-select: none;
-  }
-
-  input[type="checkbox"]:checked ~ .themePopup__listContainer {
-    display: block;
   }
 
   .themePopup__listContainer {
@@ -112,14 +99,12 @@
     font-size: var(--list_btn_font_size);
   }
 
-  input[id="checkbox"]:checked .themePopup__button {
-    outline: var(--btn_outline_width) solid var(--btn_outline_color);
-    outline-offset: var(--btn_outline_offset);
-  }
-
-  input[id="checkbox"]:checked .themePopup__listContainer {
-    display: block;
-  }
+  /* button:active {
+    background-color: red;
+    & .themePopup__list {
+      background-color: blue;
+    }
+  } */
 
   .themePopup__list label:hover,
   .themePopup__button:hover,
@@ -127,18 +112,19 @@
     background-color: var(--list_btn_hover_bg);
   }
 
-  input[id="default"]:checked
-    ~ themePopup__listContainer
-    label[htmlFor="default"],
-  input[id="light"]:checked ~ themePopup__listContainer label[htmlFor="light"],
-  input[id="dark"]:checked ~ themePopup__listContainer label[htmlFor="dark"] {
-    background-color: var(--list_btn_active);
-    outline: var(--list_btn_outline_width) solid var(--list_btn_outline_color);
-  }
-
+  input[id="checkbox"]:checked ~ .themePopup__listContainer,
   input[id="default"]:checked ~ label svg.default,
   input[id="light"]:checked ~ label svg.sun,
   input[id="dark"]:checked ~ label svg.moon {
     display: block;
+  }
+
+  .themePopup__button .themePopup__icons svg,
+  input[id="light"],
+  input[id="dark"],
+  input[id="default"],
+  input[id="checkbox"],
+  .themePopup__listContainer {
+    display: none;
   }
 }
