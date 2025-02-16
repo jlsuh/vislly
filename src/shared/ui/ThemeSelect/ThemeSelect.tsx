@@ -96,7 +96,7 @@ function ThemeSelect({
   return (
     <div className={styles.themeSelect} ref={themeSelectRef}>
       <input
-        className={styles.themePopup__systemInput}
+        className={styles.themeSelect__systemInput}
         defaultChecked
         id="default"
         name="theme"
@@ -104,60 +104,60 @@ function ThemeSelect({
         type="radio"
       />
       <input
-        className={styles.themePopup__lightInput}
+        className={styles.themeSelect__lightInput}
         id="light"
         name="theme"
         onClick={handleUncheckCheckbox}
         type="radio"
       />
       <input
-        className={styles.themePopup__darkInput}
+        className={styles.themeSelect__darkInput}
         id="dark"
         name="theme"
         onClick={handleUncheckCheckbox}
         type="radio"
       />
       <input
-        className={styles.themePopup__checkboxInput}
+        className={styles.themeSelect__checkboxInput}
         id="checkbox"
         ref={checkboxRef}
         type="checkbox"
       />
-      <label className={styles.themePopup__button} htmlFor="checkbox">
-        <span className={styles.themePopup__icons}>
+      <label className={styles.themeSelect__button} htmlFor="checkbox">
+        <span className={styles.themeSelect__icons}>
           <DefaultThemeIcon />
           <LightThemeIcon />
           <DarkThemeIcon />
         </span>
       </label>
-      <div className={styles.themePopup__listContainer}>
-        <ul className={styles.themePopup__list}>
+      <div className={styles.themeSelect__listContainer}>
+        <ul className={styles.themeSelect__list}>
           <li>
-            <label className={styles.themePopup__listLabel} htmlFor="default">
-              <span className={styles.themePopup__icons}>
+            <label className={styles.themeSelect__listLabel} htmlFor="default">
+              <span className={styles.themeSelect__icons}>
                 <DefaultThemeIcon />
               </span>
-              <span className={styles.themePopup__listLabelDescription}>
+              <span className={styles.themeSelect__listLabelDescription}>
                 System
               </span>
             </label>
           </li>
           <li>
-            <label className={styles.themePopup__listLabel} htmlFor="light">
-              <span className={styles.themePopup__icons}>
+            <label className={styles.themeSelect__listLabel} htmlFor="light">
+              <span className={styles.themeSelect__icons}>
                 <LightThemeIcon />
               </span>
-              <span className={styles.themePopup__listLabelDescription}>
+              <span className={styles.themeSelect__listLabelDescription}>
                 Always Light
               </span>
             </label>
           </li>
           <li>
-            <label className={styles.themePopup__listLabel} htmlFor="dark">
-              <span className={styles.themePopup__icons}>
+            <label className={styles.themeSelect__listLabel} htmlFor="dark">
+              <span className={styles.themeSelect__icons}>
                 <DarkThemeIcon />
               </span>
-              <span className={styles.themePopup__listLabelDescription}>
+              <span className={styles.themeSelect__listLabelDescription}>
                 Always Dark
               </span>
             </label>
