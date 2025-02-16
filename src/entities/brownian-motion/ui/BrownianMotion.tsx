@@ -153,7 +153,8 @@ const RADIUS = 8;
 const DIAMETER = RADIUS * 2;
 
 function BrownianMotion(): JSX.Element {
-  const { ref, dimensions } = useResizeDimensions(RESIZE_DIMENSIONS);
+  const { ref: containerRef, dimensions } =
+    useResizeDimensions(RESIZE_DIMENSIONS);
 
   const historicalCanvasRef = useRef<HTMLCanvasElement>(null);
   const particlesCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -194,7 +195,7 @@ function BrownianMotion(): JSX.Element {
   }, [dimensions.boundedHeight, dimensions.boundedWidth]);
 
   return (
-    <div className={styles.container} ref={ref}>
+    <div className={styles.container} ref={containerRef}>
       <canvas
         className={styles.particlesCanvas}
         height={dimensions.boundedHeight}
