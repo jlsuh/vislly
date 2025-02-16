@@ -15,7 +15,7 @@ function ThemeSelect(): JSX.Element {
 
   useClickOutside(themeSelectRef, uncheckCheckbox, true);
 
-  const handleUncheckCheckbox = (
+  const handleOnClickUncheckCheckbox = (
     e: MouseEvent<HTMLInputElement, globalThis.MouseEvent>,
   ) => {
     uncheckCheckbox();
@@ -33,7 +33,7 @@ function ThemeSelect(): JSX.Element {
           id={id}
           key={id}
           name="theme"
-          onClick={handleUncheckCheckbox}
+          onClick={handleOnClickUncheckCheckbox}
           type="radio"
           value={value}
         />
