@@ -86,7 +86,9 @@
     background-color: var(--list_btn_hover_bg);
   }
 
-  .themeSelect__button .themeSelect__icons svg,
+  .themeSelect__button .systemThemeIcon,
+  .themeSelect__button .alwaysLightThemeIcon,
+  .themeSelect__button .alwaysDarkThemeIcon,
   .themeSelect__systemInput,
   .themeSelect__alwaysLightInput,
   .themeSelect__alwaysDarkInput,
