@@ -1,5 +1,5 @@
 @layer components {
-  .themeSelect {
+  .container {
     --btn_bg: #3a3a3a;
     --btn_height: 2em; /* TODO: Space between button and list container */
     border-radius: 100%;
@@ -10,14 +10,14 @@
     z-index: 1;
   }
 
-  .themeSelect__listContainer {
+  .listContainer {
     left: 0;
     position: absolute;
     right: unset;
     top: calc(var(--btn_height) + 0.35em);
   }
 
-  .themeSelect__icons {
+  .iconContainer {
     align-items: center;
     display: flex;
     height: 16px;
@@ -25,7 +25,7 @@
     width: 16px;
   }
 
-  .themeSelect__button {
+  .button {
     align-items: center;
     background-color: var(--btn_bg);
     border-radius: 100%;
@@ -40,7 +40,7 @@
     padding: 0.5em;
   }
 
-  .themeSelect__list {
+  .list {
     background-color: var(--btn_bg);
     border-radius: 0.3125em;
     display: flex;
@@ -51,7 +51,7 @@
     row-gap: 0.1875em;
   }
 
-  .themeSelect__listLabel {
+  .listItemLabel {
     align-items: center;
     border-radius: 0.25em;
     column-gap: 0.4375em;
@@ -61,22 +61,21 @@
     white-space: nowrap;
   }
 
-  .themeSelect__listLabelDescription {
+  .label {
     font-size: 14px;
   }
 
-  .themeSelect__button:has(.themeSelect__checkboxInput:checked),
-  .themeSelect__button:hover,
-  .themeSelect__listLabel:hover {
+  .button:has(.checkboxInput:checked),
+  .button:hover,
+  .listItemLabel:hover {
     background-color: #5a5656;
   }
 
-  .themeSelect__alwaysDarkInput,
-  .themeSelect__alwaysLightInput,
-  .themeSelect__button:has(.themeSelect__checkboxInput:not(:checked))
-    ~ .themeSelect__listContainer,
-  .themeSelect__checkboxInput,
-  .themeSelect__systemInput {
+  .alwaysDarkInput,
+  .alwaysLightInput,
+  .button:has(.checkboxInput:not(:checked)) ~ .listContainer,
+  .checkboxInput,
+  .systemInput {
     display: none;
   }
 }

@@ -27,30 +27,29 @@ function ThemeSelect(): JSX.Element {
   };
 
   return (
-    <div className={styles.themeSelect} ref={themeSelectRef}>
-      <label className={styles.themeSelect__button}>
-        <span className={styles.themeSelect__icons}>
+    <div className={styles.container} ref={themeSelectRef}>
+      <label className={styles.button}>
+        <span className={styles.iconContainer}>
           <CurrentThemeIcon />
         </span>
         <input
-          className={styles.themeSelect__checkboxInput}
+          className={styles.checkboxInput}
+          id="checkbox"
           ref={checkboxRef}
           type="checkbox"
         />
       </label>
-      <div className={styles.themeSelect__listContainer}>
-        <ul className={styles.themeSelect__list}>
+      <div className={styles.listContainer}>
+        <ul className={styles.list}>
           {THEME_VALUES.map(({ Icon, id, label, value }) => (
             <li key={id}>
-              <label className={styles.themeSelect__listLabel}>
-                <span className={styles.themeSelect__icons}>
+              <label className={styles.listItemLabel}>
+                <span className={styles.iconContainer}>
                   <Icon />
                 </span>
-                <span className={styles.themeSelect__listLabelDescription}>
-                  {label}
-                </span>
+                <span className={styles.label}>{label}</span>
                 <input
-                  className={styles[`themeSelect__${id}Input`]}
+                  className={styles[`${id}Input`]}
                   defaultChecked={currentThemeValue === value}
                   key={id}
                   name="theme"
