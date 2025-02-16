@@ -1,5 +1,5 @@
 @layer components {
-  .container {
+  .mainContainer {
     --btn_bg: #3a3a3a;
     --btn_height: 2em; /* TODO: Space between button and list container */
     border-radius: 100%;

@@ -27,7 +27,7 @@ function ThemeSelect(): JSX.Element {
   };
 
   return (
-    <div className={styles.container} ref={themeSelectRef}>
+    <div className={styles.mainContainer} ref={themeSelectRef}>
       <label className={styles.button}>
         <span className={styles.iconContainer}>
           <CurrentThemeIcon />
