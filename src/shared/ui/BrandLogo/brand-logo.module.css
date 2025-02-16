@@ -29,7 +29,7 @@
   }
 
   @media screen and (hover: hover) {
-    .brandContainer:hover .brandEye {
+    .mainContainer:hover .brandEye {
       transform: rotate(90deg);
     }
   }
