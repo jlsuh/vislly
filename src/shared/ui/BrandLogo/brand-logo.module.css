@@ -1,41 +1,41 @@
 @layer components {
-  .header__brand {
+  .brandContainer {
     align-items: center;
     color: var(--color-on-surface);
     display: inline-flex;
   }
 
-  .header__brandEye {
+  .brandEye {
     transform-box: fill-box;
     transform-origin: center;
     transition: transform .3s ease-in-out;
   }
 
-  .header__brandSegment_fill_colorOnSurface {
+  .brandSegment_fill_colorOnSurface {
     fill: var(--color-on-surface);
   }
 
-  .header__brandSegment_fill_colorOnSurfaceVariant {
+  .brandSegment_fill_colorOnSurfaceVariant {
     fill: var(--color-on-surface-variant);
   }
 
-  .header__brandSegment_stroke_colorOnSurface {
+  .brandSegment_stroke_colorOnSurface {
     stroke: var(--color-on-surface);
   }
 
-  .header__brandWithoutV {
+  .brandWithoutV {
     fill: var(--color-on-surface);
     display: none;
   }
 
   @media screen and (hover: hover) {
-    .header__brand:hover .header__brandEye {
+    .brandContainer:hover .brandEye {
       transform: rotate(90deg);
     }
   }
 
   @media screen and (width >= 20em) {
-    .header__brandWithoutV {
+    .brandWithoutV {
       display: inline;
     }
   }
