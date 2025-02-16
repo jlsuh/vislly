@@ -94,13 +94,22 @@ function handleHistoricalPath(
   if (p.isTracked) drawHistoricalPath(p, historicalCanvasRef);
 }
 
-const update = (
-  particles: Particle[],
-  width: Limit,
-  height: Limit,
-  cor: CoefficientOfRestitution,
-) => {
-  resetCanvas(width, height);
+const update = ({
+  cor,
+  particles,
+  height,
+  width,
+  historicalCanvasRef,
+  particlesCanvasRef,
+}: {
+  cor: CoefficientOfRestitution;
+  particles: Particle[];
+  height: Limit;
+  width: Limit;
+  historicalCanvasRef: RefObject<HTMLCanvasElement | null>;
+  particlesCanvasRef: RefObject<HTMLCanvasElement | null>;
+}) => {
+  resetCanvas(width, height, particlesCanvasRef);
   for (const p1 of particles) {
     drawParticle(p1, particlesCanvasRef);
     handleHistoricalPath(p1, historicalCanvasRef);
@@ -172,7 +181,14 @@ function BrownianMotion(): JSX.Element {
       })),
     ];
     const timer = interval(() =>
-      update(particles, dimensions.boundedWidth, dimensions.boundedHeight, COR),
+      update({
+        cor: COR,
+        particles,
+        height: dimensions.boundedHeight,
+        width: dimensions.boundedWidth,
+        historicalCanvasRef,
+        particlesCanvasRef,
+      }),
     );
     return () => timer.stop();
   }, [dimensions.boundedHeight, dimensions.boundedWidth]);
