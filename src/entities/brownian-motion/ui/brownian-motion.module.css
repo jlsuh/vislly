@@ -1,18 +1,18 @@
 @layer components {
-  .brownianMotion {
+  .container {
     align-items: center;
     display: flex;
     justify-content: center;
-    position: relative;
     max-height: 100vh;
     min-height: 100vh;
+    position: relative;
   }
 
-  .brownianMotion__particlesCanvas {
-    border: 3px solid black;
-  }
-
-  .brownianMotion__historicalCanvas {
+  .historicalCanvas {
     position: absolute;
+  }
+
+  .particlesCanvas {
+    border: 3px solid black;
   }
 }
