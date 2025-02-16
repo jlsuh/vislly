@@ -1,4 +1,8 @@
+import type { JSX } from 'react';
 import type { ReadonlyDeep } from 'type-fest';
+import DarkThemeIcon from '../ui/DarkThemeIcon';
+import LightThemeIcon from '../ui/LightThemeIcon';
+import SystemThemeIcon from '../ui/SystemThemeIcon';
 
 const DARK_LIGHT = 'dark light';
 const ONLY_DARK = 'only dark';
@@ -25,6 +29,7 @@ type ThemeId =
   | typeof ONLY_LIGHT_ID;
 
 interface ThemeType {
+  Icon: () => JSX.Element;
   id: ThemeId;
   label: ThemeLabel;
   shouldTriggerViewTransition: (
@@ -36,6 +41,7 @@ interface ThemeType {
 
 const Theme: ReadonlyDeep<Record<ThemeValue, ThemeType>> = {
   [DARK_LIGHT]: {
+    Icon: SystemThemeIcon,
     id: DARK_LIGHT_ID,
     label: DARK_LIGHT_LABEL,
     shouldTriggerViewTransition(
@@ -49,6 +55,7 @@ const Theme: ReadonlyDeep<Record<ThemeValue, ThemeType>> = {
     value: DARK_LIGHT,
   },
   [ONLY_LIGHT]: {
+    Icon: LightThemeIcon,
     id: ONLY_LIGHT_ID,
     label: ONLY_LIGHT_LABEL,
     shouldTriggerViewTransition(
@@ -60,6 +67,7 @@ const Theme: ReadonlyDeep<Record<ThemeValue, ThemeType>> = {
     value: ONLY_LIGHT,
   },
   [ONLY_DARK]: {
+    Icon: DarkThemeIcon,
     id: ONLY_DARK_ID,
     label: ONLY_DARK_LABEL,
     shouldTriggerViewTransition(
