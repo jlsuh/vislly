@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react';
 import { BrowserRouter } from 'react-router';
-import ThemeProvider from './ThemeProvider';
+import ThemeProvider from './theme/ThemeProvider';
 import withProvider from './withProvider';
 
 const PROVIDERS = [BrowserRouter, ThemeProvider];

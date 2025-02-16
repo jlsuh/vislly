@@ -1,5 +1,6 @@
 import type { JSX } from 'react';
-import BrandLogo from '../BrandLogo/BrandLogo';
+import ThemeSelect from '../providers/ui/theme/ThemeSelect';
+import BrandLogo from './BrandLogo';
 import styles from './header.module.css';
 
 function Header(): JSX.Element {
@@ -9,7 +10,9 @@ function Header(): JSX.Element {
         <div className={styles.leftContainer}>
           <BrandLogo />
         </div>
-        <div className={styles.rightContainer}>{/* <GithubButton /> */}</div>
+        <div className={styles.rightContainer}>
+          <ThemeSelect />
+        </div>
       </div>
     </header>
   );

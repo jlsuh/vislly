@@ -1,7 +1,7 @@
 import useClickOutside from '@/shared/lib/useClickOutside';
 import { type JSX, type MouseEvent, use, useRef } from 'react';
-import { THEME_VALUES, Theme } from '../constant/theme';
 import ThemeContext from './ThemeContext';
+import { THEME_VALUES, Theme } from './theme';
 import styles from './theme-select.module.css';
 
 function ThemeSelect(): JSX.Element {

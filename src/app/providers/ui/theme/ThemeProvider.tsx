@@ -5,14 +5,14 @@ import {
   useRef,
   useState,
 } from 'react';
+import useSystemAppearance from '../../lib/useSystemAppearance';
+import ThemeContext from './ThemeContext';
 import {
   FALLBACK_THEME_VALUE,
   THEME_VALUES,
   Theme,
   type ThemeValue,
-} from '../constant/theme';
-import useSystemAppearance from '../lib/useSystemAppearance';
-import ThemeContext from './ThemeContext';
+} from './theme';
 
 interface ThemeProviderProps {
   children: ReactNode;

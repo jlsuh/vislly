@@ -1,8 +1,8 @@
 import type { JSX } from 'react';
 import type { ReadonlyDeep } from 'type-fest';
-import DarkThemeIcon from '../ui/DarkThemeIcon';
-import LightThemeIcon from '../ui/LightThemeIcon';
-import SystemThemeIcon from '../ui/SystemThemeIcon';
+import DarkThemeIcon from './DarkThemeIcon';
+import LightThemeIcon from './LightThemeIcon';
+import SystemThemeIcon from './SystemThemeIcon';
 
 const DARK_LIGHT = 'dark light';
 const ONLY_DARK = 'only dark';
