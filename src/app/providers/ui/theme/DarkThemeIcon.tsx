@@ -3,10 +3,10 @@ import type { JSX } from 'react';
 function DarkThemeIcon(): JSX.Element {
   return (
     <svg
-      width={14}
-      height={14}
-      viewBox="0 0 14 14"
       fill="none"
+      height="1.25rem"
+      viewBox="0 0 14 14"
+      width="1.25rem"
       xmlns="http://www.w3.org/2000/svg"
     >
       <title>Always Dark</title>
@@ -18,7 +18,7 @@ function DarkThemeIcon(): JSX.Element {
       </g>
       <defs>
         <clipPath>
-          <rect width={14} height={14} fill="currentColor" />
+          <rect fill="currentColor" height={14} width={14} />
         </clipPath>
       </defs>
     </svg>

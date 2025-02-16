@@ -3,10 +3,10 @@ import type { JSX } from 'react';
 function LightThemeIcon(): JSX.Element {
   return (
     <svg
-      width={16}
-      height={16}
-      viewBox="0 0 16 16"
       fill="currentColor"
+      height="1.25rem"
+      viewBox="0 0 16 16"
+      width="1.25rem"
       xmlns="http://www.w3.org/2000/svg"
     >
       <title>Always Light</title>
@@ -18,7 +18,7 @@ function LightThemeIcon(): JSX.Element {
       </g>
       <defs>
         <clipPath>
-          <rect width={16} height={16} fill="currentColor" />
+          <rect fill="currentColor" height={16} width={16} />
         </clipPath>
       </defs>
     </svg>
