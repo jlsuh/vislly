@@ -6,14 +6,13 @@
 @layer reset {
   html,
   body {
+    overflow-wrap: anywhere;
     overflow-x: hidden;
   }
 }
 
 @layer themes {
   :root {
-    overflow-wrap: anywhere;
-
     --color-primary-light: rgb(0 0 0);
     --color-surface-tint-light: rgb(95 94 94);
     --color-on-primary-light: rgb(255 255 255);

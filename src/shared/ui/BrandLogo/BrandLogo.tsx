@@ -3,7 +3,7 @@ import styles from './brand-logo.module.css';
 
 function BrandLogo(): JSX.Element {
   return (
-    <a className={styles.brandContainer} href="/">
+    <a className={styles.mainContainer} href="/">
       <svg
         fill="none"
         height="4rem"

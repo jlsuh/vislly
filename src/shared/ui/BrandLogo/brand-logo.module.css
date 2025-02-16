@@ -1,10 +1,4 @@
 @layer components {
-  .brandContainer {
-    align-items: center;
-    color: var(--color-on-surface);
-    display: inline-flex;
-  }
-
   .brandEye {
     transform-box: fill-box;
     transform-origin: center;
@@ -26,6 +20,12 @@
   .brandWithoutV {
     display: none;
     fill: var(--color-on-surface);
+  }
+
+  .mainContainer {
+    align-items: center;
+    color: var(--color-on-surface);
+    display: inline-flex;
   }
 
   @media screen and (hover: hover) {

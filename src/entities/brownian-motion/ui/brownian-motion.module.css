@@ -1,5 +1,5 @@
 @layer components {
-  .container {
+  .mainContainer {
     align-items: center;
     display: flex;
     justify-content: center;

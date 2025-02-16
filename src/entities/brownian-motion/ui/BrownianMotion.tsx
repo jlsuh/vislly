@@ -195,7 +195,7 @@ function BrownianMotion(): JSX.Element {
   }, [dimensions.boundedHeight, dimensions.boundedWidth]);
 
   return (
-    <div className={styles.container} ref={containerRef}>
+    <div className={styles.mainContainer} ref={containerRef}>
       <canvas
         className={styles.particlesCanvas}
         height={dimensions.boundedHeight}
