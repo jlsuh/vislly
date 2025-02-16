@@ -1,20 +1,33 @@
 @layer components {
-  .mainContainer {
-    --btn_bg: #3a3a3a;
-    --btn_height: 2em; /* TODO: Space between button and list container */
+  .button {
+    align-items: center;
+    background-color: var(--color-surface-container-lowest);
     border-radius: 100%;
-    color: #e0e0e0;
-    position: relative;
-    user-select: none;
-    width: fit-content;
-    z-index: 1;
+    border: none;
+    color: var(--color-on-surface-variant);
+    column-gap: 0.3125em;
+    cursor: pointer;
+    display: inline-flex;
+    font-family: inherit;
+    font-weight: 400;
+    height: 3rem;
+    justify-content: center;
+    padding: 0.2em;
+    width: 3rem;
   }
 
-  .listContainer {
-    left: 0;
-    position: absolute;
-    right: unset;
-    top: calc(var(--btn_height) + 1em + 0.2em);
+  .button:has(.checkboxInput:checked),
+  .button:hover,
+  .listItemLabel:hover {
+    background-color: var(--color-surface-container-high);
+  }
+
+  .alwaysDarkInput,
+  .alwaysLightInput,
+  .button:has(.checkboxInput:not(:checked)) ~ .listContainer,
+  .checkboxInput,
+  .systemInput {
+    display: none;
   }
 
   .iconContainer {
@@ -25,22 +38,14 @@
     width: 1.25rem;
   }
 
-  .button {
-    align-items: center;
-    background-color: var(--btn_bg);
-    border-radius: 100%;
-    border: none;
-    color: inherit;
-    column-gap: 0.3125em;
-    display: inline-flex;
-    font-family: inherit;
-    font-weight: bold;
-    padding: 0.5em;
+  .label {
+    font-size: 14px;
   }
 
   .list {
-    background-color: var(--btn_bg);
+    background-color: var(--color-surface-container);
     border-radius: 0.3125em;
+    color: var(--color-on-surface-variant);
     display: flex;
     flex-direction: column;
     list-style-type: none;
@@ -49,31 +54,30 @@
     row-gap: 0.1875em;
   }
 
+  .listContainer {
+    left: auto;
+    position: absolute;
+    right: 0;
+    top: calc(var(--btn_height) + 0.5em);
+  }
+
   .listItemLabel {
     align-items: center;
     border-radius: 0.25em;
     column-gap: 0.4375em;
+    cursor: pointer;
     display: flex;
     justify-content: start;
     padding: 0.35em 1em;
     white-space: nowrap;
   }
 
-  .label {
-    font-size: 14px;
-  }
-
-  .button:has(.checkboxInput:checked),
-  .button:hover,
-  .listItemLabel:hover {
-    background-color: #5a5656;
-  }
-
-  .alwaysDarkInput,
-  .alwaysLightInput,
-  .button:has(.checkboxInput:not(:checked)) ~ .listContainer,
-  .checkboxInput,
-  .systemInput {
-    display: none;
+  .mainContainer {
+    --btn_height: 2em;
+    border-radius: 100%;
+    position: relative;
+    user-select: none;
+    width: fit-content;
+    z-index: 1;
   }
 }

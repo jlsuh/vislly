@@ -1,6 +1,6 @@
 @layer components {
   .header {
-    background-color: var(--color-surface-container);
+    background-color: var(--color-surface-container-lowest);
     display: flex;
     flex-direction: row;
     justify-content: space-between;

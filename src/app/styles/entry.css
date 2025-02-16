@@ -308,7 +308,7 @@
       "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     font-family: "DankMono", var(--system-ui);
 
-    background: var(--color-surface);
+    background: var(--color-surface-container-low);
   }
 
   ::view-transition-group(root) {
