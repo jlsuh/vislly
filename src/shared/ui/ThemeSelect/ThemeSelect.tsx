@@ -96,6 +96,7 @@ function ThemeSelect({
   return (
     <div className={styles.themeSelect} ref={themeSelectRef}>
       <input
+        className={styles.themePopup__systemInput}
         defaultChecked
         id="default"
         name="theme"
@@ -103,12 +104,14 @@ function ThemeSelect({
         type="radio"
       />
       <input
+        className={styles.themePopup__lightInput}
         id="light"
         name="theme"
         onClick={handleUncheckCheckbox}
         type="radio"
       />
       <input
+        className={styles.themePopup__darkInput}
         id="dark"
         name="theme"
         onClick={handleUncheckCheckbox}

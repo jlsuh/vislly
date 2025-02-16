@@ -86,18 +86,21 @@
     background-color: var(--list_btn_hover_bg);
   }
 
-  input[id="default"]:checked ~ label svg.default,
-  input[id="light"]:checked ~ label svg.sun,
-  input[id="dark"]:checked ~ label svg.moon {
-    display: block;
-  }
-
   input[id="checkbox"]:not(:checked) ~ .themePopup__listContainer,
   .themePopup__button .themePopup__icons svg,
-  input[id="light"],
-  input[id="dark"],
-  input[id="default"],
   input[id="checkbox"] {
     display: none;
+  }
+
+  .themePopup__systemInput,
+  .themePopup__lightInput,
+  .themePopup__darkInput {
+    display: none;
+  }
+
+  .themePopup__systemInput:checked ~ label svg.default,
+  .themePopup__lightInput:checked ~ label svg.sun,
+  .themePopup__darkInput:checked ~ label svg.moon {
+    display: block;
   }
 }
