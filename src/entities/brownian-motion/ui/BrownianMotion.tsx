@@ -1,6 +1,12 @@
 import useResizeDimensions from '@/shared/lib/useResizeDimensions';
 import { interval, select } from 'd3';
-import { type JSX, type MouseEvent, useEffect } from 'react';
+import {
+  type JSX,
+  type MouseEvent,
+  type RefObject,
+  useEffect,
+  useRef,
+} from 'react';
 import {
   type Angle,
   type CoefficientOfRestitution,
@@ -21,13 +27,16 @@ function getRandomBetween(min: Limit, max: Limit): Coord {
   return Math.random() * (max - min) + min;
 }
 
-function getCanvasCtxById(id: string) {
-  const canvas = select(`#${id}`).node() as HTMLCanvasElement;
+function getCanvasCtxById(canvasRef: RefObject<HTMLCanvasElement | null>) {
+  const canvas = select(canvasRef.current).node() as HTMLCanvasElement;
   return canvas.getContext('2d') as CanvasRenderingContext2D;
 }
 
-function drawParticle(p: Particle) {
-  const particlesContext = getCanvasCtxById('particles');
+function drawParticle(
+  p: Particle,
+  particlesCanvasRef: RefObject<HTMLCanvasElement | null>,
+) {
+  const particlesContext = getCanvasCtxById(particlesCanvasRef);
   particlesContext.beginPath();
   particlesContext.arc(p.curr.x, p.curr.y, p.r, 0, Math.PI * 2);
   particlesContext.fillStyle = p.fillColor;
@@ -35,8 +44,11 @@ function drawParticle(p: Particle) {
   particlesContext.fill();
 }
 
-function drawHistoricalPath(p: Particle) {
-  const historicalContext = getCanvasCtxById('historical');
+function drawHistoricalPath(
+  p: Particle,
+  historicalCanvasRef: RefObject<HTMLCanvasElement | null>,
+) {
+  const historicalContext = getCanvasCtxById(historicalCanvasRef);
   historicalContext.beginPath();
   historicalContext.moveTo(p.prev.x, p.prev.y);
   historicalContext.lineTo(p.curr.x, p.curr.y);
@@ -44,16 +56,22 @@ function drawHistoricalPath(p: Particle) {
   historicalContext.stroke();
 }
 
-function configureHistoricalCanvas() {
-  const historicalContext = getCanvasCtxById('historical');
+function configureHistoricalCanvas(
+  historicalCanvasRef: RefObject<HTMLCanvasElement | null>,
+) {
+  const historicalContext = getCanvasCtxById(historicalCanvasRef);
   historicalContext.lineCap = 'round';
   historicalContext.lineJoin = 'round';
   historicalContext.lineWidth = 0.5;
   historicalContext.strokeStyle = 'purple';
 }
 
-function resetCanvas(width: Limit, height: Limit) {
-  getCanvasCtxById('particles').clearRect(0, 0, width, height);
+function resetCanvas(
+  width: Limit,
+  height: Limit,
+  particlesCanvasRef: RefObject<HTMLCanvasElement | null>,
+) {
+  getCanvasCtxById(particlesCanvasRef).clearRect(0, 0, width, height);
 }
 
 function handleParticleCollisions(
@@ -69,8 +87,11 @@ function handleWallCollision(p: Particle, width: Limit, height: Limit) {
   if (p.isVerticalWallCollision(height)) p.v = new Vector2(p.v.x, -p.v.y);
 }
 
-function handleHistoricalPath(p: Particle) {
-  if (p.isTracked) drawHistoricalPath(p);
+function handleHistoricalPath(
+  p: Particle,
+  historicalCanvasRef: RefObject<HTMLCanvasElement | null>,
+) {
+  if (p.isTracked) drawHistoricalPath(p, historicalCanvasRef);
 }
 
 const update = (
@@ -81,8 +102,8 @@ const update = (
 ) => {
   resetCanvas(width, height);
   for (const p1 of particles) {
-    drawParticle(p1);
-    handleHistoricalPath(p1);
+    drawParticle(p1, particlesCanvasRef);
+    handleHistoricalPath(p1, historicalCanvasRef);
     handleWallCollision(p1, width, height);
     p1.move();
     for (const p2 of particles) handleParticleCollisions(p1, p2, cor);
@@ -125,8 +146,11 @@ const DIAMETER = RADIUS * 2;
 function BrownianMotion(): JSX.Element {
   const { ref, dimensions } = useResizeDimensions(RESIZE_DIMENSIONS);
 
+  const historicalCanvasRef = useRef<HTMLCanvasElement>(null);
+  const particlesCanvasRef = useRef<HTMLCanvasElement>(null);
+
   useEffect(() => {
-    configureHistoricalCanvas();
+    configureHistoricalCanvas(historicalCanvasRef);
     const particles = [
       ...composeParticles(1, () => ({
         fillColor: RED.toStyle(),
@@ -158,15 +182,15 @@ function BrownianMotion(): JSX.Element {
       <canvas
         className={styles.brownianMotion__particlesCanvas}
         height={dimensions.boundedHeight}
-        id="particles"
         onContextMenu={disableContextMenu}
+        ref={particlesCanvasRef}
         width={dimensions.boundedWidth}
       />
       <canvas
         className={styles.brownianMotion__historicalCanvas}
         height={dimensions.boundedHeight}
-        id="historical"
         onContextMenu={disableContextMenu}
+        ref={historicalCanvasRef}
         width={dimensions.boundedWidth}
       />
     </div>
