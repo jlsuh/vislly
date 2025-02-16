@@ -1,10 +1,8 @@
 import type { JSX } from 'react';
-import styles from './theme-select.module.css';
 
 function LightThemeIcon(): JSX.Element {
   return (
     <svg
-      className={styles.alwaysLightThemeIcon}
       width={16}
       height={16}
       viewBox="0 0 16 16"

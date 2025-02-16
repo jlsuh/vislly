@@ -93,14 +93,4 @@
   .themeSelect__checkboxInput:not(:checked) ~ .themeSelect__listContainer {
     display: none;
   }
-
-  .themeSelect__systemInput:checked ~ .themeSelect__button .systemThemeIcon,
-  .themeSelect__alwaysLightInput:checked
-    ~ .themeSelect__button
-    .alwaysLightThemeIcon,
-  .themeSelect__alwaysDarkInput:checked
-    ~ .themeSelect__button
-    .alwaysDarkThemeIcon {
-    display: block;
-  }
 }

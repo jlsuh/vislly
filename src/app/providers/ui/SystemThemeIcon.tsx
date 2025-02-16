@@ -1,10 +1,8 @@
 import type { JSX } from 'react';
-import styles from './theme-select.module.css';
 
 function SystemThemeIcon(): JSX.Element {
   return (
     <svg
-      className={styles.systemThemeIcon}
       width={16}
       height={16}
       viewBox="0 0 16 16"

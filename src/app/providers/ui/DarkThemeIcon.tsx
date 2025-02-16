@@ -1,10 +1,8 @@
 import type { JSX } from 'react';
-import styles from './theme-select.module.css';
 
 function DarkThemeIcon(): JSX.Element {
   return (
     <svg
-      className={styles.alwaysDarkThemeIcon}
       width={14}
       height={14}
       viewBox="0 0 14 14"
