@@ -1,21 +1,9 @@
 @layer components {
-  /* .select::before {
-    width: 50px;
-    max-width: fit-content;
-    content: "select";
-  } */
-
   .themeSelect {
     --btn_bg: #3a3a3a;
     --btn_height: 2em; /* TODO: Space between button and list container */
-    --list_bg: var(--btn_bg);
-    --list_btn_gap: 0.4375em;
-    --list_btn_hover_bg: #5a5656;
-    --list_gap: 0.1875em;
-    --list_offset: 0.35em;
-    --total_text_color: #e0e0e0;
     border-radius: 100%;
-    color: var(--total_text_color);
+    color: #e0e0e0;
     position: relative;
     user-select: none;
     width: fit-content;
@@ -26,7 +14,7 @@
     left: 0;
     position: absolute;
     right: unset;
-    top: calc(var(--btn_height) + var(--list_offset));
+    top: calc(var(--btn_height) + 0.35em);
   }
 
   .themeSelect__icons {
@@ -53,20 +41,20 @@
   }
 
   .themeSelect__list {
-    background-color: var(--list_bg);
+    background-color: var(--btn_bg);
     border-radius: 0.3125em;
     display: flex;
     flex-direction: column;
     list-style-type: none;
     margin: 0;
     padding: 0.5em;
-    row-gap: var(--list_gap);
+    row-gap: 0.1875em;
   }
 
   .themeSelect__listLabel {
     align-items: center;
     border-radius: 0.25em;
-    column-gap: var(--list_btn_gap);
+    column-gap: 0.4375em;
     display: flex;
     justify-content: start;
     padding: 0.35em 1em;
@@ -77,20 +65,18 @@
     font-size: 14px;
   }
 
-  .themeSelect__listLabel:hover,
+  .themeSelect__button:has(.themeSelect__checkboxInput:checked),
   .themeSelect__button:hover,
-  .themeSelect__checkboxInput:checked ~ .themeSelect__button {
-    background-color: var(--list_btn_hover_bg);
+  .themeSelect__listLabel:hover {
+    background-color: #5a5656;
   }
 
-  .themeSelect__button .systemThemeIcon,
-  .themeSelect__button .alwaysLightThemeIcon,
-  .themeSelect__button .alwaysDarkThemeIcon,
-  .themeSelect__systemInput,
-  .themeSelect__alwaysLightInput,
   .themeSelect__alwaysDarkInput,
+  .themeSelect__alwaysLightInput,
+  .themeSelect__button:has(.themeSelect__checkboxInput:not(:checked))
+    ~ .themeSelect__listContainer,
   .themeSelect__checkboxInput,
-  .themeSelect__checkboxInput:not(:checked) ~ .themeSelect__listContainer {
+  .themeSelect__systemInput {
     display: none;
   }
 }
