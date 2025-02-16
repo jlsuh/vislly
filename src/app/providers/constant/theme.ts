@@ -15,7 +15,17 @@ type ThemeLabel =
   | typeof ONLY_DARK_LABEL
   | typeof ONLY_LIGHT_LABEL;
 
+const DARK_LIGHT_ID = 'system';
+const ONLY_DARK_ID = 'alwaysDark';
+const ONLY_LIGHT_ID = 'alwaysLight';
+
+type ThemeId =
+  | typeof DARK_LIGHT_ID
+  | typeof ONLY_DARK_ID
+  | typeof ONLY_LIGHT_ID;
+
 interface ThemeType {
+  id: ThemeId;
   label: ThemeLabel;
   shouldTriggerViewTransition: (
     targetTheme: ThemeValue,
@@ -26,6 +36,7 @@ interface ThemeType {
 
 const Theme: ReadonlyDeep<Record<ThemeValue, ThemeType>> = {
   [DARK_LIGHT]: {
+    id: DARK_LIGHT_ID,
     label: DARK_LIGHT_LABEL,
     shouldTriggerViewTransition(
       targetTheme: ThemeValue,
@@ -38,6 +49,7 @@ const Theme: ReadonlyDeep<Record<ThemeValue, ThemeType>> = {
     value: DARK_LIGHT,
   },
   [ONLY_LIGHT]: {
+    id: ONLY_LIGHT_ID,
     label: ONLY_LIGHT_LABEL,
     shouldTriggerViewTransition(
       targetTheme: ThemeValue,
@@ -48,6 +60,7 @@ const Theme: ReadonlyDeep<Record<ThemeValue, ThemeType>> = {
     value: ONLY_LIGHT,
   },
   [ONLY_DARK]: {
+    id: ONLY_DARK_ID,
     label: ONLY_DARK_LABEL,
     shouldTriggerViewTransition(
       targetTheme: ThemeValue,

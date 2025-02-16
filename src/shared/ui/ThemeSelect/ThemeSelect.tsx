@@ -1,13 +1,12 @@
+import { Theme } from '@/app/providers/constant/theme';
+import ThemeContext from '@/app/providers/ui/ThemeContext';
 import useClickOutside from '@/shared/lib/useClickOutside';
-import { type JSX, useRef } from 'react';
+import { type JSX, use, useRef } from 'react';
 import styles from './theme-select.module.css';
 
-interface ThemeSelectProps {
-  changeTheme: (newTheme: string) => void;
-  currentThemeValue: string;
-}
+const NAME = 'theme';
 
-function DefaultThemeIcon() {
+function SystemThemeIcon() {
   return (
     <svg
       className={styles.systemThemeIcon}
@@ -31,7 +30,7 @@ function DefaultThemeIcon() {
 function LightThemeIcon() {
   return (
     <svg
-      className={styles.lightThemeIcon}
+      className={styles.alwaysLightThemeIcon}
       width={16}
       height={16}
       viewBox="0 0 16 16"
@@ -57,7 +56,7 @@ function LightThemeIcon() {
 function DarkThemeIcon() {
   return (
     <svg
-      className={styles.darkThemeIcon}
+      className={styles.alwaysDarkThemeIcon}
       width={14}
       height={14}
       viewBox="0 0 14 14"
@@ -80,12 +79,12 @@ function DarkThemeIcon() {
   );
 }
 
-function ThemeSelect({
-  changeTheme,
-  currentThemeValue,
-}: ThemeSelectProps): JSX.Element {
+function ThemeSelect(): JSX.Element {
   const checkboxRef = useRef<HTMLInputElement>(null);
   const themeSelectRef = useRef<HTMLDivElement>(null);
+  const { changeTheme, currentThemeValue } = use(ThemeContext);
+
+  const allThemes = Object.values(Theme);
 
   useClickOutside(themeSelectRef, handleUncheckCheckbox, true);
 
@@ -95,28 +94,17 @@ function ThemeSelect({
 
   return (
     <div className={styles.themeSelect} ref={themeSelectRef}>
-      <input
-        className={styles.themeSelect__systemInput}
-        defaultChecked
-        id="default"
-        name="theme"
-        onClick={handleUncheckCheckbox}
-        type="radio"
-      />
-      <input
-        className={styles.themeSelect__lightInput}
-        id="light"
-        name="theme"
-        onClick={handleUncheckCheckbox}
-        type="radio"
-      />
-      <input
-        className={styles.themeSelect__darkInput}
-        id="dark"
-        name="theme"
-        onClick={handleUncheckCheckbox}
-        type="radio"
-      />
+      {Object.values(Theme).map(({ id, value }) => (
+        <input
+          className={styles[`themeSelect__${id}Input`]}
+          defaultChecked={currentThemeValue === value}
+          id={id}
+          key={id}
+          name={NAME}
+          onClick={handleUncheckCheckbox}
+          type="radio"
+        />
+      ))}
       <input
         className={styles.themeSelect__checkboxInput}
         id="checkbox"
@@ -125,7 +113,7 @@ function ThemeSelect({
       />
       <label className={styles.themeSelect__button} htmlFor="checkbox">
         <span className={styles.themeSelect__icons}>
-          <DefaultThemeIcon />
+          <SystemThemeIcon />
           <LightThemeIcon />
           <DarkThemeIcon />
         </span>
@@ -133,9 +121,9 @@ function ThemeSelect({
       <div className={styles.themeSelect__listContainer}>
         <ul className={styles.themeSelect__list}>
           <li>
-            <label className={styles.themeSelect__listLabel} htmlFor="default">
+            <label className={styles.themeSelect__listLabel} htmlFor="system">
               <span className={styles.themeSelect__icons}>
-                <DefaultThemeIcon />
+                <SystemThemeIcon />
               </span>
               <span className={styles.themeSelect__listLabelDescription}>
                 System
@@ -143,7 +131,10 @@ function ThemeSelect({
             </label>
           </li>
           <li>
-            <label className={styles.themeSelect__listLabel} htmlFor="light">
+            <label
+              className={styles.themeSelect__listLabel}
+              htmlFor="alwaysLight"
+            >
               <span className={styles.themeSelect__icons}>
                 <LightThemeIcon />
               </span>
@@ -153,7 +144,10 @@ function ThemeSelect({
             </label>
           </li>
           <li>
-            <label className={styles.themeSelect__listLabel} htmlFor="dark">
+            <label
+              className={styles.themeSelect__listLabel}
+              htmlFor="alwaysDark"
+            >
               <span className={styles.themeSelect__icons}>
                 <DarkThemeIcon />
               </span>

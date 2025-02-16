@@ -15,10 +15,7 @@ function App(): JSX.Element {
   return (
     <>
       <Header />
-      <ThemeSelect
-        changeTheme={handleOnChangeTheme}
-        currentThemeValue={currentThemeValue}
-      />
+      <ThemeSelect />
       <h1>Hello world!</h1>
       <BrownianMotion />
     </>

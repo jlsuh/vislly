@@ -88,16 +88,20 @@
 
   .themeSelect__button .themeSelect__icons svg,
   .themeSelect__systemInput,
-  .themeSelect__lightInput,
-  .themeSelect__darkInput,
+  .themeSelect__alwaysLightInput,
+  .themeSelect__alwaysDarkInput,
   .themeSelect__checkboxInput,
   .themeSelect__checkboxInput:not(:checked) ~ .themeSelect__listContainer {
     display: none;
   }
 
   .themeSelect__systemInput:checked ~ .themeSelect__button .systemThemeIcon,
-  .themeSelect__lightInput:checked ~ .themeSelect__button .lightThemeIcon,
-  .themeSelect__darkInput:checked ~ .themeSelect__button .darkThemeIcon {
+  .themeSelect__alwaysLightInput:checked
+    ~ .themeSelect__button
+    .alwaysLightThemeIcon,
+  .themeSelect__alwaysDarkInput:checked
+    ~ .themeSelect__button
+    .alwaysDarkThemeIcon {
     display: block;
   }
 }
