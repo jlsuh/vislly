@@ -62,7 +62,9 @@ const Theme: ReadonlyDeep<Record<ThemeValue, ThemeType>> = {
       targetTheme: ThemeValue,
       userPrefersDarkTheme: boolean,
     ) {
-      return userPrefersDarkTheme ? true : targetTheme === ONLY_DARK;
+      return userPrefersDarkTheme
+        ? targetTheme !== ONLY_LIGHT
+        : targetTheme === ONLY_DARK;
     },
     value: ONLY_LIGHT,
   },
@@ -74,7 +76,9 @@ const Theme: ReadonlyDeep<Record<ThemeValue, ThemeType>> = {
       targetTheme: ThemeValue,
       userPrefersDarkTheme: boolean,
     ) {
-      return userPrefersDarkTheme ? targetTheme === ONLY_LIGHT : true;
+      return userPrefersDarkTheme
+        ? targetTheme === ONLY_LIGHT
+        : targetTheme !== ONLY_DARK;
     },
     value: ONLY_DARK,
   },
