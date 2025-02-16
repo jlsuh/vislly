@@ -6,12 +6,10 @@ function Header(): JSX.Element {
   return (
     <header>
       <div className={styles.header}>
-        <div className={styles.header__leftContainer}>
+        <div className={styles.leftContainer}>
           <BrandLogo />
         </div>
-        <div className={styles.header__rightContainer}>
-          {/* <GithubButton /> */}
-        </div>
+        <div className={styles.rightContainer}>{/* <GithubButton /> */}</div>
       </div>
     </header>
   );

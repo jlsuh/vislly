@@ -7,13 +7,13 @@
     padding: 1rem;
   }
 
-  .header__leftContainer {
+  .leftContainer {
     align-items: center;
     display: flex;
     justify-content: center;
   }
 
-  .header__rightContainer {
+  .rightContainer {
     align-items: center;
     display: flex;
     justify-content: center;
