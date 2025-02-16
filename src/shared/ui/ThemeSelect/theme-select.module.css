@@ -66,7 +66,7 @@
     row-gap: var(--list_gap);
   }
 
-  .themePopup__list label {
+  .themePopup__listLabel {
     display: flex;
     align-items: center;
     justify-content: start;
@@ -76,31 +76,28 @@
     white-space: nowrap;
   }
 
-  .themePopup__list label span {
+  .themePopup__listLabelDescription {
     font-size: 14px;
   }
 
   .themePopup__list label:hover,
   .themePopup__button:hover,
-  input[id="checkbox"]:checked ~ .themePopup__button {
+  .themePopup__checkboxInput:checked ~ .themePopup__button {
     background-color: var(--list_btn_hover_bg);
   }
 
-  input[id="checkbox"]:not(:checked) ~ .themePopup__listContainer,
   .themePopup__button .themePopup__icons svg,
-  input[id="checkbox"] {
-    display: none;
-  }
-
   .themePopup__systemInput,
   .themePopup__lightInput,
-  .themePopup__darkInput {
+  .themePopup__darkInput,
+  .themePopup__checkboxInput,
+  .themePopup__checkboxInput:not(:checked) ~ .themePopup__listContainer {
     display: none;
   }
 
-  .themePopup__systemInput:checked ~ label svg.default,
-  .themePopup__lightInput:checked ~ label svg.sun,
-  .themePopup__darkInput:checked ~ label svg.moon {
+  .themePopup__systemInput:checked ~ .themePopup__button svg.systemThemeIcon,
+  .themePopup__lightInput:checked ~ .themePopup__button svg.lightThemeIcon,
+  .themePopup__darkInput:checked ~ .themePopup__button svg.darkThemeIcon {
     display: block;
   }
 }
