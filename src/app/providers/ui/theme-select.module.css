@@ -6,73 +6,70 @@
   } */
 
   .themeSelect {
-    --total_text_color: #e0e0e0;
     --btn_bg: #3a3a3a;
     --btn_height: 2em; /* TODO: Space between button and list container */
     --list_bg: var(--btn_bg);
-    --list_gap: 0.1875em;
-    --list_btn_hover_bg: #5a5656;
     --list_btn_gap: 0.4375em;
+    --list_btn_hover_bg: #5a5656;
+    --list_gap: 0.1875em;
     --list_offset: 0.35em;
+    --total_text_color: #e0e0e0;
+    border-radius: 100%;
+    color: var(--total_text_color);
+    position: relative;
+    user-select: none;
+    width: fit-content;
     z-index: 1;
   }
 
-  .themeSelect {
-    color: var(--total_text_color);
-    position: relative;
-    width: fit-content;
-    border-radius: 100%;
-    user-select: none;
-  }
-
   .themeSelect__listContainer {
-    position: absolute;
     left: 0;
+    position: absolute;
     right: unset;
     top: calc(var(--btn_height) + var(--list_offset));
   }
 
   .themeSelect__icons {
-    display: flex;
     align-items: center;
+    display: flex;
+    height: 16px;
     justify-content: center;
     width: 16px;
-    height: 16px;
   }
 
   .themeSelect__button {
-    line-height: var(--btn_height);
-    background-color: var(--btn_bg);
-    padding: 0.5em;
-    display: inline-flex;
     align-items: center;
-    column-gap: 0.3125em;
+    background-color: var(--btn_bg);
     border-radius: 100%;
     border: none;
     color: inherit;
+    column-gap: 0.3125em;
+    display: inline-flex;
     font-family: inherit;
-    outline: none;
     font-weight: bold;
+    line-height: var(--btn_height);
+    outline: none;
+    padding: 0.5em;
   }
 
   .themeSelect__list {
-    margin: 0;
-    list-style-type: none;
-    padding: 0.5em;
-    border-radius: 0.3125em;
     background-color: var(--list_bg);
+    border-radius: 0.3125em;
     display: flex;
     flex-direction: column;
+    list-style-type: none;
+    margin: 0;
+    padding: 0.5em;
     row-gap: var(--list_gap);
   }
 
   .themeSelect__listLabel {
-    display: flex;
     align-items: center;
-    justify-content: start;
-    column-gap: var(--list_btn_gap);
-    padding: 0.35em 1em;
     border-radius: 0.25em;
+    column-gap: var(--list_btn_gap);
+    display: flex;
+    justify-content: start;
+    padding: 0.35em 1em;
     white-space: nowrap;
   }
 
