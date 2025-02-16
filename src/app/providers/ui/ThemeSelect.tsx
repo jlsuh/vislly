@@ -1,7 +1,7 @@
-import { Theme } from '@/app/providers/constant/theme';
-import ThemeContext from '@/app/providers/ui/ThemeContext';
 import useClickOutside from '@/shared/lib/useClickOutside';
 import { type JSX, use, useRef } from 'react';
+import { Theme } from '../constant/theme';
+import ThemeContext from './ThemeContext';
 import styles from './theme-select.module.css';
 
 const NAME = 'theme';
@@ -82,9 +82,7 @@ function DarkThemeIcon() {
 function ThemeSelect(): JSX.Element {
   const checkboxRef = useRef<HTMLInputElement>(null);
   const themeSelectRef = useRef<HTMLDivElement>(null);
-  const { changeTheme, currentThemeValue } = use(ThemeContext);
-
-  const allThemes = Object.values(Theme);
+  const { currentThemeValue } = use(ThemeContext);
 
   useClickOutside(themeSelectRef, handleUncheckCheckbox, true);
 
