@@ -24,8 +24,8 @@
   }
 
   .brandWithoutV {
-    fill: var(--color-on-surface);
     display: none;
+    fill: var(--color-on-surface);
   }
 
   @media screen and (hover: hover) {
