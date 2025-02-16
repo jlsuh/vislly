@@ -86,4 +86,6 @@ const Theme: ReadonlyDeep<Record<ThemeValue, ThemeType>> = {
 
 const FALLBACK_THEME_VALUE: ThemeValue = DARK_LIGHT;
 
-export { FALLBACK_THEME_VALUE, Theme, type ThemeValue };
+const THEME_VALUES: ReadonlyDeep<Array<ThemeType>> = Object.values(Theme);
+
+export { FALLBACK_THEME_VALUE, Theme, THEME_VALUES, type ThemeValue };

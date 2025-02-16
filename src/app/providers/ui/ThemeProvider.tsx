@@ -7,6 +7,7 @@ import {
 } from 'react';
 import {
   FALLBACK_THEME_VALUE,
+  THEME_VALUES,
   Theme,
   type ThemeValue,
 } from '../constant/theme';
@@ -24,9 +25,9 @@ const THEME_KEY = 'theme';
 function isThemeValue(themeValue: string | null): themeValue is ThemeValue {
   return (
     themeValue !== null &&
-    Object.values(Theme)
-      .map(({ value }) => value)
-      .some((knownThemeValue) => knownThemeValue === themeValue)
+    THEME_VALUES.map(({ value }) => value).some(
+      (knownThemeValue) => knownThemeValue === themeValue,
+    )
   );
 }
 

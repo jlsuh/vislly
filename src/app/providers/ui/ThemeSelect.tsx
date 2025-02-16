@@ -1,6 +1,6 @@
 import useClickOutside from '@/shared/lib/useClickOutside';
 import { type JSX, type MouseEvent, use, useRef } from 'react';
-import { Theme } from '../constant/theme';
+import { THEME_VALUES, Theme } from '../constant/theme';
 import ThemeContext from './ThemeContext';
 import styles from './theme-select.module.css';
 
@@ -40,7 +40,7 @@ function ThemeSelect(): JSX.Element {
       </label>
       <div className={styles.themeSelect__listContainer}>
         <ul className={styles.themeSelect__list}>
-          {Object.values(Theme).map(({ Icon, id, label, value }) => (
+          {THEME_VALUES.map(({ Icon, id, label, value }) => (
             <li key={id}>
               <label className={styles.themeSelect__listLabel}>
                 <span className={styles.themeSelect__icons}>
