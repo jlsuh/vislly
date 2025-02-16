@@ -21,8 +21,8 @@
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@types/d3": "7.4.3",
-    "@types/node": "22.13.1",
-    "@types/react": "19.0.8",
+    "@types/node": "22.13.4",
+    "@types/react": "19.0.9",
     "@types/react-dom": "19.0.3",
     "@vitejs/plugin-react-swc": "3.8.0",
     "type-fest": "4.34.1",
