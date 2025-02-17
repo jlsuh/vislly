@@ -1,5 +1,11 @@
-import useClickOutside from '@/shared/lib/useClickOutside';
-import { type JSX, type MouseEvent, use, useRef } from 'react';
+import useOnClickOutside from '@/shared/lib/useOnClickOutside';
+import {
+  type JSX,
+  type MouseEvent,
+  type PointerEvent,
+  use,
+  useRef,
+} from 'react';
 import ThemeContext from './ThemeContext';
 import { THEME_VALUES, Theme } from './theme';
 import styles from './theme-select.module.css';
@@ -11,19 +17,19 @@ function ThemeSelect(): JSX.Element {
 
   const CurrentThemeIcon = Theme[currentThemeValue].Icon;
 
-  function uncheckCheckbox() {
+  const uncheckCheckboxContinuation = (
+    _: Event | MouseEvent<HTMLInputElement> | PointerEvent<HTMLInputElement>,
+  ) => {
     if (checkboxRef.current) checkboxRef.current.checked = false;
-  }
+  };
 
-  useClickOutside(themeSelectRef, uncheckCheckbox, true);
+  useOnClickOutside([themeSelectRef], uncheckCheckboxContinuation);
 
   const handleOnClickUncheckCheckbox = (
-    e: MouseEvent<HTMLInputElement, globalThis.MouseEvent>,
+    e: MouseEvent<HTMLInputElement> | PointerEvent<HTMLInputElement>,
   ) => {
-    uncheckCheckbox();
-    const { currentTarget } = e;
-    const { value } = currentTarget;
-    changeTheme(value);
+    changeTheme(e.currentTarget.value);
+    uncheckCheckboxContinuation(e);
   };
 
   return (
