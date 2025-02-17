@@ -1,9 +1,6 @@
 import type { ComponentType } from 'react';
-import { BrowserRouter } from 'react-router';
-import ThemeProvider from './theme/ThemeProvider';
+import { PROVIDERS } from '../constant/providers';
 import withProvider from './withProvider';
-
-const PROVIDERS = [BrowserRouter, ThemeProvider];
 
 function withProviders(Component: ComponentType): ComponentType {
   return PROVIDERS.reduceRight(
