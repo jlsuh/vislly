@@ -1,18 +1,26 @@
 @layer components {
+  .alwaysDarkInput,
+  .alwaysLightInput,
+  .button:has(.checkboxInput:not(:checked)) ~ .listContainer,
+  .checkboxInput,
+  .systemInput {
+    display: none;
+  }
+
   .button {
     align-items: center;
     background-color: var(--color-surface-container-lowest);
     border-radius: 100%;
     border: none;
     color: var(--color-on-surface-variant);
-    column-gap: 0.3125em;
+    column-gap: 0.3125rem;
     cursor: pointer;
     display: inline-flex;
     font-family: inherit;
     font-weight: 400;
     height: 3rem;
     justify-content: center;
-    padding: 0.2em;
+    padding: 0.2375rem;
     width: 3rem;
   }
 
@@ -20,14 +28,6 @@
   .button:hover,
   .listItemLabel:hover {
     background-color: var(--color-surface-container-high);
-  }
-
-  .alwaysDarkInput,
-  .alwaysLightInput,
-  .button:has(.checkboxInput:not(:checked)) ~ .listContainer,
-  .checkboxInput,
-  .systemInput {
-    display: none;
   }
 
   .iconContainer {
@@ -44,36 +44,40 @@
 
   .list {
     background-color: var(--color-surface-container);
-    border-radius: 0.3125em;
+    border-radius: 0.3125rem;
     color: var(--color-on-surface-variant);
     display: flex;
     flex-direction: column;
     list-style-type: none;
     margin: 0;
-    padding: 0.5em;
-    row-gap: 0.1875em;
+    padding: 0.5rem;
+  }
+
+  .listContainer .listItem:not(:last-child) {
+    border-bottom: 1px solid var(--color-outline-variant);
   }
 
   .listContainer {
+    border-radius: 0.3125rem;
     left: auto;
+    outline: var(--color-outline-variant) solid 1px;
     position: absolute;
     right: 0;
-    top: calc(var(--btn_height) + 0.5em);
+    top: calc(100% + 0.125rem);
   }
 
   .listItemLabel {
     align-items: center;
-    border-radius: 0.25em;
-    column-gap: 0.4375em;
+    border-radius: 0.25rem;
+    column-gap: 0.4375rem;
     cursor: pointer;
     display: flex;
     justify-content: start;
-    padding: 0.35em 1em;
+    padding: 0.35rem 1rem;
     white-space: nowrap;
   }
 
   .mainContainer {
-    --btn_height: 2em;
     border-radius: 100%;
     position: relative;
     user-select: none;

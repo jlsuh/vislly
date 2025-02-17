@@ -6,9 +6,9 @@ function BrandLogo(): JSX.Element {
     <a className={styles.mainContainer} href="/">
       <svg
         fill="none"
-        height="4rem"
+        height="2.5rem"
         viewBox="0 0 359 90"
-        width="16rem"
+        width="10rem"
         xmlns="http://www.w3.org/2000/svg"
       >
         <title>Visually Logo</title>

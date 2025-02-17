@@ -48,7 +48,7 @@ function ThemeSelect(): JSX.Element {
       <div className={styles.listContainer}>
         <ul className={styles.list}>
           {THEME_VALUES.map(({ Icon, id, label, value }) => (
-            <li key={id}>
+            <li className={styles.listItem} key={id}>
               <label className={styles.listItemLabel}>
                 <span className={styles.iconContainer}>
                   <Icon />
