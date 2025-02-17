@@ -13,7 +13,7 @@ import styles from './theme-select.module.css';
 function ThemeSelect(): JSX.Element {
   const checkboxRef = useRef<HTMLInputElement>(null);
   const themeSelectRef = useRef<HTMLDivElement>(null);
-  const { currentThemeValue, changeTheme } = use(ThemeContext);
+  const { changeTheme, currentThemeValue } = use(ThemeContext);
 
   const CurrentThemeIcon = Theme[currentThemeValue].Icon;
 
