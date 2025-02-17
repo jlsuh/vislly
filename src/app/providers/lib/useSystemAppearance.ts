@@ -25,11 +25,13 @@ function useSystemAppearance(): {
     prefersDarkColorSchemeMediaQueryList.addEventListener(
       CHANGE_EVENT,
       mediaQueryListListener,
+      { capture: true },
     );
     return () =>
       prefersDarkColorSchemeMediaQueryList.removeEventListener(
         CHANGE_EVENT,
         mediaQueryListListener,
+        { capture: true },
       );
   }, []);
 
