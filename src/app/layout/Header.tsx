@@ -1,6 +1,6 @@
 import type { JSX } from 'react';
-import ThemeSelect from '../providers/ui/theme/ThemeSelect';
 import BrandLogo from './BrandLogo';
+import ThemeSelect from './ThemeSelect';
 import styles from './header.module.css';
 
 function Header(): JSX.Element {

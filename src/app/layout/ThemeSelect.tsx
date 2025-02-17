@@ -6,8 +6,8 @@ import {
   use,
   useRef,
 } from 'react';
-import ThemeContext from './ThemeContext';
-import { THEME_VALUES, Theme } from './theme';
+import ThemeContext from '../providers/ui/theme/ThemeContext';
+import { THEME_VALUES, Theme } from '../providers/ui/theme/theme';
 import styles from './theme-select.module.css';
 
 function ThemeSelect(): JSX.Element {
