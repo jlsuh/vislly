@@ -20,8 +20,9 @@ function useWindowDimensions(): {
     function handleResize() {
       setWindowDimensions(getWindowDimensions());
     }
-    globalThis.addEventListener('resize', handleResize);
-    return () => globalThis.removeEventListener('resize', handleResize);
+    globalThis.addEventListener('resize', handleResize, { capture: true });
+    return () =>
+      globalThis.removeEventListener('resize', handleResize, { capture: true });
   }, []);
 
   return windowDimensions;
