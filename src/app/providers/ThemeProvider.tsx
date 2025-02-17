@@ -5,7 +5,6 @@ import {
   useRef,
   useState,
 } from 'react';
-import useSystemAppearance from '../../lib/useSystemAppearance';
 import ThemeContext from './ThemeContext';
 import {
   FALLBACK_THEME_VALUE,
@@ -13,6 +12,7 @@ import {
   Theme,
   type ThemeValue,
 } from './theme';
+import useSystemAppearance from './useSystemAppearance';
 
 interface ThemeProviderProps {
   children: ReactNode;
