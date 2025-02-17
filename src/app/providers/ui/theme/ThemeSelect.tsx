@@ -20,7 +20,7 @@ function ThemeSelect(): JSX.Element {
   const uncheckCheckboxContinuation = (
     _: Event | MouseEvent<HTMLInputElement> | PointerEvent<HTMLInputElement>,
   ) => {
-    if (checkboxRef.current) checkboxRef.current.checked = false;
+    if (checkboxRef.current !== null) checkboxRef.current.checked = false;
   };
 
   useOnClickOutside([themeSelectRef], uncheckCheckboxContinuation);
