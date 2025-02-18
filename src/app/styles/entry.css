@@ -4,7 +4,11 @@
   layer(reset.modern-normalize);
 
 @layer reset {
-  html,
+  :root {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :root,
   body {
     overflow-wrap: anywhere;
     overflow-x: hidden;
@@ -13,8 +17,6 @@
 
 @layer themes {
   :root {
-    -webkit-tap-highlight-color: transparent;
-
     --color-primary-light: rgb(0 0 0);
     --color-surface-tint-light: rgb(95 94 94);
     --color-on-primary-light: rgb(255 255 255);
