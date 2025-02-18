@@ -1,7 +1,7 @@
 import useSystemAppearance from '@/shared/lib/useSystemAppearance';
 import {
   type JSX,
-  type ReactNode,
+  type PropsWithChildren,
   useLayoutEffect,
   useRef,
   useState,
@@ -14,9 +14,7 @@ import {
 } from '../config/theme';
 import ThemeContext from './ThemeContext';
 
-interface ThemeProviderProps {
-  children: ReactNode;
-}
+type ThemeProviderProps = PropsWithChildren;
 
 const CONTENT = 'content';
 const META_COLOR_SCHEME_NAME_SELECTOR = 'meta[name="color-scheme"]';
