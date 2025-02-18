@@ -1,9 +1,3 @@
-import {
-  FALLBACK_THEME_VALUE,
-  THEME_VALUES,
-  Theme,
-  type ThemeValue,
-} from '@/shared/config/theme';
 import useSystemAppearance from '@/shared/lib/useSystemAppearance';
 import {
   type JSX,
@@ -12,6 +6,12 @@ import {
   useRef,
   useState,
 } from 'react';
+import {
+  FALLBACK_THEME_VALUE,
+  THEME_VALUES,
+  Theme,
+  type ThemeValue,
+} from '../config/theme';
 import ThemeContext from './ThemeContext';
 
 interface ThemeProviderProps {

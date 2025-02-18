@@ -1,4 +1,3 @@
-import { THEME_VALUES, Theme } from '@/shared/config/theme';
 import useOnClickOutside from '@/shared/lib/useOnClickOutside';
 import {
   type JSX,
@@ -7,6 +6,7 @@ import {
   use,
   useRef,
 } from 'react';
+import { THEME_VALUES, Theme } from '../config/theme';
 import ThemeContext from '../providers/ThemeContext';
 import styles from './theme-select.module.css';
 
