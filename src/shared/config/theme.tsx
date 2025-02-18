@@ -1,8 +1,8 @@
+import DarkThemeIcon from '@/shared/ui/DarkThemeIcon/DarkThemeIcon';
+import LightThemeIcon from '@/shared/ui/LightThemeIcon/LightThemeIcon';
+import SystemThemeIcon from '@/shared/ui/SystemThemeIcon/SystemThemeIcon';
 import type { JSX } from 'react';
 import type { ReadonlyDeep } from 'type-fest';
-import DarkThemeIcon from './DarkThemeIcon';
-import LightThemeIcon from './LightThemeIcon';
-import SystemThemeIcon from './SystemThemeIcon';
 
 const DARK_LIGHT = 'dark light';
 const ONLY_DARK = 'only dark';

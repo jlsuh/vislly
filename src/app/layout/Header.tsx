@@ -1,5 +1,5 @@
+import BrandLogo from '@/shared/ui/BrandLogo/BrandLogo';
 import type { JSX } from 'react';
-import BrandLogo from './BrandLogo';
 import ThemeSelect from './ThemeSelect';
 import styles from './header.module.css';
 

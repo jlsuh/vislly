@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react';
-import { PROVIDERS } from './providers';
+import PROVIDERS from './providers';
 import withProvider from './withProvider';
 
 function withProviders(Component: ComponentType): ComponentType {

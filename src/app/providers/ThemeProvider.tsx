@@ -1,4 +1,11 @@
 import {
+  FALLBACK_THEME_VALUE,
+  THEME_VALUES,
+  Theme,
+  type ThemeValue,
+} from '@/shared/config/theme';
+import useSystemAppearance from '@/shared/lib/useSystemAppearance';
+import {
   type JSX,
   type ReactNode,
   useLayoutEffect,
@@ -6,13 +13,6 @@ import {
   useState,
 } from 'react';
 import ThemeContext from './ThemeContext';
-import {
-  FALLBACK_THEME_VALUE,
-  THEME_VALUES,
-  Theme,
-  type ThemeValue,
-} from './theme';
-import useSystemAppearance from './useSystemAppearance';
 
 interface ThemeProviderProps {
   children: ReactNode;

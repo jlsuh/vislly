@@ -11,4 +11,4 @@ const PROVIDERS: ReadonlyDeep<
   >
 > = [BrowserRouter, ThemeProvider];
 
-export { PROVIDERS };
+export default PROVIDERS;

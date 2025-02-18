@@ -1,3 +1,4 @@
+import { THEME_VALUES, Theme } from '@/shared/config/theme';
 import useOnClickOutside from '@/shared/lib/useOnClickOutside';
 import {
   type JSX,
@@ -7,7 +8,6 @@ import {
   useRef,
 } from 'react';
 import ThemeContext from '../providers/ThemeContext';
-import { THEME_VALUES, Theme } from '../providers/theme';
 import styles from './theme-select.module.css';
 
 function ThemeSelect(): JSX.Element {
