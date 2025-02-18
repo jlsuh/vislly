@@ -306,9 +306,10 @@
       var(--color-surface-container-highest-dark)
     );
 
-    --system-ui: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif,
-      "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    font-family: "DankMono", var(--system-ui);
+    --generic-font-families: system-ui, "Segoe UI", Roboto, Helvetica, Arial,
+      sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    --main-font-family: "DankMono";
+    font-family: var(--main-font-family), var(--generic-font-families);
 
     background: var(--color-surface-container-low);
   }
