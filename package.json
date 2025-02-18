@@ -9,7 +9,7 @@
     "biome:migrate": "biome migrate --write",
     "build": "tsc --extendedDiagnostics && vite build",
     "depc:ci": "pnpm depc:report && pnpm depc:metrics && pnpm depc:gen",
-    "depc:gen": "depcruise ./src --output-type dot -v -T dot ./src | dot -T svg | depcruise-wrap-stream-in-html > ./dependency-graph.html && pnpm depc:open",
+    "depc:gen": "depcruise --include-only '^src' -v -T dot ./src | dot -T svg | depcruise-wrap-stream-in-html > ./dependency-graph.html && pnpm depc:open",
     "depc:metrics": "depcruise ./src --metrics --output-type metrics",
     "depc:open": "open ./dependency-graph.html || start ./dependency-graph.html",
     "depc:report": "depcruise ./src",
