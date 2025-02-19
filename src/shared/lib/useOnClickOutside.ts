@@ -11,12 +11,18 @@ function useOnClickOutside(
   const documentRef = useRef(document);
 
   useEffect(() => {
-    const listener = (e: Event) => {
+    const listener = (e: Event): void => {
       const { target } = e;
       for (const ref of refs) {
-        if (!ref.current) return;
-        if (!isDOMNode(target)) return;
-        if (ref.current.contains(target)) return;
+        if (!ref.current) {
+          return;
+        }
+        if (!isDOMNode(target)) {
+          return;
+        }
+        if (ref.current.contains(target)) {
+          return;
+        }
       }
       onClickOutsideContinuation(e);
     };
@@ -26,7 +32,7 @@ function useOnClickOutside(
     documentRef.current.addEventListener('touchstart', listener, {
       capture: true,
     });
-    return () => {
+    return (): void => {
       documentRef.current.removeEventListener('click', listener, {
         capture: true,
       });

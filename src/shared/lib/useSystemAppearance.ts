@@ -17,7 +17,7 @@ function useSystemAppearance(): {
   );
 
   useEffect(() => {
-    const mediaQueryListListener = ({ matches }: MediaQueryListEvent) =>
+    const mediaQueryListListener = ({ matches }: MediaQueryListEvent): void =>
       setIsDarkAppearance(matches);
     const prefersDarkColorSchemeMediaQueryList = windowRef.current.matchMedia(
       PREFERS_DARK_COLOR_SCHEME_QUERY,
@@ -27,7 +27,7 @@ function useSystemAppearance(): {
       mediaQueryListListener,
       { capture: true },
     );
-    return () =>
+    return (): void =>
       prefersDarkColorSchemeMediaQueryList.removeEventListener(
         CHANGE_EVENT,
         mediaQueryListListener,

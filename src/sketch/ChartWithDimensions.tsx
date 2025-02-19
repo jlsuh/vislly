@@ -1,7 +1,7 @@
 import useResizeDimensions from '@/shared/lib/useResizeDimensions';
-import * as d3 from 'd3';
+import d3 from 'd3';
 import type { JSX } from 'react';
-import Axis from './Axis';
+import Axis from './Axis.tsx';
 
 const resizeDimensionsSettings = {
   boundedHeight: 0,

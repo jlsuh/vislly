@@ -1,5 +1,5 @@
 import type { JSX } from 'react';
-import GithubIcon from '../GithubIcon/GithubIcon';
+import GithubIcon from '../GithubIcon/GithubIcon.tsx';
 
 function GithubButton(): JSX.Element {
   return (

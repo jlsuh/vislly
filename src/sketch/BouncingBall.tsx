@@ -1,5 +1,5 @@
 import useResizeDimensions from '@/shared/lib/useResizeDimensions';
-import * as d3 from 'd3';
+import d3 from 'd3';
 import { type JSX, useEffect } from 'react';
 
 // First approach
@@ -42,7 +42,7 @@ function test(
   },
   width: number,
   height: number,
-) {
+): void {
   if (
     ball.x + ball.dx > width - ball.radius ||
     ball.x + ball.dx < ball.radius
@@ -71,7 +71,7 @@ function drawBall(
   width: number,
   height: number,
   current: HTMLDivElement | null,
-) {
+): void {
   const svg = d3.select(current).select('svg');
   const ballElement = svg.selectAll('circle').data([ball]);
 
@@ -110,7 +110,7 @@ function BouncingBall(): JSX.Element {
         ref.current,
       );
     });
-    return () => timer.stop();
+    return (): void => timer.stop();
   }, [dimensions.boundedWidth, dimensions.boundedHeight, ref.current]);
 
   return (

@@ -11,8 +11,8 @@ import {
   THEME_VALUES,
   Theme,
   type ThemeValue,
-} from '../config/theme';
-import ThemeContext from './ThemeContext';
+} from '../config/theme.ts';
+import ThemeContext from './ThemeContext.tsx';
 
 type ThemeProviderProps = PropsWithChildren;
 
@@ -29,7 +29,7 @@ function isThemeValue(themeValue: string | null): themeValue is ThemeValue {
   );
 }
 
-const getInitialThemeValue = () => {
+const getInitialThemeValue = (): ThemeValue => {
   const currentThemeValue = localStorage.getItem(THEME_KEY);
   return isThemeValue(currentThemeValue)
     ? currentThemeValue
@@ -43,17 +43,19 @@ function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
 
   const { isDarkAppearance } = useSystemAppearance();
 
-  function changeTheme(newThemeValue: string) {
+  function changeTheme(newThemeValue: string): void {
     if (isThemeValue(newThemeValue)) {
       const { shouldTriggerViewTransition } = Theme[currentThemeValue];
       if (
         shouldTriggerViewTransition(newThemeValue, isDarkAppearance) &&
         documentRef.current.startViewTransition
-      )
+      ) {
         documentRef.current.startViewTransition(() =>
           setCurrentThemeValue(newThemeValue),
         );
-      else setCurrentThemeValue(newThemeValue);
+      } else {
+        setCurrentThemeValue(newThemeValue);
+      }
       localStorage.setItem(THEME_KEY, newThemeValue);
     }
   }

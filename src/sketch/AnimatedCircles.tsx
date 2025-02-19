@@ -117,3 +117,10 @@
 // };
 
 // export default AnimatedCircles;
+import type { JSX } from 'react';
+
+function AnimatedCircles(): JSX.Element {
+  return <div>AnimatedCircles</div>;
+}
+
+export default AnimatedCircles;

@@ -1,6 +1,6 @@
 import { type JSX, useState } from 'react';
-import generateDataset from './generateDataset';
-import useInterval from './useInterval';
+import generateDataset from './generateDataset.ts';
+import useInterval from './useInterval.ts';
 
 /*
 // Imperative version

@@ -1,5 +1,5 @@
 import { type Context, createContext } from 'react';
-import { FALLBACK_THEME_VALUE, type ThemeValue } from '../config/theme';
+import { FALLBACK_THEME_VALUE, type ThemeValue } from '../config/theme.ts';
 
 interface ThemeContextType {
   changeTheme: (newTheme: string) => void;
@@ -8,7 +8,9 @@ interface ThemeContextType {
 
 const ThemeContext: Context<ThemeContextType> = createContext<ThemeContextType>(
   {
-    changeTheme: (_: string) => {},
+    changeTheme: (_: string): void => {
+      return;
+    },
     currentThemeValue: FALLBACK_THEME_VALUE,
   },
 );

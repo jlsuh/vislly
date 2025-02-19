@@ -16,7 +16,7 @@ import {
   type ParticleSettings,
   RGBA,
   Vector2,
-} from '../model/brownian-motion';
+} from '../model/brownian-motion.ts';
 import styles from './brownian-motion.module.css';
 
 function getRandomAngle(): Angle {
@@ -27,12 +27,17 @@ function getRandomBetween(min: Limit, max: Limit): Coord {
   return Math.random() * (max - min) + min;
 }
 
-function getCanvasCtxById(canvasRef: RefObject<HTMLCanvasElement | null>) {
+function getCanvasCtxById(
+  canvasRef: RefObject<HTMLCanvasElement | null>,
+): CanvasRenderingContext2D {
   const canvas = select(canvasRef.current).node() as HTMLCanvasElement;
   return canvas.getContext('2d') as CanvasRenderingContext2D;
 }
 
-function drawParticle(p: Particle, particlesContext: CanvasRenderingContext2D) {
+function drawParticle(
+  p: Particle,
+  particlesContext: CanvasRenderingContext2D,
+): void {
   particlesContext.beginPath();
   particlesContext.arc(p.curr.x, p.curr.y, p.r, 0, Math.PI * 2);
   particlesContext.fillStyle = p.fillColor;
@@ -43,7 +48,7 @@ function drawParticle(p: Particle, particlesContext: CanvasRenderingContext2D) {
 function drawHistoricalPath(
   p: Particle,
   historicalContext: CanvasRenderingContext2D,
-) {
+): void {
   historicalContext.beginPath();
   historicalContext.moveTo(p.prev.x, p.prev.y);
   historicalContext.lineTo(p.curr.x, p.curr.y);
@@ -53,7 +58,7 @@ function drawHistoricalPath(
 
 function configureHistoricalCanvas(
   historicalContext: CanvasRenderingContext2D,
-) {
+): void {
   historicalContext.lineCap = 'round';
   historicalContext.lineJoin = 'round';
   historicalContext.lineWidth = 0.8;
@@ -64,7 +69,7 @@ function resetCanvas(
   width: Limit,
   height: Limit,
   particlesContext: CanvasRenderingContext2D,
-) {
+): void {
   particlesContext.clearRect(0, 0, width, height);
 }
 
@@ -72,20 +77,28 @@ function handleParticleCollisions(
   p1: Particle,
   p2: Particle,
   cor: CoefficientOfRestitution,
-) {
-  if (p1.shouldCollideWith(p2)) p1.collide(p2, cor);
+): void {
+  if (p1.shouldCollideWith(p2)) {
+    p1.collide(p2, cor);
+  }
 }
 
-function handleWallCollision(p: Particle, width: Limit, height: Limit) {
-  if (p.isHorizontalWallCollision(width)) p.v = new Vector2(-p.v.x, p.v.y);
-  if (p.isVerticalWallCollision(height)) p.v = new Vector2(p.v.x, -p.v.y);
+function handleWallCollision(p: Particle, width: Limit, height: Limit): void {
+  if (p.isHorizontalWallCollision(width)) {
+    p.v = new Vector2(-p.v.x, p.v.y);
+  }
+  if (p.isVerticalWallCollision(height)) {
+    p.v = new Vector2(p.v.x, -p.v.y);
+  }
 }
 
 function handleHistoricalPath(
   p: Particle,
   historicalContext: CanvasRenderingContext2D,
-) {
-  if (p.isTracked) drawHistoricalPath(p, historicalContext);
+): void {
+  if (p.isTracked) {
+    drawHistoricalPath(p, historicalContext);
+  }
 }
 
 const update = ({
@@ -102,28 +115,30 @@ const update = ({
   width: Limit;
   historicalContext: CanvasRenderingContext2D;
   particlesContext: CanvasRenderingContext2D;
-}) => {
+}): void => {
   resetCanvas(width, height, particlesContext);
   for (const p1 of particles) {
     drawParticle(p1, particlesContext);
     handleHistoricalPath(p1, historicalContext);
     handleWallCollision(p1, width, height);
     p1.move();
-    for (const p2 of particles) handleParticleCollisions(p1, p2, cor);
+    for (const p2 of particles) {
+      handleParticleCollisions(p1, p2, cor);
+    }
   }
 };
 
 function composeParticles(
   numberOfParticles: number,
   particleSettings: () => ParticleSettings,
-) {
+): Particle[] {
   return Array.from(
     { length: numberOfParticles },
     () => new Particle(particleSettings()),
   );
 }
 
-const disableContextMenu = (e: MouseEvent<HTMLCanvasElement>) =>
+const disableContextMenu = (e: MouseEvent<HTMLCanvasElement>): void =>
   e.preventDefault();
 
 const RESIZE_DIMENSIONS = {
@@ -187,7 +202,7 @@ function BrownianMotion(): JSX.Element {
         particlesContext,
       }),
     );
-    return () => timer.stop();
+    return (): void => timer.stop();
   }, [dimensions.boundedHeight, dimensions.boundedWidth]);
 
   return (

@@ -49,13 +49,15 @@ function useResizeDimensions(initialDimensions: ResizeDimensions): {
     const element = ref.current ?? new Element();
     const resizeObserver = new ResizeObserver((entries) => {
       const { contentRect } = entries[0];
-      if (currentHeight !== contentRect.height)
+      if (currentHeight !== contentRect.height) {
         setCurrentHeight(contentRect.height);
-      if (currentWidth !== contentRect.width)
+      }
+      if (currentWidth !== contentRect.width) {
         setCurrentWidth(contentRect.width);
+      }
     });
     resizeObserver.observe(element);
-    return () => resizeObserver.unobserve(element);
+    return (): void => resizeObserver.unobserve(element);
   }, [currentHeight, currentWidth]);
 
   const dimensions = composeResizeDimensions({

@@ -1,6 +1,6 @@
 import BrandLogo from '@/shared/ui/BrandLogo/BrandLogo';
 import type { JSX } from 'react';
-import ThemeSelect from './ThemeSelect';
+import ThemeSelect from './ThemeSelect.tsx';
 import styles from './header.module.css';
 
 function Header(): JSX.Element {

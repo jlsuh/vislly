@@ -6,8 +6,8 @@ import {
   use,
   useRef,
 } from 'react';
-import { THEME_VALUES, Theme } from '../config/theme';
-import ThemeContext from '../providers/ThemeContext';
+import { THEME_VALUES, Theme } from '../config/theme.ts';
+import ThemeContext from '../providers/ThemeContext.tsx';
 import styles from './theme-select.module.css';
 
 function ThemeSelect(): JSX.Element {
@@ -19,15 +19,17 @@ function ThemeSelect(): JSX.Element {
 
   const uncheckCheckboxContinuation = (
     _: Event | MouseEvent<HTMLInputElement> | PointerEvent<HTMLInputElement>,
-  ) => {
-    if (checkboxRef.current !== null) checkboxRef.current.checked = false;
+  ): void => {
+    if (checkboxRef.current !== null) {
+      checkboxRef.current.checked = false;
+    }
   };
 
   useOnClickOutside([themeSelectRef], uncheckCheckboxContinuation);
 
   const handleOnClickUncheckCheckbox = (
     e: MouseEvent<HTMLInputElement> | PointerEvent<HTMLInputElement>,
-  ) => {
+  ): void => {
     changeTheme(e.currentTarget.value);
     uncheckCheckboxContinuation(e);
   };

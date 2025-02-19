@@ -1,7 +1,7 @@
-import type { ComponentType, PropsWithChildren } from 'react';
+import type { ComponentType, JSX, PropsWithChildren } from 'react';
 import { BrowserRouter } from 'react-router';
 import type { ReadonlyDeep } from 'type-fest';
-import ThemeProvider from './ThemeProvider';
+import ThemeProvider from './ThemeProvider.tsx';
 
 type Provider = ComponentType<PropsWithChildren>;
 
@@ -10,7 +10,7 @@ interface Wrap {
   Wrapper: Provider;
 }
 
-const PROVIDERS: ReadonlyDeep<Array<Provider>> = [BrowserRouter, ThemeProvider];
+const PROVIDERS: ReadonlyDeep<Provider[]> = [BrowserRouter, ThemeProvider];
 
 /**
  * @param Wrappable.displayName - Used for debugging purposes in user-defined components.
@@ -25,7 +25,7 @@ function composeDisplayName({ Wrappable, Wrapper }: Wrap): string {
 }
 
 function withProvider({ Wrappable, Wrapper }: Wrap): ComponentType {
-  function WithProvider() {
+  function WithProvider(): JSX.Element {
     return (
       <Wrapper>
         <Wrappable />

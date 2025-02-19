@@ -1,7 +1,7 @@
 import BrownianMotion from '@/entities/brownian-motion/ui/BrownianMotion';
 import type { ComponentType, JSX } from 'react';
-import Header from './app/layout/Header';
-import withProviders from './app/providers/withProviders';
+import Header from './app/layout/Header.tsx';
+import withProviders from './app/providers/withProviders.tsx';
 
 function App(): JSX.Element {
   return (

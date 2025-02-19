@@ -47,7 +47,7 @@ const Theme: ReadonlyDeep<Record<ThemeValue, ThemeType>> = {
     shouldTriggerViewTransition(
       targetTheme: ThemeValue,
       userPrefersDarkTheme: boolean,
-    ) {
+    ): boolean {
       return userPrefersDarkTheme
         ? targetTheme === ONLY_LIGHT
         : targetTheme === ONLY_DARK;
@@ -61,7 +61,7 @@ const Theme: ReadonlyDeep<Record<ThemeValue, ThemeType>> = {
     shouldTriggerViewTransition(
       targetTheme: ThemeValue,
       userPrefersDarkTheme: boolean,
-    ) {
+    ): boolean {
       return userPrefersDarkTheme
         ? targetTheme !== ONLY_LIGHT
         : targetTheme === ONLY_DARK;
@@ -75,7 +75,7 @@ const Theme: ReadonlyDeep<Record<ThemeValue, ThemeType>> = {
     shouldTriggerViewTransition(
       targetTheme: ThemeValue,
       userPrefersDarkTheme: boolean,
-    ) {
+    ): boolean {
       return userPrefersDarkTheme
         ? targetTheme === ONLY_LIGHT
         : targetTheme !== ONLY_DARK;
@@ -86,6 +86,6 @@ const Theme: ReadonlyDeep<Record<ThemeValue, ThemeType>> = {
 
 const FALLBACK_THEME_VALUE: ThemeValue = DARK_LIGHT;
 
-const THEME_VALUES: ReadonlyDeep<Array<ThemeType>> = Object.values(Theme);
+const THEME_VALUES: ReadonlyDeep<ThemeType[]> = Object.values(Theme);
 
 export { FALLBACK_THEME_VALUE, Theme, THEME_VALUES, type ThemeValue };

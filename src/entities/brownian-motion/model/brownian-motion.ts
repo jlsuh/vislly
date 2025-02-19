@@ -18,12 +18,12 @@ type Radius = number;
 type RGBAChannels = ConstructorParameters<typeof RGBA>;
 
 class RGBA {
-  readonly r: Channel;
-  readonly g: Channel;
-  readonly b: Channel;
-  readonly a: Channel;
+  public readonly r: Channel;
+  public readonly g: Channel;
+  public readonly b: Channel;
+  public readonly a: Channel;
 
-  constructor(r: Channel, g: Channel, b: Channel, a: Channel) {
+  public constructor(r: Channel, g: Channel, b: Channel, a: Channel) {
     if (this.containsInvalidValues([r, g, b, a])) {
       throw new RangeError('RGBA channel value must be between 0 and 1');
     }
@@ -33,20 +33,20 @@ class RGBA {
     this.a = a;
   }
 
-  private containsInvalidValues(rgbaChannels: RGBAChannels) {
+  private containsInvalidValues(rgbaChannels: RGBAChannels): boolean {
     return rgbaChannels.some((value: Channel) => value < 0 || value > 1);
   }
 
-  public toStyle() {
+  public toStyle(): string {
     return `rgb(${this.r * 255} ${this.g * 255} ${this.b * 255} / ${this.a})`;
   }
 }
 
 class Vector2 {
-  readonly x: Coord;
-  readonly y: Coord;
+  public readonly x: Coord;
+  public readonly y: Coord;
 
-  constructor(x: Coord, y: Coord) {
+  public constructor(x: Coord, y: Coord) {
     this.x = x;
     this.y = y;
   }
@@ -75,15 +75,15 @@ class Vector2 {
 }
 
 class Particle {
-  readonly fillColor: FillColor;
-  readonly isTracked: boolean;
-  readonly mass: Mass;
-  readonly r: Radius;
-  curr: Vector2;
-  prev: Vector2;
-  v: Vector2;
+  public readonly fillColor: FillColor;
+  public readonly isTracked: boolean;
+  public readonly mass: Mass;
+  public readonly r: Radius;
+  public curr: Vector2;
+  public prev: Vector2;
+  public v: Vector2;
 
-  constructor(settings: ParticleSettings) {
+  public constructor(settings: ParticleSettings) {
     const { fillColor, isTracked, r, vix, viy, x, y } = settings;
     this.fillColor = fillColor;
     this.isTracked = isTracked;
@@ -94,11 +94,11 @@ class Particle {
     this.v = new Vector2(vix, viy);
   }
 
-  private isCollidingWith(that: Particle) {
+  private isCollidingWith(that: Particle): boolean {
     return this.curr.sqrdDistanceTo(that.curr) < this.rSqrd(that);
   }
 
-  private isGoingTowards(that: Particle) {
+  private isGoingTowards(that: Particle): boolean {
     const d = this.curr.sub(that.curr);
     const v = this.v.sub(that.v);
     const minusV = v.map((x) => -x);
@@ -106,7 +106,7 @@ class Particle {
     return minusVDot > 0;
   }
 
-  private rSqrd(that: Particle) {
+  private rSqrd(that: Particle): number {
     const rt = this.r + that.r;
     return rt * rt;
   }
