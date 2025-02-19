@@ -1,24 +1,118 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "formatter": { "indentStyle": "space" },
+  "javascript": { "formatter": { "quoteStyle": "single" } },
+  "linter": {
+    "rules": {
+      "complexity": {
+        "noExcessiveCognitiveComplexity": "error",
+        "noUselessStringConcat": "error",
+        "noUselessUndefinedInitialization": "error",
+        "noVoid": "error",
+        "useDateNow": "error",
+        "useSimplifiedLogicExpression": "error"
+      },
+      "correctness": {
+        "noConstantMathMinMaxClamp": "error",
+        "noSwitchDeclarations": "error",
+        "noUndeclaredDependencies": "error",
+        "noUndeclaredVariables": "error",
+        "noUnusedFunctionParameters": "error",
+        "noUnusedImports": "error",
+        "noUnusedPrivateClassMembers": "error",
+        "noUnusedVariables": "error",
+        "useArrayLiterals": "error",
+        "useHookAtTopLevel": "error",
+        "useImportExtensions": "error"
+      },
+      "nursery": {
+        "noCommonJs": "error",
+        "noDescendingSpecificity": "error",
+        "noDocumentCookie": "error",
+        "noDocumentImportInPage": "error",
+        "noDuplicateCustomProperties": "error",
+        "noDuplicateElseIf": "error",
+        "noDuplicateProperties": "error",
+        "noDynamicNamespaceImportAccess": "error",
+        "noEnum": "error",
+        "noExportedImports": "error",
+        "noHeadElement": "error",
+        "noHeadImportInDocument": "error",
+        "noImgElement": "error",
+        "noIrregularWhitespace": "error",
+        "noMissingVarFunction": "error",
+        "noNestedTernary": "error",
+        "noOctalEscape": "error",
+        "noProcessEnv": "error",
+        "noRestrictedImports": "error",
+        "noRestrictedTypes": "error",
+        "noStaticElementInteractions": "error",
+        "noSubstr": "error",
+        "noTemplateCurlyInString": "error",
+        "noUnknownPseudoClass": "error",
+        "noUselessEscapeInRegex": "error",
+        "noUselessStringRaw": "error",
+        "noValueAtRule": "error",
+        "useAdjacentOverloadSignatures": "error",
+        "useAriaPropsSupportedByRole": "error",
+        "useAtIndex": "error",
+        "useCollapsedIf": "error",
+        "useComponentExportOnlyModules": "error",
+        "useConsistentCurlyBraces": "error",
+        "useConsistentMemberAccessibility": {
+          "level": "error",
+          "options": { "accessibility": "explicit" }
+        },
+        "useExplicitType": "error",
+        "useGoogleFontDisplay": "error",
+        "useGuardForIn": "error",
+        "useSortedClasses": "error",
+        "useTrimStartEnd": "error",
+        "useValidAutocomplete": "error"
+      },
+      "performance": {
+        "noBarrelFile": "error",
+        "noReExportAll": "error",
+        "useTopLevelRegex": "error"
+      },
+      "style": {
+        "noDoneCallback": "error",
+        "noImplicitBoolean": "error",
+        "noNamespace": "error",
+        "noNamespaceImport": "error",
+        "noNegationElse": "error",
+        "noParameterProperties": "error",
+        "noRestrictedGlobals": "error",
+        "noShoutyConstants": "error",
+        "noYodaExpression": "error",
+        "useBlockStatements": "error",
+        "useCollapsedElseIf": "error",
+        "useConsistentArrayType": "error",
+        "useConsistentBuiltinInstantiation": "error",
+        "useExplicitLengthCheck": "error",
+        "useFilenamingConvention": "error",
+        "useForOf": "error",
+        "useFragmentSyntax": "error",
+        "useNodeAssertStrict": "error",
+        "useShorthandAssign": "error",
+        "useThrowNewError": "error",
+        "useThrowOnlyError": "error"
+      },
+      "suspicious": {
+        "noEmptyBlockStatements": "error",
+        "noEvolvingTypes": "error",
+        "noMisplacedAssertion": "error",
+        "noSkippedTests": "error",
+        "useAwait": "error",
+        "useErrorMessage": "error",
+        "useNumberToFixedDigitsArgument": "error"
+      }
+    }
+  },
   "vcs": {
     "enabled": true,
     "clientKind": "git",
     "useIgnoreFile": true,
     "defaultBranch": "main"
-  },
-  "linter": {
-    "rules": {
-      "correctness": {
-        "useHookAtTopLevel": "error"
-      }
-    }
-  },
-  "formatter": {
-    "indentStyle": "space"
-  },
-  "javascript": {
-    "formatter": {
-      "quoteStyle": "single"
-    }
   }
 }
