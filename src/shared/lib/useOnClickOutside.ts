@@ -14,13 +14,10 @@ function useOnClickOutside(
     const listener = (e: Event): void => {
       const { target } = e;
       for (const ref of refs) {
-        if (!ref.current) {
-          return;
-        }
         if (!isDOMNode(target)) {
           return;
         }
-        if (ref.current.contains(target)) {
+        if (ref.current?.contains(target)) {
           return;
         }
       }
