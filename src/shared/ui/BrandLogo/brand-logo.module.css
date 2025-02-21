@@ -17,7 +17,7 @@
     stroke: var(--color-on-surface);
   }
 
-  .brandWithoutV {
+  .brandWithoutEye {
     display: none;
     fill: var(--color-on-surface);
   }
@@ -25,7 +25,10 @@
   .mainContainer {
     align-items: center;
     color: var(--color-on-surface);
+    column-gap: 0.3125rem;
     display: inline-flex;
+    height: auto;
+    width: 10rem;
   }
 
   @media screen and (hover: hover) {
@@ -35,7 +38,7 @@
   }
 
   @media screen and (width >= 20em) {
-    .brandWithoutV {
+    .brandWithoutEye {
       display: inline;
     }
   }
