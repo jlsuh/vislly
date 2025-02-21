@@ -7,7 +7,6 @@ function BrandLogo(): JSX.Element {
       <svg
         className={styles.brand}
         fill="none"
-        preserveAspectRatio="xMinYMax meet"
         xmlns="http://www.w3.org/2000/svg"
       >
         <title>Visually Logo</title>
@@ -28,12 +27,10 @@ function BrandLogo(): JSX.Element {
           <path
             className={styles.brandSegment_stroke_colorOnSurface}
             d="M5 7L5.95225 7.3912C6.58992 7.65316 7.25942 7.82967 7.94336 7.91612V7.91612C8.52989 7.99027 9.12294 7.99767 9.71114 7.93818L9.87522 7.92159C10.7653 7.83158 11.6376 7.61323 12.4651 7.27332L13.1304 7"
-            strokeLinecap="round"
           />
           <path
             className={styles.brandSegment_stroke_colorOnSurface}
             d="M5.5 10L5.76469 10.2724C6.61695 11.1495 7.78788 11.6444 9.01087 11.6444V11.6444V11.6444C10.2329 11.6444 11.402 11.1456 12.2476 10.2633L12.5 10"
-            strokeLinecap="round"
           />
         </g>
         <path
