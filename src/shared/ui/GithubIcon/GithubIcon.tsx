@@ -4,7 +4,6 @@ import styles from './github-icon.module.css';
 function GithubIcon(): JSX.Element {
   return (
     <svg
-      className={styles.icon}
       height="2.5rem"
       preserveAspectRatio="xMidYMid"
       viewBox="0 0 256 250"

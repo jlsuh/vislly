@@ -1,8 +1,4 @@
 @layer components {
-  .icon {
-    vertical-align: middle;
-  }
-
   .iconPath {
     fill: var(--color-on-surface);
   }
