@@ -4,10 +4,6 @@
   layer(reset.modern-normalize);
 
 @layer reset {
-  :root {
-    -webkit-tap-highlight-color: transparent;
-  }
-
   :root,
   body {
     overflow-wrap: anywhere;
