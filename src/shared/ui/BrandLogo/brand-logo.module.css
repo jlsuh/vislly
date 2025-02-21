@@ -1,19 +1,27 @@
 @layer components {
+  .brand {
+    align-content: center;
+    display: flex;
+    justify-content: center;
+    max-height: 1.6875rem;
+    max-width: 1.125rem;
+  }
+
   .brandEye {
     transform-box: fill-box;
     transform-origin: center;
     transition: transform .3s ease-in-out;
   }
 
-  .brandSegment_fill_colorOnSurface {
+  .brandPath_fill_colorOnSurface {
     fill: var(--color-on-surface);
   }
 
-  .brandSegment_fill_colorOnSurfaceVariant {
+  .brandPath_fill_colorOnSurfaceVariant {
     fill: var(--color-on-surface-variant);
   }
 
-  .brandSegment_stroke_colorOnSurface {
+  .brandPath_stroke_colorOnSurface {
     stroke: var(--color-on-surface);
   }
 
@@ -29,14 +37,6 @@
     display: inline-flex;
   }
 
-  .brand {
-    align-content: center;
-    display: flex;
-    justify-content: center;
-    max-height: 1.6875rem;
-    max-width: 1.125rem;
-  }
-
   @media screen and (hover: hover) {
     .mainContainer:hover .brandEye {
       transform: rotate(90deg);
@@ -44,12 +44,12 @@
   }
 
   @media screen and (width >= 20em) {
-    .brandWithoutEye {
-      display: inline;
-    }
-
     .brand {
       max-width: 6.875rem;
+    }
+
+    .brandWithoutEye {
+      display: inline;
     }
   }
 }

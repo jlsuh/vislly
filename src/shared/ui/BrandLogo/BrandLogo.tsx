@@ -12,24 +12,24 @@ function BrandLogo(): JSX.Element {
         <title>Visually Logo</title>
         <g className={styles.brandEye}>
           <path
-            className={styles.brandSegment_fill_colorOnSurfaceVariant}
+            className={styles.brandPath_fill_colorOnSurfaceVariant}
             d="M12.9973 7.99297C12.9974 9.21724 11.3945 11.6933 8.9433 11.6933C6.49213 11.6933 5.00013 9.21724 5.00012 7.99297C4.98438 6.21724 6.49204 8.18221 8.94321 8.18221C11.3944 8.18221 12.9973 6.21729 12.9973 7.99297Z"
           />
           <path
-            className={styles.brandSegment_fill_colorOnSurface}
+            className={styles.brandPath_fill_colorOnSurface}
             d="M8.12734 21L3.32734 5.4H5.12734L9.00734 18.34L13.1473 5.4H14.9473L9.82734 21H8.12734Z"
           />
           <path
-            className={styles.brandSegment_stroke_colorOnSurface}
+            className={styles.brandPath_stroke_colorOnSurface}
             d="M1 11.2556L1.3016 10.7094C2.2872 8.92481 3.86222 7.53804 5.75727 6.78632V6.78632C7.84015 5.96009 10.1599 5.96009 12.2427 6.78632V6.78632C14.1378 7.53804 15.7128 8.92481 16.6984 10.7094L17 11.2556"
             strokeLinecap="square"
           />
           <path
-            className={styles.brandSegment_stroke_colorOnSurface}
+            className={styles.brandPath_stroke_colorOnSurface}
             d="M5 7L5.95225 7.3912C6.58992 7.65316 7.25942 7.82967 7.94336 7.91612V7.91612C8.52989 7.99027 9.12294 7.99767 9.71114 7.93818L9.87522 7.92159C10.7653 7.83158 11.6376 7.61323 12.4651 7.27332L13.1304 7"
           />
           <path
-            className={styles.brandSegment_stroke_colorOnSurface}
+            className={styles.brandPath_stroke_colorOnSurface}
             d="M5.5 10L5.76469 10.2724C6.61695 11.1495 7.78788 11.6444 9.01087 11.6444V11.6444V11.6444C10.2329 11.6444 11.402 11.1456 12.2476 10.2633L12.5 10"
           />
         </g>
