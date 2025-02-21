@@ -1,8 +1,5 @@
 @layer components {
   .brand {
-    align-content: center;
-    display: flex;
-    justify-content: center;
     max-height: 2.25rem;
     max-width: 1.625rem;
   }
@@ -31,9 +28,6 @@
   }
 
   .mainContainer {
-    align-items: center;
-    color: var(--color-on-surface);
-    column-gap: 0.3125rem;
     display: inline-flex;
   }
 
