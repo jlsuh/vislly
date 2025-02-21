@@ -1,7 +1,7 @@
 @layer components {
   .brand {
-    max-height: 2.25rem;
-    max-width: 1.625rem;
+    max-height: inherit;
+    max-width: inherit;
   }
 
   .brandEye {
@@ -28,7 +28,8 @@
   }
 
   .mainContainer {
-    display: inline-flex;
+    max-height: 2.25rem;
+    max-width: 1.625rem;
   }
 
   @media screen and (hover: hover) {
@@ -38,13 +39,12 @@
   }
 
   @media screen and (width >= 20em) {
-    .brand {
-      max-height: 2.25rem;
-      max-width: 9.0625rem;
-    }
-
     .brandWithoutEye {
       display: inline;
+    }
+
+    .mainContainer {
+      max-width: 9.0625rem;
     }
   }
 }
