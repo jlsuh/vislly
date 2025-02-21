@@ -25,26 +25,22 @@
   .brandWithoutEye {
     display: none;
     fill: var(--color-on-surface);
+    @container header (width >= 20rem) {
+      display: inline;
+    }
   }
 
   .mainContainer {
     max-height: 2.25rem;
     max-width: 1.625rem;
+    @container header (width >= 20rem) {
+      max-width: 9.0625rem;
+    }
   }
 
   @media screen and (hover: hover) {
     .mainContainer:hover .brandEye {
       transform: rotate(90deg);
-    }
-  }
-
-  @media screen and (width >= 20em) {
-    .brandWithoutEye {
-      display: inline;
-    }
-
-    .mainContainer {
-      max-width: 9.0625rem;
     }
   }
 }
