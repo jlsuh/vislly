@@ -32,7 +32,6 @@
         "noDocumentImportInPage": "error",
         "noDuplicateCustomProperties": "error",
         "noDuplicateElseIf": "error",
-        "noDuplicateProperties": "error",
         "noDynamicNamespaceImportAccess": "error",
         "noEnum": "error",
         "noExportedImports": "error",
