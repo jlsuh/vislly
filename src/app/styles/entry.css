@@ -6,6 +6,7 @@
 @layer reset {
   :root,
   body {
+    height: 100%;
     overflow-wrap: anywhere;
     overflow-x: hidden;
   }
