@@ -5,12 +5,12 @@
 
 @layer reset {
   * {
+    line-height: calc(1em + 0.5rem);
     margin: 0;
   }
 
   :root,
   body {
-    height: 100%;
     overflow-wrap: anywhere;
     overflow-x: hidden;
   }
