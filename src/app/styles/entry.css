@@ -4,6 +4,10 @@
   layer(reset.modern-normalize);
 
 @layer reset {
+  * {
+    margin: 0;
+  }
+
   :root,
   body {
     height: 100%;
