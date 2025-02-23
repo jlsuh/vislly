@@ -363,8 +363,21 @@
 @layer utilities {
   @font-face {
     font-family: "DankMono";
-    src: local("DankMono"), local("DankMono-Regular"),
-      url("/fonts/DankMono-Regular.woff2") format("woff2"),
-      url("/fonts/DankMono-Regular.woff") format("woff");
+    src: local("DankMono"), local("Dank Mono"), local("Dank-Mono"),
+      url("/fonts/DankMono-Regular.woff2") format("woff2");
+  }
+
+  @font-face {
+    font-family: "DankMono";
+    font-weight: bold;
+    src: local("DankMono"), local("Dank Mono"), local("Dank-Mono"),
+      url("/fonts/DankMono-Bold.woff2") format("woff2");
+  }
+
+  @font-face {
+    font-family: "DankMono";
+    font-style: italic;
+    src: local("DankMono"), local("Dank Mono"), local("Dank-Mono"),
+      url("/fonts/DankMono-Italic.woff2") format("woff2");
   }
 }
