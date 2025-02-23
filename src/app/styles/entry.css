@@ -362,12 +362,14 @@
 
 @layer utilities {
   @font-face {
+    font-display: swap;
     font-family: "DankMono";
     src: local("DankMono"), local("Dank Mono"), local("Dank-Mono"),
       url("/fonts/DankMono-Regular.woff2") format("woff2");
   }
 
   @font-face {
+    font-display: swap;
     font-family: "DankMono";
     font-weight: bold;
     src: local("DankMono"), local("Dank Mono"), local("Dank-Mono"),
@@ -375,6 +377,7 @@
   }
 
   @font-face {
+    font-display: swap;
     font-family: "DankMono";
     font-style: italic;
     src: local("DankMono"), local("Dank Mono"), local("Dank-Mono"),
