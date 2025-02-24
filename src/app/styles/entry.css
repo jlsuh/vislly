@@ -9,6 +9,10 @@
     margin: 0;
   }
 
+  body {
+    -webkit-font-smoothing: antialiased;
+  }
+
   :root,
   body {
     overflow-wrap: anywhere;
