@@ -22,7 +22,6 @@
     "strict": true,
     "target": "ESNext",
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo",
-    "types": ["node"],
     "verbatimModuleSyntax": true
   },
   "include": ["src"]
