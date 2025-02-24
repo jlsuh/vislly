@@ -1,5 +1,5 @@
 import useResizeDimensions from '@/shared/lib/useResizeDimensions';
-import { interval, select } from 'd3';
+import { interval } from 'd3';
 import {
   type JSX,
   type MouseEvent,
@@ -28,10 +28,9 @@ function getRandomBetween(min: Limit, max: Limit): Coord {
 }
 
 function getCanvasCtxById(
-  canvasRef: RefObject<HTMLCanvasElement | null>,
+  canvasRef: RefObject<HTMLCanvasElement>,
 ): CanvasRenderingContext2D {
-  const canvas = select(canvasRef.current).node() as HTMLCanvasElement;
-  return canvas.getContext('2d') as CanvasRenderingContext2D;
+  return canvasRef.current.getContext('2d') as CanvasRenderingContext2D;
 }
 
 function drawParticle(
