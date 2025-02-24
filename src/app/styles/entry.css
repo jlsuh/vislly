@@ -309,11 +309,22 @@
       var(--color-surface-container-highest-dark)
     );
 
-    --generic-font-families: system-ui, "Segoe UI", Roboto, Helvetica, Arial,
-      sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    --main-font-family: "DankMono";
-    font-family: var(--main-font-family), var(--generic-font-families);
+    --generic-fallback-font-stack:
+      ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+      "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
+      "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --mona-sans-font-stack: "Mona Sans", MonaSansFallback;
+    --main-font-stack: var(--mona-sans-font-stack),
+      var(--generic-fallback-font-stack);
 
+    --monaspace-font-stack: MonaspaceNeon, MonaspaceNeonFallback,
+      var(--generic-fallback-font-stack);
+
+    h1 {
+      font-family: var(--monaspace-font-stack);
+    }
+
+    font-family: var(--main-font-stack);
     background: var(--color-surface-container-low);
   }
 
@@ -361,26 +372,47 @@
 }
 
 @layer utilities {
+  /**
+   * @FOIT: font-display swap
+   * @FOUT: document.fonts.ready
+   * @preloaded
+   */
   @font-face {
     font-display: swap;
-    font-family: "DankMono";
-    src: local("DankMono"), local("Dank Mono"), local("Dank-Mono"),
-      url("/fonts/DankMono-Regular.woff2") format("woff2");
+    font-family: "Mona Sans";
+    font-stretch: 75% 125%;
+    font-weight: 200 900;
+    src: url("/fonts/Mona-Sans.woff2") format("woff2 supports variations"),
+      url("/fonts/Mona-Sans.woff2") format("woff2-variations");
   }
 
+  /**
+   * @fallback: Currently has no effect since document.fonts.ready is adopted
+   */
   @font-face {
-    font-display: swap;
-    font-family: "DankMono";
-    font-weight: bold;
-    src: local("DankMono"), local("Dank Mono"), local("Dank-Mono"),
-      url("/fonts/DankMono-Bold.woff2") format("woff2");
+    font-family: MonaSansFallback;
+    size-adjust: 109.5%;
+    src: local(Arial);
   }
 
+  /**
+   * @FOIT: font-display swap
+   * @FOUT: document.fonts.ready
+   * @preloaded
+   */
   @font-face {
     font-display: swap;
-    font-family: "DankMono";
-    font-style: italic;
-    src: local("DankMono"), local("Dank Mono"), local("Dank-Mono"),
-      url("/fonts/DankMono-Italic.woff2") format("woff2");
+    font-family: MonaspaceNeon;
+    font-weight: 200 800;
+    src: url("/fonts/MonaspaceNeon.woff2") format("woff2");
+  }
+
+  /**
+   * @fallback: Currently has no effect since document.fonts.ready is adopted
+   */
+  @font-face {
+    font-family: MonaspaceNeonFallback;
+    size-adjust: 103.5%;
+    src: local("Courier"), local("Andale Mono");
   }
 }
