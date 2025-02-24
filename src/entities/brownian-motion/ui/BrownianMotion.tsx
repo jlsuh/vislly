@@ -1,5 +1,4 @@
 import useResizeDimensions from '@/shared/lib/useResizeDimensions';
-import { interval } from 'd3';
 import {
   type JSX,
   type MouseEvent,
@@ -154,7 +153,7 @@ const BLUE = new RGBA(0, 0, 1, 1);
 const RED = new RGBA(1, 0, 0, 1);
 
 const COR: CoefficientOfRestitution = 1;
-const INITIAL_SPEED = 10;
+const INITIAL_SPEED = 1.5;
 const NUMBER_OF_PARTICLES = 400;
 const RADIUS = 8;
 const DIAMETER = RADIUS * 2;
@@ -164,6 +163,7 @@ function BrownianMotion(): JSX.Element {
   const initialCanvas = documentRef.current.createElement('canvas');
   const historicalCanvasRef = useRef(initialCanvas);
   const particlesCanvasRef = useRef(initialCanvas);
+  const windowRef = useRef(window);
 
   const { dimensions, ref: mainContainerRef } =
     useResizeDimensions(RESIZE_DIMENSIONS);
@@ -192,12 +192,7 @@ function BrownianMotion(): JSX.Element {
         y: getRandomBetween(DIAMETER, dimensions.boundedHeight - DIAMETER),
       })),
     ];
-    /**
-     * d3.interval:
-     * - Uses requestAnimationFrame if available.
-     * - Replacement for window.setInterval that is guaranteed to not run in the background.
-     */
-    const timer = interval(() =>
+    const intervalID = windowRef.current.setInterval(() =>
       update({
         cor: COR,
         particles,
@@ -207,7 +202,7 @@ function BrownianMotion(): JSX.Element {
         particlesContext,
       }),
     );
-    return (): void => timer.stop();
+    return (): void => windowRef.current.clearInterval(intervalID);
   }, [dimensions.boundedHeight, dimensions.boundedWidth]);
 
   return (
