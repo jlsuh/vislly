@@ -26,9 +26,14 @@ function getRandomBetween(min: Limit, max: Limit): Coord {
   return Math.random() * (max - min) + min;
 }
 
-function getCanvasCtxById(
+function getCanvasCtxByRef(
   canvasRef: RefObject<HTMLCanvasElement>,
 ): CanvasRenderingContext2D {
+  /**
+   * Opt-in type assertion:
+   * - getContext and 2d context identifier widely supported.
+   * - Canvas context mode is always 2d.
+   */
   return canvasRef.current.getContext('2d') as CanvasRenderingContext2D;
 }
 
@@ -169,8 +174,8 @@ function BrownianMotion(): JSX.Element {
     useResizeDimensions(RESIZE_DIMENSIONS);
 
   useEffect(() => {
-    const historicalContext = getCanvasCtxById(historicalCanvasRef);
-    const particlesContext = getCanvasCtxById(particlesCanvasRef);
+    const historicalContext = getCanvasCtxByRef(historicalCanvasRef);
+    const particlesContext = getCanvasCtxByRef(particlesCanvasRef);
     configureHistoricalCanvas(historicalContext);
     const particles = [
       ...composeParticles(1, () => ({
