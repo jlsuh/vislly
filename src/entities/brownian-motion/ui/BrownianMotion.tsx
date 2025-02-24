@@ -215,7 +215,6 @@ function BrownianMotion(): JSX.Element {
       <canvas
         className={styles.particlesCanvas}
         height={dimensions.boundedHeight}
-        id="particles"
         onContextMenu={disableContextMenu}
         ref={particlesCanvasRef}
         width={dimensions.boundedWidth}
@@ -223,7 +222,6 @@ function BrownianMotion(): JSX.Element {
       <canvas
         className={styles.historicalCanvas}
         height={dimensions.boundedHeight}
-        id="historical"
         onContextMenu={disableContextMenu}
         ref={historicalCanvasRef}
         width={dimensions.boundedWidth}
