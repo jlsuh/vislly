@@ -137,8 +137,7 @@ function composeParticles(
   );
 }
 
-const disableContextMenu = (e: MouseEvent<HTMLCanvasElement>): void =>
-  e.preventDefault();
+const disableContextMenu = (e: MouseEvent): void => e.preventDefault();
 
 const RESIZE_DIMENSIONS = {
   boundedHeight: 0,
@@ -161,8 +160,10 @@ const RADIUS = 8;
 const DIAMETER = RADIUS * 2;
 
 function BrownianMotion(): JSX.Element {
-  const historicalCanvasRef = useRef<HTMLCanvasElement>(null);
-  const particlesCanvasRef = useRef<HTMLCanvasElement>(null);
+  const documentRef = useRef(document);
+  const initialCanvas = documentRef.current.createElement('canvas');
+  const historicalCanvasRef = useRef(initialCanvas);
+  const particlesCanvasRef = useRef(initialCanvas);
 
   const { dimensions, ref: mainContainerRef } =
     useResizeDimensions(RESIZE_DIMENSIONS);
@@ -191,6 +192,11 @@ function BrownianMotion(): JSX.Element {
         y: getRandomBetween(DIAMETER, dimensions.boundedHeight - DIAMETER),
       })),
     ];
+    /**
+     * d3.interval:
+     * - Uses requestAnimationFrame if available.
+     * - Replacement for window.setInterval that is guaranteed to not run in the background.
+     */
     const timer = interval(() =>
       update({
         cor: COR,
