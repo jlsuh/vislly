@@ -4,9 +4,9 @@ function LightThemeIcon(): JSX.Element {
   return (
     <svg
       fill="currentColor"
-      height="1.25rem"
+      height="16"
       viewBox="0 0 16 16"
-      width="1.25rem"
+      width="16"
       xmlns="http://www.w3.org/2000/svg"
     >
       <title>Always Light Icon</title>
