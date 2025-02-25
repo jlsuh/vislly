@@ -164,11 +164,9 @@ const RADIUS = 8;
 const DIAMETER = RADIUS * 2;
 
 function BrownianMotion(): JSX.Element {
-  const documentRef = useRef(document);
-  const initialCanvas = documentRef.current.createElement('canvas');
+  const initialCanvas = document.createElement('canvas');
   const historicalCanvasRef = useRef(initialCanvas);
   const particlesCanvasRef = useRef(initialCanvas);
-  const windowRef = useRef(window);
 
   const { dimensions, ref: mainContainerRef } =
     useResizeDimensions(RESIZE_DIMENSIONS);
@@ -197,7 +195,7 @@ function BrownianMotion(): JSX.Element {
         y: getRandomBetween(DIAMETER, dimensions.boundedHeight - DIAMETER),
       })),
     ];
-    const intervalID = windowRef.current.setInterval(() =>
+    const intervalID = window.setInterval(() =>
       update({
         cor: COR,
         particles,
@@ -207,7 +205,7 @@ function BrownianMotion(): JSX.Element {
         particlesContext,
       }),
     );
-    return (): void => windowRef.current.clearInterval(intervalID);
+    return (): void => window.clearInterval(intervalID);
   }, [dimensions.boundedHeight, dimensions.boundedWidth]);
 
   return (

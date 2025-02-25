@@ -3,7 +3,6 @@ import {
   type JSX,
   type PropsWithChildren,
   useEffect,
-  useRef,
   useSyncExternalStore,
 } from 'react';
 import {
@@ -54,7 +53,6 @@ function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
     subscribeToStorage,
     getThemeSnapshot,
   );
-  const documentRef = useRef(document);
 
   const { isDarkAppearance } = useSystemAppearance();
 
@@ -63,9 +61,9 @@ function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
       const { shouldTriggerViewTransition } = Theme[currentThemeValue];
       if (
         shouldTriggerViewTransition(newThemeValue, isDarkAppearance) &&
-        documentRef.current.startViewTransition
+        document.startViewTransition
       ) {
-        documentRef.current.startViewTransition(() => setTheme(newThemeValue));
+        document.startViewTransition(() => setTheme(newThemeValue));
       } else {
         setTheme(newThemeValue);
       }
@@ -73,7 +71,7 @@ function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
   }
 
   useEffect(() => {
-    documentRef.current
+    document
       .querySelector(META_COLOR_SCHEME_NAME_SELECTOR)
       ?.setAttribute(CONTENT, currentThemeValue);
     setTheme(currentThemeValue);

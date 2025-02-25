@@ -1,4 +1,4 @@
-import { type RefObject, useEffect, useRef } from 'react';
+import { type RefObject, useEffect } from 'react';
 
 function isDOMNode(target: EventTarget | null): target is Node {
   return target instanceof Node;
@@ -8,8 +8,6 @@ function useOnClickOutside(
   refs: RefObject<HTMLElement | null>[],
   onClickOutsideContinuation: (e: Event) => void,
 ): void {
-  const documentRef = useRef(document);
-
   useEffect(() => {
     const listener = (e: Event): void => {
       const { target } = e;
@@ -23,17 +21,17 @@ function useOnClickOutside(
       }
       onClickOutsideContinuation(e);
     };
-    documentRef.current.addEventListener('click', listener, {
+    document.addEventListener('click', listener, {
       capture: true,
     });
-    documentRef.current.addEventListener('touchstart', listener, {
+    document.addEventListener('touchstart', listener, {
       capture: true,
     });
     return (): void => {
-      documentRef.current.removeEventListener('click', listener, {
+      document.removeEventListener('click', listener, {
         capture: true,
       });
-      documentRef.current.removeEventListener('touchstart', listener, {
+      document.removeEventListener('touchstart', listener, {
         capture: true,
       });
     };
