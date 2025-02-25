@@ -2,7 +2,7 @@ import useSystemAppearance from '@/shared/lib/useSystemAppearance';
 import {
   type JSX,
   type PropsWithChildren,
-  useLayoutEffect,
+  useEffect,
   useRef,
   useSyncExternalStore,
 } from 'react';
@@ -72,7 +72,7 @@ function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
     }
   }
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     documentRef.current
       .querySelector(META_COLOR_SCHEME_NAME_SELECTOR)
       ?.setAttribute(CONTENT, currentThemeValue);
