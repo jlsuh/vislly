@@ -1,12 +1,9 @@
-import type { ComponentType, JSX } from 'react';
-import Header from './app/layout/Header.tsx';
-import withProviders from './app/providers/withProviders.tsx';
-import BrownianMotion from './entities/brownian-motion/ui/BrownianMotion.tsx';
+import Layout from '@/app/layout/Layout.tsx';
+import type { JSX } from 'react';
 
 function App(): JSX.Element {
   return (
-    <>
-      <Header />
+    <Layout>
       <h1>Hello world!</h1>
       <h1
         style={{
@@ -39,11 +36,8 @@ function App(): JSX.Element {
       <b>Hello world!</b>
       <br />
       <p>Hello world!</p>
-      <BrownianMotion />
-    </>
+    </Layout>
   );
 }
 
-const AppWithProviders: ComponentType = withProviders(App);
-
-export default AppWithProviders;
+export default App;

@@ -1,10 +1,10 @@
+import AppWithProviders from '@/app/providers/AppWithProviders.tsx';
 import React from 'react';
-import ReactDOM from 'react-dom/client';
-import AppWithProviders from './AppWithProviders.tsx';
+import { createRoot } from 'react-dom/client';
 import './app/styles/entry.css';
 
 document.fonts.ready.then(() => {
-  ReactDOM.createRoot(document.getElementById('genesis') as HTMLElement).render(
+  createRoot(document.getElementById('genesis') as HTMLElement).render(
     <React.StrictMode>
       <AppWithProviders />
     </React.StrictMode>,
