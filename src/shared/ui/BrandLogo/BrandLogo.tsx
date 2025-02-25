@@ -1,9 +1,10 @@
 import type { JSX } from 'react';
+import { Link } from 'react-router';
 import styles from './brand-logo.module.css';
 
 function BrandLogo(): JSX.Element {
   return (
-    <a className={styles.brandLink} href="/">
+    <Link className={styles.brandLink} to="/">
       <svg
         aria-hidden="true"
         fill="none"
@@ -53,7 +54,7 @@ function BrandLogo(): JSX.Element {
         />
       </svg>
       <h1 className={styles.brandTitle}>Visually</h1>
-    </a>
+    </Link>
   );
 }
 
