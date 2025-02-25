@@ -4,7 +4,7 @@ import {
   type PropsWithChildren,
   useLayoutEffect,
   useRef,
-  useState,
+  useSyncExternalStore,
 } from 'react';
 import {
   FALLBACK_THEME_VALUE,
@@ -18,6 +18,7 @@ type ThemeProviderProps = PropsWithChildren;
 
 const CONTENT = 'content';
 const META_COLOR_SCHEME_NAME_SELECTOR = 'meta[name="color-scheme"]';
+const STORAGE = 'storage';
 const THEME_KEY = 'theme';
 
 function isThemeValue(themeValue: string | null): themeValue is ThemeValue {
@@ -29,16 +30,30 @@ function isThemeValue(themeValue: string | null): themeValue is ThemeValue {
   );
 }
 
-const getInitialThemeValue = (): ThemeValue => {
+const getThemeSnapshot = (): ThemeValue => {
   const currentThemeValue = localStorage.getItem(THEME_KEY);
   return isThemeValue(currentThemeValue)
     ? currentThemeValue
     : FALLBACK_THEME_VALUE;
 };
 
+const subscribeToStorage = (callback: () => void): (() => void) => {
+  window.addEventListener(STORAGE, callback);
+  return (): void => {
+    window.removeEventListener(STORAGE, callback);
+  };
+};
+
+const setTheme = (newThemeValue: string): void => {
+  localStorage.setItem(THEME_KEY, newThemeValue);
+  window.dispatchEvent(new Event(STORAGE));
+};
+
 function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
-  const [currentThemeValue, setCurrentThemeValue] =
-    useState(getInitialThemeValue);
+  const currentThemeValue = useSyncExternalStore(
+    subscribeToStorage,
+    getThemeSnapshot,
+  );
   const documentRef = useRef(document);
 
   const { isDarkAppearance } = useSystemAppearance();
@@ -50,13 +65,10 @@ function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
         shouldTriggerViewTransition(newThemeValue, isDarkAppearance) &&
         documentRef.current.startViewTransition
       ) {
-        documentRef.current.startViewTransition(() =>
-          setCurrentThemeValue(newThemeValue),
-        );
+        documentRef.current.startViewTransition(() => setTheme(newThemeValue));
       } else {
-        setCurrentThemeValue(newThemeValue);
+        setTheme(newThemeValue);
       }
-      localStorage.setItem(THEME_KEY, newThemeValue);
     }
   }
 
@@ -64,7 +76,7 @@ function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
     documentRef.current
       .querySelector(META_COLOR_SCHEME_NAME_SELECTOR)
       ?.setAttribute(CONTENT, currentThemeValue);
-    localStorage.setItem(THEME_KEY, currentThemeValue);
+    setTheme(currentThemeValue);
   }, [currentThemeValue]);
 
   return (
