@@ -1,11 +1,12 @@
-import App from '@/App.tsx';
 import { lazy } from 'react';
-import type { RouteObject } from 'react-router';
+import type { DataRouter, RouteObject } from 'react-router';
+import { createBrowserRouter } from 'react-router';
+import Layout from '../layout/Layout.tsx';
 
 const ROUTES: RouteObject[] = [
   {
     path: '/',
-    element: <App />,
+    element: <Layout />,
     children: [
       {
         path: 'brownian-motion',
@@ -17,4 +18,6 @@ const ROUTES: RouteObject[] = [
   },
 ];
 
-export default ROUTES;
+const ROUTER: DataRouter = createBrowserRouter(ROUTES);
+
+export default ROUTER;
