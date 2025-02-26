@@ -1,7 +1,9 @@
-import type BrownianMotion from '@/entities/brownian-motion/ui/BrownianMotion.tsx';
+import type { JSX } from 'react';
 import type { DataRouter, RouteObject } from 'react-router';
 import { createBrowserRouter } from 'react-router';
 import Layout from '../layout/Layout.tsx';
+
+type Loadable = Promise<{ Component: () => JSX.Element }>;
 
 const ROUTES: RouteObject[] = [
   {
@@ -10,7 +12,7 @@ const ROUTES: RouteObject[] = [
     children: [
       {
         path: 'brownian-motion',
-        async lazy(): Promise<{ Component: typeof BrownianMotion }> {
+        async lazy(): Loadable {
           const { default: Component } = await import(
             '@/entities/brownian-motion/ui/BrownianMotion.tsx'
           );
