@@ -1,18 +1,13 @@
 @layer components {
-  .mainContainer {
-    align-items: center;
-    display: flex;
-    justify-content: center;
-    max-height: 100vh;
-    min-height: 100vh;
-    position: relative;
-  }
-
-  .historicalCanvas {
+  .historicalCanvas,
+  .particlesCanvas {
     position: absolute;
   }
 
-  .particlesCanvas {
-    border: 3px solid black;
+  .mainContainer {
+    --border-width: 0.125rem;
+    border: var(--border-width) solid var(--color-outline-variant);
+    max-width: inherit;
+    min-height: calc(40rem + var(--border-width) * 2);
   }
 }
