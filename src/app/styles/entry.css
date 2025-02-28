@@ -6,7 +6,6 @@
 @layer reset {
   * {
     line-height: calc(1em + 0.5rem);
-    margin: 0;
   }
 
   body {
@@ -317,18 +316,20 @@
       ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
       "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
       "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    --mona-sans-font-stack: "Mona Sans", MonaSansFallback;
-    --main-font-stack: var(--mona-sans-font-stack),
+    --mona-sans: "Mona Sans", MonaSansFallback,
       var(--generic-fallback-font-stack);
-
-    --monaspace-font-stack: MonaspaceNeon, MonaspaceNeonFallback,
+    --monaspace: MonaspaceNeon, MonaspaceNeonFallback,
       var(--generic-fallback-font-stack);
 
     h1 {
-      font-family: var(--monaspace-font-stack);
+      font-family: var(--monaspace);
     }
 
-    font-family: var(--main-font-stack);
+    p {
+      font-family: var(--mona-sans);
+    }
+
+    font-family: var(--mona-sans);
     background: var(--color-surface-container-low);
   }
 

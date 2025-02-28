@@ -1,0 +1,16 @@
+@layer components {
+  .content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    margin: 0 auto;
+    max-width: 50rem;
+    padding: 1.25rem;
+  }
+
+  .main {
+    container: main / inline-size;
+    display: flex;
+    gap: 1rem;
+  }
+}
