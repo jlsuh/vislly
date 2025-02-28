@@ -6,15 +6,12 @@ const PREFERS_DARK_COLOR_SCHEME_QUERY = '(prefers-color-scheme: dark)';
 function useSystemAppearance(): {
   isDarkAppearance: boolean;
 } {
-  const getCurrentColorSchemePreference = window.matchMedia(
-    PREFERS_DARK_COLOR_SCHEME_QUERY,
-  ).matches;
-
-  const [isDarkAppearance, setIsDarkAppearance] = useState(
-    getCurrentColorSchemePreference,
-  );
+  const [isDarkAppearance, setIsDarkAppearance] = useState(false);
 
   useEffect(() => {
+    setIsDarkAppearance(
+      window.matchMedia(PREFERS_DARK_COLOR_SCHEME_QUERY).matches,
+    );
     const mediaQueryListListener = ({ matches }: MediaQueryListEvent): void =>
       setIsDarkAppearance(matches);
     const prefersDarkColorSchemeMediaQueryList = window.matchMedia(

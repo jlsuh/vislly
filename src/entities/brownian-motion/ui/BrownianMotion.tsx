@@ -1,11 +1,7 @@
+'use client';
+
 import useResizeDimensions from '@/shared/lib/useResizeDimensions';
-import {
-  type JSX,
-  type MouseEvent,
-  type RefObject,
-  useEffect,
-  useRef,
-} from 'react';
+import { type JSX, type MouseEvent, useEffect } from 'react';
 import {
   type Angle,
   type CoefficientOfRestitution,
@@ -27,14 +23,14 @@ function getRandomBetween(min: Limit, max: Limit): Coord {
 }
 
 function getCanvasCtxByRef(
-  canvasRef: RefObject<HTMLCanvasElement>,
+  canvas: HTMLCanvasElement,
 ): CanvasRenderingContext2D {
   /**
    * Opt-in type assertion:
    * - getContext and 2d context identifier widely supported.
    * - Canvas context mode is always 2d.
    */
-  return canvasRef.current.getContext('2d') as CanvasRenderingContext2D;
+  return canvas.getContext('2d') as CanvasRenderingContext2D;
 }
 
 function drawParticle(
@@ -164,16 +160,16 @@ const RADIUS = 8;
 const DIAMETER = RADIUS * 2;
 
 function BrownianMotion(): JSX.Element {
-  const initialCanvas = document.createElement('canvas');
-  const historicalCanvasRef = useRef(initialCanvas);
-  const particlesCanvasRef = useRef(initialCanvas);
-
   const { dimensions, ref: mainContainerRef } =
     useResizeDimensions(RESIZE_DIMENSIONS);
 
   useEffect(() => {
-    const historicalContext = getCanvasCtxByRef(historicalCanvasRef);
-    const particlesContext = getCanvasCtxByRef(particlesCanvasRef);
+    const historicalContext = getCanvasCtxByRef(
+      document.getElementById('historical') as HTMLCanvasElement,
+    );
+    const particlesContext = getCanvasCtxByRef(
+      document.getElementById('particles') as HTMLCanvasElement,
+    );
     configureHistoricalCanvas(historicalContext);
     const particles = [
       ...composeParticles(1, () => ({
@@ -213,15 +209,15 @@ function BrownianMotion(): JSX.Element {
       <canvas
         className={styles.particlesCanvas}
         height={dimensions.boundedHeight}
+        id="particles"
         onContextMenu={disableContextMenu}
-        ref={particlesCanvasRef}
         width={dimensions.boundedWidth}
       />
       <canvas
         className={styles.historicalCanvas}
         height={dimensions.boundedHeight}
+        id="historical"
         onContextMenu={disableContextMenu}
-        ref={historicalCanvasRef}
         width={dimensions.boundedWidth}
       />
     </div>

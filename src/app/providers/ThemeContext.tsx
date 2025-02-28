@@ -1,3 +1,5 @@
+'use client';
+
 import { type Context, createContext } from 'react';
 import { FALLBACK_THEME_VALUE, type ThemeValue } from '../config/theme.ts';
 

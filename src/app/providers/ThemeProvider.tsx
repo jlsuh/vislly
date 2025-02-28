@@ -1,3 +1,5 @@
+'use client';
+
 import useSystemAppearance from '@/shared/lib/useSystemAppearance';
 import {
   type JSX,
@@ -52,11 +54,15 @@ function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
   const currentThemeValue = useSyncExternalStore(
     subscribeToStorage,
     getThemeSnapshot,
+    () => null,
   );
 
   const { isDarkAppearance } = useSystemAppearance();
 
   function changeTheme(newThemeValue: string): void {
+    if (currentThemeValue === null) {
+      return;
+    }
     if (isThemeValue(newThemeValue)) {
       const { shouldTriggerViewTransition } = Theme[currentThemeValue];
       if (
@@ -71,11 +77,18 @@ function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
   }
 
   useEffect(() => {
+    if (currentThemeValue === null) {
+      return;
+    }
     document
       .querySelector(META_COLOR_SCHEME_NAME_SELECTOR)
       ?.setAttribute(CONTENT, currentThemeValue);
     setTheme(currentThemeValue);
   }, [currentThemeValue]);
+
+  if (currentThemeValue === null) {
+    return <></>;
+  }
 
   return (
     <ThemeContext value={{ changeTheme, currentThemeValue }}>

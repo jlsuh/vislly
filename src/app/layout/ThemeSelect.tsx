@@ -1,3 +1,5 @@
+'use client';
+
 import useOnClickOutside from '@/shared/lib/useOnClickOutside';
 import {
   type JSX,

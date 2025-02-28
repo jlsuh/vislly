@@ -1,40 +1,38 @@
 {
   "name": "visually",
   "version": "0.0.0",
-  "type": "module",
+  "private": true,
   "scripts": {
     "biome:check": "biome check .",
     "biome:ci": "biome ci .",
     "biome:format": "biome check --write --unsafe .",
     "biome:migrate": "biome migrate --write",
-    "build": "tsc --extendedDiagnostics && vite build",
+    "build": "tsc --extendedDiagnostics --erasableSyntaxOnly && next build",
     "depc:ci": "pnpm depc:report && pnpm depc:metrics && pnpm depc:gen",
     "depc:gen": "depcruise -I \"^src\" -T dot ./src | dot -T svg | depcruise-wrap-stream-in-html > ./dependency-graph.html && pnpm depc:open",
     "depc:genl": "depcruise src -I \"^src\" -S 2 -T dot | dot -T svg | depcruise-wrap-stream-in-html > ./dependency-graph.html && pnpm depc:open",
     "depc:metrics": "depcruise ./src --metrics -T metrics",
     "depc:open": "open ./dependency-graph.html || start ./dependency-graph.html",
     "depc:report": "depcruise ./src",
-    "dev": "vite",
-    "preview": "vite preview"
+    "dev": "next dev --turbopack",
+    "preview": "next start"
   },
   "dependencies": {
     "d3": "7.9.0",
     "modern-normalize": "3.0.1",
+    "next": "15.2.0",
     "react": "19.0.0",
-    "react-dom": "19.0.0",
-    "react-router": "7.2.0"
+    "react-dom": "19.0.0"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@types/d3": "7.4.3",
-    "@types/node": "22.13.5",
+    "@types/node": "22.13.7",
     "@types/react": "19.0.10",
     "@types/react-dom": "19.0.4",
-    "@vitejs/plugin-react-swc": "3.8.0",
     "dependency-cruiser": "16.10.0",
     "type-fest": "4.35.0",
-    "typescript": "5.7.3",
-    "vite": "6.2.0"
+    "typescript": "5.8.2"
   },
   "pnpm": {
     "neverBuiltDependencies": []

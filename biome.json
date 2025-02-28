@@ -56,7 +56,6 @@
         "useAriaPropsSupportedByRole": "error",
         "useAtIndex": "error",
         "useCollapsedIf": "error",
-        "useComponentExportOnlyModules": "error",
         "useConsistentCurlyBraces": "error",
         "useConsistentMemberAccessibility": {
           "level": "error",
@@ -102,7 +101,6 @@
         "noEvolvingTypes": "error",
         "noMisplacedAssertion": "error",
         "noSkippedTests": "error",
-        "useAwait": "error",
         "useErrorMessage": "error",
         "useNumberToFixedDigitsArgument": "error"
       }

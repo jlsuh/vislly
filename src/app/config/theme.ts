@@ -5,8 +5,8 @@ import type { JSX } from 'react';
 import type { ReadonlyDeep } from 'type-fest';
 
 const DARK_LIGHT = 'dark light';
-const ONLY_DARK = 'only dark';
-const ONLY_LIGHT = 'only light';
+const ONLY_DARK = 'dark';
+const ONLY_LIGHT = 'light';
 
 type ThemeValue = typeof DARK_LIGHT | typeof ONLY_DARK | typeof ONLY_LIGHT;
 
@@ -28,7 +28,7 @@ type ThemeId =
   | typeof ONLY_DARK_ID
   | typeof ONLY_LIGHT_ID;
 
-interface ThemeType {
+type ThemeType = {
   Icon: () => JSX.Element;
   id: ThemeId;
   label: ThemeLabel;
@@ -37,7 +37,7 @@ interface ThemeType {
     userPrefersDarkTheme: boolean,
   ) => boolean;
   value: ThemeValue;
-}
+};
 
 const Theme: ReadonlyDeep<Record<ThemeValue, ThemeType>> = {
   [DARK_LIGHT]: {
