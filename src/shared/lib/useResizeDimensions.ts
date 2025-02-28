@@ -10,14 +10,12 @@ type ResizeDimensions = {
   /**
    * Will be set to the current height of the ref element if set to 0.
    * Otherwise, height will be fixed to the provided height.
-   *
    * @see {@link useResizeDimensions}
    */
   height: number;
   /**
    * Will be set to the current width of the ref element if set to 0.
    * Otherwise, width will be fixed to the provided width.
-   *
    * @see {@link useResizeDimensions}
    */
   width: number;
@@ -43,8 +41,6 @@ function useResizeDimensions(initialDimensions: ResizeDimensions): {
   const [currentWidth, setCurrentWidth] = useState(0);
   const ref = useRef(null);
 
-  const initialResizeDimensions = composeResizeDimensions(initialDimensions);
-
   useEffect(() => {
     const element = ref.current ?? new Element();
     const resizeObserver = new ResizeObserver((entries) => {
@@ -59,6 +55,8 @@ function useResizeDimensions(initialDimensions: ResizeDimensions): {
     resizeObserver.observe(element);
     return (): void => resizeObserver.unobserve(element);
   }, [currentHeight, currentWidth]);
+
+  const initialResizeDimensions = composeResizeDimensions(initialDimensions);
 
   const dimensions = composeResizeDimensions({
     ...initialResizeDimensions,
