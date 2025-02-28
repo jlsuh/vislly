@@ -1,31 +1,45 @@
 @layer components {
-  .brandLink {
+  .brand {
     align-items: center;
     display: flex;
     gap: 0.5rem;
     text-decoration: none;
     user-select: none;
+    @container header (width >= 18rem) {
+      height: 2.5rem;
+      width: 10rem;
+    }
   }
 
-  .brandPath_fill_colorInverseOnSurfaceDark {
-    fill: var(--color-inverse-on-surface-dark);
+  .brandPath_fill_colorInverseOnSurface {
+    fill: var(--color-inverse-on-surface);
   }
 
-  .brandPath_fill_colorOnSurfaceVariantDark {
-    fill: var(--color-on-surface-variant-dark);
+  .brandPath_fill_colorOnSurfaceVariant {
+    fill: var(--color-on-surface);
   }
 
-  .brandPath_fill_colorOutlineVariantDark {
-    fill: var(--color-outline-variant-dark);
+  .brandPath_fill_colorOutlineVariant {
+    fill: var(--color-outline-variant);
   }
 
-  .brandPath_stroke_colorInverseOnSurfaceDark {
-    stroke: var(--color-inverse-on-surface-dark);
+  .brandPath_stroke_colorInverseOnSurface {
+    stroke: var(--color-inverse-on-surface);
+  }
+
+  .brandEye {
+    height: 2rem;
+    width: 2rem;
+    @container header (width >= 18rem) {
+      height: 2.667rem;
+      width: 2.667rem;
+    }
   }
 
   .brandTitle {
-    color: var(--color-on-surface-variant);
+    color: var(--color-on-surface);
     display: none;
+    fill: var(--color-on-surface);
     user-select: none;
     @container header (width >= 18rem) {
       display: block;
