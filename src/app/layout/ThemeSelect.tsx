@@ -39,9 +39,7 @@ function ThemeSelect(): JSX.Element {
   return (
     <div className={styles.mainContainer} ref={themeSelectRef}>
       <label className={styles.button}>
-        <span className={styles.iconContainer}>
-          <CurrentThemeIcon />
-        </span>
+        <CurrentThemeIcon />
         <input
           className={styles.checkboxInput}
           id="checkbox"
@@ -54,9 +52,7 @@ function ThemeSelect(): JSX.Element {
           {THEME_VALUES.map(({ Icon, id, label, value }) => (
             <li className={styles.listItem} key={id}>
               <label className={styles.listItemLabel}>
-                <span className={styles.iconContainer}>
-                  <Icon />
-                </span>
+                <Icon />
                 <span className={styles.label}>{label}</span>
                 <input
                   className={styles[`${id}Input`]}

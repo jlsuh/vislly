@@ -2,7 +2,7 @@
   .listContainer {
     border-radius: 0.3125rem;
     left: auto;
-    outline: var(--color-outline-variant) solid 1px;
+    outline: var(--color-outline-variant) solid 0.0625rem;
     position: absolute;
     right: 0;
     top: calc(100% + 0.125rem);
@@ -18,7 +18,6 @@
 
   .button {
     align-items: center;
-    background-color: var(--color-surface-container-lowest);
     border-radius: 100%;
     border: none;
     color: var(--color-on-surface-variant);
@@ -39,16 +38,8 @@
     background-color: var(--color-surface-container-high);
   }
 
-  .iconContainer {
-    align-items: center;
-    display: flex;
-    height: 1.25rem;
-    justify-content: center;
-    width: 1.25rem;
-  }
-
   .label {
-    font-size: 14px;
+    font-size: 0.875rem;
   }
 
   .list {
@@ -63,7 +54,7 @@
   }
 
   .listContainer .listItem:not(:last-child) {
-    border-bottom: 1px solid var(--color-outline-variant);
+    border-bottom: 0.0625rem solid var(--color-outline-variant);
   }
 
   .listItemLabel {
@@ -72,7 +63,7 @@
     column-gap: 0.4375rem;
     cursor: pointer;
     display: flex;
-    justify-content: start;
+    justify-content: flex-start;
     padding: 0.35rem 1rem;
     white-space: nowrap;
   }
