@@ -142,10 +142,10 @@ const disableContextMenu = (e: MouseEvent): void => e.preventDefault();
 const RESIZE_DIMENSIONS = {
   boundedHeight: 0,
   boundedWidth: 0,
-  marginBottom: 50,
-  marginLeft: 50,
-  marginRight: 50,
-  marginTop: 50,
+  marginBottom: 0,
+  marginLeft: 0,
+  marginRight: 0,
+  marginTop: 0,
   height: 0,
   width: 0,
 };
