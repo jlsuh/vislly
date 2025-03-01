@@ -1,7 +1,7 @@
 'use client';
 
 import useResizeDimensions from '@/shared/lib/useResizeDimensions';
-import { type JSX, type MouseEvent, useEffect } from 'react';
+import { type JSX, useEffect } from 'react';
 import {
   type Angle,
   type CoefficientOfRestitution,
@@ -132,8 +132,6 @@ function composeParticles(
   );
 }
 
-const disableContextMenu = (e: MouseEvent): void => e.preventDefault();
-
 const RESIZE_DIMENSIONS = {
   boundedHeight: 0,
   boundedWidth: 0,
@@ -171,8 +169,8 @@ function BrownianMotion(): JSX.Element {
         fillColor: RED.toStyle(),
         isTracked: true,
         r: RADIUS * 2.5,
-        vix: Math.random() * INITIAL_SPEED * Math.cos(getRandomAngle()),
-        viy: Math.random() * INITIAL_SPEED * Math.sin(getRandomAngle()),
+        vix: 0,
+        viy: 0,
         x: dimensions.boundedWidth / 2,
         y: dimensions.boundedHeight / 2,
       })),
@@ -205,14 +203,12 @@ function BrownianMotion(): JSX.Element {
         className={styles.particlesCanvas}
         height={dimensions.boundedHeight}
         id="particles"
-        onContextMenu={disableContextMenu}
         width={dimensions.boundedWidth}
       />
       <canvas
         className={styles.historicalCanvas}
         height={dimensions.boundedHeight}
         id="historical"
-        onContextMenu={disableContextMenu}
         width={dimensions.boundedWidth}
       />
     </div>
