@@ -4,13 +4,7 @@ import ThemeIconContainer from '../ThemeIconContainer/ThemeIconContainer.tsx';
 function DarkThemeIcon(): JSX.Element {
   return (
     <ThemeIconContainer>
-      <svg
-        fill="none"
-        height="14"
-        viewBox="0 0 14 14"
-        width="14"
-        xmlns="http://www.w3.org/2000/svg"
-      >
+      <svg fill="none" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
         <title>Always Dark Icon</title>
         <g clipPath="url(#clip0_78_60)">
           <path
