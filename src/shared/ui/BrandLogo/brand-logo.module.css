@@ -28,11 +28,11 @@
   }
 
   .brandEye {
-    height: 2rem;
-    width: 2rem;
+    height: 2.5rem;
+    width: 2.5rem;
     @container header (width >= 18rem) {
-      height: 2.667rem;
-      width: 2.667rem;
+      height: 3.5722rem;
+      width: 3.5722rem;
     }
   }
 
