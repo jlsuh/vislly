@@ -2,7 +2,7 @@
   .brand {
     align-items: center;
     display: flex;
-    gap: 0.5rem;
+    gap: 0.625rem;
     text-decoration: none;
     user-select: none;
     @container header (width >= 18rem) {
