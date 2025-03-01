@@ -25,11 +25,6 @@ function getRandomBetween(min: Limit, max: Limit): Coord {
 function getCanvasCtxByRef(
   canvas: HTMLCanvasElement,
 ): CanvasRenderingContext2D {
-  /**
-   * Opt-in type assertion:
-   * - getContext and 2d context identifier widely supported.
-   * - Canvas context mode is always 2d.
-   */
   return canvas.getContext('2d') as CanvasRenderingContext2D;
 }
 
