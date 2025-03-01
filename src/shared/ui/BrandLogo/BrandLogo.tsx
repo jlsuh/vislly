@@ -14,6 +14,7 @@ function BrandLogo(): JSX.Element {
         <rect
           className={styles.brandPath_fill_colorOnSurfaceVariant}
           height="160"
+          rx="80"
           width="160"
         />
         <path
