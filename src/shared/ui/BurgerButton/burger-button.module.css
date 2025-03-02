@@ -1,0 +1,39 @@
+@layer components {
+  .burger {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    row-gap: 0.3575rem;
+    width: 1.375rem;
+  }
+
+  .burgerInput {
+    display: none;
+  }
+
+  .burgerSpan:nth-of-type(1),
+  .burgerSpan:nth-of-type(3) {
+    transform-origin: left center;
+  }
+
+  .burgerInput:checked ~ .burgerSpan:nth-of-type(1) {
+    transform: rotate(45deg);
+  }
+
+  .burgerInput:checked ~ .burgerSpan:nth-of-type(2) {
+    opacity: 0;
+    width: 0%;
+  }
+
+  .burgerInput:checked ~ .burgerSpan:nth-of-type(3) {
+    transform: rotate(-45deg);
+  }
+
+  .burgerSpan {
+    background: var(--color-on-surface);
+    border-radius: 9px;
+    height: 0.1275rem;
+    transition: .25s ease-in-out;
+  }
+}
