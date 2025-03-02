@@ -1,0 +1,20 @@
+@layer components {
+  .iconButtonContainer {
+    align-items: center;
+    border-radius: 100%;
+    color: var(--color-on-surface-variant);
+    cursor: pointer;
+    display: inline-flex;
+    height: 3rem;
+    justify-content: center;
+    width: 3rem;
+  }
+
+  .iconButtonInput {
+    display: none;
+  }
+
+  .iconButtonContainer:hover {
+    background-color: var(--color-surface-container-high);
+  }
+}
