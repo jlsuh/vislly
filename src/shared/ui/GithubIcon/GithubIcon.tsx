@@ -4,10 +4,10 @@ import styles from './github-icon.module.css';
 function GithubIcon(): JSX.Element {
   return (
     <svg
-      height="2.5rem"
+      height="250"
       preserveAspectRatio="xMidYMid"
       viewBox="0 0 256 250"
-      width="2.5rem"
+      width="256"
       xmlns="http://www.w3.org/2000/svg"
     >
       <title>Github Icon</title>

@@ -8,7 +8,9 @@ function BrandLogo(): JSX.Element {
         aria-hidden="true"
         className={styles.brandEye}
         fill="none"
+        height="160"
         viewBox="0 0 160 160"
+        width="160"
         xmlns="http://www.w3.org/2000/svg"
       >
         <rect
@@ -50,7 +52,9 @@ function BrandLogo(): JSX.Element {
       </svg>
       <svg
         className={styles.brandTitle}
+        height="128"
         viewBox="0 0 629 128"
+        width="629"
         xmlns="http://www.w3.org/2000/svg"
       >
         <title>Visually</title>
