@@ -4,24 +4,24 @@ import styles from './icon-button.module.css';
 type IconButton = PropsWithChildren<{
   inputID: string;
   inputRef?: RefObject<HTMLInputElement | null>;
-  inputStyles?: string;
-  labelStyles?: string;
+  sxInput?: string;
+  sxLabel?: string;
 }>;
 
 function IconButton({
   children,
   inputID,
   inputRef,
-  inputStyles = '',
-  labelStyles = '',
+  sxInput = '',
+  sxLabel = '',
 }: IconButton): JSX.Element {
   return (
     <label
-      className={`${styles.iconButtonContainer} ${labelStyles}`}
+      className={`${styles.iconButtonContainer} ${sxLabel}`}
       htmlFor={inputID}
     >
       <input
-        className={`${styles.iconButtonInput} ${inputStyles}`}
+        className={`${styles.iconButtonInput} ${sxInput}`}
         id={inputID}
         ref={inputRef}
         type="checkbox"

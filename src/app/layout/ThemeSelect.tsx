@@ -42,8 +42,8 @@ function ThemeSelect(): JSX.Element {
       <IconButton
         inputID="theme-icon-button"
         inputRef={checkboxRef}
-        inputStyles={styles.checkboxInput}
-        labelStyles={styles.button}
+        sxInput={styles.checkboxInput}
+        sxLabel={styles.button}
       >
         <CurrentThemeIcon />
       </IconButton>
