@@ -33,7 +33,7 @@
     width: 2.5rem;
     @container header (width >= 18rem) {
       height: auto;
-      width: 3.5rem;
+      width: 2.5rem;
     }
   }
 
@@ -44,6 +44,8 @@
     user-select: none;
     @container header (width >= 18rem) {
       display: block;
+      width: 6.5rem;
+      height: 2rem;
     }
   }
 }

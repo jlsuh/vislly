@@ -379,8 +379,6 @@
 @layer utilities {
   /**
    * @FOIT: font-display swap
-   * @FOUT: document.fonts.ready
-   * @preloaded
    */
   @font-face {
     font-display: swap;
@@ -392,7 +390,7 @@
   }
 
   /**
-   * @fallback: Currently has no effect since document.fonts.ready is adopted
+   * @FOUT
    */
   @font-face {
     font-family: MonaSansFallback;
@@ -402,8 +400,6 @@
 
   /**
    * @FOIT: font-display swap
-   * @FOUT: document.fonts.ready
-   * @preloaded
    */
   @font-face {
     font-display: swap;
@@ -413,7 +409,7 @@
   }
 
   /**
-   * @fallback: Currently has no effect since document.fonts.ready is adopted
+   * @FOUT
    */
   @font-face {
     font-family: MonaspaceNeonFallback;
