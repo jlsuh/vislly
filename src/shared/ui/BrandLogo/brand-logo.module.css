@@ -39,8 +39,8 @@
     fill: var(--color-on-surface);
     user-select: none;
     @container header (width >= 18rem) {
-      display: block;
-      height: 2rem;
+      display: inline-flex;
+      height: 2.5rem;
       width: 6.5rem;
     }
   }
