@@ -1,7 +1,6 @@
 @layer reset.modern-normalize, themes, components, utilities;
 
-@import url("modern-normalize/modern-normalize.css")
-  layer(reset.modern-normalize);
+@import "./modern-normalize.css";
 
 @layer reset {
   * {
