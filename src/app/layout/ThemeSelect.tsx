@@ -1,6 +1,7 @@
 'use client';
 
 import useOnClickOutside from '@/shared/lib/useOnClickOutside';
+import IconButton from '@/shared/ui/IconButton/IconButton.tsx';
 import {
   type JSX,
   type MouseEvent,
@@ -37,16 +38,15 @@ function ThemeSelect(): JSX.Element {
   };
 
   return (
-    <div className={styles.mainContainer} ref={themeSelectRef}>
-      <label className={styles.button}>
+    <div className={styles.themeSelectContainer} ref={themeSelectRef}>
+      <IconButton
+        inputID="theme-icon-button"
+        inputRef={checkboxRef}
+        inputStyles={styles.checkboxInput}
+        labelStyles={styles.button}
+      >
         <CurrentThemeIcon />
-        <input
-          className={styles.checkboxInput}
-          id="checkbox"
-          ref={checkboxRef}
-          type="checkbox"
-        />
-      </label>
+      </IconButton>
       <div className={styles.listContainer}>
         <ul className={styles.list}>
           {THEME_VALUES.map(({ Icon, id, label, value }) => (
