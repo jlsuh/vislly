@@ -1,7 +1,10 @@
 @layer components {
   .sidebar {
     display: none;
-    @container main (width >= 48rem) {
+    /**
+     * Prevent @container stacking context
+     */
+    @media (width >= 48rem) {
       display: block;
       flex-basis: 14rem;
     }

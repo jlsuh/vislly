@@ -9,7 +9,6 @@
   }
 
   .main {
-    container: main / inline-size;
     display: flex;
     gap: 1rem;
   }
