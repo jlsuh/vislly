@@ -45,7 +45,7 @@ const subscribeToStorage = (callback: () => void): (() => void) => {
   };
 };
 
-const setTheme = (newThemeValue: string): void => {
+const applyTheme = (newThemeValue: string): void => {
   localStorage.setItem(THEME_KEY, newThemeValue);
   window.dispatchEvent(new Event(STORAGE));
 };
@@ -69,9 +69,9 @@ function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
         shouldTriggerViewTransition(newThemeValue, isDarkAppearance) &&
         document.startViewTransition
       ) {
-        document.startViewTransition(() => setTheme(newThemeValue));
+        document.startViewTransition(() => applyTheme(newThemeValue));
       } else {
-        setTheme(newThemeValue);
+        applyTheme(newThemeValue);
       }
     }
   }
@@ -83,7 +83,7 @@ function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
     document
       .querySelector(META_COLOR_SCHEME_NAME_SELECTOR)
       ?.setAttribute(CONTENT, currentThemeValue);
-    setTheme(currentThemeValue);
+    applyTheme(currentThemeValue);
   }, [currentThemeValue]);
 
   if (currentThemeValue === null) {
