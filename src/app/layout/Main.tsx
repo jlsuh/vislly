@@ -1,5 +1,5 @@
-import Sidebar from '@/shared/ui/Sidebar/Sidebar.tsx';
 import type { JSX, PropsWithChildren } from 'react';
+import Sidebar from '../ui/Sidebar/Sidebar.tsx';
 import styles from './main.module.css';
 
 type MainProps = PropsWithChildren;

@@ -1,6 +1,6 @@
-import BrandLogo from '@/shared/ui/BrandLogo/BrandLogo';
-import BurgerButton from '@/shared/ui/BurgerButton/BurgerButton.tsx';
 import type { JSX } from 'react';
+import BrandLogo from '../ui/BrandLogo/BrandLogo.tsx';
+import BurgerButton from '../ui/BurgerButton/BurgerButton.tsx';
 import ThemeSelect from '../ui/ThemeSelect/ThemeSelect.tsx';
 import styles from './header.module.css';
 

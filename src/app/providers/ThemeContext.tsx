@@ -1,8 +1,5 @@
-import {
-  FALLBACK_THEME_VALUE,
-  type ThemeValue,
-} from '@/shared/config/theme.ts';
 import { type Context, createContext } from 'react';
+import { FALLBACK_THEME_VALUE, type ThemeValue } from '../config/theme.ts';
 
 type ThemeContextType = {
   changeTheme: (newTheme: string) => void;

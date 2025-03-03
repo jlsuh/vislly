@@ -1,8 +1,6 @@
 'use client';
 
-import { THEME_VALUES, Theme } from '@/shared/config/theme.ts';
 import useOnClickOutside from '@/shared/lib/useOnClickOutside.ts';
-import IconButton from '@/shared/ui/IconButton/IconButton.tsx';
 import {
   type JSX,
   type MouseEvent,
@@ -10,7 +8,9 @@ import {
   use,
   useRef,
 } from 'react';
+import { THEME_VALUES, Theme } from '../../config/theme.ts';
 import ThemeContext from '../../providers/ThemeContext.tsx';
+import IconButton from '../IconButton/IconButton.tsx';
 import styles from './theme-select.module.css';
 
 function ThemeSelect(): JSX.Element {

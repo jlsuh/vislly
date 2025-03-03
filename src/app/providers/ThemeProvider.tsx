@@ -1,11 +1,5 @@
 'use client';
 
-import {
-  FALLBACK_THEME_VALUE,
-  THEME_VALUES,
-  Theme,
-  type ThemeValue,
-} from '@/shared/config/theme.ts';
 import useSystemAppearance from '@/shared/lib/useSystemAppearance';
 import {
   type JSX,
@@ -13,6 +7,12 @@ import {
   useEffect,
   useSyncExternalStore,
 } from 'react';
+import {
+  FALLBACK_THEME_VALUE,
+  THEME_VALUES,
+  Theme,
+  type ThemeValue,
+} from '../config/theme.ts';
 import ThemeContext from './ThemeContext.tsx';
 
 type ThemeProviderProps = PropsWithChildren;
