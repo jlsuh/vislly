@@ -1,7 +1,7 @@
 import BrandLogo from '@/shared/ui/BrandLogo/BrandLogo';
 import BurgerButton from '@/shared/ui/BurgerButton/BurgerButton.tsx';
 import type { JSX } from 'react';
-import ThemeSelect from './ThemeSelect.tsx';
+import ThemeSelectContainer from './ThemeSelectContainer.tsx';
 import styles from './header.module.css';
 
 function Header(): JSX.Element {
@@ -13,7 +13,7 @@ function Header(): JSX.Element {
           <BrandLogo />
         </div>
         <div className={styles.rightContainer}>
-          <ThemeSelect />
+          <ThemeSelectContainer />
         </div>
       </div>
     </header>
