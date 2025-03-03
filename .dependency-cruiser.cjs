@@ -179,6 +179,87 @@ module.exports = {
       },
     },
   ],
+  allowedSeverity: 'error',
+  allowed: [
+    {
+      from: { path: '(^src/app)' },
+      to: {
+        path: [
+          '^$1',
+          '^src/processes',
+          '^src/pages',
+          '^src/widgets',
+          '^src/features',
+          '^src/entities',
+          '^src/shared',
+        ],
+      },
+    },
+    {
+      from: { path: '(^src/processes)' },
+      to: {
+        path: [
+          '^$1',
+          '^src/pages',
+          '^src/widgets',
+          '^src/features',
+          '^src/entities',
+          '^src/shared',
+        ],
+      },
+    },
+    {
+      from: { path: '(^src/pages)' },
+      to: {
+        path: [
+          '^$1',
+          '^src/widgets',
+          '^src/features',
+          '^src/entities',
+          '^src/shared',
+        ],
+      },
+    },
+    {
+      from: { path: '(^src/widgets)' },
+      to: {
+        path: ['^$1', '^src/features', '^src/entities', '^src/shared'],
+      },
+    },
+    {
+      from: { path: '(^src/features)' },
+      to: {
+        path: ['^$1', '^src/entities', '^src/shared'],
+      },
+    },
+    {
+      from: { path: '(^src/entities)' },
+      to: {
+        path: ['^$1', '^src/shared'],
+      },
+    },
+    {
+      from: { path: '(^src/shared)' },
+      to: {
+        path: ['^$1'],
+      },
+    },
+    {
+      // Files outside of established folders can reference any files.
+      from: {
+        pathNot: [
+          '^src/app',
+          '^src/processes',
+          '^src/pages',
+          '^src/widgets',
+          '^src/features',
+          '^src/entities',
+          '^src/shared',
+        ],
+      },
+      to: {},
+    },
+  ],
   options: {
     /* Which modules not to follow further when encountered */
     doNotFollow: {
