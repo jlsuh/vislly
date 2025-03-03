@@ -1,7 +1,7 @@
 import BrandLogo from '@/shared/ui/BrandLogo/BrandLogo';
 import BurgerButton from '@/shared/ui/BurgerButton/BurgerButton.tsx';
 import type { JSX } from 'react';
-import ThemeSelectAdapter from './ThemeSelectAdapter.tsx';
+import ThemeSelectAdapter from '../ui/ThemeSelectAdapter.tsx';
 import styles from './header.module.css';
 
 function Header(): JSX.Element {

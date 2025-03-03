@@ -4,7 +4,7 @@ import useOnClickOutside from '../../lib/useOnClickOutside.ts';
 import IconButton from '../IconButton/IconButton.tsx';
 import styles from './theme-select.module.css';
 
-type ThemeSelect = {
+type ThemeSelectProps = {
   changeTheme: (newTheme: string) => void;
   CurrentThemeIcon: () => JSX.Element;
   currentThemeValue: string;
@@ -14,7 +14,7 @@ function ThemeSelect({
   changeTheme,
   CurrentThemeIcon,
   currentThemeValue,
-}: ThemeSelect): JSX.Element {
+}: ThemeSelectProps): JSX.Element {
   const checkboxRef = useRef<HTMLInputElement>(null);
   const themeSelectRef = useRef<HTMLDivElement>(null);
 
