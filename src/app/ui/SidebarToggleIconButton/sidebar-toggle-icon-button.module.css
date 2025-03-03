@@ -7,11 +7,11 @@
   }
 
   .burgerIcon,
-  .burgerInput:checked ~ .closeIcon {
+  .input:checked ~ .closeIcon {
     display: block;
   }
 
-  .burgerInput:checked ~ .burgerIcon,
+  .input:checked ~ .burgerIcon,
   .closeIcon {
     display: none;
   }
