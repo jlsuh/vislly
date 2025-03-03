@@ -1,22 +1,25 @@
-import { type JSX, type MouseEvent, type PointerEvent, useRef } from 'react';
-import { THEME_VALUES } from '../../config/theme.ts';
-import useOnClickOutside from '../../lib/useOnClickOutside.ts';
-import IconButton from '../IconButton/IconButton.tsx';
+'use client';
+
+import { THEME_VALUES, Theme } from '@/shared/config/theme.ts';
+import useOnClickOutside from '@/shared/lib/useOnClickOutside.ts';
+import IconButton from '@/shared/ui/IconButton/IconButton.tsx';
+import {
+  type JSX,
+  type MouseEvent,
+  type PointerEvent,
+  use,
+  useRef,
+} from 'react';
+import ThemeContext from '../../providers/ThemeContext.tsx';
 import styles from './theme-select.module.css';
 
-type ThemeSelectProps = {
-  changeTheme: (newTheme: string) => void;
-  CurrentThemeIcon: () => JSX.Element;
-  currentThemeValue: string;
-};
-
-function ThemeSelect({
-  changeTheme,
-  CurrentThemeIcon,
-  currentThemeValue,
-}: ThemeSelectProps): JSX.Element {
+function ThemeSelect(): JSX.Element {
   const checkboxRef = useRef<HTMLInputElement>(null);
   const themeSelectRef = useRef<HTMLDivElement>(null);
+
+  const { changeTheme, currentThemeValue } = use(ThemeContext);
+
+  const CurrentThemeIcon = Theme[currentThemeValue].Icon;
 
   const uncheckCheckboxContinuation = (
     _: Event | MouseEvent<HTMLInputElement> | PointerEvent<HTMLInputElement>,
