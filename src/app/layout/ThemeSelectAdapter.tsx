@@ -5,7 +5,7 @@ import ThemeSelect from '@/shared/ui/ThemeSelect/ThemeSelect.tsx';
 import { type JSX, use } from 'react';
 import ThemeContext from '../providers/ThemeContext.tsx';
 
-function ThemeSelectContainer(): JSX.Element {
+function ThemeSelectAdapter(): JSX.Element {
   const { changeTheme, currentThemeValue } = use(ThemeContext);
 
   const CurrentThemeIcon = Theme[currentThemeValue].Icon;
@@ -19,4 +19,4 @@ function ThemeSelectContainer(): JSX.Element {
   );
 }
 
-export default ThemeSelectContainer;
+export default ThemeSelectAdapter;
