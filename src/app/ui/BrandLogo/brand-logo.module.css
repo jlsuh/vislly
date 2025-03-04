@@ -2,7 +2,7 @@
   .brand {
     align-items: center;
     display: flex;
-    gap: 0.625rem;
+    gap: 0.425rem;
     text-decoration: none;
     user-select: none;
   }
