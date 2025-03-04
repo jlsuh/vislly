@@ -4,7 +4,6 @@
     border-radius: 100%;
     color: var(--color-on-surface);
     cursor: pointer;
-    display: inline-flex;
     height: 3rem;
     justify-content: center;
     transition: transform 0.2s;

@@ -5,9 +5,9 @@ function SystemThemeIcon(): JSX.Element {
   return (
     <ThemeIconContainer>
       <svg
-        height="16"
+        height="1rem"
         viewBox="0 0 16 16"
-        width="16"
+        width="1rem"
         xmlns="http://www.w3.org/2000/svg"
       >
         <title>System Icon</title>

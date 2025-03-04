@@ -1,0 +1,79 @@
+@layer components {
+  /* header styles */
+  .header {
+    container: header / inline-size;
+    display: flex;
+    flex-direction: row;
+    height: fit-content;
+    justify-content: space-between;
+    padding: 0.75rem 1.25rem;
+  }
+
+  .leftContainer {
+    align-items: center;
+    column-gap: 0.5rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  .rightContainer {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* main styles */
+  .content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    margin: 0 auto;
+    max-width: 50rem;
+    padding: 1.25rem;
+  }
+
+  .main {
+    display: flex;
+    gap: 1rem;
+  }
+
+  /* sidebar styles */
+  .sidebar {
+    display: none;
+  }
+
+  /**
+   * Prevent @container stacking context
+   */
+  @media (width >= 48rem) {
+    .sidebar {
+      display: block;
+      flex-basis: 14rem;
+    }
+  }
+
+  /* sidebar toggle icon button styles */
+  .burgerIcon,
+  .closeIcon {
+    height: 1.33rem;
+    stroke: var(--color-on-surface);
+    width: 1.33rem;
+  }
+
+  .burgerIcon,
+  .input:checked ~ .closeIcon {
+    display: block;
+  }
+
+  .label,
+  .input:checked ~ .burgerIcon,
+  .closeIcon {
+    display: none;
+  }
+
+  @media (width < 48rem) {
+    .label {
+      display: inline-flex;
+    }
+  }
+}

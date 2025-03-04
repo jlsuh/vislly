@@ -6,9 +6,9 @@ function DarkThemeIcon(): JSX.Element {
     <ThemeIconContainer>
       <svg
         fill="none"
-        height="14"
+        height="0.875rem"
         viewBox="0 0 14 14"
-        width="14"
+        width="0.875rem"
         xmlns="http://www.w3.org/2000/svg"
       >
         <title>Always Dark Icon</title>

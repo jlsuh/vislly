@@ -8,6 +8,10 @@
     top: calc(100% + 0.125rem);
   }
 
+  .button {
+    display: inline-flex;
+  }
+
   .alwaysDarkInput,
   .alwaysLightInput,
   .button:has(.checkboxInput:not(:checked)) ~ .listContainer,
