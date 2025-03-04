@@ -6,7 +6,11 @@ import styles from './sidebar-toggle-icon-button.module.css';
 
 function SidebarToggleButton(): JSX.Element {
   return (
-    <IconButton inputID="sidebar-toggle-icon-button" sxInput={styles.input}>
+    <IconButton
+      inputID="sidebar-toggle-icon-button"
+      sxInput={styles.input}
+      sxLabel={styles.label}
+    >
       <BurgerIcon sx={styles.burgerIcon} />
       <CloseIcon sx={styles.closeIcon} />
     </IconButton>

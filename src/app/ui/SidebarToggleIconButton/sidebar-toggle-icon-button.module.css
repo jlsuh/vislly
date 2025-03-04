@@ -11,8 +11,15 @@
     display: block;
   }
 
+  .label,
   .input:checked ~ .burgerIcon,
   .closeIcon {
     display: none;
+  }
+
+  @media (width < 48rem) {
+    .label {
+      display: flex;
+    }
   }
 }
