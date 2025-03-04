@@ -12,7 +12,7 @@
   }
 
   .brandPath_fill_colorOutline {
-    fill: var(--color-outline);
+    fill: light-dark(var(--color-outline), var(--color-on-primary-container));
   }
 
   .brandPath_stroke_colorOnSurface {
