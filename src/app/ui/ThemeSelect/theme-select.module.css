@@ -29,7 +29,7 @@
   .list {
     background-color: var(--color-surface-container);
     border-radius: 0.3125rem;
-    color: var(--color-on-surface-variant);
+    color: var(--color-on-surface);
     display: flex;
     flex-direction: column;
     list-style-type: none;

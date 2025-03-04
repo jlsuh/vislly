@@ -8,19 +8,22 @@
   }
 
   .brandPath_fill_colorInverseOnSurface {
-    fill: var(--color-inverse-on-surface);
+    fill: var(--color-inverse-on-surface-dark);
   }
 
   .brandPath_fill_colorOnSurfaceVariant {
-    fill: var(--color-on-surface);
+    fill: light-dark(
+      var(--color-surface-container-highest-light),
+      var(--color-on-surface)
+    );
   }
 
   .brandPath_fill_colorOutlineVariant {
-    fill: var(--color-outline-variant);
+    fill: var(--color-outline-variant-dark);
   }
 
   .brandPath_stroke_colorInverseOnSurface {
-    stroke: var(--color-inverse-on-surface);
+    stroke: var(--color-inverse-on-surface-dark);
   }
 
   .brandEye {
@@ -34,7 +37,6 @@
   }
 
   .brandTitle {
-    color: var(--color-on-surface);
     display: none;
     fill: var(--color-on-surface);
     user-select: none;
