@@ -7,14 +7,18 @@
     display: inline-flex;
     height: 3rem;
     justify-content: center;
+    transition: transform 0.2s;
     width: 3rem;
+    &:active {
+      transform: matrix(0.95, 0, 0, 0.95, 0, 0);
+      transition: transform 0.2s;
+    }
+    &:hover {
+      background-color: var(--color-surface-container-high);
+    }
   }
 
   .iconButtonInput {
     display: none;
-  }
-
-  .iconButtonContainer:hover {
-    background-color: var(--color-surface-container-high);
   }
 }
