@@ -7,12 +7,7 @@ import {
   useEffect,
   useSyncExternalStore,
 } from 'react';
-import {
-  FALLBACK_THEME_VALUE,
-  THEME_VALUES,
-  Theme,
-  type ThemeValue,
-} from '../config/theme.ts';
+import { THEME_VALUES, Theme, type ThemeValue } from '../config/theme.ts';
 import ThemeContext from './ThemeContext.tsx';
 
 type ThemeProviderProps = PropsWithChildren;
@@ -31,12 +26,18 @@ function isThemeValue(themeValue: string | null): themeValue is ThemeValue {
   );
 }
 
-const getThemeSnapshot = (): ThemeValue => {
-  const currentThemeValue = localStorage.getItem(THEME_KEY);
-  return isThemeValue(currentThemeValue)
-    ? currentThemeValue
-    : FALLBACK_THEME_VALUE;
-};
+function getThemeSnapshot(prefersDarkColorScheme: boolean) {
+  return (): ThemeValue => {
+    const currentThemeValue = localStorage.getItem(THEME_KEY);
+    if (isThemeValue(currentThemeValue)) {
+      return currentThemeValue;
+    }
+    if (prefersDarkColorScheme) {
+      return Theme.dark.value;
+    }
+    return Theme.light.value;
+  };
+}
 
 const subscribeToStorage = (callback: () => void): (() => void) => {
   window.addEventListener(STORAGE, callback);
@@ -51,28 +52,23 @@ const applyTheme = (newThemeValue: string): void => {
 };
 
 function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
+  const { prefersDarkColorScheme } = useSystemAppearance();
+
   const currentThemeValue = useSyncExternalStore(
     subscribeToStorage,
-    getThemeSnapshot,
+    getThemeSnapshot(prefersDarkColorScheme),
     () => null,
   );
 
-  const { isDarkAppearance } = useSystemAppearance();
-
-  function changeTheme(newThemeValue: string): void {
+  function toggleTheme(): void {
     if (currentThemeValue === null) {
       return;
     }
-    if (isThemeValue(newThemeValue)) {
-      const { shouldTriggerViewTransition } = Theme[currentThemeValue];
-      if (
-        shouldTriggerViewTransition(newThemeValue, isDarkAppearance) &&
-        document.startViewTransition
-      ) {
-        document.startViewTransition(() => applyTheme(newThemeValue));
-      } else {
-        applyTheme(newThemeValue);
-      }
+    const newThemeValue = Theme[currentThemeValue].next;
+    if (document.startViewTransition) {
+      document.startViewTransition(() => applyTheme(newThemeValue));
+    } else {
+      applyTheme(newThemeValue);
     }
   }
 
@@ -80,10 +76,13 @@ function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
     if (currentThemeValue === null) {
       return;
     }
-    document
-      .querySelector(META_COLOR_SCHEME_NAME_SELECTOR)
-      ?.setAttribute(CONTENT, currentThemeValue);
-    applyTheme(currentThemeValue);
+    const metaColorScheme = document.querySelector(
+      META_COLOR_SCHEME_NAME_SELECTOR,
+    );
+    if (metaColorScheme === null) {
+      return;
+    }
+    metaColorScheme.setAttribute(CONTENT, currentThemeValue);
   }, [currentThemeValue]);
 
   if (currentThemeValue === null) {
@@ -91,7 +90,7 @@ function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
   }
 
   return (
-    <ThemeContext value={{ changeTheme, currentThemeValue }}>
+    <ThemeContext value={{ currentThemeValue, toggleTheme }}>
       {children}
     </ThemeContext>
   );

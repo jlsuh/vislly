@@ -4,16 +4,16 @@ const CHANGE_EVENT = 'change';
 const PREFERS_DARK_COLOR_SCHEME_QUERY = '(prefers-color-scheme: dark)';
 
 function useSystemAppearance(): {
-  isDarkAppearance: boolean;
+  prefersDarkColorScheme: boolean;
 } {
-  const [isDarkAppearance, setIsDarkAppearance] = useState(false);
+  const [prefersDarkColorScheme, setPrefersDarkColorScheme] = useState(false);
 
   useEffect(() => {
-    setIsDarkAppearance(
+    setPrefersDarkColorScheme(
       window.matchMedia(PREFERS_DARK_COLOR_SCHEME_QUERY).matches,
     );
     const mediaQueryListListener = ({ matches }: MediaQueryListEvent): void =>
-      setIsDarkAppearance(matches);
+      setPrefersDarkColorScheme(matches);
     const prefersDarkColorSchemeMediaQueryList = window.matchMedia(
       PREFERS_DARK_COLOR_SCHEME_QUERY,
     );
@@ -30,7 +30,7 @@ function useSystemAppearance(): {
       );
   }, []);
 
-  return { isDarkAppearance };
+  return { prefersDarkColorScheme };
 }
 
 export default useSystemAppearance;

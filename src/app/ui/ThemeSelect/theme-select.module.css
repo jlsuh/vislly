@@ -1,59 +1,15 @@
 @layer components {
-  .listContainer {
-    border-radius: 0.3125rem;
-    left: auto;
-    outline: var(--color-outline-variant) solid 0.0625rem;
-    position: absolute;
-    right: 0;
-    top: calc(100% + 0.125rem);
-  }
-
   .button {
     display: inline-flex;
   }
 
-  .alwaysDarkInput,
-  .alwaysLightInput,
-  .button:has(.checkboxInput:not(:checked)) ~ .listContainer,
-  .checkboxInput,
-  .systemInput {
-    display: none;
-  }
-
   .button:has(.checkboxInput:checked),
-  .button:hover,
-  .listItemLabel:hover {
+  .button:hover {
     background-color: var(--color-surface-container-high);
   }
 
-  .label {
-    font-size: 0.875rem;
-  }
-
-  .list {
-    background-color: var(--color-surface-container);
-    border-radius: 0.3125rem;
-    color: var(--color-on-surface);
-    display: flex;
-    flex-direction: column;
-    list-style-type: none;
-    margin: 0;
-    padding: 0.5rem;
-  }
-
-  .listContainer .listItem:not(:last-child) {
-    border-bottom: 0.0625rem solid var(--color-outline-variant);
-  }
-
-  .listItemLabel {
-    align-items: center;
-    border-radius: 0.25rem;
-    column-gap: 0.4375rem;
-    cursor: pointer;
-    display: flex;
-    justify-content: flex-start;
-    padding: 0.35rem 1rem;
-    white-space: nowrap;
+  .checkboxInput {
+    display: none;
   }
 
   .themeSelectContainer {

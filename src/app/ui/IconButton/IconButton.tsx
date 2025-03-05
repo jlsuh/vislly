@@ -1,9 +1,9 @@
-import type { JSX, PropsWithChildren, RefObject } from 'react';
+import type { JSX, PropsWithChildren } from 'react';
 import styles from './icon-button.module.css';
 
-type IconButton = PropsWithChildren<{
+type IconButtonProps = PropsWithChildren<{
   inputID: string;
-  inputRef?: RefObject<HTMLInputElement | null>;
+  onChangeIconButton?: () => void;
   sxInput?: string;
   sxLabel?: string;
 }>;
@@ -11,19 +11,19 @@ type IconButton = PropsWithChildren<{
 function IconButton({
   children,
   inputID,
-  inputRef,
+  onChangeIconButton,
   sxInput = '',
   sxLabel = '',
-}: IconButton): JSX.Element {
+}: IconButtonProps): JSX.Element {
   return (
     <label
       className={`${styles.iconButtonContainer} ${sxLabel}`}
       htmlFor={inputID}
+      onChange={onChangeIconButton}
     >
       <input
         className={`${styles.iconButtonInput} ${sxInput}`}
         id={inputID}
-        ref={inputRef}
         type="checkbox"
       />
       {children}

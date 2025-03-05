@@ -2,90 +2,31 @@ import type { JSX } from 'react';
 import type { ReadonlyDeep } from 'type-fest';
 import DarkThemeIcon from '../ui/DarkThemeIcon/DarkThemeIcon.tsx';
 import LightThemeIcon from '../ui/LightThemeIcon/LightThemeIcon.tsx';
-import SystemThemeIcon from '../ui/SystemThemeIcon/SystemThemeIcon.tsx';
 
-const DARK_LIGHT = 'dark light';
 const ONLY_DARK = 'dark';
 const ONLY_LIGHT = 'light';
 
-type ThemeValue = typeof DARK_LIGHT | typeof ONLY_DARK | typeof ONLY_LIGHT;
-
-const DARK_LIGHT_LABEL = 'System';
-const ONLY_DARK_LABEL = 'Always Dark';
-const ONLY_LIGHT_LABEL = 'Always Light';
-
-type ThemeLabel =
-  | typeof DARK_LIGHT_LABEL
-  | typeof ONLY_DARK_LABEL
-  | typeof ONLY_LIGHT_LABEL;
-
-const DARK_LIGHT_ID = 'system';
-const ONLY_DARK_ID = 'alwaysDark';
-const ONLY_LIGHT_ID = 'alwaysLight';
-
-type ThemeId =
-  | typeof DARK_LIGHT_ID
-  | typeof ONLY_DARK_ID
-  | typeof ONLY_LIGHT_ID;
+type ThemeValue = typeof ONLY_DARK | typeof ONLY_LIGHT;
 
 type ThemeType = {
   Icon: () => JSX.Element;
-  id: ThemeId;
-  label: ThemeLabel;
-  shouldTriggerViewTransition: (
-    targetTheme: ThemeValue,
-    userPrefersDarkTheme: boolean,
-  ) => boolean;
+  next: ThemeValue;
   value: ThemeValue;
 };
 
 const Theme: ReadonlyDeep<Record<ThemeValue, ThemeType>> = {
-  [DARK_LIGHT]: {
-    Icon: SystemThemeIcon,
-    id: DARK_LIGHT_ID,
-    label: DARK_LIGHT_LABEL,
-    shouldTriggerViewTransition(
-      targetTheme: ThemeValue,
-      userPrefersDarkTheme: boolean,
-    ): boolean {
-      return userPrefersDarkTheme
-        ? targetTheme === ONLY_LIGHT
-        : targetTheme === ONLY_DARK;
-    },
-    value: DARK_LIGHT,
-  },
   [ONLY_LIGHT]: {
     Icon: LightThemeIcon,
-    id: ONLY_LIGHT_ID,
-    label: ONLY_LIGHT_LABEL,
-    shouldTriggerViewTransition(
-      targetTheme: ThemeValue,
-      userPrefersDarkTheme: boolean,
-    ): boolean {
-      return userPrefersDarkTheme
-        ? targetTheme !== ONLY_LIGHT
-        : targetTheme === ONLY_DARK;
-    },
+    next: ONLY_DARK,
     value: ONLY_LIGHT,
   },
   [ONLY_DARK]: {
     Icon: DarkThemeIcon,
-    id: ONLY_DARK_ID,
-    label: ONLY_DARK_LABEL,
-    shouldTriggerViewTransition(
-      targetTheme: ThemeValue,
-      userPrefersDarkTheme: boolean,
-    ): boolean {
-      return userPrefersDarkTheme
-        ? targetTheme === ONLY_LIGHT
-        : targetTheme !== ONLY_DARK;
-    },
+    next: ONLY_LIGHT,
     value: ONLY_DARK,
   },
 };
 
-const FALLBACK_THEME_VALUE: ThemeValue = DARK_LIGHT;
-
 const THEME_VALUES: ReadonlyDeep<ThemeType[]> = Object.values(Theme);
 
-export { FALLBACK_THEME_VALUE, Theme, THEME_VALUES, type ThemeValue };
+export { Theme, THEME_VALUES, type ThemeValue };
