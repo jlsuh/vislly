@@ -1,14 +1,16 @@
 import type { JSX } from 'react';
 import ThemeIconContainer from '../ThemeIconContainer/ThemeIconContainer.tsx';
+import styles from './light-theme-icon.module.css';
 
 function LightThemeIcon(): JSX.Element {
   return (
     <ThemeIconContainer>
       <svg
+        className={styles.lightThemeIcon}
         fill="currentColor"
-        height="1rem"
+        height="16"
         viewBox="0 0 16 16"
-        width="1rem"
+        width="16"
         xmlns="http://www.w3.org/2000/svg"
       >
         <title>Always Light Icon</title>

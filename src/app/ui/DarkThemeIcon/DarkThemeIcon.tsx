@@ -1,14 +1,16 @@
 import type { JSX } from 'react';
 import ThemeIconContainer from '../ThemeIconContainer/ThemeIconContainer.tsx';
+import styles from './dark-theme-icon.module.css';
 
 function DarkThemeIcon(): JSX.Element {
   return (
     <ThemeIconContainer>
       <svg
+        className={styles.darkThemeIcon}
         fill="none"
-        height="0.875rem"
+        height="14"
         viewBox="0 0 14 14"
-        width="0.875rem"
+        width="14"
         xmlns="http://www.w3.org/2000/svg"
       >
         <title>Always Dark Icon</title>

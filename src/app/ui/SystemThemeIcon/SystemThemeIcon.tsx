@@ -1,13 +1,15 @@
 import type { JSX } from 'react';
 import ThemeIconContainer from '../ThemeIconContainer/ThemeIconContainer.tsx';
+import styles from './system-theme-icon.module.css';
 
 function SystemThemeIcon(): JSX.Element {
   return (
     <ThemeIconContainer>
       <svg
-        height="1rem"
+        className={styles.systemThemeIcon}
+        height="16"
         viewBox="0 0 16 16"
-        width="1rem"
+        width="16"
         xmlns="http://www.w3.org/2000/svg"
       >
         <title>System Icon</title>
