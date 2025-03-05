@@ -1,7 +1,7 @@
 @layer components {
   /* header styles */
-  .header {
-    container: header / inline-size;
+  .headerContainer {
+    container: headerContainer / inline-size;
     display: flex;
     flex-direction: row;
     height: fit-content;

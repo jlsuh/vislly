@@ -23,7 +23,7 @@
     border-radius: 100%;
     height: 2.5rem;
     width: 2.5rem;
-    @container header (width >= 18rem) {
+    @container headerContainer (width >= 18rem) {
       height: auto;
       width: 2.5rem;
     }
@@ -33,7 +33,7 @@
     display: none;
     fill: var(--color-on-surface);
     user-select: none;
-    @container header (width >= 18rem) {
+    @container headerContainer (width >= 18rem) {
       display: inline-flex;
       height: 2.5rem;
       width: 6.5rem;

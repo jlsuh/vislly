@@ -9,8 +9,8 @@ import ThemeSelect from './ui/ThemeSelect/ThemeSelect.tsx';
 function App({ children }: PropsWithChildren): JSX.Element {
   return (
     <>
-      <header>
-        <div className={styles.header}>
+      <header className={styles.header}>
+        <div className={styles.headerContainer}>
           <div className={styles.leftContainer}>
             <IconButton
               inputID="sidebar-toggle-icon-button"
