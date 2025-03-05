@@ -3,7 +3,6 @@
     display: inline-flex;
   }
 
-  .button:has(.checkboxInput:checked),
   .button:hover {
     background-color: var(--color-surface-container-high);
   }
