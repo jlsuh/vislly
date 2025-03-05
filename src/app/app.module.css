@@ -47,7 +47,7 @@
    */
   @media (width >= 48rem) {
     .sidebar {
-      display: block;
+      display: flex;
       flex-basis: 14rem;
     }
   }
@@ -74,6 +74,27 @@
   @media (width < 48rem) {
     .label {
       display: inline-flex;
+    }
+
+    .sidebar {
+      background-color: var(--color-surface-container-low);
+      border-top: 1px solid var(--color-outline-variant);
+      display: none;
+      height: 100vh;
+      position: absolute;
+      width: 100vw;
+      z-index: 1;
+    }
+
+    /* show/hide sidebar styles */
+    .header:has(.input:checked) ~ .main > .sidebar {
+      display: flex;
+    }
+
+    .header:has(.input:checked) ~ .main > .content {
+      height: 0;
+      opacity: 0;
+      width: 0;
     }
   }
 }
