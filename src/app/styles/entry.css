@@ -14,7 +14,6 @@
   :root,
   body {
     overflow-wrap: anywhere;
-    overflow-x: hidden;
   }
 }
 
