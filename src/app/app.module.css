@@ -101,7 +101,7 @@
     .header:has(.input:checked) ~ .main > .content {
       height: 0;
       opacity: 0;
-      width: 0;
+      position: fixed;
     }
   }
 }
