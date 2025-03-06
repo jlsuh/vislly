@@ -51,8 +51,12 @@
    */
   @media (width >= 48rem) {
     .sidebar {
+      align-self: flex-start;
       display: flex;
       flex-basis: 14rem;
+      position: -webkit-sticky;
+      position: sticky;
+      top: calc(4rem + 8px);
     }
 
     .main {
