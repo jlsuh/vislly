@@ -29,7 +29,7 @@ function App({ children }: PropsWithChildren): JSX.Element {
       </header>
       <main className={styles.main}>
         <nav className={styles.sidebar}>
-          <ul>
+          <ul className={styles.sidebarList}>
             <li>
               <span>Home</span>
             </li>
@@ -43,6 +43,10 @@ function App({ children }: PropsWithChildren): JSX.Element {
         </nav>
         <div className={styles.content}>{children}</div>
       </main>
+      <footer className={styles.footer}>
+        <p>© 2025</p>
+        <p>All rights reserved.</p>
+      </footer>
     </>
   );
 }

@@ -6,7 +6,7 @@
     position: sticky;
     top: 0;
     width: 100%;
-    z-index: 2;
+    z-index: 1;
   }
 
   .headerContainer {
@@ -50,13 +50,20 @@
    * Prevent @container stacking context
    */
   @media (width >= 48rem) {
+    .sidebarList {
+      height: fit-content;
+    }
+
     .sidebar {
+      --top-offset: calc(4rem + 8px);
       align-self: flex-start;
       display: flex;
       flex-basis: 14rem;
+      max-height: calc(100vh - var(--top-offset));
+      overflow-y: auto;
       position: -webkit-sticky;
       position: sticky;
-      top: calc(4rem + 8px);
+      top: var(--top-offset);
     }
 
     .main {
@@ -109,6 +116,10 @@
       height: 0;
       opacity: 0;
       position: fixed;
+    }
+
+    .header:has(.input:checked) ~ .footer {
+      display: none;
     }
   }
 }
