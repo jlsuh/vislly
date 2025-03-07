@@ -1,4 +1,8 @@
 @layer components {
+  :root:has(.input:checked) {
+    scrollbar-width: none;
+  }
+
   .burgerIcon,
   .closeIcon {
     height: 1.33rem;
@@ -37,8 +41,12 @@
     border-bottom: 1px solid var(--color-outline-variant);
   }
 
+  .header:has(.input:checked) ~ .main > .content {
+    opacity: 0;
+  }
+
   .sidebar {
-    --top-offset: calc(4rem + 10px);
+    --top-offset: calc(4rem + 8px);
     background-color: var(--color-surface-container-low);
     display: none;
     height: calc(100vh - var(--top-offset));
@@ -93,7 +101,7 @@
    */
   @media (width >= 48rem) {
     :root:has(.input:checked) {
-      overflow: unset;
+      scrollbar-width: unset;
     }
 
     .header:has(.input:checked) ~ .footer {
