@@ -41,9 +41,11 @@
     display: none;
   }
 
-  .header:has(.input:checked) ~ .main > .content {
-    opacity: 0;
-  }
+  /* .header:has(.input:checked) ~ .main > .content { */
+  /* height: 0; */
+  /* opacity: 0; */
+  /* position: fixed; */
+  /* } */
 
   :root:has(.input:checked) {
     overflow: hidden;
@@ -51,11 +53,11 @@
 
   .sidebar {
     --top-offset: calc(4rem + 10px);
-    -webkit-overflow-scrolling: touch;
+    /* -webkit-overflow-scrolling: touch; */
     background-color: var(--color-surface-container-low);
     display: none;
     height: calc(100vh - var(--top-offset));
-    overflow-x: hidden;
+    /* overflow-x: hidden; */
     overflow-y: scroll;
     position: fixed;
     width: 100vw;
@@ -129,7 +131,7 @@
 
     .sidebar {
       --top-offset: calc(4rem + 8px);
-      align-self: flex-start;
+      /* align-self: flex-start; */
       display: unset;
       flex-basis: 14rem;
       height: unset;
