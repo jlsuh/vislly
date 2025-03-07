@@ -108,6 +108,10 @@
    * Prevent @container stacking context
    */
   @media (width >= 48rem) {
+    :root:has(.input:checked) {
+      overflow: unset;
+    }
+
     .header:has(.input:checked) ~ .footer {
       display: unset;
     }
