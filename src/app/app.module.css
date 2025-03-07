@@ -99,14 +99,14 @@
    * Prevent @container stacking context
    */
   @media (width >= 48rem) {
+    .header:has(.input:checked) ~ .footer {
+      display: unset;
+    }
+
     .header:has(.input:checked) ~ .main > .content {
       height: unset;
       opacity: unset;
       position: unset;
-    }
-
-    .header:has(.input:checked) ~ .footer {
-      display: unset;
     }
 
     .label,
