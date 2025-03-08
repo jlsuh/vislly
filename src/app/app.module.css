@@ -24,13 +24,37 @@
     padding: 1.25rem;
   }
 
-  .footer {
-    padding: 2rem;
-  }
-
   .header,
   .sidebar {
     background-color: var(--color-surface-container-low);
+  }
+
+  .sidebar {
+    --top-offset: calc(4rem + 8px);
+    height: calc(100vh - var(--top-offset));
+    overflow-y: auto;
+    position: fixed;
+    width: 100vw;
+    z-index: 1;
+  }
+
+  .sidebar,
+  .input:checked ~ .burgerIcon,
+  .closeIcon {
+    display: none;
+  }
+
+  .content,
+  .main,
+  .header:has(.input:checked) ~ .main > .sidebar,
+  .headerContainer,
+  .leftContainer,
+  .rightContainer {
+    display: flex;
+  }
+
+  .footer {
+    padding: 2rem;
   }
 
   .header {
@@ -50,35 +74,6 @@
     opacity: 0;
   }
 
-  .sidebar,
-  .input:checked ~ .burgerIcon,
-  .closeIcon {
-    display: none;
-  }
-
-  .sidebar {
-    --top-offset: calc(4rem + 8px);
-    height: calc(100vh - var(--top-offset));
-    overflow-y: auto;
-    position: fixed;
-    width: 100vw;
-    z-index: 1;
-  }
-
-  .content,
-  .main,
-  .header:has(.input:checked) ~ .main > .sidebar,
-  .headerContainer,
-  .leftContainer,
-  .rightContainer {
-    display: flex;
-  }
-
-  .headerContainer,
-  .sidebarList {
-    height: fit-content;
-  }
-
   .headerContainer {
     container: headerContainer / inline-size;
     flex-direction: row;
@@ -86,18 +81,23 @@
     padding: 0.75rem 1.25rem;
   }
 
+  .headerContainer,
+  .sidebarList {
+    height: fit-content;
+  }
+
   .label {
     display: inline-flex;
+  }
+
+  .leftContainer {
+    gap: 0.5rem;
   }
 
   .leftContainer,
   .rightContainer {
     align-items: center;
     justify-content: center;
-  }
-
-  .leftContainer {
-    gap: 0.5rem;
   }
 
   .sidebarList {
@@ -113,22 +113,18 @@
       scrollbar-width: unset;
     }
 
-    .sidebar {
-      display: unset;
-    }
-
     .header:has(.input:checked) ~ .footer,
     .header:has(.input:checked) ~ .main > .content {
       opacity: unset;
     }
 
+    .header:has(.input:checked) ~ .main > .content {
+      position: unset;
+    }
+
     .header:has(.input:checked) ~ .main > .content,
     .sidebar {
       height: unset;
-    }
-
-    .header:has(.input:checked) ~ .main > .content {
-      position: unset;
     }
 
     .label {
@@ -137,6 +133,10 @@
 
     .main {
       gap: 1rem;
+    }
+
+    .sidebar {
+      display: unset;
     }
 
     .sidebar {
