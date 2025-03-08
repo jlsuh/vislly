@@ -31,11 +31,6 @@
       & ~ .main > .content {
         opacity: unset;
       }
-
-      & ~ .main > .content {
-        position: unset;
-        height: unset;
-      }
     }
   }
 }
