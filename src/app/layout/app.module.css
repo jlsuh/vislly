@@ -12,11 +12,6 @@
     padding: 1.25rem;
   }
 
-  .header,
-  .sidebar {
-    background-color: var(--color-surface-container-low);
-  }
-
   .sidebar {
     --top-offset: calc(4rem + 8px);
     display: none;
@@ -41,6 +36,7 @@
   }
 
   .header {
+    background-color: var(--color-surface-container-low);
     position: -webkit-sticky;
     position: sticky;
     top: 0;
