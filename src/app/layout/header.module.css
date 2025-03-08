@@ -1,0 +1,25 @@
+@layer components {
+  .headerContainer {
+    container: headerContainer / inline-size;
+    flex-direction: row;
+    height: fit-content;
+    justify-content: space-between;
+    padding: 0.75rem 1.25rem;
+  }
+
+  .headerContainer,
+  .leftContainer,
+  .rightContainer {
+    display: flex;
+  }
+
+  .leftContainer {
+    gap: 0.5rem;
+  }
+
+  .leftContainer,
+  .rightContainer {
+    align-items: center;
+    justify-content: center;
+  }
+}
