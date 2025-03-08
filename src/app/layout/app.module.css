@@ -4,10 +4,6 @@
     scrollbar-width: none;
   }
 
-  .footer {
-    padding: 2rem;
-  }
-
   .header:has(.input:checked) {
     border-bottom: 1px solid var(--color-outline-variant);
 

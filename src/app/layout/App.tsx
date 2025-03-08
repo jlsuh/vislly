@@ -1,4 +1,5 @@
 import type { JSX, PropsWithChildren } from 'react';
+import Footer from './Footer.tsx';
 import Header from './Header.tsx';
 import Main from './Main.tsx';
 import styles from './app.module.css';
@@ -14,10 +15,7 @@ function App({ children }: PropsWithChildren): JSX.Element {
       >
         {children}
       </Main>
-      <footer className={styles.footer}>
-        <p>© 2025</p>
-        <p>All rights reserved.</p>
-      </footer>
+      <Footer sxFooter={styles.footer} />
     </>
   );
 }
