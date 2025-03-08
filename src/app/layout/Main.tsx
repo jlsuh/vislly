@@ -1,0 +1,195 @@
+import type { JSX, PropsWithChildren } from 'react';
+import styles from './main.module.css';
+
+type MainProps = PropsWithChildren<{
+  sxContent: string;
+  sxMain: string;
+  sxSidebar: string;
+}>;
+
+function Main({
+  children,
+  sxContent,
+  sxMain,
+  sxSidebar,
+}: MainProps): JSX.Element {
+  return (
+    <main className={`${styles.main} ${sxMain}`}>
+      <nav className={`${styles.sidebar} ${sxSidebar}`}>
+        <ul className={styles.sidebarList}>
+          <li>
+            <span>Home</span>
+          </li>
+          <li>
+            <span>Profile</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Contact</span>
+          </li>
+          <li>
+            <span>Last</span>
+          </li>
+        </ul>
+      </nav>
+      <div className={`${styles.content} ${sxContent}`}>{children}</div>
+    </main>
+  );
+}
+
+export default Main;

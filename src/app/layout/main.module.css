@@ -1,0 +1,50 @@
+@layer components {
+  .content {
+    flex-direction: column;
+    flex: 1;
+    margin: 0 auto;
+    max-width: 50rem;
+    padding: 1.25rem;
+  }
+
+  .content,
+  .main {
+    display: flex;
+  }
+
+  .sidebar {
+    --top-offset: calc(4rem + 8px);
+    display: none;
+    height: calc(100vh - var(--top-offset));
+    overflow-y: auto;
+    position: fixed;
+    width: 100vw;
+    z-index: 1;
+  }
+
+  .sidebarList {
+    height: fit-content;
+    width: inherit;
+  }
+
+  @media (width >= 48rem) {
+    .main {
+      gap: 1rem;
+    }
+
+    .sidebar {
+      display: unset;
+      flex-basis: 14rem;
+      height: unset;
+      max-height: calc(100vh - var(--top-offset));
+      position: -webkit-sticky;
+      position: sticky;
+      top: var(--top-offset);
+      width: unset;
+    }
+
+    .sidebarList {
+      width: 100%;
+    }
+  }
+}
