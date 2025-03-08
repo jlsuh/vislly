@@ -1,0 +1,28 @@
+@layer components {
+  .burgerIcon,
+  .closeIcon {
+    height: 1.33rem;
+    stroke: var(--color-on-surface);
+    width: 1.33rem;
+  }
+
+  .burgerIcon,
+  .input:checked ~ .closeIcon {
+    display: block;
+  }
+
+  .input:checked ~ .burgerIcon,
+  .closeIcon {
+    display: none;
+  }
+
+  .label {
+    display: inline-flex;
+  }
+
+  @media (width >= 48rem) {
+    .label {
+      display: none;
+    }
+  }
+}

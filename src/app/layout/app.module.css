@@ -4,18 +4,6 @@
     scrollbar-width: none;
   }
 
-  .burgerIcon,
-  .closeIcon {
-    height: 1.33rem;
-    stroke: var(--color-on-surface);
-    width: 1.33rem;
-  }
-
-  .burgerIcon,
-  .input:checked ~ .closeIcon {
-    display: block;
-  }
-
   .content {
     flex-direction: column;
     flex: 1;
@@ -31,17 +19,12 @@
 
   .sidebar {
     --top-offset: calc(4rem + 8px);
+    display: none;
     height: calc(100vh - var(--top-offset));
     overflow-y: auto;
     position: fixed;
     width: 100vw;
     z-index: 1;
-  }
-
-  .sidebar,
-  .input:checked ~ .burgerIcon,
-  .closeIcon {
-    display: none;
   }
 
   .content,
@@ -86,10 +69,6 @@
     height: fit-content;
   }
 
-  .label {
-    display: inline-flex;
-  }
-
   .leftContainer {
     gap: 0.5rem;
   }
@@ -127,19 +106,12 @@
       height: unset;
     }
 
-    .label {
-      display: none;
-    }
-
     .main {
       gap: 1rem;
     }
 
     .sidebar {
       display: unset;
-    }
-
-    .sidebar {
       flex-basis: 14rem;
       max-height: calc(100vh - var(--top-offset));
       position: -webkit-sticky;

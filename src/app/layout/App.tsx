@@ -1,8 +1,6 @@
 import type { JSX, PropsWithChildren } from 'react';
 import BrandLogo from '../ui/BrandLogo/BrandLogo.tsx';
-import BurgerIcon from '../ui/BurgerIcon/BurgerIcon.tsx';
-import CloseIcon from '../ui/CloseIcon/CloseIcon.tsx';
-import IconButton from '../ui/IconButton/IconButton.tsx';
+import SidebarIconButton from '../ui/SidebarIconButton/SidebarIconButton.tsx';
 import ThemeSelect from '../ui/ThemeSelect/ThemeSelect.tsx';
 import styles from './app.module.css';
 
@@ -12,14 +10,7 @@ function App({ children }: PropsWithChildren): JSX.Element {
       <header className={styles.header}>
         <div className={styles.headerContainer}>
           <div className={styles.leftContainer}>
-            <IconButton
-              inputID="sidebar-toggle-icon-button"
-              sxInput={styles.input}
-              sxLabel={styles.label}
-            >
-              <BurgerIcon sx={styles.burgerIcon} />
-              <CloseIcon sx={styles.closeIcon} />
-            </IconButton>
+            <SidebarIconButton sxInput={styles.input} />
             <BrandLogo />
           </div>
           <div className={styles.rightContainer}>
