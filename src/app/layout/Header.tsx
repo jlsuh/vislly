@@ -11,7 +11,7 @@ type HeaderProps = {
 
 function Header({ sxHeader, sxInput }: HeaderProps): JSX.Element {
   return (
-    <header className={sxHeader}>
+    <header className={`${styles.header} ${sxHeader}`}>
       <div className={styles.headerContainer}>
         <div className={styles.leftContainer}>
           <SidebarIconButton sxInput={sxInput} />
