@@ -328,6 +328,7 @@
       font-family: var(--monaspace);
     }
 
+    color: var(--color-on-surface);
     font-family: var(--mona-sans);
     background: var(--color-surface-container-low);
   }
