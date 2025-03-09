@@ -154,9 +154,10 @@ const PURPLE = new RGBA(
 
 const COR: CoefficientOfRestitution = 1;
 const INITIAL_SPEED = 1.5;
+const MOLECULE_RADIUS = 8;
+const MOLECULE_DIAMETER = MOLECULE_RADIUS * 2;
 const NUMBER_OF_PARTICLES = 500;
-const RADIUS = 8;
-const DIAMETER = RADIUS * 2;
+const POLLEN_RADIUS = 40;
 
 function BrownianMotion(): JSX.Element {
   const { dimensions, ref: mainContainerRef } =
@@ -174,7 +175,7 @@ function BrownianMotion(): JSX.Element {
       ...composeParticles(1, () => ({
         fillColor: POLLEN.toStyle(),
         isTracked: true,
-        r: RADIUS * 2.5,
+        r: POLLEN_RADIUS,
         vix: 0,
         viy: 0,
         x: dimensions.boundedWidth / 2,
@@ -183,11 +184,17 @@ function BrownianMotion(): JSX.Element {
       ...composeParticles(NUMBER_OF_PARTICLES, () => ({
         fillColor: BLUE.toStyle(),
         isTracked: false,
-        r: RADIUS,
+        r: MOLECULE_RADIUS,
         vix: Math.random() * INITIAL_SPEED * Math.cos(getRandomAngle()),
         viy: Math.random() * INITIAL_SPEED * Math.sin(getRandomAngle()),
-        x: getRandomBetween(DIAMETER, dimensions.boundedWidth - DIAMETER),
-        y: getRandomBetween(DIAMETER, dimensions.boundedHeight - DIAMETER),
+        x: getRandomBetween(
+          MOLECULE_DIAMETER,
+          dimensions.boundedWidth - MOLECULE_DIAMETER,
+        ),
+        y: getRandomBetween(
+          MOLECULE_DIAMETER,
+          dimensions.boundedHeight - MOLECULE_DIAMETER,
+        ),
       })),
     ];
     const intervalID = window.setInterval(() =>
