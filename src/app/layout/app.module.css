@@ -20,7 +20,7 @@
   /**
    * Prevent @container stacking context
    */
-  @media (width >= 48rem) {
+  @media (width >= 68rem) {
     :root:has(.input:checked) {
       overflow: unset;
       scrollbar-width: unset;

@@ -5,7 +5,7 @@
     width: inherit;
   }
 
-  @media (width >= 48rem) {
+  @media (width >= 68rem) {
     .sidebarList {
       width: 100%;
     }

@@ -20,7 +20,7 @@
     display: inline-flex;
   }
 
-  @media (width >= 48rem) {
+  @media (width >= 68rem) {
     .label {
       display: none;
     }
