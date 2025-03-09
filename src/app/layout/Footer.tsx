@@ -8,8 +8,11 @@ type FooterProps = {
 function Footer({ sxFooter }: FooterProps): JSX.Element {
   return (
     <footer className={`${styles.footer} ${sxFooter}`}>
-      <p>© 2025</p>
-      <p>All rights reserved.</p>
+      <div className={styles.footerContainer}>
+        <span className={styles.copyrightNotice}>
+          Copyright &copy; 2025 Joel Suh. All rights reserved.
+        </span>
+      </div>
     </footer>
   );
 }
