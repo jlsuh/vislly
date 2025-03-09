@@ -36,7 +36,7 @@
     @container headerContainer (width >= 18rem) {
       display: inline-flex;
       height: 2.5rem;
-      width: 6.5rem;
+      width: 5rem;
     }
   }
 }

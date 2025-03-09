@@ -5,7 +5,7 @@ import type { Metadata } from 'next';
 import type { JSX, PropsWithChildren } from 'react';
 
 export const metadata: Metadata = {
-  title: 'Visually',
+  title: 'Vislly',
 };
 
 export default function RootLayout({

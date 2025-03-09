@@ -4,7 +4,7 @@ import GithubIcon from '../GithubIcon/GithubIcon.tsx';
 function GithubButton(): JSX.Element {
   return (
     <a
-      href="https://github.com/jlsuh/visually"
+      href="https://github.com/jlsuh/vislly"
       rel="noopener noreferrer"
       target="_blank"
     >
