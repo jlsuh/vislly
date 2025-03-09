@@ -1,0 +1,13 @@
+@layer components {
+  .sidebarList {
+    height: fit-content;
+    list-style-type: none;
+    width: inherit;
+  }
+
+  @media (width >= 48rem) {
+    .sidebarList {
+      width: 100%;
+    }
+  }
+}

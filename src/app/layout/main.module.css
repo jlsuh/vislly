@@ -23,11 +23,6 @@
     z-index: 1;
   }
 
-  .sidebarList {
-    height: fit-content;
-    width: inherit;
-  }
-
   @media (width >= 48rem) {
     .main {
       gap: 1rem;
@@ -42,10 +37,6 @@
       position: sticky;
       top: var(--top-offset);
       width: unset;
-    }
-
-    .sidebarList {
-      width: 100%;
     }
   }
 }
