@@ -1,13 +1,14 @@
 @layer components {
-  .historicalCanvas,
-  .particlesCanvas {
-    position: absolute;
-  }
-
   .brownianMotionContainer {
     --border-width: 0.125rem;
+    border-radius: 0.5rem;
     border: var(--border-width) solid var(--color-outline-variant);
     max-width: inherit;
     min-height: calc(40rem + var(--border-width) * 2);
+  }
+
+  .historicalCanvas,
+  .particlesCanvas {
+    position: absolute;
   }
 }
