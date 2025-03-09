@@ -8,19 +8,13 @@ function GallerySection(): JSX.Element {
   return (
     <section className={styles.gallerySection}>
       <Link href="/brownian-motion">
-        <figure
-          style={{
-            margin: 0,
-          }}
-        >
+        <figure className={styles.figure}>
           <Image
             alt="Brownian Motion"
-            src={brownianMotionImage}
+            className={styles.figureImage}
             placeholder="blur"
-            style={{
-              maxWidth: '100%',
-              height: 'auto',
-            }}
+            priority={true}
+            src={brownianMotionImage}
           />
           <figcaption>Brownian Motion 1</figcaption>
         </figure>

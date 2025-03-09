@@ -1,4 +1,14 @@
 @layer components {
+  .figure {
+    margin: 0;
+  }
+
+  .figureImage {
+    width: 12.5rem;
+    max-width: 100%;
+    height: auto;
+  }
+
   .gallerySection {
     display: flex;
     flex-wrap: wrap;
