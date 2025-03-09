@@ -13,9 +13,10 @@
   }
 
   .sidebar {
-    --top-offset: calc(4rem + 16px);
+    --top-offset: calc(4rem + 6px);
     display: none;
     height: calc(100vh - var(--top-offset));
+    overflow-x: hidden;
     overflow-y: auto;
     position: fixed;
     width: 100vw;
