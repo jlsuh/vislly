@@ -1,25 +1,18 @@
 @layer components {
   .copyrightNotice {
     font-size: 0.875rem;
-    margin-top: 1rem;
   }
 
   .footerContainer {
     color: var(--color-on-surface-variant);
     display: flex;
-    flex-direction: column;
-    padding: 4rem 1.25rem 1rem 1.25rem;
-    text-align: center;
+    justify-content: center;
+    padding: 6rem 1rem 2rem;
   }
 
   @media (width >= 48rem) {
-    .footer {
-      margin-left: 15rem;
-    }
-
     .footerContainer {
       margin: 0 auto;
-      max-width: 50rem;
     }
   }
 }
