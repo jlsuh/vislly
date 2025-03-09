@@ -56,7 +56,7 @@ function configureHistoricalCanvas(
   historicalContext.lineCap = 'round';
   historicalContext.lineJoin = 'round';
   historicalContext.lineWidth = 0.8;
-  historicalContext.strokeStyle = 'purple';
+  historicalContext.strokeStyle = PURPLE.toStyle();
 }
 
 function resetCanvas(
@@ -143,12 +143,18 @@ const RESIZE_DIMENSIONS = {
   width: 0,
 };
 
-const BLUE = new RGBA(0, 0, 1, 1);
-const RED = new RGBA(1, 0, 0, 1);
+const POLLEN = new RGBA(0.97647058823, 0.81568627451, 0.0862745098, 1);
+const BLUE = new RGBA(0.23725490196, 0.53725490196, 0.85490196078, 0.25);
+const PURPLE = new RGBA(
+  0.7843137254901961,
+  0.4549019607843137,
+  0.6980392156862745,
+  1,
+);
 
 const COR: CoefficientOfRestitution = 1;
 const INITIAL_SPEED = 1.5;
-const NUMBER_OF_PARTICLES = 400;
+const NUMBER_OF_PARTICLES = 500;
 const RADIUS = 8;
 const DIAMETER = RADIUS * 2;
 
@@ -166,7 +172,7 @@ function BrownianMotion(): JSX.Element {
     configureHistoricalCanvas(historicalContext);
     const particles = [
       ...composeParticles(1, () => ({
-        fillColor: RED.toStyle(),
+        fillColor: POLLEN.toStyle(),
         isTracked: true,
         r: RADIUS * 2.5,
         vix: 0,
