@@ -1,12 +1,24 @@
 @layer components {
   .figure {
+    align-items: center;
+    border-radius: 0.5rem;
+    display: flex;
+    flex-direction: column;
     margin: 0;
+    text-align: center;
+  }
+
+  .figureCaption {
+    font-weight: 600;
+    padding: 1rem;
+    width: 100%;
   }
 
   .figureImage {
-    width: 12.5rem;
-    max-width: 100%;
+    border-radius: 0.5rem;
     height: auto;
+    max-width: 100%;
+    width: 12.5rem;
   }
 
   .gallerySection {
