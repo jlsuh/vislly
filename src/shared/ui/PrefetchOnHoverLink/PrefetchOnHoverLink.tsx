@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { ComponentPropsWithoutRef, JSX } from 'react';
+import styles from './prefetch-on-hover-link.module.css';
 
 type PrefetchOnHoverLinkProps = ComponentPropsWithoutRef<typeof Link>;
 
@@ -18,6 +19,7 @@ function PrefetchOnHoverLink(props: PrefetchOnHoverLinkProps): JSX.Element {
 
   return (
     <Link
+      className={styles.prefetchOnHoverLink}
       {...props}
       prefetch={false}
       onFocus={(e): void => {

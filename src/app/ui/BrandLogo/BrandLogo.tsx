@@ -1,4 +1,4 @@
-import PrefetchOnHoverLink from '@/shared/ui/PrefetchOnHoverLink.tsx';
+import PrefetchOnHoverLink from '@/shared/ui/PrefetchOnHoverLink/PrefetchOnHoverLink';
 import type { JSX } from 'react';
 import styles from './brand-logo.module.css';
 

@@ -1,5 +1,5 @@
 import brownianMotionImage from '@/../public/images/brownian-motion.jpg';
-import PrefetchOnHoverLink from '@/shared/ui/PrefetchOnHoverLink.tsx';
+import PrefetchOnHoverLink from '@/shared/ui/PrefetchOnHoverLink/PrefetchOnHoverLink';
 import Image from 'next/image';
 import type { JSX } from 'react';
 import styles from './gallery-section.module.css';
@@ -16,7 +16,9 @@ function GallerySection(): JSX.Element {
             priority={true}
             src={brownianMotionImage}
           />
-          <figcaption>Brownian Motion 1</figcaption>
+          <figcaption className={styles.figureCaption}>
+            Brownian Motion
+          </figcaption>
         </figure>
       </PrefetchOnHoverLink>
     </section>

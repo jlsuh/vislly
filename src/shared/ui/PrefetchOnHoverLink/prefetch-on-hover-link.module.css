@@ -1,0 +1,6 @@
+@layer components {
+  .prefetchOnHoverLink {
+    text-decoration: none;
+    color: unset;
+  }
+}
