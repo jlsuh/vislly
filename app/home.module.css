@@ -1,0 +1,25 @@
+@layer components {
+  .home {
+    align-self: center;
+    max-width: 12.5rem;
+    width: 100%;
+  }
+
+  @media (width >= 32.5rem) {
+    .home {
+      max-width: 27rem;
+    }
+  }
+
+  @media (width >= 44.5rem) {
+    .home {
+      max-width: 42rem;
+    }
+  }
+
+  @media (width >= 75rem) {
+    .home {
+      max-width: 56rem;
+    }
+  }
+}
