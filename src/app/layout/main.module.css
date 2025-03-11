@@ -3,7 +3,7 @@
     flex-direction: column;
     flex: 1;
     margin: 0 auto;
-    max-width: 56rem;
+    max-width: 15rem;
     padding: 1.25rem;
   }
 
@@ -21,6 +21,18 @@
     position: fixed;
     width: 100vw;
     z-index: 1;
+  }
+
+  @media (width >= 32rem) {
+    .content {
+      max-width: 32rem;
+    }
+  }
+
+  @media (width >= 50rem) {
+    .content {
+      max-width: 50rem;
+    }
   }
 
   @media (width >= 68rem) {
