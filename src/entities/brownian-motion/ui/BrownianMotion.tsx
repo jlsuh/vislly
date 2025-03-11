@@ -154,10 +154,10 @@ const PURPLE = new RGBA(
 
 const COR: CoefficientOfRestitution = 1;
 const INITIAL_SPEED = 1.5;
-const MOLECULE_RADIUS = 8;
+const MOLECULE_RADIUS = 6;
 const MOLECULE_DIAMETER = MOLECULE_RADIUS * 2;
 const NUMBER_OF_PARTICLES = 500;
-const POLLEN_RADIUS = 40;
+const POLLEN_RADIUS = 35;
 
 function BrownianMotion(): JSX.Element {
   const { dimensions, ref: mainContainerRef } =
