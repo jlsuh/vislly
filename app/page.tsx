@@ -1,6 +1,6 @@
 import GallerySection from '@/app/ui/GallerySection/GallerySection.tsx';
 import type { JSX } from 'react';
-import styles from './home.module.css';
+import styles from './page.module.css';
 
 export default function Home(): JSX.Element {
   return (
