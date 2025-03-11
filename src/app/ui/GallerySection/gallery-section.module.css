@@ -22,13 +22,18 @@
   }
 
   .gallerySection {
-    display: flex;
-    flex-wrap: wrap;
-    flex: 0 0 33.3333%;
+    display: grid;
     gap: 1rem;
+    grid-template-columns: repeat(1fr, minmax(0, 12.5rem));
     justify-content: space-between;
     list-style: none;
     margin: 0;
     padding: 0;
+  }
+
+  @media (width >= 29rem) {
+    .gallerySection {
+      grid-template-columns: repeat(auto-fill, minmax(0, 12.5rem));
+    }
   }
 }
