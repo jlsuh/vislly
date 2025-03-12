@@ -1,6 +1,6 @@
 import type { JSX } from 'react';
 import BrandLogo from '../ui/BrandLogo/BrandLogo.tsx';
-import GithubIcon from '../ui/GithubIcon/GithubIcon.tsx';
+import GithubIconButton from '../ui/GithubIconButton/GithubIconButton.tsx';
 import SidebarIconButton from '../ui/SidebarIconButton/SidebarIconButton.tsx';
 import ThemeSelect from '../ui/ThemeSelect/ThemeSelect.tsx';
 import styles from './header.module.css';
@@ -19,6 +19,7 @@ function Header({ sxHeader, sxInput }: HeaderProps): JSX.Element {
           <BrandLogo />
         </div>
         <div className={styles.rightContainer}>
+          <GithubIconButton href="https://github.com/jlsuh/vislly" />
           <ThemeSelect />
         </div>
       </div>
