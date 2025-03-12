@@ -1,7 +1,7 @@
 import type { JSX } from 'react';
 import BurgerIcon from '../BurgerIcon/BurgerIcon.tsx';
+import CheckboxButton from '../CheckboxButton/CheckboxButton.tsx';
 import CloseIcon from '../CloseIcon/CloseIcon.tsx';
-import CheckboxButton from '../IconButton/CheckboxButton.tsx';
 import styles from './sidebar-checkbox-button.module.css';
 
 type SidebarCheckboxButtonProps = {

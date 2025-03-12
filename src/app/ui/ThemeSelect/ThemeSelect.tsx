@@ -3,7 +3,7 @@
 import { type JSX, use } from 'react';
 import { Theme } from '../../config/theme.ts';
 import ThemeContext from '../../providers/ThemeContext.tsx';
-import CheckboxButton from '../IconButton/CheckboxButton.tsx';
+import CheckboxButton from '../CheckboxButton/CheckboxButton.tsx';
 import styles from './theme-select.module.css';
 
 function ThemeSelect(): JSX.Element {
