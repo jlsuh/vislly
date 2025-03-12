@@ -1,26 +1,24 @@
 import type { JSX } from 'react';
 import BurgerIcon from '../BurgerIcon/BurgerIcon.tsx';
-import CheckboxButton from '../CheckboxButton/CheckboxButton.tsx';
 import CloseIcon from '../CloseIcon/CloseIcon.tsx';
-import styles from './sidebar-checkbox-button.module.css';
+import IconButton from '../IconButton/IconButton.tsx';
+import styles from './sidebar-icon-button.module.css';
 
-type SidebarCheckboxButtonProps = {
+type SidebarIconButtonProps = {
   sxInput: string;
 };
 
-function SidebarCheckboxButton({
-  sxInput,
-}: SidebarCheckboxButtonProps): JSX.Element {
+function SidebarIconButton({ sxInput }: SidebarIconButtonProps): JSX.Element {
   return (
-    <CheckboxButton
+    <IconButton
       inputID="sidebar-toggle-icon-button"
       sxInput={`${styles.input} ${sxInput}`}
       sxLabel={styles.label}
     >
       <BurgerIcon sx={styles.burgerIcon} />
       <CloseIcon sx={styles.closeIcon} />
-    </CheckboxButton>
+    </IconButton>
   );
 }
 
-export default SidebarCheckboxButton;
+export default SidebarIconButton;

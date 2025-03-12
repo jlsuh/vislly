@@ -1,5 +1,6 @@
 @layer components {
-  .checkboxButtonContainer {
+  .iconButtonContainer {
+    display: flex;
     align-items: center;
     border-radius: 100%;
     color: var(--color-on-surface);
@@ -17,7 +18,7 @@
     }
   }
 
-  .checkboxButtonInput {
+  .iconButtonInput {
     display: none;
   }
 }

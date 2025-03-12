@@ -1,7 +1,7 @@
 import type { JSX } from 'react';
 import BrandLogo from '../ui/BrandLogo/BrandLogo.tsx';
 import GithubIcon from '../ui/GithubIcon/GithubIcon.tsx';
-import SidebarCheckboxButton from '../ui/SidebarCheckboxButton/SidebarCheckboxButton.tsx';
+import SidebarIconButton from '../ui/SidebarIconButton/SidebarIconButton.tsx';
 import ThemeSelect from '../ui/ThemeSelect/ThemeSelect.tsx';
 import styles from './header.module.css';
 
@@ -15,7 +15,7 @@ function Header({ sxHeader, sxInput }: HeaderProps): JSX.Element {
     <header className={`${styles.header} ${sxHeader}`}>
       <div className={styles.headerContainer}>
         <div className={styles.leftContainer}>
-          <SidebarCheckboxButton sxInput={sxInput} />
+          <SidebarIconButton sxInput={sxInput} />
           <BrandLogo />
         </div>
         <div className={styles.rightContainer}>

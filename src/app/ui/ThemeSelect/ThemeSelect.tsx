@@ -3,7 +3,7 @@
 import { type JSX, use } from 'react';
 import { Theme } from '../../config/theme.ts';
 import ThemeContext from '../../providers/ThemeContext.tsx';
-import CheckboxButton from '../CheckboxButton/CheckboxButton.tsx';
+import IconButton from '../IconButton/IconButton.tsx';
 import styles from './theme-select.module.css';
 
 function ThemeSelect(): JSX.Element {
@@ -13,14 +13,14 @@ function ThemeSelect(): JSX.Element {
 
   return (
     <div className={styles.themeSelectContainer}>
-      <CheckboxButton
+      <IconButton
         inputID="theme-icon-button"
-        onChangeCheckboxButton={toggleTheme}
+        onChangeIconButton={toggleTheme}
         sxInput={styles.checkboxInput}
         sxLabel={styles.button}
       >
         <CurrentThemeIcon />
-      </CheckboxButton>
+      </IconButton>
     </div>
   );
 }
