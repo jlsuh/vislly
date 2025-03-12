@@ -27,6 +27,8 @@
     }
 
     .header:has(.input:checked) {
+      border-bottom: unset;
+
       & ~ .footer,
       & ~ .main > .content {
         opacity: unset;
