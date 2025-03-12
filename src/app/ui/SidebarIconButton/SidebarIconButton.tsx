@@ -12,6 +12,7 @@ function SidebarIconButton({ sxInput }: SidebarIconButtonProps): JSX.Element {
   return (
     <IconButton
       inputID="sidebar-toggle-icon-button"
+      isCheckboxControlled={true}
       sxInput={`${styles.input} ${sxInput}`}
       sxLabel={styles.label}
     >
