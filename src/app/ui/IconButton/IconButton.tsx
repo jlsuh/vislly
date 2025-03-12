@@ -1,21 +1,24 @@
 import type { JSX, PropsWithChildren } from 'react';
 import styles from './icon-button.module.css';
 
+type CheckboxControlledButtonProps = {
+  inputID: string;
+  isCheckboxControlled: true;
+  onChangeIconButton?: () => void;
+  sxInput?: string;
+  sxLabel?: string;
+};
+
+type NonCheckboxControlledButtonProps = {
+  inputID?: never;
+  isCheckboxControlled: false;
+  onChangeIconButton?: never;
+  sxInput?: never;
+  sxLabel?: never;
+};
+
 type IconButtonProps = PropsWithChildren<
-  | {
-      inputID: string;
-      isCheckboxControlled: true;
-      onChangeIconButton?: () => void;
-      sxInput?: string;
-      sxLabel?: string;
-    }
-  | {
-      inputID?: never;
-      isCheckboxControlled: false;
-      onChangeIconButton?: () => void;
-      sxInput?: never;
-      sxLabel?: never;
-    }
+  CheckboxControlledButtonProps | NonCheckboxControlledButtonProps
 >;
 
 function IconButton({
