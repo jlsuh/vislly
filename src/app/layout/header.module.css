@@ -1,6 +1,5 @@
 @layer components {
   .header {
-    background-color: var(--color-surface-container-low);
     overflow: hidden;
     position: -webkit-sticky;
     position: sticky;

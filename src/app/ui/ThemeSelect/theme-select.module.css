@@ -3,10 +3,6 @@
     display: inline-flex;
   }
 
-  .button:hover {
-    background-color: var(--color-surface-container-high);
-  }
-
   .checkboxInput {
     display: none;
   }
