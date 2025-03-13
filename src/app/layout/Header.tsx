@@ -19,8 +19,8 @@ function Header({ sxHeader, sxInput }: HeaderProps): JSX.Element {
           <BrandLogo />
         </div>
         <div className={styles.rightContainer}>
-          <GithubIconButton href="https://github.com/jlsuh/vislly" />
           <ThemeSelect />
+          <GithubIconButton href="https://github.com/jlsuh/vislly" />
         </div>
       </div>
     </header>
