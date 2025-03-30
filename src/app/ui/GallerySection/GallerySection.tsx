@@ -21,6 +21,18 @@ function GallerySection(): JSX.Element {
           </figcaption>
         </figure>
       </PrefetchOnHoverLink>
+      <PrefetchOnHoverLink href="/pathfinding">
+        <figure className={styles.figure}>
+          {/* <Image
+            alt="Pathfinding"
+            className={styles.figureImage}
+            placeholder="blur"
+            priority={true}
+            src=""
+          /> */}
+          <figcaption className={styles.figureCaption}>Pathfinding</figcaption>
+        </figure>
+      </PrefetchOnHoverLink>
     </section>
   );
 }
