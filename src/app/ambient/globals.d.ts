@@ -1,5 +1,7 @@
-import type { CSSProperties as ReactCSSProperties } from 'react';
+import 'react';
 
-declare interface CSSProperties extends ReactCSSProperties {
-  [key: `--${string}`]: string | number | undefined;
+declare module 'react' {
+  interface CSSProperties {
+    [key: `--${string}`]: string | number;
+  }
 }
