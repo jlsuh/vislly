@@ -1,0 +1,18 @@
+@layer components {
+  .cell {
+    background-color: lightgray;
+    font-size: 0.0325rem;
+    height: var(--cell-size);
+    outline: 0.0625rem solid black;
+    width: var(--cell-size);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, var(--cell-size));
+    grid-template-rows: repeat(auto-fit, var(--cell-size));
+    height: 40rem;
+    justify-content: center;
+    width: 100%;
+  }
+}
