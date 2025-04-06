@@ -1,5 +1,6 @@
 'use client';
 
+import getRootFontSize from '@/shared/lib/getRootFontSize.ts';
 import useResizeDimensions from '@/shared/lib/useResizeDimensions';
 import { type JSX, useEffect } from 'react';
 import {
@@ -132,6 +133,12 @@ function composeParticles(
   );
 }
 
+function scaleMagnitudeByRem(magnitudeBase: number): number {
+  const rootFontSize = getRootFontSize();
+  const scaleFactor = rootFontSize / DEFAULT_ROOT_FONT_SIZE;
+  return scaleFactor * magnitudeBase;
+}
+
 const RESIZE_DIMENSIONS = {
   boundedHeight: 0,
   boundedWidth: 0,
@@ -153,6 +160,7 @@ const PURPLE = new RGBA(
 );
 
 const COR: CoefficientOfRestitution = 1;
+const DEFAULT_ROOT_FONT_SIZE = 16;
 const INITIAL_SPEED = 1.5;
 const MOLECULE_RADIUS = 6;
 const MOLECULE_DIAMETER = MOLECULE_RADIUS * 2;
@@ -160,10 +168,13 @@ const NUMBER_OF_PARTICLES = 500;
 const POLLEN_RADIUS = 35;
 
 function BrownianMotion(): JSX.Element {
-  const { dimensions, ref: mainContainerRef } =
-    useResizeDimensions(RESIZE_DIMENSIONS);
+  const { dimensions, ref } = useResizeDimensions(RESIZE_DIMENSIONS);
 
   useEffect(() => {
+    const currentMoleculeRadius = scaleMagnitudeByRem(MOLECULE_RADIUS);
+    const currentMoleculeDiameter = scaleMagnitudeByRem(MOLECULE_DIAMETER);
+    const currentPollenRadius = scaleMagnitudeByRem(POLLEN_RADIUS);
+    const currentInitialSpeed = scaleMagnitudeByRem(INITIAL_SPEED);
     const historicalContext = getCanvasCtxByRef(
       document.getElementById('historical') as HTMLCanvasElement,
     );
@@ -175,7 +186,7 @@ function BrownianMotion(): JSX.Element {
       ...composeParticles(1, () => ({
         fillColor: POLLEN.toStyle(),
         isTracked: true,
-        r: POLLEN_RADIUS,
+        r: currentPollenRadius,
         vix: 0,
         viy: 0,
         x: dimensions.boundedWidth / 2,
@@ -184,16 +195,16 @@ function BrownianMotion(): JSX.Element {
       ...composeParticles(NUMBER_OF_PARTICLES, () => ({
         fillColor: BLUE.toStyle(),
         isTracked: false,
-        r: MOLECULE_RADIUS,
-        vix: Math.random() * INITIAL_SPEED * Math.cos(getRandomAngle()),
-        viy: Math.random() * INITIAL_SPEED * Math.sin(getRandomAngle()),
+        r: currentMoleculeRadius,
+        vix: Math.random() * currentInitialSpeed * Math.cos(getRandomAngle()),
+        viy: Math.random() * currentInitialSpeed * Math.sin(getRandomAngle()),
         x: getRandomBetween(
-          MOLECULE_DIAMETER,
-          dimensions.boundedWidth - MOLECULE_DIAMETER,
+          currentMoleculeDiameter,
+          dimensions.boundedWidth - currentMoleculeDiameter,
         ),
         y: getRandomBetween(
-          MOLECULE_DIAMETER,
-          dimensions.boundedHeight - MOLECULE_DIAMETER,
+          currentMoleculeDiameter,
+          dimensions.boundedHeight - currentMoleculeDiameter,
         ),
       })),
     ];
@@ -211,7 +222,7 @@ function BrownianMotion(): JSX.Element {
   }, [dimensions.boundedHeight, dimensions.boundedWidth]);
 
   return (
-    <div className={styles.brownianMotionContainer} ref={mainContainerRef}>
+    <div className={styles.brownianMotionContainer} ref={ref}>
       <canvas
         className={styles.particlesCanvas}
         height={dimensions.boundedHeight}
