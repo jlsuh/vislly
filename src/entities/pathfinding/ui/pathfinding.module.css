@@ -1,4 +1,10 @@
 @layer components {
+  @property --cell-size {
+    syntax: "<length>";
+    inherits: false;
+    initial-value: 0rem;
+  }
+
   .cell {
     background-color: lightgray;
     font-size: 0.0325rem;
