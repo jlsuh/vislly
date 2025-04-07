@@ -1,5 +1,6 @@
 'use client';
 
+import composeCSSVariable from '@/shared/lib/composeCSSVariable.ts';
 import pxToRem from '@/shared/lib/pxToRem.ts';
 import useResizeDimensions from '@/shared/lib/useResizeDimensions.ts';
 import type { JSX } from 'react';
@@ -18,6 +19,7 @@ const RESIZE_DIMENSIONS = {
 };
 
 const CELL_DIM_SIZE = 1;
+const CELL_SIZE_VAR = composeCSSVariable('cell-size', `${CELL_DIM_SIZE}rem`);
 
 function Pathfinding(): JSX.Element {
   const [cols, setCols] = useState(0);
@@ -30,11 +32,7 @@ function Pathfinding(): JSX.Element {
   }, [dimensions.boundedHeight, dimensions.boundedWidth]);
 
   return (
-    <div
-      className={styles.grid}
-      ref={ref}
-      style={{ '--cell-size': `${CELL_DIM_SIZE}rem` }}
-    >
+    <div className={styles.grid} ref={ref} style={CELL_SIZE_VAR}>
       {Array.from({ length: rows * cols })
         .fill(0)
         .map((_, index) => {
