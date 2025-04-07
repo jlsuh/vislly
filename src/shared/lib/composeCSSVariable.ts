@@ -4,7 +4,7 @@ interface CSSCustomProperty extends CSSProperties {
   [key: `--${string}`]: string | number;
 }
 
-function composeCSSVariable(
+function composeCSSCustomProperty(
   identifier: string,
   value: string | number,
 ): CSSCustomProperty {
@@ -13,4 +13,4 @@ function composeCSSVariable(
   };
 }
 
-export default composeCSSVariable;
+export default composeCSSCustomProperty;

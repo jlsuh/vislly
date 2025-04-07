@@ -1,6 +1,6 @@
 'use client';
 
-import composeCSSVariable from '@/shared/lib/composeCSSVariable.ts';
+import composeCSSCustomProperty from '@/shared/lib/composeCSSVariable.ts';
 import pxToRem from '@/shared/lib/pxToRem.ts';
 import useResizeDimensions from '@/shared/lib/useResizeDimensions.ts';
 import type { JSX } from 'react';
@@ -19,7 +19,10 @@ const RESIZE_DIMENSIONS = {
 };
 
 const CELL_DIM_SIZE = 1;
-const CELL_SIZE_VAR = composeCSSVariable('cell-size', `${CELL_DIM_SIZE}rem`);
+const CELL_SIZE_VAR = composeCSSCustomProperty(
+  'cell-size',
+  `${CELL_DIM_SIZE}rem`,
+);
 
 function Pathfinding(): JSX.Element {
   const [cols, setCols] = useState(0);
