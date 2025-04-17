@@ -3,9 +3,9 @@ import type { JSX } from 'react';
 
 export default function Page(): JSX.Element {
   return (
-    <>
+    <article>
       <h1>Brownian Motion</h1>
       <BrownianMotion />
-    </>
+    </article>
   );
 }
