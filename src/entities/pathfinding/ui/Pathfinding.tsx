@@ -2,6 +2,7 @@
 
 import composeCSSCustomProperty from '@/shared/lib/composeCSSVariable.ts';
 import pxToRem from '@/shared/lib/pxToRem.ts';
+import useOnClickOutside from '@/shared/lib/useOnClickOutside.ts';
 import useResizeDimensions from '@/shared/lib/useResizeDimensions.ts';
 import type {
   JSX,
@@ -104,12 +105,22 @@ function Cell({ currentCellType }: { currentCellType: CellType }): JSX.Element {
   );
 }
 
+const hideBodyOverflow = (): void => {
+  document.body.style.overflow = 'hidden';
+};
+
+const unsetBodyOverflow = (): void => {
+  document.body.style.overflow = 'unset';
+};
+
 function Pathfinding(): JSX.Element {
   const [cols, setCols] = useState(0);
   const [rows, setRows] = useState(0);
   const [currentCellType, setCurrentCellType] = useState(CELL_TYPE.wall);
   const isHoldingClick = useRef(false);
   const { dimensions, ref } = useResizeDimensions(RESIZE_DIMENSIONS);
+
+  useOnClickOutside([ref], unsetBodyOverflow);
 
   useEffect(() => {
     setCols(Math.floor(pxToRem(dimensions.boundedWidth) / CELL_DIM_SIZE));
@@ -184,13 +195,8 @@ function Pathfinding(): JSX.Element {
         onMouseLeave={setIsHoldingClickToFalse}
         onMouseMove={dispatchMouseDown}
         onMouseUp={setIsHoldingClickToFalse}
-        onTouchEnd={(): void => {
-          document.body.style.overflow = 'unset';
-        }}
         onTouchMove={dispatchPointerDown}
-        onTouchStart={(): void => {
-          document.body.style.overflow = 'hidden';
-        }}
+        onTouchStart={hideBodyOverflow}
         ref={ref}
         style={CELL_SIZE_VAR}
       >
