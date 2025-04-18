@@ -33,10 +33,10 @@ const CELL_SIZE_VAR = composeCSSCustomProperty(
 type CellType = 'empty' | 'wall' | 'start' | 'end';
 
 const CELL_TYPE: ReadonlyDeep<Record<CellType, CellType>> = {
+  wall: 'wall',
   empty: 'empty',
   end: 'end',
   start: 'start',
-  wall: 'wall',
 } as const;
 
 function isCellType(value: unknown): value is CellType {
