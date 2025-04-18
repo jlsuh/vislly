@@ -31,22 +31,37 @@ const CELL_SIZE_VAR = composeCSSCustomProperty(
   `${CELL_DIM_SIZE}rem`,
 );
 
-type CellType = 'empty' | 'wall' | 'start' | 'end';
+type CellTypeValue = 'empty' | 'wall' | 'start' | 'finish';
+type CellType = (typeof CELL_TYPE)[CellTypeValue];
 
-const CELL_TYPE: ReadonlyDeep<Record<CellType, CellType>> = {
-  wall: 'wall',
-  empty: 'empty',
-  end: 'end',
-  start: 'start',
-} as const;
+const CELL_TYPE: ReadonlyDeep<{
+  [key in CellTypeValue]: { value: CellTypeValue; className: string };
+}> = {
+  wall: {
+    value: 'wall',
+    className: styles.wall,
+  },
+  empty: {
+    value: 'empty',
+    className: styles.empty,
+  },
+  finish: {
+    value: 'finish',
+    className: styles.finish,
+  },
+  start: {
+    value: 'start',
+    className: styles.start,
+  },
+};
 
 const CELL_TYPES = Object.values(CELL_TYPE);
 
-function isCellType(value: unknown): value is CellType {
-  return CELL_TYPES.some((type) => type === value);
+function isCellType(value: unknown): value is CellTypeValue {
+  return CELL_TYPES.some((cellType) => cellType.value === value);
 }
 
-function assertIsCellType(value: unknown): asserts value is CellType {
+function assertIsCellType(value: unknown): asserts value is CellTypeValue {
   if (typeof value !== 'string') {
     throw new Error(`Expected a string, but received: ${typeof value}`);
   }
@@ -55,26 +70,35 @@ function assertIsCellType(value: unknown): asserts value is CellType {
   }
 }
 
-function Cell({ currenWallType }: { currenWallType: CellType }): JSX.Element {
-  const [wallType, setWallType] = useState(CELL_TYPE.empty);
+function composeNodeText(value: CellTypeValue): string {
+  if (value === CELL_TYPE.empty.value) {
+    return 'E';
+  }
+  if (value === CELL_TYPE.wall.value) {
+    return 'W';
+  }
+  if (value === CELL_TYPE.start.value) {
+    return 'S';
+  }
+  if (value === CELL_TYPE.finish.value) {
+    return 'F';
+  }
+  throw new Error(`Invalid cell type: ${value}`);
+}
+
+function Cell({ currentCellType }: { currentCellType: CellType }): JSX.Element {
+  const [cellType, setCellType] = useState(CELL_TYPE.empty);
 
   return (
     <button
       className={styles.cell}
       onContextMenu={(e): void => e.preventDefault()}
-      onMouseDown={(): void => setWallType(currenWallType)}
-      onTouchStart={(): void => setWallType(currenWallType)}
+      onMouseDown={(): void => setCellType(currentCellType)}
+      onTouchStart={(): void => setCellType(currentCellType)}
       type="button"
     >
-      <p
-        style={{
-          backgroundColor: wallType === CELL_TYPE.wall ? 'grey' : 'lightgray',
-          color: 'black',
-          fontSize: '0.5rem',
-          margin: 0,
-        }}
-      >
-        {wallType === CELL_TYPE.wall ? 1 : 0}
+      <p className={`${styles.cellText} ${cellType.className}`}>
+        {composeNodeText(cellType.value)}
       </p>
     </button>
   );
@@ -140,16 +164,16 @@ function Pathfinding(): JSX.Element {
   return (
     <>
       <select
-        value={currentCellType}
+        value={currentCellType.value}
         onChange={(e): void => {
           const { value } = e.target;
           assertIsCellType(value);
-          setCurrentCellType(value);
+          setCurrentCellType(CELL_TYPE[value]);
         }}
       >
         {CELL_TYPES.map((cellType) => (
-          <option key={cellType} value={cellType}>
-            {cellType.charAt(0).toUpperCase() + cellType.slice(1)}
+          <option key={cellType.value} value={cellType.value}>
+            {cellType.value.charAt(0).toUpperCase() + cellType.value.slice(1)}
           </option>
         ))}
       </select>
@@ -177,7 +201,7 @@ function Pathfinding(): JSX.Element {
             const row = Math.floor(index / cols);
             return (
               <Cell
-                currenWallType={currentCellType}
+                currentCellType={currentCellType}
                 key={`cell-row-${row}-col-${col}`}
               />
             );
