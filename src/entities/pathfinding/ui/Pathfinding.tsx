@@ -156,14 +156,14 @@ function Pathfinding(): JSX.Element {
       <section
         aria-label="Pathfinding grid"
         className={styles.grid}
-        onMouseDown={(): void => setIsHoldingClickToTrue()}
-        onMouseLeave={(): void => setIsHoldingClickToFalse()}
-        onMouseMove={(e): void => dispatchMouseDown(e)}
-        onMouseUp={(): void => setIsHoldingClickToFalse()}
+        onMouseDown={setIsHoldingClickToTrue}
+        onMouseLeave={setIsHoldingClickToFalse}
+        onMouseMove={dispatchMouseDown}
+        onMouseUp={setIsHoldingClickToFalse}
         onTouchEnd={(): void => {
           document.body.style.overflow = 'unset';
         }}
-        onTouchMove={(e): void => dispatchPointerDown(e)}
+        onTouchMove={dispatchPointerDown}
         onTouchStart={(): void => {
           document.body.style.overflow = 'hidden';
         }}
