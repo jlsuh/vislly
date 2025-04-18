@@ -3,11 +3,15 @@
 import composeCSSCustomProperty from '@/shared/lib/composeCSSVariable.ts';
 import pxToRem from '@/shared/lib/pxToRem.ts';
 import useResizeDimensions from '@/shared/lib/useResizeDimensions.ts';
-import type { JSX, RefObject } from 'react';
+import type {
+  JSX,
+  MouseEvent,
+  MouseEventHandler,
+  TouchEvent,
+  TouchEventHandler,
+} from 'react';
 import { useEffect, useRef, useState } from 'react';
 import styles from './pathfinding.module.css';
-
-type CellProps = { isMousePressed: RefObject<boolean> };
 
 const RESIZE_DIMENSIONS = {
   boundedHeight: 0,
@@ -26,31 +30,29 @@ const CELL_SIZE_VAR = composeCSSCustomProperty(
   `${CELL_DIM_SIZE}rem`,
 );
 
-function Cell({ isMousePressed }: CellProps): JSX.Element {
-  const [isSet, setIsSet] = useState(false);
+function Cell(): JSX.Element {
+  const [isWall, setIsWall] = useState(false);
+
+  const toggleWall = (): void => {
+    setIsWall((prev) => !prev);
+  };
 
   return (
     <button
       className={styles.cell}
-      onMouseEnter={(): void => {
-        if (isMousePressed.current) {
-          setIsSet((prev) => !prev);
-        }
-      }}
-      onPointerDown={(): void => {
-        setIsSet((prev) => !prev);
-      }}
+      onMouseDown={toggleWall}
+      onPointerDown={toggleWall}
       type="button"
     >
       <p
         style={{
-          backgroundColor: isSet ? 'grey' : 'lightgray',
+          backgroundColor: isWall ? 'grey' : 'lightgray',
           color: 'black',
           fontSize: '0.5rem',
           margin: 0,
         }}
       >
-        {isSet ? 1 : 0}
+        {isWall ? 1 : 0}
       </p>
     </button>
   );
@@ -59,6 +61,7 @@ function Cell({ isMousePressed }: CellProps): JSX.Element {
 function Pathfinding(): JSX.Element {
   const [cols, setCols] = useState(0);
   const [rows, setRows] = useState(0);
+  const currentCell = useRef<HTMLButtonElement>(null);
   const isHoldingClick = useRef(false);
   const { dimensions, ref } = useResizeDimensions(RESIZE_DIMENSIONS);
 
@@ -75,13 +78,61 @@ function Pathfinding(): JSX.Element {
     isHoldingClick.current = true;
   };
 
+  function dispatchEvent({
+    clientX,
+    clientY,
+    eventType,
+  }: { clientX: number; clientY: number; eventType: string }): void {
+    const cell = document.elementFromPoint(clientX, clientY);
+    if (cell) {
+      const cellButton = cell.closest('button');
+      if (cellButton && cellButton !== currentCell.current) {
+        currentCell.current = cellButton;
+        cellButton.dispatchEvent(
+          new MouseEvent(eventType, {
+            bubbles: true,
+            clientX,
+            clientY,
+          }),
+        );
+      }
+    }
+  }
+
+  const dispatchPointerDown: TouchEventHandler<HTMLElement> = (
+    e: TouchEvent<HTMLElement>,
+  ): void => {
+    const touch = e.touches[0];
+    const { clientX, clientY } = touch;
+    dispatchEvent({ clientX, clientY, eventType: 'pointerdown' });
+  };
+
+  const dispatchMouseDown: MouseEventHandler<HTMLElement> = (
+    e: MouseEvent<HTMLElement>,
+  ): void => {
+    if (!isHoldingClick.current) {
+      return;
+    }
+    const { clientX, clientY } = e;
+    dispatchEvent({ clientX, clientY, eventType: 'mousedown' });
+  };
+
   return (
     <section
       aria-label="Pathfinding grid"
       className={styles.grid}
       onMouseDown={setIsHoldingClickToTrue}
       onMouseLeave={setIsHoldingClickToFalse}
+      onMouseMove={dispatchMouseDown}
       onMouseUp={setIsHoldingClickToFalse}
+      onTouchEnd={(): void => {
+        document.body.style.overflow = 'unset';
+        isHoldingClick.current = false;
+      }}
+      onTouchMove={dispatchPointerDown}
+      onTouchStart={(): void => {
+        document.body.style.overflow = 'hidden';
+      }}
       ref={ref}
       style={CELL_SIZE_VAR}
     >
@@ -90,12 +141,7 @@ function Pathfinding(): JSX.Element {
         .map((_, index) => {
           const col = index % cols;
           const row = Math.floor(index / cols);
-          return (
-            <Cell
-              isMousePressed={isHoldingClick}
-              key={`cell-row-${row}-col-${col}`}
-            />
-          );
+          return <Cell key={`cell-row-${row}-col-${col}`} />;
         })}
     </section>
   );
