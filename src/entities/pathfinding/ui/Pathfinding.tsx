@@ -1,4 +1,5 @@
 'use client';
+
 import composeCSSCustomProperty from '@/shared/lib/composeCSSVariable.ts';
 import pxToRem from '@/shared/lib/pxToRem.ts';
 import useResizeDimensions from '@/shared/lib/useResizeDimensions.ts';
@@ -39,13 +40,10 @@ const CELL_TYPE: ReadonlyDeep<Record<CellType, CellType>> = {
   start: 'start',
 } as const;
 
+const CELL_TYPES = Object.values(CELL_TYPE);
+
 function isCellType(value: unknown): value is CellType {
-  return (
-    value === CELL_TYPE.empty ||
-    value === CELL_TYPE.wall ||
-    value === CELL_TYPE.start ||
-    value === CELL_TYPE.end
-  );
+  return CELL_TYPES.some((type) => type === value);
 }
 
 function assertIsCellType(value: unknown): asserts value is CellType {
@@ -149,7 +147,7 @@ function Pathfinding(): JSX.Element {
           setCurrentCellType(value);
         }}
       >
-        {Object.values(CELL_TYPE).map((cellType) => (
+        {CELL_TYPES.map((cellType) => (
           <option key={cellType} value={cellType}>
             {cellType.charAt(0).toUpperCase() + cellType.slice(1)}
           </option>
