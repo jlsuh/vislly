@@ -1,5 +1,4 @@
 'use client';
-
 import composeCSSCustomProperty from '@/shared/lib/composeCSSVariable.ts';
 import pxToRem from '@/shared/lib/pxToRem.ts';
 import useResizeDimensions from '@/shared/lib/useResizeDimensions.ts';
@@ -11,6 +10,7 @@ import type {
   TouchEventHandler,
 } from 'react';
 import { useEffect, useRef, useState } from 'react';
+import type { ReadonlyDeep } from 'type-fest';
 import styles from './pathfinding.module.css';
 
 const RESIZE_DIMENSIONS = {
@@ -30,29 +30,35 @@ const CELL_SIZE_VAR = composeCSSCustomProperty(
   `${CELL_DIM_SIZE}rem`,
 );
 
-function Cell(): JSX.Element {
-  const [isWall, setIsWall] = useState(false);
+type CellType = 'empty' | 'wall' | 'start' | 'end';
 
-  const toggleWall = (): void => {
-    setIsWall((prev) => !prev);
-  };
+const CELL_TYPE: ReadonlyDeep<Record<CellType, CellType>> = {
+  empty: 'empty',
+  end: 'end',
+  start: 'start',
+  wall: 'wall',
+} as const;
+
+function Cell({ currenWallType }: { currenWallType: CellType }): JSX.Element {
+  const [wallType, setWallType] = useState(CELL_TYPE.empty);
 
   return (
     <button
       className={styles.cell}
-      onMouseDown={toggleWall}
-      onPointerDown={toggleWall}
+      onContextMenu={(e): void => e.preventDefault()}
+      onMouseDown={(): void => setWallType(currenWallType)}
+      onTouchStart={(): void => setWallType(currenWallType)}
       type="button"
     >
       <p
         style={{
-          backgroundColor: isWall ? 'grey' : 'lightgray',
+          backgroundColor: wallType === CELL_TYPE.wall ? 'grey' : 'lightgray',
           color: 'black',
           fontSize: '0.5rem',
           margin: 0,
         }}
       >
-        {isWall ? 1 : 0}
+        {wallType === CELL_TYPE.wall ? 1 : 0}
       </p>
     </button>
   );
@@ -61,7 +67,7 @@ function Cell(): JSX.Element {
 function Pathfinding(): JSX.Element {
   const [cols, setCols] = useState(0);
   const [rows, setRows] = useState(0);
-  const currentCell = useRef<HTMLButtonElement>(null);
+  const [currentCellType, setCurrentCellType] = useState(CELL_TYPE.wall);
   const isHoldingClick = useRef(false);
   const { dimensions, ref } = useResizeDimensions(RESIZE_DIMENSIONS);
 
@@ -81,15 +87,13 @@ function Pathfinding(): JSX.Element {
   function dispatchEvent({
     clientX,
     clientY,
-    eventType,
-  }: { clientX: number; clientY: number; eventType: string }): void {
+  }: { clientX: number; clientY: number }): void {
     const cell = document.elementFromPoint(clientX, clientY);
     if (cell) {
       const cellButton = cell.closest('button');
-      if (cellButton && cellButton !== currentCell.current) {
-        currentCell.current = cellButton;
+      if (cellButton) {
         cellButton.dispatchEvent(
-          new MouseEvent(eventType, {
+          new MouseEvent('mousedown', {
             bubbles: true,
             clientX,
             clientY,
@@ -104,7 +108,7 @@ function Pathfinding(): JSX.Element {
   ): void => {
     const touch = e.touches[0];
     const { clientX, clientY } = touch;
-    dispatchEvent({ clientX, clientY, eventType: 'pointerdown' });
+    dispatchEvent({ clientX, clientY });
   };
 
   const dispatchMouseDown: MouseEventHandler<HTMLElement> = (
@@ -114,36 +118,55 @@ function Pathfinding(): JSX.Element {
       return;
     }
     const { clientX, clientY } = e;
-    dispatchEvent({ clientX, clientY, eventType: 'mousedown' });
+    dispatchEvent({ clientX, clientY });
   };
 
   return (
-    <section
-      aria-label="Pathfinding grid"
-      className={styles.grid}
-      onMouseDown={setIsHoldingClickToTrue}
-      onMouseLeave={setIsHoldingClickToFalse}
-      onMouseMove={dispatchMouseDown}
-      onMouseUp={setIsHoldingClickToFalse}
-      onTouchEnd={(): void => {
-        document.body.style.overflow = 'unset';
-        isHoldingClick.current = false;
-      }}
-      onTouchMove={dispatchPointerDown}
-      onTouchStart={(): void => {
-        document.body.style.overflow = 'hidden';
-      }}
-      ref={ref}
-      style={CELL_SIZE_VAR}
-    >
-      {Array.from({ length: rows * cols })
-        .fill(0)
-        .map((_, index) => {
-          const col = index % cols;
-          const row = Math.floor(index / cols);
-          return <Cell key={`cell-row-${row}-col-${col}`} />;
-        })}
-    </section>
+    <>
+      <section
+        aria-label="Pathfinding grid"
+        className={styles.grid}
+        onMouseDown={(): void => setIsHoldingClickToTrue()}
+        onMouseLeave={(): void => setIsHoldingClickToFalse()}
+        onMouseMove={(e): void => dispatchMouseDown(e)}
+        onMouseUp={(): void => setIsHoldingClickToFalse()}
+        onTouchEnd={(): void => {
+          document.body.style.overflow = 'unset';
+        }}
+        onTouchMove={(e): void => dispatchPointerDown(e)}
+        onTouchStart={(): void => {
+          document.body.style.overflow = 'hidden';
+        }}
+        ref={ref}
+        style={CELL_SIZE_VAR}
+      >
+        {Array.from({ length: rows * cols })
+          .fill(0)
+          .map((_, index) => {
+            const col = index % cols;
+            const row = Math.floor(index / cols);
+            return (
+              <Cell
+                currenWallType={currentCellType}
+                key={`cell-row-${row}-col-${col}`}
+              />
+            );
+          })}
+      </section>
+      <select
+        value={currentCellType}
+        onChange={(e): void => {
+          const { value } = e.target as HTMLSelectElement;
+          console.log('>>>>> value', value);
+          setCurrentCellType(value as CellType);
+        }}
+      >
+        <option value={CELL_TYPE.wall}>Wall</option>
+        <option value={CELL_TYPE.empty}>Empty</option>
+        <option value={CELL_TYPE.start}>Start</option>
+        <option value={CELL_TYPE.end}>End</option>
+      </select>
+    </>
   );
 }
 
