@@ -71,20 +71,8 @@ function assertIsCellType(value: unknown): asserts value is CellTypeValue {
   }
 }
 
-function composeNodeText(value: CellTypeValue): string {
-  if (value === CELL_TYPE.empty.value) {
-    return 'E';
-  }
-  if (value === CELL_TYPE.wall.value) {
-    return 'W';
-  }
-  if (value === CELL_TYPE.start.value) {
-    return 'S';
-  }
-  if (value === CELL_TYPE.finish.value) {
-    return 'F';
-  }
-  throw new Error(`Invalid cell type: ${value}`);
+function composeCellText(value: CellTypeValue): string {
+  return value.charAt(0).toUpperCase();
 }
 
 function Cell({ currentCellType }: { currentCellType: CellType }): JSX.Element {
@@ -99,7 +87,7 @@ function Cell({ currentCellType }: { currentCellType: CellType }): JSX.Element {
       type="button"
     >
       <p className={`${styles.cellText} ${cellType.className}`}>
-        {composeNodeText(cellType.value)}
+        {composeCellText(cellType.value)}
       </p>
     </button>
   );
@@ -117,6 +105,7 @@ function Pathfinding(): JSX.Element {
   const [cols, setCols] = useState(0);
   const [rows, setRows] = useState(0);
   const [currentCellType, setCurrentCellType] = useState(CELL_TYPE.wall);
+  // const startCell = useRef<{ row: number; col: number }>({ col: -1, row: -1 });
   const isHoldingClick = useRef(false);
   const { dimensions, ref } = useResizeDimensions(RESIZE_DIMENSIONS);
 
