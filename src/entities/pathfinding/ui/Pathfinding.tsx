@@ -39,6 +39,24 @@ const CELL_TYPE: ReadonlyDeep<Record<CellType, CellType>> = {
   wall: 'wall',
 } as const;
 
+function isCellType(value: unknown): value is CellType {
+  return (
+    value === CELL_TYPE.empty ||
+    value === CELL_TYPE.wall ||
+    value === CELL_TYPE.start ||
+    value === CELL_TYPE.end
+  );
+}
+
+function assertIsCellType(value: unknown): asserts value is CellType {
+  if (typeof value !== 'string') {
+    throw new Error(`Expected a string, but received: ${typeof value}`);
+  }
+  if (!isCellType(value)) {
+    throw new Error(`Invalid cell type: ${value}`);
+  }
+}
+
 function Cell({ currenWallType }: { currenWallType: CellType }): JSX.Element {
   const [wallType, setWallType] = useState(CELL_TYPE.empty);
 
@@ -123,6 +141,20 @@ function Pathfinding(): JSX.Element {
 
   return (
     <>
+      <select
+        value={currentCellType}
+        onChange={(e): void => {
+          const { value } = e.target;
+          assertIsCellType(value);
+          setCurrentCellType(value);
+        }}
+      >
+        {Object.values(CELL_TYPE).map((cellType) => (
+          <option key={cellType} value={cellType}>
+            {cellType.charAt(0).toUpperCase() + cellType.slice(1)}
+          </option>
+        ))}
+      </select>
       <section
         aria-label="Pathfinding grid"
         className={styles.grid}
@@ -153,19 +185,6 @@ function Pathfinding(): JSX.Element {
             );
           })}
       </section>
-      <select
-        value={currentCellType}
-        onChange={(e): void => {
-          const { value } = e.target as HTMLSelectElement;
-          console.log('>>>>> value', value);
-          setCurrentCellType(value as CellType);
-        }}
-      >
-        <option value={CELL_TYPE.wall}>Wall</option>
-        <option value={CELL_TYPE.empty}>Empty</option>
-        <option value={CELL_TYPE.start}>Start</option>
-        <option value={CELL_TYPE.end}>End</option>
-      </select>
     </>
   );
 }
