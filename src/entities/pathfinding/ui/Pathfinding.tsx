@@ -12,7 +12,7 @@ import type {
   TouchEventHandler,
 } from 'react';
 import { useEffect, useRef, useState } from 'react';
-import type { ReadonlyDeep } from 'type-fest';
+import type { ReadonlyDeep, StringSlice } from 'type-fest';
 import styles from './pathfinding.module.css';
 
 const RESIZE_DIMENSIONS = {
@@ -33,24 +33,25 @@ const CELL_SIZE_VAR = composeCSSCustomProperty(
 );
 
 type CellTypeValue = 'empty' | 'wall' | 'start' | 'finish';
-type CellType = (typeof CELL_TYPE)[CellTypeValue];
+type CellTypeValueInitial = StringSlice<CellTypeValue, 0, 1>;
+type CellType = (typeof CELL_TYPE)[CellTypeValueInitial];
 
 const CELL_TYPE: ReadonlyDeep<{
-  [key in CellTypeValue]: { value: CellTypeValue; className: string };
+  [key in CellTypeValueInitial]: { value: CellTypeValue; className: string };
 }> = {
-  wall: {
+  w: {
     value: 'wall',
     className: styles.wall,
   },
-  empty: {
+  e: {
     value: 'empty',
     className: styles.empty,
   },
-  finish: {
+  f: {
     value: 'finish',
     className: styles.finish,
   },
-  start: {
+  s: {
     value: 'start',
     className: styles.start,
   },
@@ -62,6 +63,10 @@ function isCellType(value: unknown): value is CellTypeValue {
   return CELL_TYPES.some((cellType) => cellType.value === value);
 }
 
+function isCellTypeInitial(value: unknown): value is CellTypeValueInitial {
+  return CELL_TYPES.some((cellType) => cellType.value.charAt(0) === value);
+}
+
 function assertIsCellType(value: unknown): asserts value is CellTypeValue {
   if (typeof value !== 'string') {
     throw new Error(`Expected a string, but received: ${typeof value}`);
@@ -71,23 +76,51 @@ function assertIsCellType(value: unknown): asserts value is CellTypeValue {
   }
 }
 
-function composeCellText(value: CellTypeValue): string {
-  return value.charAt(0).toUpperCase();
+function getCellTypeInitial(value: CellTypeValue): CellTypeValueInitial {
+  const initial = value.charAt(0);
+  if (!isCellTypeInitial(initial)) {
+    throw new Error(`Invalid cell type initial: ${initial}`);
+  }
+  return initial;
 }
 
-function Cell({ currentCellType }: { currentCellType: CellType }): JSX.Element {
-  const [cellType, setCellType] = useState(CELL_TYPE.empty);
+function Cell({
+  colIndex,
+  currentCellType,
+  grid,
+  initialCellType,
+  rowIndex,
+  setGrid,
+}: {
+  colIndex: number;
+  currentCellType: CellType;
+  grid: CellTypeValueInitial[][];
+  initialCellType: CellType;
+  rowIndex: number;
+  setGrid: (grid: CellTypeValueInitial[][]) => void;
+}): JSX.Element {
+  const [cellType, setCellType] = useState(initialCellType);
 
   return (
     <button
       className={styles.cell}
       onContextMenu={(e): void => e.preventDefault()}
-      onMouseDown={(): void => setCellType(currentCellType)}
-      onTouchStart={(): void => setCellType(currentCellType)}
+      onMouseDown={(): void => {
+        const newCellTypeInitial = getCellTypeInitial(currentCellType.value);
+        grid[rowIndex][colIndex] = newCellTypeInitial;
+        setCellType(CELL_TYPE[newCellTypeInitial]);
+        setGrid(grid);
+      }}
+      onTouchStart={(): void => {
+        const newCellTypeInitial = getCellTypeInitial(currentCellType.value);
+        grid[rowIndex][colIndex] = newCellTypeInitial;
+        setCellType(CELL_TYPE[newCellTypeInitial]);
+        setGrid(grid);
+      }}
       type="button"
     >
       <p className={`${styles.cellText} ${cellType.className}`}>
-        {composeCellText(cellType.value)}
+        {getCellTypeInitial(cellType.value)}
       </p>
     </button>
   );
@@ -104,8 +137,8 @@ const unsetBodyOverflow = (): void => {
 function Pathfinding(): JSX.Element {
   const [cols, setCols] = useState(0);
   const [rows, setRows] = useState(0);
-  const [currentCellType, setCurrentCellType] = useState(CELL_TYPE.wall);
-  // const startCell = useRef<{ row: number; col: number }>({ col: -1, row: -1 });
+  const [currentCellType, setCurrentCellType] = useState(CELL_TYPE.w);
+  const [grid, setGrid] = useState<CellTypeValueInitial[][]>([]);
   const isHoldingClick = useRef(false);
   const { dimensions, ref } = useResizeDimensions(RESIZE_DIMENSIONS);
 
@@ -115,6 +148,16 @@ function Pathfinding(): JSX.Element {
     setCols(Math.floor(pxToRem(dimensions.boundedWidth) / CELL_DIM_SIZE));
     setRows(Math.floor(pxToRem(dimensions.boundedHeight) / CELL_DIM_SIZE));
   }, [dimensions.boundedHeight, dimensions.boundedWidth]);
+
+  useEffect(() => {
+    setGrid(
+      Array.from({ length: rows }, () =>
+        Array.from({ length: cols }, () =>
+          getCellTypeInitial(CELL_TYPE.e.value),
+        ),
+      ),
+    );
+  }, [rows, cols]);
 
   const setIsHoldingClickToFalse = (): void => {
     isHoldingClick.current = false;
@@ -164,11 +207,13 @@ function Pathfinding(): JSX.Element {
   return (
     <>
       <select
+        key={currentCellType.value}
         value={currentCellType.value}
         onChange={(e): void => {
           const { value } = e.target;
           assertIsCellType(value);
-          setCurrentCellType(CELL_TYPE[value]);
+          const cellTypeInitial = getCellTypeInitial(value);
+          setCurrentCellType(CELL_TYPE[cellTypeInitial]);
         }}
       >
         {CELL_TYPES.map((cellType) => (
@@ -189,18 +234,21 @@ function Pathfinding(): JSX.Element {
         ref={ref}
         style={CELL_SIZE_VAR}
       >
-        {Array.from({ length: rows * cols })
-          .fill(0)
-          .map((_, index) => {
-            const col = index % cols;
-            const row = Math.floor(index / cols);
+        {grid.map((row, rowIndex) =>
+          row.map((cellValueInitial, colIndex) => {
             return (
               <Cell
+                colIndex={colIndex}
                 currentCellType={currentCellType}
-                key={`cell-row-${row}-col-${col}`}
+                grid={grid}
+                initialCellType={CELL_TYPE[cellValueInitial]}
+                key={`cell-row-${rowIndex}-col-${colIndex}-value-${cellValueInitial}`}
+                rowIndex={rowIndex}
+                setGrid={setGrid}
               />
             );
-          })}
+          }),
+        )}
       </section>
     </>
   );
