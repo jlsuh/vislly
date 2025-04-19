@@ -91,37 +91,27 @@ function Cell({
   grid,
   rowIndex,
   selectedCellType,
-  setGrid,
 }: {
   cellTypeInitialValue: CellType;
   colIndex: number;
   grid: CellTypeValueFirstChar[][];
   rowIndex: number;
   selectedCellType: CellType;
-  setGrid: (grid: CellTypeValueFirstChar[][]) => void;
 }): JSX.Element {
   const [cellType, setCellType] = useState(cellTypeInitialValue);
+
+  const setNewCellType = (newCellType: CellType): void => {
+    const newCellTypeFirstChar = getCellTypeFirstChar(newCellType.value);
+    grid[rowIndex][colIndex] = newCellTypeFirstChar;
+    setCellType(CELL_TYPE[newCellTypeFirstChar]);
+  };
 
   return (
     <button
       className={styles.cell}
       onContextMenu={(e): void => e.preventDefault()}
-      onMouseDown={(): void => {
-        const newCellTypeFirstChar = getCellTypeFirstChar(
-          selectedCellType.value,
-        );
-        grid[rowIndex][colIndex] = newCellTypeFirstChar;
-        setCellType(CELL_TYPE[newCellTypeFirstChar]);
-        setGrid(grid);
-      }}
-      onTouchStart={(): void => {
-        const newCellTypeFirstChar = getCellTypeFirstChar(
-          selectedCellType.value,
-        );
-        grid[rowIndex][colIndex] = newCellTypeFirstChar;
-        setCellType(CELL_TYPE[newCellTypeFirstChar]);
-        setGrid(grid);
-      }}
+      onMouseDown={(): void => setNewCellType(selectedCellType)}
+      onTouchStart={(): void => setNewCellType(selectedCellType)}
       type="button"
     >
       <p className={`${styles.cellText} ${cellType.className}`}>
@@ -260,7 +250,6 @@ function Pathfinding(): JSX.Element {
                 key={`cell-row-${rowIndex}-col-${colIndex}-value-${cellValueFirstChar}`}
                 rowIndex={rowIndex}
                 selectedCellType={selectedCellType}
-                setGrid={setGrid}
               />
             );
           }),
