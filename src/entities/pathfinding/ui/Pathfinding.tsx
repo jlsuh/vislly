@@ -33,11 +33,11 @@ const CELL_SIZE_VAR = composeCSSCustomProperty(
 );
 
 type CellTypeValue = 'empty' | 'wall' | 'start' | 'finish';
-type CellTypeValueInitial = StringSlice<CellTypeValue, 0, 1>;
-type CellType = (typeof CELL_TYPE)[CellTypeValueInitial];
+type CellTypeValueFirstChar = StringSlice<CellTypeValue, 0, 1>;
+type CellType = (typeof CELL_TYPE)[CellTypeValueFirstChar];
 
 const CELL_TYPE: ReadonlyDeep<{
-  [key in CellTypeValueInitial]: { value: CellTypeValue; className: string };
+  [key in CellTypeValueFirstChar]: { value: CellTypeValue; className: string };
 }> = {
   w: {
     value: 'wall',
@@ -58,12 +58,13 @@ const CELL_TYPE: ReadonlyDeep<{
 };
 
 const CELL_TYPES = Object.values(CELL_TYPE);
+const DEFAULT_SELECTED_CELL_TYPE = CELL_TYPE.w;
 
 function isCellType(value: unknown): value is CellTypeValue {
   return CELL_TYPES.some((cellType) => cellType.value === value);
 }
 
-function isCellTypeInitial(value: unknown): value is CellTypeValueInitial {
+function isCellTypeFirstChar(value: unknown): value is CellTypeValueFirstChar {
   return CELL_TYPES.some((cellType) => cellType.value.charAt(0) === value);
 }
 
@@ -76,51 +77,55 @@ function assertIsCellType(value: unknown): asserts value is CellTypeValue {
   }
 }
 
-function getCellTypeInitial(value: CellTypeValue): CellTypeValueInitial {
-  const initial = value.charAt(0);
-  if (!isCellTypeInitial(initial)) {
-    throw new Error(`Invalid cell type initial: ${initial}`);
+function getCellTypeFirstChar(value: CellTypeValue): CellTypeValueFirstChar {
+  const firstChar = value.charAt(0);
+  if (!isCellTypeFirstChar(firstChar)) {
+    throw new Error(`Invalid cell type first character: ${firstChar}`);
   }
-  return initial;
+  return firstChar;
 }
 
 function Cell({
+  cellTypeInitialValue,
   colIndex,
-  currentCellType,
   grid,
-  initialCellType,
   rowIndex,
+  selectedCellType,
   setGrid,
 }: {
+  cellTypeInitialValue: CellType;
   colIndex: number;
-  currentCellType: CellType;
-  grid: CellTypeValueInitial[][];
-  initialCellType: CellType;
+  grid: CellTypeValueFirstChar[][];
   rowIndex: number;
-  setGrid: (grid: CellTypeValueInitial[][]) => void;
+  selectedCellType: CellType;
+  setGrid: (grid: CellTypeValueFirstChar[][]) => void;
 }): JSX.Element {
-  const [cellType, setCellType] = useState(initialCellType);
+  const [cellType, setCellType] = useState(cellTypeInitialValue);
 
   return (
     <button
       className={styles.cell}
       onContextMenu={(e): void => e.preventDefault()}
       onMouseDown={(): void => {
-        const newCellTypeInitial = getCellTypeInitial(currentCellType.value);
-        grid[rowIndex][colIndex] = newCellTypeInitial;
-        setCellType(CELL_TYPE[newCellTypeInitial]);
+        const newCellTypeFirstChar = getCellTypeFirstChar(
+          selectedCellType.value,
+        );
+        grid[rowIndex][colIndex] = newCellTypeFirstChar;
+        setCellType(CELL_TYPE[newCellTypeFirstChar]);
         setGrid(grid);
       }}
       onTouchStart={(): void => {
-        const newCellTypeInitial = getCellTypeInitial(currentCellType.value);
-        grid[rowIndex][colIndex] = newCellTypeInitial;
-        setCellType(CELL_TYPE[newCellTypeInitial]);
+        const newCellTypeFirstChar = getCellTypeFirstChar(
+          selectedCellType.value,
+        );
+        grid[rowIndex][colIndex] = newCellTypeFirstChar;
+        setCellType(CELL_TYPE[newCellTypeFirstChar]);
         setGrid(grid);
       }}
       type="button"
     >
       <p className={`${styles.cellText} ${cellType.className}`}>
-        {getCellTypeInitial(cellType.value)}
+        {getCellTypeFirstChar(cellType.value)}
       </p>
     </button>
   );
@@ -137,8 +142,10 @@ const unsetBodyOverflow = (): void => {
 function Pathfinding(): JSX.Element {
   const [cols, setCols] = useState(0);
   const [rows, setRows] = useState(0);
-  const [currentCellType, setCurrentCellType] = useState(CELL_TYPE.w);
-  const [grid, setGrid] = useState<CellTypeValueInitial[][]>([]);
+  const [selectedCellType, setSelectedCellType] = useState(
+    DEFAULT_SELECTED_CELL_TYPE,
+  );
+  const [grid, setGrid] = useState<CellTypeValueFirstChar[][]>([]);
   const isHoldingClick = useRef(false);
   const { dimensions, ref } = useResizeDimensions(RESIZE_DIMENSIONS);
 
@@ -150,13 +157,22 @@ function Pathfinding(): JSX.Element {
   }, [dimensions.boundedHeight, dimensions.boundedWidth]);
 
   useEffect(() => {
-    setGrid(
-      Array.from({ length: rows }, () =>
+    setGrid((prevGrid) => {
+      const newGrid = Array.from({ length: rows }, () =>
         Array.from({ length: cols }, () =>
-          getCellTypeInitial(CELL_TYPE.e.value),
+          getCellTypeFirstChar(CELL_TYPE.e.value),
         ),
-      ),
-    );
+      );
+      for (let rowIndex = 0; rowIndex < rows; rowIndex += 1) {
+        for (let colIndex = 0; colIndex < cols; colIndex += 1) {
+          const cellValue = prevGrid[rowIndex]?.[colIndex];
+          if (cellValue !== undefined) {
+            newGrid[rowIndex][colIndex] = cellValue;
+          }
+        }
+      }
+      return newGrid;
+    });
   }, [rows, cols]);
 
   const setIsHoldingClickToFalse = (): void => {
@@ -207,13 +223,13 @@ function Pathfinding(): JSX.Element {
   return (
     <>
       <select
-        key={currentCellType.value}
-        value={currentCellType.value}
+        key={selectedCellType.value}
+        value={selectedCellType.value}
         onChange={(e): void => {
           const { value } = e.target;
           assertIsCellType(value);
-          const cellTypeInitial = getCellTypeInitial(value);
-          setCurrentCellType(CELL_TYPE[cellTypeInitial]);
+          const cellTypeFirstChar = getCellTypeFirstChar(value);
+          setSelectedCellType(CELL_TYPE[cellTypeFirstChar]);
         }}
       >
         {CELL_TYPES.map((cellType) => (
@@ -235,15 +251,15 @@ function Pathfinding(): JSX.Element {
         style={CELL_SIZE_VAR}
       >
         {grid.map((row, rowIndex) =>
-          row.map((cellValueInitial, colIndex) => {
+          row.map((cellValueFirstChar, colIndex) => {
             return (
               <Cell
+                cellTypeInitialValue={CELL_TYPE[cellValueFirstChar]}
                 colIndex={colIndex}
-                currentCellType={currentCellType}
                 grid={grid}
-                initialCellType={CELL_TYPE[cellValueInitial]}
-                key={`cell-row-${rowIndex}-col-${colIndex}-value-${cellValueInitial}`}
+                key={`cell-row-${rowIndex}-col-${colIndex}-value-${cellValueFirstChar}`}
                 rowIndex={rowIndex}
+                selectedCellType={selectedCellType}
                 setGrid={setGrid}
               />
             );
