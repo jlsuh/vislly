@@ -91,6 +91,10 @@ function composeInitialPosition(): CellPosition {
   return { rowIndex: -1, colIndex: -1 };
 }
 
+function isInitialPosition(cellPosition: CellPosition): boolean {
+  return cellPosition.rowIndex === -1 && cellPosition.colIndex === -1;
+}
+
 function isStartCell(cellType: CellType): boolean {
   return cellType.value === CELL_TYPE.start.value;
 }
@@ -160,7 +164,7 @@ function handleSpecialCell({
   specialCell: RefObject<CellPosition>;
 }): void {
   const { rowIndex, colIndex } = specialCell.current;
-  if (rowIndex !== -1 && colIndex !== -1) {
+  if (!isInitialPosition(specialCell.current)) {
     grid[rowIndex][colIndex] = CELL_TYPE.empty.value;
     mutateAssociatedParagraph(
       CELL_TYPE.empty.className,
