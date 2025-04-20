@@ -17,7 +17,7 @@ import type { ReadonlyDeep, StringSlice } from 'type-fest';
 import styles from './pathfinding.module.css';
 
 type NodeTypeKey = 'wall' | 'empty' | 'finish' | 'start';
-type NodePosition = { rowIndex: number; colIndex: number };
+type NodePosition = { x: number; y: number };
 type NodeType = (typeof NODE_TYPE)[NodeTypeKey];
 type NodeTypeKeyFirstChar = StringSlice<NodeTypeKey, 0, 1>;
 
@@ -86,11 +86,11 @@ function getNodeTypeFirstChar(value: NodeTypeKey): NodeTypeKeyFirstChar {
 }
 
 function composeInitialPosition(): NodePosition {
-  return { rowIndex: -1, colIndex: -1 };
+  return { x: -1, y: -1 };
 }
 
 function isInitialPosition(nodePosition: NodePosition): boolean {
-  return nodePosition.rowIndex === -1 && nodePosition.colIndex === -1;
+  return nodePosition.x === -1 && nodePosition.y === -1;
 }
 
 function isStartNode(nodeType: NodeType): boolean {
@@ -113,38 +113,36 @@ function setToInitialPositionIfCondition({
   condition,
   nodePositions,
 }: {
-  condition: (targetRowIndex: number, targetColIndex: number) => boolean;
+  condition: (targetX: number, targetY: number) => boolean;
   nodePositions: RefObject<NodePosition>[];
 }): void {
   for (const nodePosition of nodePositions) {
-    const { rowIndex, colIndex } = nodePosition.current;
-    if (condition(rowIndex, colIndex)) {
+    const { x, y } = nodePosition.current;
+    if (condition(x, y)) {
       nodePosition.current = composeInitialPosition();
     }
   }
 }
 
 function getElementByPosition({
-  colIndex,
-  rowIndex,
-}: { colIndex: number; rowIndex: number }): HTMLButtonElement | null {
-  return document.querySelector(
-    `[data-row-index="${rowIndex}"][data-col-index="${colIndex}"]`,
-  );
+  x,
+  y,
+}: { x: number; y: number }): HTMLButtonElement | null {
+  return document.querySelector(`[data-x="${x}"][data-y="${y}"]`);
 }
 
 function mutateAssociatedParagraph({
-  colIndex,
   nodeTypeClassName,
-  rowIndex,
   textContent,
+  x,
+  y,
 }: {
-  colIndex: number;
   nodeTypeClassName: string;
-  rowIndex: number;
   textContent: NodeTypeKey;
+  x: number;
+  y: number;
 }): void {
-  const node = getElementByPosition({ colIndex, rowIndex });
+  const node = getElementByPosition({ x, y });
   if (node) {
     const paragraph = node.querySelector('p');
     if (paragraph) {
@@ -156,59 +154,59 @@ function mutateAssociatedParagraph({
 
 function handleSpecialNode({
   grid,
-  newColIndex,
   newNodeTypeValue,
-  newRowIndex,
+  newX,
+  newY,
   otherSpecialNodes,
   specialNode,
 }: {
   grid: NodeTypeKey[][];
-  newColIndex: number;
   newNodeTypeValue: NodeTypeKey;
-  newRowIndex: number;
+  newX: number;
+  newY: number;
   otherSpecialNodes: RefObject<NodePosition>[];
   specialNode: RefObject<NodePosition>;
 }): void {
-  const { rowIndex, colIndex } = specialNode.current;
+  const { x, y } = specialNode.current;
   if (!isInitialPosition(specialNode.current)) {
-    grid[rowIndex][colIndex] = NODE_TYPE.empty.value;
+    grid[x][y] = NODE_TYPE.empty.value;
     mutateAssociatedParagraph({
-      colIndex,
       nodeTypeClassName: NODE_TYPE.empty.className,
-      rowIndex,
       textContent: NODE_TYPE.empty.value,
+      x,
+      y,
     });
   }
   setToInitialPositionIfCondition({
-    condition: (targetRowIndex, targetColIndex): boolean =>
-      newRowIndex === targetRowIndex && newColIndex === targetColIndex,
+    condition: (targetX, targetY): boolean =>
+      newX === targetX && newY === targetY,
     nodePositions: otherSpecialNodes,
   });
   mutateAssociatedParagraph({
-    colIndex: newColIndex,
     nodeTypeClassName: NODE_TYPE[newNodeTypeValue].className,
-    rowIndex: newRowIndex,
     textContent: newNodeTypeValue,
+    x: newX,
+    y: newY,
   });
-  specialNode.current = { rowIndex: newRowIndex, colIndex: newColIndex };
+  specialNode.current = { x: newX, y: newY };
 }
 
 function Node({
-  colIndex,
   finishNode,
   grid,
   nodeTypeInitialValue,
-  rowIndex,
   selectedNodeType,
   startNode,
+  x,
+  y,
 }: {
-  colIndex: number;
   finishNode: RefObject<NodePosition>;
   grid: NodeTypeKey[][];
   nodeTypeInitialValue: NodeType;
-  rowIndex: number;
   selectedNodeType: NodeType;
   startNode: RefObject<NodePosition>;
+  x: number;
+  y: number;
 }): JSX.Element {
   const [nodeType, setNodeType] = useState(nodeTypeInitialValue);
 
@@ -216,9 +214,9 @@ function Node({
     if (isStartNode(newNodeType)) {
       handleSpecialNode({
         grid,
-        newColIndex: colIndex,
         newNodeTypeValue: newNodeType.value,
-        newRowIndex: rowIndex,
+        newX: x,
+        newY: y,
         otherSpecialNodes: [finishNode],
         specialNode: startNode,
       });
@@ -226,29 +224,29 @@ function Node({
     if (isFinishNode(newNodeType)) {
       handleSpecialNode({
         grid,
-        newColIndex: colIndex,
         newNodeTypeValue: newNodeType.value,
-        newRowIndex: rowIndex,
+        newX: x,
+        newY: y,
         otherSpecialNodes: [startNode],
         specialNode: finishNode,
       });
     }
     if (isWallNode(newNodeType) || isEmptyNode(newNodeType)) {
       setToInitialPositionIfCondition({
-        condition: (targetRowIndex, targetColIndex): boolean =>
-          rowIndex === targetRowIndex && colIndex === targetColIndex,
+        condition: (targetX, targetY): boolean =>
+          x === targetX && y === targetY,
         nodePositions: [startNode, finishNode],
       });
     }
     setNodeType(NODE_TYPE[newNodeType.value]);
-    grid[rowIndex][colIndex] = newNodeType.value;
+    grid[x][y] = newNodeType.value;
   };
 
   return (
     <button
       className={styles.node}
-      data-row-index={rowIndex}
-      data-col-index={colIndex}
+      data-x={x}
+      data-y={y}
       onContextMenu={(e): void => e.preventDefault()}
       onMouseDown={(): void => setNewNodeType(selectedNodeType)}
       onTouchStart={(): void => setNewNodeType(selectedNodeType)}
@@ -293,11 +291,11 @@ function Pathfinding(): JSX.Element {
       const newGrid = Array.from({ length: rows }, () =>
         Array.from({ length: cols }, () => NODE_TYPE.empty.value),
       );
-      for (let rowIndex = 0; rowIndex < rows; rowIndex += 1) {
-        for (let colIndex = 0; colIndex < cols; colIndex += 1) {
-          const nodeValue = prevGrid[rowIndex]?.[colIndex];
+      for (let x = 0; x < rows; x += 1) {
+        for (let y = 0; y < cols; y += 1) {
+          const nodeValue = prevGrid[x]?.[y];
           if (nodeValue !== undefined) {
-            newGrid[rowIndex][colIndex] = nodeValue;
+            newGrid[x][y] = nodeValue;
           }
         }
       }
@@ -307,13 +305,13 @@ function Pathfinding(): JSX.Element {
 
   useEffect(() => {
     setToInitialPositionIfCondition({
-      condition: (targetRowIndex, targetColIndex): boolean =>
-        rows - 1 < targetRowIndex || cols - 1 < targetColIndex,
+      condition: (targetX, targetY): boolean =>
+        rows - 1 < targetX || cols - 1 < targetY,
       nodePositions: [startNode],
     });
     setToInitialPositionIfCondition({
-      condition: (targetRowIndex, targetColIndex): boolean =>
-        rows - 1 < targetRowIndex || cols - 1 < targetColIndex,
+      condition: (targetX, targetY): boolean =>
+        rows - 1 < targetX || cols - 1 < targetY,
       nodePositions: [finishNode],
     });
   }, [rows, cols]);
@@ -392,17 +390,17 @@ function Pathfinding(): JSX.Element {
         ref={ref}
         style={NODE_SIZE_VAR}
       >
-        {grid.map((row, rowIndex) =>
-          row.map((nodeValueFirstChar, colIndex) => (
+        {grid.map((row, x) =>
+          row.map((nodeValueFirstChar, y) => (
             <Node
-              colIndex={colIndex}
               finishNode={finishNode}
               grid={grid}
-              key={`node-row-${rowIndex}-col-${colIndex}-value-${nodeValueFirstChar}`}
+              key={`node-x-${x}-y-${y}-value-${nodeValueFirstChar}`}
               nodeTypeInitialValue={NODE_TYPE[nodeValueFirstChar]}
-              rowIndex={rowIndex}
               selectedNodeType={selectedNodeType}
               startNode={startNode}
+              x={x}
+              y={y}
             />
           )),
         )}
