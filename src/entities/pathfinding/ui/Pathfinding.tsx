@@ -102,7 +102,7 @@ function Cell({
 
   const setNewCellType = (newCellType: CellType): void => {
     const newCellTypeFirstChar = getCellTypeFirstChar(newCellType.value);
-    grid[rowIndex][colIndex] = newCellTypeFirstChar;
+    grid[rowIndex][colIndex] = newCellTypeFirstChar; // No need for re-render
     setCellType(CELL_TYPE[newCellTypeFirstChar]);
   };
 
