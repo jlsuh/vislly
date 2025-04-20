@@ -33,44 +33,44 @@ const CELL_SIZE_VAR = composeCSSCustomProperty(
   `${CELL_DIM_SIZE}rem`,
 );
 
-type CellTypeValue = 'empty' | 'wall' | 'start' | 'finish';
-type CellTypeValueFirstChar = StringSlice<CellTypeValue, 0, 1>;
-type CellType = (typeof CELL_TYPE)[CellTypeValueFirstChar];
+type CellTypeKey = 'empty' | 'wall' | 'start' | 'finish';
+type CellTypeKeyFirstChar = StringSlice<CellTypeKey, 0, 1>;
+type CellType = (typeof CELL_TYPE)[CellTypeKey];
 type CellPosition = { rowIndex: number; colIndex: number };
 
 const CELL_TYPE: ReadonlyDeep<{
-  [key in CellTypeValueFirstChar]: { value: CellTypeValue; className: string };
+  [key in CellTypeKey]: { value: CellTypeKey; className: string };
 }> = {
-  w: {
+  wall: {
     value: 'wall',
     className: styles.wall,
   },
-  e: {
+  empty: {
     value: 'empty',
     className: styles.empty,
   },
-  f: {
+  finish: {
     value: 'finish',
     className: styles.finish,
   },
-  s: {
+  start: {
     value: 'start',
     className: styles.start,
   },
 };
 
 const CELL_TYPES = Object.values(CELL_TYPE);
-const DEFAULT_SELECTED_CELL_TYPE = CELL_TYPE.w;
+const DEFAULT_SELECTED_CELL_TYPE = CELL_TYPE.wall;
 
-function isCellType(value: unknown): value is CellTypeValue {
+function isCellType(value: unknown): value is CellTypeKey {
   return CELL_TYPES.some((cellType) => cellType.value === value);
 }
 
-function isCellTypeFirstChar(value: unknown): value is CellTypeValueFirstChar {
+function isCellTypeFirstChar(value: unknown): value is CellTypeKeyFirstChar {
   return CELL_TYPES.some((cellType) => cellType.value.charAt(0) === value);
 }
 
-function assertIsCellType(value: unknown): asserts value is CellTypeValue {
+function assertIsCellType(value: unknown): asserts value is CellTypeKey {
   if (typeof value !== 'string') {
     throw new Error(`Expected a string, but received: ${typeof value}`);
   }
@@ -79,7 +79,7 @@ function assertIsCellType(value: unknown): asserts value is CellTypeValue {
   }
 }
 
-function getCellTypeFirstChar(value: CellTypeValue): CellTypeValueFirstChar {
+function getCellTypeFirstChar(value: CellTypeKey): CellTypeKeyFirstChar {
   const firstChar = value.charAt(0);
   if (!isCellTypeFirstChar(firstChar)) {
     throw new Error(`Invalid cell type first character: ${firstChar}`);
@@ -92,19 +92,19 @@ function composeInitialPosition(): CellPosition {
 }
 
 function isStartCell(cellType: CellType): boolean {
-  return cellType.value === CELL_TYPE.s.value;
+  return cellType.value === CELL_TYPE.start.value;
 }
 
 function isFinishCell(cellType: CellType): boolean {
-  return cellType.value === CELL_TYPE.f.value;
+  return cellType.value === CELL_TYPE.finish.value;
 }
 
 function isWallCell(cellType: CellType): boolean {
-  return cellType.value === CELL_TYPE.w.value;
+  return cellType.value === CELL_TYPE.wall.value;
 }
 
 function isEmptyCell(cellType: CellType): boolean {
-  return cellType.value === CELL_TYPE.e.value;
+  return cellType.value === CELL_TYPE.empty.value;
 }
 
 function setToInitialPositionIfCondition(
@@ -132,7 +132,7 @@ function mutateAssociatedParagraph(
   cellTypeClassName: string,
   colIndex: number,
   rowIndex: number,
-  textContent: CellTypeValueFirstChar,
+  textContent: CellTypeKeyFirstChar,
 ): void {
   const cellElement = getElementByPosition(rowIndex, colIndex);
   if (cellElement) {
@@ -146,14 +146,14 @@ function mutateAssociatedParagraph(
 
 function handleSpecialCell({
   grid,
-  newCellTypeFirstChar,
+  newCellTypeValue,
   newColIndex,
   newRowIndex,
   otherSpecialCells,
   specialCell,
 }: {
-  grid: CellTypeValueFirstChar[][];
-  newCellTypeFirstChar: CellTypeValueFirstChar;
+  grid: CellTypeKey[][];
+  newCellTypeValue: CellTypeKey;
   newColIndex: number;
   newRowIndex: number;
   otherSpecialCells: RefObject<CellPosition>[];
@@ -161,12 +161,12 @@ function handleSpecialCell({
 }): void {
   const { rowIndex, colIndex } = specialCell.current;
   if (rowIndex !== -1 && colIndex !== -1) {
-    grid[rowIndex][colIndex] = getCellTypeFirstChar(CELL_TYPE.e.value);
+    grid[rowIndex][colIndex] = CELL_TYPE.empty.value;
     mutateAssociatedParagraph(
-      CELL_TYPE.e.className,
+      CELL_TYPE.empty.className,
       colIndex,
       rowIndex,
-      getCellTypeFirstChar(CELL_TYPE.e.value),
+      getCellTypeFirstChar(CELL_TYPE.empty.value),
     );
   }
   setToInitialPositionIfCondition(
@@ -176,10 +176,10 @@ function handleSpecialCell({
   );
   specialCell.current = { rowIndex: newRowIndex, colIndex: newColIndex };
   mutateAssociatedParagraph(
-    CELL_TYPE[newCellTypeFirstChar].className,
+    CELL_TYPE[newCellTypeValue].className,
     newColIndex,
     newRowIndex,
-    newCellTypeFirstChar,
+    getCellTypeFirstChar(newCellTypeValue),
   );
 }
 
@@ -195,7 +195,7 @@ function Cell({
   cellTypeInitialValue: CellType;
   colIndex: number;
   finishCell: RefObject<CellPosition>;
-  grid: CellTypeValueFirstChar[][];
+  grid: CellTypeKey[][];
   rowIndex: number;
   selectedCellType: CellType;
   startCell: RefObject<CellPosition>;
@@ -203,11 +203,10 @@ function Cell({
   const [cellType, setCellType] = useState(cellTypeInitialValue);
 
   const setNewCellType = (newCellType: CellType): void => {
-    const newCellTypeFirstChar = getCellTypeFirstChar(newCellType.value);
     if (isStartCell(newCellType)) {
       handleSpecialCell({
         grid,
-        newCellTypeFirstChar,
+        newCellTypeValue: newCellType.value,
         newColIndex: colIndex,
         newRowIndex: rowIndex,
         otherSpecialCells: [finishCell],
@@ -217,7 +216,7 @@ function Cell({
     if (isFinishCell(newCellType)) {
       handleSpecialCell({
         grid,
-        newCellTypeFirstChar,
+        newCellTypeValue: newCellType.value,
         newColIndex: colIndex,
         newRowIndex: rowIndex,
         otherSpecialCells: [startCell],
@@ -231,8 +230,8 @@ function Cell({
           rowIndex === targetRowIndex && colIndex === targetColIndex,
       );
     }
-    grid[rowIndex][colIndex] = newCellTypeFirstChar;
-    setCellType(CELL_TYPE[newCellTypeFirstChar]);
+    setCellType(CELL_TYPE[newCellType.value]);
+    grid[rowIndex][colIndex] = newCellType.value;
   };
 
   return (
@@ -266,7 +265,7 @@ function Pathfinding(): JSX.Element {
   const [selectedCellType, setSelectedCellType] = useState(
     DEFAULT_SELECTED_CELL_TYPE,
   );
-  const [grid, setGrid] = useState<CellTypeValueFirstChar[][]>([]);
+  const [grid, setGrid] = useState<CellTypeKey[][]>([]);
   const startCell = useRef<CellPosition>(composeInitialPosition());
   const finishCell = useRef<CellPosition>(composeInitialPosition());
   const isHoldingClick = useRef(false);
@@ -284,9 +283,7 @@ function Pathfinding(): JSX.Element {
   useEffect(() => {
     setGrid((prevGrid) => {
       const newGrid = Array.from({ length: rows }, () =>
-        Array.from({ length: cols }, () =>
-          getCellTypeFirstChar(CELL_TYPE.e.value),
-        ),
+        Array.from({ length: cols }, () => CELL_TYPE.empty.value),
       );
       for (let rowIndex = 0; rowIndex < rows; rowIndex += 1) {
         for (let colIndex = 0; colIndex < cols; colIndex += 1) {
@@ -366,8 +363,7 @@ function Pathfinding(): JSX.Element {
         onChange={(e): void => {
           const { value } = e.target;
           assertIsCellType(value);
-          const cellTypeFirstChar = getCellTypeFirstChar(value);
-          setSelectedCellType(CELL_TYPE[cellTypeFirstChar]);
+          setSelectedCellType(CELL_TYPE[value]);
         }}
       >
         {CELL_TYPES.map((cellType) => (
@@ -389,20 +385,18 @@ function Pathfinding(): JSX.Element {
         style={CELL_SIZE_VAR}
       >
         {grid.map((row, rowIndex) =>
-          row.map((cellValueFirstChar, colIndex) => {
-            return (
-              <Cell
-                cellTypeInitialValue={CELL_TYPE[cellValueFirstChar]}
-                colIndex={colIndex}
-                finishCell={finishCell}
-                grid={grid}
-                key={`cell-row-${rowIndex}-col-${colIndex}-value-${cellValueFirstChar}`}
-                rowIndex={rowIndex}
-                selectedCellType={selectedCellType}
-                startCell={startCell}
-              />
-            );
-          }),
+          row.map((cellValueFirstChar, colIndex) => (
+            <Cell
+              cellTypeInitialValue={CELL_TYPE[cellValueFirstChar]}
+              colIndex={colIndex}
+              finishCell={finishCell}
+              grid={grid}
+              key={`cell-row-${rowIndex}-col-${colIndex}-value-${cellValueFirstChar}`}
+              rowIndex={rowIndex}
+              selectedCellType={selectedCellType}
+              startCell={startCell}
+            />
+          )),
         )}
       </section>
     </>
