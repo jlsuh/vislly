@@ -184,6 +184,7 @@ function handleSpecialCell({
     newRowIndex,
     newCellTypeValue,
   );
+  specialCell.current = { rowIndex: newRowIndex, colIndex: newColIndex };
 }
 
 function Cell({
