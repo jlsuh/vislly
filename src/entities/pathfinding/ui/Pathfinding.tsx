@@ -33,7 +33,7 @@ const CELL_SIZE_VAR = composeCSSCustomProperty(
   `${CELL_DIM_SIZE}rem`,
 );
 
-type CellTypeKey = 'empty' | 'wall' | 'start' | 'finish';
+type CellTypeKey = 'wall' | 'empty' | 'finish' | 'start';
 type CellTypeKeyFirstChar = StringSlice<CellTypeKey, 0, 1>;
 type CellType = (typeof CELL_TYPE)[CellTypeKey];
 type CellPosition = { rowIndex: number; colIndex: number };
