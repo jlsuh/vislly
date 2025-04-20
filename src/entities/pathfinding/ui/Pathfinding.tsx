@@ -8,6 +8,7 @@ import type {
   JSX,
   MouseEvent,
   MouseEventHandler,
+  RefObject,
   TouchEvent,
   TouchEventHandler,
 } from 'react';
@@ -35,6 +36,7 @@ const CELL_SIZE_VAR = composeCSSCustomProperty(
 type CellTypeValue = 'empty' | 'wall' | 'start' | 'finish';
 type CellTypeValueFirstChar = StringSlice<CellTypeValue, 0, 1>;
 type CellType = (typeof CELL_TYPE)[CellTypeValueFirstChar];
+type CellPosition = { rowIndex: number; colIndex: number };
 
 const CELL_TYPE: ReadonlyDeep<{
   [key in CellTypeValueFirstChar]: { value: CellTypeValue; className: string };
@@ -85,30 +87,159 @@ function getCellTypeFirstChar(value: CellTypeValue): CellTypeValueFirstChar {
   return firstChar;
 }
 
+function composeInitialPosition(): CellPosition {
+  return { rowIndex: -1, colIndex: -1 };
+}
+
+function isStartCell(cellType: CellType): boolean {
+  return cellType.value === CELL_TYPE.s.value;
+}
+
+function isFinishCell(cellType: CellType): boolean {
+  return cellType.value === CELL_TYPE.f.value;
+}
+
+function isWallCell(cellType: CellType): boolean {
+  return cellType.value === CELL_TYPE.w.value;
+}
+
+function isEmptyCell(cellType: CellType): boolean {
+  return cellType.value === CELL_TYPE.e.value;
+}
+
+function setToInitialPositionIfCondition(
+  cells: RefObject<CellPosition>[],
+  condition: (targetRowIndex: number, targetColIndex: number) => boolean,
+): void {
+  for (const cell of cells) {
+    const { rowIndex, colIndex } = cell.current;
+    if (condition(rowIndex, colIndex)) {
+      cell.current = composeInitialPosition();
+    }
+  }
+}
+
+function getElementByPosition(
+  rowIndex: number,
+  colIndex: number,
+): HTMLButtonElement | null {
+  return document.querySelector(
+    `[data-row-index="${rowIndex}"][data-col-index="${colIndex}"]`,
+  );
+}
+
+function mutateAssociatedParagraph(
+  cellTypeClassName: string,
+  colIndex: number,
+  rowIndex: number,
+  textContent: CellTypeValueFirstChar,
+): void {
+  const cellElement = getElementByPosition(rowIndex, colIndex);
+  if (cellElement) {
+    const paragraph = cellElement.querySelector('p');
+    if (paragraph) {
+      paragraph.className = `${styles.cellText} ${cellTypeClassName}`;
+      paragraph.textContent = textContent;
+    }
+  }
+}
+
+function handleSpecialCell({
+  grid,
+  newCellTypeFirstChar,
+  newColIndex,
+  newRowIndex,
+  otherSpecialCells,
+  specialCell,
+}: {
+  grid: CellTypeValueFirstChar[][];
+  newCellTypeFirstChar: CellTypeValueFirstChar;
+  newColIndex: number;
+  newRowIndex: number;
+  otherSpecialCells: RefObject<CellPosition>[];
+  specialCell: RefObject<CellPosition>;
+}): void {
+  const { rowIndex, colIndex } = specialCell.current;
+  if (rowIndex !== -1 && colIndex !== -1) {
+    grid[rowIndex][colIndex] = getCellTypeFirstChar(CELL_TYPE.e.value);
+    mutateAssociatedParagraph(
+      CELL_TYPE.e.className,
+      colIndex,
+      rowIndex,
+      getCellTypeFirstChar(CELL_TYPE.e.value),
+    );
+  }
+  setToInitialPositionIfCondition(
+    otherSpecialCells,
+    (targetRowIndex, targetColIndex) =>
+      newRowIndex === targetRowIndex && newColIndex === targetColIndex,
+  );
+  specialCell.current = { rowIndex: newRowIndex, colIndex: newColIndex };
+  mutateAssociatedParagraph(
+    CELL_TYPE[newCellTypeFirstChar].className,
+    newColIndex,
+    newRowIndex,
+    newCellTypeFirstChar,
+  );
+}
+
 function Cell({
   cellTypeInitialValue,
   colIndex,
+  finishCell,
   grid,
   rowIndex,
   selectedCellType,
+  startCell,
 }: {
   cellTypeInitialValue: CellType;
   colIndex: number;
+  finishCell: RefObject<CellPosition>;
   grid: CellTypeValueFirstChar[][];
   rowIndex: number;
   selectedCellType: CellType;
+  startCell: RefObject<CellPosition>;
 }): JSX.Element {
   const [cellType, setCellType] = useState(cellTypeInitialValue);
 
   const setNewCellType = (newCellType: CellType): void => {
     const newCellTypeFirstChar = getCellTypeFirstChar(newCellType.value);
-    grid[rowIndex][colIndex] = newCellTypeFirstChar; // No need for re-render
+    if (isStartCell(newCellType)) {
+      handleSpecialCell({
+        grid,
+        newCellTypeFirstChar,
+        newColIndex: colIndex,
+        newRowIndex: rowIndex,
+        otherSpecialCells: [finishCell],
+        specialCell: startCell,
+      });
+    }
+    if (isFinishCell(newCellType)) {
+      handleSpecialCell({
+        grid,
+        newCellTypeFirstChar,
+        newColIndex: colIndex,
+        newRowIndex: rowIndex,
+        otherSpecialCells: [startCell],
+        specialCell: finishCell,
+      });
+    }
+    if (isWallCell(newCellType) || isEmptyCell(newCellType)) {
+      setToInitialPositionIfCondition(
+        [startCell, finishCell],
+        (targetRowIndex, targetColIndex) =>
+          rowIndex === targetRowIndex && colIndex === targetColIndex,
+      );
+    }
+    grid[rowIndex][colIndex] = newCellTypeFirstChar;
     setCellType(CELL_TYPE[newCellTypeFirstChar]);
   };
 
   return (
     <button
       className={styles.cell}
+      data-row-index={rowIndex}
+      data-col-index={colIndex}
       onContextMenu={(e): void => e.preventDefault()}
       onMouseDown={(): void => setNewCellType(selectedCellType)}
       onTouchStart={(): void => setNewCellType(selectedCellType)}
@@ -136,6 +267,8 @@ function Pathfinding(): JSX.Element {
     DEFAULT_SELECTED_CELL_TYPE,
   );
   const [grid, setGrid] = useState<CellTypeValueFirstChar[][]>([]);
+  const startCell = useRef<CellPosition>(composeInitialPosition());
+  const finishCell = useRef<CellPosition>(composeInitialPosition());
   const isHoldingClick = useRef(false);
   const { dimensions, ref } = useResizeDimensions(RESIZE_DIMENSIONS);
 
@@ -144,6 +277,8 @@ function Pathfinding(): JSX.Element {
   useEffect(() => {
     setCols(Math.floor(pxToRem(dimensions.boundedWidth) / CELL_DIM_SIZE));
     setRows(Math.floor(pxToRem(dimensions.boundedHeight) / CELL_DIM_SIZE));
+    console.log('>>>>> startCell', startCell.current);
+    console.log('>>>>> finishCell', finishCell.current);
   }, [dimensions.boundedHeight, dimensions.boundedWidth]);
 
   useEffect(() => {
@@ -163,6 +298,19 @@ function Pathfinding(): JSX.Element {
       }
       return newGrid;
     });
+  }, [rows, cols]);
+
+  useEffect(() => {
+    setToInitialPositionIfCondition(
+      [startCell],
+      (targetRowIndex, targetColIndex) =>
+        rows - 1 < targetRowIndex || cols - 1 < targetColIndex,
+    );
+    setToInitialPositionIfCondition(
+      [finishCell],
+      (targetRowIndex, targetColIndex) =>
+        rows - 1 < targetRowIndex || cols - 1 < targetColIndex,
+    );
   }, [rows, cols]);
 
   const setIsHoldingClickToFalse = (): void => {
@@ -246,10 +394,12 @@ function Pathfinding(): JSX.Element {
               <Cell
                 cellTypeInitialValue={CELL_TYPE[cellValueFirstChar]}
                 colIndex={colIndex}
+                finishCell={finishCell}
                 grid={grid}
                 key={`cell-row-${rowIndex}-col-${colIndex}-value-${cellValueFirstChar}`}
                 rowIndex={rowIndex}
                 selectedCellType={selectedCellType}
+                startCell={startCell}
               />
             );
           }),
