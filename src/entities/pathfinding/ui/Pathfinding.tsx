@@ -136,14 +136,14 @@ function mutateAssociatedParagraph(
   cellTypeClassName: string,
   colIndex: number,
   rowIndex: number,
-  textContent: CellTypeKeyFirstChar,
+  textContent: CellTypeKey,
 ): void {
   const cellElement = getElementByPosition(rowIndex, colIndex);
   if (cellElement) {
     const paragraph = cellElement.querySelector('p');
     if (paragraph) {
       paragraph.className = `${styles.cellText} ${cellTypeClassName}`;
-      paragraph.textContent = textContent;
+      paragraph.textContent = getCellTypeFirstChar(textContent);
     }
   }
 }
@@ -170,7 +170,7 @@ function handleSpecialCell({
       CELL_TYPE.empty.className,
       colIndex,
       rowIndex,
-      getCellTypeFirstChar(CELL_TYPE.empty.value),
+      CELL_TYPE.empty.value,
     );
   }
   setToInitialPositionIfCondition(
@@ -178,12 +178,11 @@ function handleSpecialCell({
     (targetRowIndex, targetColIndex) =>
       newRowIndex === targetRowIndex && newColIndex === targetColIndex,
   );
-  specialCell.current = { rowIndex: newRowIndex, colIndex: newColIndex };
   mutateAssociatedParagraph(
     CELL_TYPE[newCellTypeValue].className,
     newColIndex,
     newRowIndex,
-    getCellTypeFirstChar(newCellTypeValue),
+    newCellTypeValue,
   );
 }
 
