@@ -16,6 +16,11 @@ import { useEffect, useRef, useState } from 'react';
 import type { ReadonlyDeep, StringSlice } from 'type-fest';
 import styles from './pathfinding.module.css';
 
+type NodeTypeKey = 'wall' | 'empty' | 'finish' | 'start';
+type NodePosition = { rowIndex: number; colIndex: number };
+type NodeType = (typeof NODE_TYPE)[NodeTypeKey];
+type NodeTypeKeyFirstChar = StringSlice<NodeTypeKey, 0, 1>;
+
 const RESIZE_DIMENSIONS = {
   boundedHeight: 0,
   boundedWidth: 0,
@@ -27,19 +32,13 @@ const RESIZE_DIMENSIONS = {
   width: 0,
 };
 
-const CELL_DIM_SIZE = 1;
-const CELL_SIZE_VAR = composeCSSCustomProperty(
-  'cell-size',
-  `${CELL_DIM_SIZE}rem`,
+const NODE_DIM_SIZE = 1;
+const NODE_SIZE_VAR = composeCSSCustomProperty(
+  'node-size',
+  `${NODE_DIM_SIZE}rem`,
 );
-
-type CellTypeKey = 'wall' | 'empty' | 'finish' | 'start';
-type CellTypeKeyFirstChar = StringSlice<CellTypeKey, 0, 1>;
-type CellType = (typeof CELL_TYPE)[CellTypeKey];
-type CellPosition = { rowIndex: number; colIndex: number };
-
-const CELL_TYPE: ReadonlyDeep<{
-  [key in CellTypeKey]: { value: CellTypeKey; className: string };
+const NODE_TYPE: ReadonlyDeep<{
+  [key in NodeTypeKey]: { value: NodeTypeKey; className: string };
 }> = {
   wall: {
     value: 'wall',
@@ -58,198 +57,205 @@ const CELL_TYPE: ReadonlyDeep<{
     className: styles.start,
   },
 };
+const NODE_TYPES = Object.values(NODE_TYPE);
+const DEFAULT_NODE_TYPE = NODE_TYPE.wall;
 
-const CELL_TYPES = Object.values(CELL_TYPE);
-const DEFAULT_SELECTED_CELL_TYPE = CELL_TYPE.wall;
-
-function isCellType(value: unknown): value is CellTypeKey {
-  return CELL_TYPES.some((cellType) => cellType.value === value);
+function isNodeType(value: unknown): value is NodeTypeKey {
+  return NODE_TYPES.some((nodeType) => nodeType.value === value);
 }
 
-function isCellTypeFirstChar(value: unknown): value is CellTypeKeyFirstChar {
-  return CELL_TYPES.some((cellType) => cellType.value.charAt(0) === value);
+function isNodeTypeFirstChar(value: unknown): value is NodeTypeKeyFirstChar {
+  return NODE_TYPES.some((nodeType) => nodeType.value.charAt(0) === value);
 }
 
-function assertIsCellTypeKey(value: unknown): asserts value is CellTypeKey {
+function assertIsNodeTypeKey(value: unknown): asserts value is NodeTypeKey {
   if (typeof value !== 'string') {
     throw new Error(`Expected a string, but received: ${typeof value}`);
   }
-  if (!isCellType(value)) {
-    throw new Error(`Invalid cell type: ${value}`);
+  if (!isNodeType(value)) {
+    throw new Error(`Invalid node type: ${value}`);
   }
 }
 
-function getCellTypeFirstChar(value: CellTypeKey): CellTypeKeyFirstChar {
+function getNodeTypeFirstChar(value: NodeTypeKey): NodeTypeKeyFirstChar {
   const firstChar = value.charAt(0);
-  if (!isCellTypeFirstChar(firstChar)) {
-    throw new Error(`Invalid cell type first character: ${firstChar}`);
+  if (!isNodeTypeFirstChar(firstChar)) {
+    throw new Error(`Invalid node type first character: ${firstChar}`);
   }
   return firstChar;
 }
 
-function composeInitialPosition(): CellPosition {
+function composeInitialPosition(): NodePosition {
   return { rowIndex: -1, colIndex: -1 };
 }
 
-function isInitialPosition(cellPosition: CellPosition): boolean {
-  return cellPosition.rowIndex === -1 && cellPosition.colIndex === -1;
+function isInitialPosition(nodePosition: NodePosition): boolean {
+  return nodePosition.rowIndex === -1 && nodePosition.colIndex === -1;
 }
 
-function isStartCell(cellType: CellType): boolean {
-  return cellType.value === CELL_TYPE.start.value;
+function isStartNode(nodeType: NodeType): boolean {
+  return nodeType.value === NODE_TYPE.start.value;
 }
 
-function isFinishCell(cellType: CellType): boolean {
-  return cellType.value === CELL_TYPE.finish.value;
+function isFinishNode(nodeType: NodeType): boolean {
+  return nodeType.value === NODE_TYPE.finish.value;
 }
 
-function isWallCell(cellType: CellType): boolean {
-  return cellType.value === CELL_TYPE.wall.value;
+function isWallNode(nodeType: NodeType): boolean {
+  return nodeType.value === NODE_TYPE.wall.value;
 }
 
-function isEmptyCell(cellType: CellType): boolean {
-  return cellType.value === CELL_TYPE.empty.value;
+function isEmptyNode(nodeType: NodeType): boolean {
+  return nodeType.value === NODE_TYPE.empty.value;
 }
 
-function setToInitialPositionIfCondition(
-  cells: RefObject<CellPosition>[],
-  condition: (targetRowIndex: number, targetColIndex: number) => boolean,
-): void {
-  for (const cell of cells) {
-    const { rowIndex, colIndex } = cell.current;
+function setToInitialPositionIfCondition({
+  condition,
+  nodePositions,
+}: {
+  condition: (targetRowIndex: number, targetColIndex: number) => boolean;
+  nodePositions: RefObject<NodePosition>[];
+}): void {
+  for (const nodePosition of nodePositions) {
+    const { rowIndex, colIndex } = nodePosition.current;
     if (condition(rowIndex, colIndex)) {
-      cell.current = composeInitialPosition();
+      nodePosition.current = composeInitialPosition();
     }
   }
 }
 
-function getElementByPosition(
-  rowIndex: number,
-  colIndex: number,
-): HTMLButtonElement | null {
+function getElementByPosition({
+  colIndex,
+  rowIndex,
+}: { colIndex: number; rowIndex: number }): HTMLButtonElement | null {
   return document.querySelector(
     `[data-row-index="${rowIndex}"][data-col-index="${colIndex}"]`,
   );
 }
 
-function mutateAssociatedParagraph(
-  cellTypeClassName: string,
-  colIndex: number,
-  rowIndex: number,
-  textContent: CellTypeKey,
-): void {
-  const cellElement = getElementByPosition(rowIndex, colIndex);
-  if (cellElement) {
-    const paragraph = cellElement.querySelector('p');
-    if (paragraph) {
-      paragraph.className = `${styles.cellText} ${cellTypeClassName}`;
-      paragraph.textContent = getCellTypeFirstChar(textContent);
-    }
-  }
-}
-
-function handleSpecialCell({
-  grid,
-  newCellTypeValue,
-  newColIndex,
-  newRowIndex,
-  otherSpecialCells,
-  specialCell,
-}: {
-  grid: CellTypeKey[][];
-  newCellTypeValue: CellTypeKey;
-  newColIndex: number;
-  newRowIndex: number;
-  otherSpecialCells: RefObject<CellPosition>[];
-  specialCell: RefObject<CellPosition>;
-}): void {
-  const { rowIndex, colIndex } = specialCell.current;
-  if (!isInitialPosition(specialCell.current)) {
-    grid[rowIndex][colIndex] = CELL_TYPE.empty.value;
-    mutateAssociatedParagraph(
-      CELL_TYPE.empty.className,
-      colIndex,
-      rowIndex,
-      CELL_TYPE.empty.value,
-    );
-  }
-  setToInitialPositionIfCondition(
-    otherSpecialCells,
-    (targetRowIndex, targetColIndex) =>
-      newRowIndex === targetRowIndex && newColIndex === targetColIndex,
-  );
-  mutateAssociatedParagraph(
-    CELL_TYPE[newCellTypeValue].className,
-    newColIndex,
-    newRowIndex,
-    newCellTypeValue,
-  );
-  specialCell.current = { rowIndex: newRowIndex, colIndex: newColIndex };
-}
-
-function Cell({
-  cellTypeInitialValue,
+function mutateAssociatedParagraph({
   colIndex,
-  finishCell,
-  grid,
+  nodeTypeClassName,
   rowIndex,
-  selectedCellType,
-  startCell,
+  textContent,
 }: {
-  cellTypeInitialValue: CellType;
   colIndex: number;
-  finishCell: RefObject<CellPosition>;
-  grid: CellTypeKey[][];
+  nodeTypeClassName: string;
   rowIndex: number;
-  selectedCellType: CellType;
-  startCell: RefObject<CellPosition>;
-}): JSX.Element {
-  const [cellType, setCellType] = useState(cellTypeInitialValue);
+  textContent: NodeTypeKey;
+}): void {
+  const node = getElementByPosition({ colIndex, rowIndex });
+  if (node) {
+    const paragraph = node.querySelector('p');
+    if (paragraph) {
+      paragraph.className = `${styles.nodeText} ${nodeTypeClassName}`;
+      paragraph.textContent = getNodeTypeFirstChar(textContent);
+    }
+  }
+}
 
-  const setNewCellType = (newCellType: CellType): void => {
-    if (isStartCell(newCellType)) {
-      handleSpecialCell({
+function handleSpecialNode({
+  grid,
+  newColIndex,
+  newNodeTypeValue,
+  newRowIndex,
+  otherSpecialNodes,
+  specialNode,
+}: {
+  grid: NodeTypeKey[][];
+  newColIndex: number;
+  newNodeTypeValue: NodeTypeKey;
+  newRowIndex: number;
+  otherSpecialNodes: RefObject<NodePosition>[];
+  specialNode: RefObject<NodePosition>;
+}): void {
+  const { rowIndex, colIndex } = specialNode.current;
+  if (!isInitialPosition(specialNode.current)) {
+    grid[rowIndex][colIndex] = NODE_TYPE.empty.value;
+    mutateAssociatedParagraph({
+      colIndex,
+      nodeTypeClassName: NODE_TYPE.empty.className,
+      rowIndex,
+      textContent: NODE_TYPE.empty.value,
+    });
+  }
+  setToInitialPositionIfCondition({
+    condition: (targetRowIndex, targetColIndex): boolean =>
+      newRowIndex === targetRowIndex && newColIndex === targetColIndex,
+    nodePositions: otherSpecialNodes,
+  });
+  mutateAssociatedParagraph({
+    colIndex: newColIndex,
+    nodeTypeClassName: NODE_TYPE[newNodeTypeValue].className,
+    rowIndex: newRowIndex,
+    textContent: newNodeTypeValue,
+  });
+  specialNode.current = { rowIndex: newRowIndex, colIndex: newColIndex };
+}
+
+function Node({
+  colIndex,
+  finishNode,
+  grid,
+  nodeTypeInitialValue,
+  rowIndex,
+  selectedNodeType,
+  startNode,
+}: {
+  colIndex: number;
+  finishNode: RefObject<NodePosition>;
+  grid: NodeTypeKey[][];
+  nodeTypeInitialValue: NodeType;
+  rowIndex: number;
+  selectedNodeType: NodeType;
+  startNode: RefObject<NodePosition>;
+}): JSX.Element {
+  const [nodeType, setNodeType] = useState(nodeTypeInitialValue);
+
+  const setNewNodeType = (newNodeType: NodeType): void => {
+    if (isStartNode(newNodeType)) {
+      handleSpecialNode({
         grid,
-        newCellTypeValue: newCellType.value,
         newColIndex: colIndex,
+        newNodeTypeValue: newNodeType.value,
         newRowIndex: rowIndex,
-        otherSpecialCells: [finishCell],
-        specialCell: startCell,
+        otherSpecialNodes: [finishNode],
+        specialNode: startNode,
       });
     }
-    if (isFinishCell(newCellType)) {
-      handleSpecialCell({
+    if (isFinishNode(newNodeType)) {
+      handleSpecialNode({
         grid,
-        newCellTypeValue: newCellType.value,
         newColIndex: colIndex,
+        newNodeTypeValue: newNodeType.value,
         newRowIndex: rowIndex,
-        otherSpecialCells: [startCell],
-        specialCell: finishCell,
+        otherSpecialNodes: [startNode],
+        specialNode: finishNode,
       });
     }
-    if (isWallCell(newCellType) || isEmptyCell(newCellType)) {
-      setToInitialPositionIfCondition(
-        [startCell, finishCell],
-        (targetRowIndex, targetColIndex) =>
+    if (isWallNode(newNodeType) || isEmptyNode(newNodeType)) {
+      setToInitialPositionIfCondition({
+        condition: (targetRowIndex, targetColIndex): boolean =>
           rowIndex === targetRowIndex && colIndex === targetColIndex,
-      );
+        nodePositions: [startNode, finishNode],
+      });
     }
-    setCellType(CELL_TYPE[newCellType.value]);
-    grid[rowIndex][colIndex] = newCellType.value;
+    setNodeType(NODE_TYPE[newNodeType.value]);
+    grid[rowIndex][colIndex] = newNodeType.value;
   };
 
   return (
     <button
-      className={styles.cell}
+      className={styles.node}
       data-row-index={rowIndex}
       data-col-index={colIndex}
       onContextMenu={(e): void => e.preventDefault()}
-      onMouseDown={(): void => setNewCellType(selectedCellType)}
-      onTouchStart={(): void => setNewCellType(selectedCellType)}
+      onMouseDown={(): void => setNewNodeType(selectedNodeType)}
+      onTouchStart={(): void => setNewNodeType(selectedNodeType)}
       type="button"
     >
-      <p className={`${styles.cellText} ${cellType.className}`}>
-        {getCellTypeFirstChar(cellType.value)}
+      <p className={`${styles.nodeText} ${nodeType.className}`}>
+        {getNodeTypeFirstChar(nodeType.value)}
       </p>
     </button>
   );
@@ -266,34 +272,32 @@ const unsetBodyOverflow = (): void => {
 function Pathfinding(): JSX.Element {
   const [cols, setCols] = useState(0);
   const [rows, setRows] = useState(0);
-  const [selectedCellType, setSelectedCellType] = useState(
-    DEFAULT_SELECTED_CELL_TYPE,
-  );
-  const [grid, setGrid] = useState<CellTypeKey[][]>([]);
-  const startCell = useRef<CellPosition>(composeInitialPosition());
-  const finishCell = useRef<CellPosition>(composeInitialPosition());
+  const [selectedNodeType, setSelectedNodeType] = useState(DEFAULT_NODE_TYPE);
+  const [grid, setGrid] = useState<NodeTypeKey[][]>([]);
+  const startNode = useRef<NodePosition>(composeInitialPosition());
+  const finishNode = useRef<NodePosition>(composeInitialPosition());
   const isHoldingClick = useRef(false);
   const { dimensions, ref } = useResizeDimensions(RESIZE_DIMENSIONS);
 
   useOnClickOutside([ref], unsetBodyOverflow);
 
   useEffect(() => {
-    setCols(Math.floor(pxToRem(dimensions.boundedWidth) / CELL_DIM_SIZE));
-    setRows(Math.floor(pxToRem(dimensions.boundedHeight) / CELL_DIM_SIZE));
-    console.log('>>>>> startCell', startCell.current);
-    console.log('>>>>> finishCell', finishCell.current);
+    setCols(Math.floor(pxToRem(dimensions.boundedWidth) / NODE_DIM_SIZE));
+    setRows(Math.floor(pxToRem(dimensions.boundedHeight) / NODE_DIM_SIZE));
+    console.log('>>>>> startNode', startNode.current);
+    console.log('>>>>> finishNode', finishNode.current);
   }, [dimensions.boundedHeight, dimensions.boundedWidth]);
 
   useEffect(() => {
     setGrid((prevGrid) => {
       const newGrid = Array.from({ length: rows }, () =>
-        Array.from({ length: cols }, () => CELL_TYPE.empty.value),
+        Array.from({ length: cols }, () => NODE_TYPE.empty.value),
       );
       for (let rowIndex = 0; rowIndex < rows; rowIndex += 1) {
         for (let colIndex = 0; colIndex < cols; colIndex += 1) {
-          const cellValue = prevGrid[rowIndex]?.[colIndex];
-          if (cellValue !== undefined) {
-            newGrid[rowIndex][colIndex] = cellValue;
+          const nodeValue = prevGrid[rowIndex]?.[colIndex];
+          if (nodeValue !== undefined) {
+            newGrid[rowIndex][colIndex] = nodeValue;
           }
         }
       }
@@ -302,16 +306,16 @@ function Pathfinding(): JSX.Element {
   }, [rows, cols]);
 
   useEffect(() => {
-    setToInitialPositionIfCondition(
-      [startCell],
-      (targetRowIndex, targetColIndex) =>
+    setToInitialPositionIfCondition({
+      condition: (targetRowIndex, targetColIndex): boolean =>
         rows - 1 < targetRowIndex || cols - 1 < targetColIndex,
-    );
-    setToInitialPositionIfCondition(
-      [finishCell],
-      (targetRowIndex, targetColIndex) =>
+      nodePositions: [startNode],
+    });
+    setToInitialPositionIfCondition({
+      condition: (targetRowIndex, targetColIndex): boolean =>
         rows - 1 < targetRowIndex || cols - 1 < targetColIndex,
-    );
+      nodePositions: [finishNode],
+    });
   }, [rows, cols]);
 
   const setIsHoldingClickToFalse = (): void => {
@@ -326,11 +330,11 @@ function Pathfinding(): JSX.Element {
     clientX,
     clientY,
   }: { clientX: number; clientY: number }): void {
-    const cell = document.elementFromPoint(clientX, clientY);
-    if (cell) {
-      const cellButton = cell.closest('button');
-      if (cellButton) {
-        cellButton.dispatchEvent(
+    const node = document.elementFromPoint(clientX, clientY);
+    if (node) {
+      const button = node.closest('button');
+      if (button) {
+        button.dispatchEvent(
           new MouseEvent('mousedown', {
             bubbles: true,
             clientX,
@@ -362,17 +366,17 @@ function Pathfinding(): JSX.Element {
   return (
     <>
       <select
-        key={selectedCellType.value}
-        value={selectedCellType.value}
+        key={selectedNodeType.value}
+        value={selectedNodeType.value}
         onChange={(e): void => {
           const { value } = e.target;
-          assertIsCellTypeKey(value);
-          setSelectedCellType(CELL_TYPE[value]);
+          assertIsNodeTypeKey(value);
+          setSelectedNodeType(NODE_TYPE[value]);
         }}
       >
-        {CELL_TYPES.map((cellType) => (
-          <option key={cellType.value} value={cellType.value}>
-            {cellType.value.charAt(0).toUpperCase() + cellType.value.slice(1)}
+        {NODE_TYPES.map((nodeType) => (
+          <option key={nodeType.value} value={nodeType.value}>
+            {nodeType.value.charAt(0).toUpperCase() + nodeType.value.slice(1)}
           </option>
         ))}
       </select>
@@ -386,19 +390,19 @@ function Pathfinding(): JSX.Element {
         onTouchMove={dispatchPointerDown}
         onTouchStart={hideBodyOverflow}
         ref={ref}
-        style={CELL_SIZE_VAR}
+        style={NODE_SIZE_VAR}
       >
         {grid.map((row, rowIndex) =>
-          row.map((cellValueFirstChar, colIndex) => (
-            <Cell
-              cellTypeInitialValue={CELL_TYPE[cellValueFirstChar]}
+          row.map((nodeValueFirstChar, colIndex) => (
+            <Node
               colIndex={colIndex}
-              finishCell={finishCell}
+              finishNode={finishNode}
               grid={grid}
-              key={`cell-row-${rowIndex}-col-${colIndex}-value-${cellValueFirstChar}`}
+              key={`node-row-${rowIndex}-col-${colIndex}-value-${nodeValueFirstChar}`}
+              nodeTypeInitialValue={NODE_TYPE[nodeValueFirstChar]}
               rowIndex={rowIndex}
-              selectedCellType={selectedCellType}
-              startCell={startCell}
+              selectedNodeType={selectedNodeType}
+              startNode={startNode}
             />
           )),
         )}

@@ -1,18 +1,18 @@
 @layer components {
-  .cell {
+  .node {
     background-color: lightgray;
     border: none;
     color: inherit;
     cursor: pointer;
     font-size: 0.0325rem;
-    height: var(--cell-size);
+    height: var(--node-size);
     outline: 0.0625rem solid black;
     padding: 0;
     user-select: none;
-    width: var(--cell-size);
+    width: var(--node-size);
   }
 
-  .cellText {
+  .nodeText {
     color: black;
     font-size: 0.5rem;
     margin: 0;
@@ -20,8 +20,8 @@
 
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, var(--cell-size));
-    grid-template-rows: repeat(auto-fit, var(--cell-size));
+    grid-template-columns: repeat(auto-fit, var(--node-size));
+    grid-template-rows: repeat(auto-fit, var(--node-size));
     height: 40rem;
     justify-content: center;
     max-height: 70vh;
