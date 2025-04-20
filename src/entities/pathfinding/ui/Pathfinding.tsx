@@ -70,7 +70,7 @@ function isCellTypeFirstChar(value: unknown): value is CellTypeKeyFirstChar {
   return CELL_TYPES.some((cellType) => cellType.value.charAt(0) === value);
 }
 
-function assertIsCellType(value: unknown): asserts value is CellTypeKey {
+function assertIsCellTypeKey(value: unknown): asserts value is CellTypeKey {
   if (typeof value !== 'string') {
     throw new Error(`Expected a string, but received: ${typeof value}`);
   }
@@ -362,7 +362,7 @@ function Pathfinding(): JSX.Element {
         value={selectedCellType.value}
         onChange={(e): void => {
           const { value } = e.target;
-          assertIsCellType(value);
+          assertIsCellTypeKey(value);
           setSelectedCellType(CELL_TYPE[value]);
         }}
       >
