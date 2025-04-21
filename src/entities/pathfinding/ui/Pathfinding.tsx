@@ -364,13 +364,14 @@ function Pathfinding(): JSX.Element {
   return (
     <>
       <select
+        id="node-type-select"
         key={selectedNodeType.value}
-        value={selectedNodeType.value}
         onChange={(e): void => {
           const { value } = e.target;
           assertIsNodeTypeKey(value);
           setSelectedNodeType(NODE_TYPE[value]);
         }}
+        value={selectedNodeType.value}
       >
         {NODE_TYPES.map((nodeType) => (
           <option key={nodeType.value} value={nodeType.value}>
