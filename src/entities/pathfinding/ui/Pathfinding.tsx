@@ -16,7 +16,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { ReadonlyDeep, StringSlice } from 'type-fest';
 import styles from './pathfinding.module.css';
 
-type NodeTypeKey = 'wall' | 'empty' | 'finish' | 'start';
+type NodeTypeKey = 'wall' | 'empty' | 'end' | 'start';
 type NodePosition = { x: number; y: number };
 type NodeType = (typeof NODE_TYPE)[NodeTypeKey];
 type NodeTypeKeyFirstChar = StringSlice<NodeTypeKey, 0, 1>;
@@ -40,22 +40,10 @@ const NODE_SIZE_VAR = composeCSSCustomProperty(
 const NODE_TYPE: ReadonlyDeep<{
   [key in NodeTypeKey]: { value: NodeTypeKey; className: string };
 }> = {
-  wall: {
-    value: 'wall',
-    className: styles.wall,
-  },
-  empty: {
-    value: 'empty',
-    className: styles.empty,
-  },
-  finish: {
-    value: 'finish',
-    className: styles.finish,
-  },
-  start: {
-    value: 'start',
-    className: styles.start,
-  },
+  wall: { value: 'wall', className: styles.wall },
+  empty: { value: 'empty', className: styles.empty },
+  end: { value: 'end', className: styles.end },
+  start: { value: 'start', className: styles.start },
 };
 const NODE_TYPES = Object.values(NODE_TYPE);
 const DEFAULT_NODE_TYPE = NODE_TYPE.wall;
@@ -97,8 +85,8 @@ function isStartNode(nodeType: NodeType): boolean {
   return nodeType.value === NODE_TYPE.start.value;
 }
 
-function isFinishNode(nodeType: NodeType): boolean {
-  return nodeType.value === NODE_TYPE.finish.value;
+function isEndNode(nodeType: NodeType): boolean {
+  return nodeType.value === NODE_TYPE.end.value;
 }
 
 function isWallNode(nodeType: NodeType): boolean {
@@ -192,7 +180,7 @@ function handleSpecialNode({
 }
 
 function Node({
-  finishNode,
+  endNode,
   grid,
   nodeTypeInitialValue,
   selectedNodeType,
@@ -200,7 +188,7 @@ function Node({
   x,
   y,
 }: {
-  finishNode: RefObject<NodePosition>;
+  endNode: RefObject<NodePosition>;
   grid: NodeTypeKey[][];
   nodeTypeInitialValue: NodeType;
   selectedNodeType: NodeType;
@@ -217,25 +205,25 @@ function Node({
         newNodeTypeValue: newNodeType.value,
         newX: x,
         newY: y,
-        otherSpecialNodes: [finishNode],
+        otherSpecialNodes: [endNode],
         specialNode: startNode,
       });
     }
-    if (isFinishNode(newNodeType)) {
+    if (isEndNode(newNodeType)) {
       handleSpecialNode({
         grid,
         newNodeTypeValue: newNodeType.value,
         newX: x,
         newY: y,
         otherSpecialNodes: [startNode],
-        specialNode: finishNode,
+        specialNode: endNode,
       });
     }
     if (isWallNode(newNodeType) || isEmptyNode(newNodeType)) {
       setToInitialPositionIfCondition({
         condition: (targetX, targetY): boolean =>
           x === targetX && y === targetY,
-        nodePositions: [startNode, finishNode],
+        nodePositions: [startNode, endNode],
       });
     }
     setNodeType(NODE_TYPE[newNodeType.value]);
@@ -259,6 +247,33 @@ function Node({
   );
 }
 
+function dispatchEvent({
+  clientX,
+  clientY,
+}: { clientX: number; clientY: number }): void {
+  const node = document.elementFromPoint(clientX, clientY);
+  if (node) {
+    const button = node.closest('button');
+    if (button) {
+      button.dispatchEvent(
+        new MouseEvent('mousedown', {
+          bubbles: true,
+          clientX,
+          clientY,
+        }),
+      );
+    }
+  }
+}
+
+const dispatchPointerDown: TouchEventHandler<HTMLElement> = (
+  e: TouchEvent<HTMLElement>,
+): void => {
+  const touch = e.touches[0];
+  const { clientX, clientY } = touch;
+  dispatchEvent({ clientX, clientY });
+};
+
 const hideBodyOverflow = (): void => {
   document.body.style.overflow = 'hidden';
 };
@@ -272,7 +287,7 @@ function Pathfinding(): JSX.Element {
   const [rows, setRows] = useState(0);
   const [grid, setGrid] = useState<NodeTypeKey[][]>([]);
   const [selectedNodeType, setSelectedNodeType] = useState(DEFAULT_NODE_TYPE);
-  const finishNode = useRef<NodePosition>(composeInitialPosition());
+  const endNode = useRef<NodePosition>(composeInitialPosition());
   const startNode = useRef<NodePosition>(composeInitialPosition());
   const isHoldingClick = useRef(false);
   const { dimensions, ref } = useResizeDimensions(RESIZE_DIMENSIONS);
@@ -283,7 +298,7 @@ function Pathfinding(): JSX.Element {
     setCols(Math.floor(pxToRem(dimensions.boundedWidth) / NODE_DIM_SIZE));
     setRows(Math.floor(pxToRem(dimensions.boundedHeight) / NODE_DIM_SIZE));
     console.log('>>>>> startNode', startNode.current);
-    console.log('>>>>> finishNode', finishNode.current);
+    console.log('>>>>> endNode', endNode.current);
   }, [dimensions.boundedHeight, dimensions.boundedWidth]);
 
   useEffect(() => {
@@ -312,7 +327,7 @@ function Pathfinding(): JSX.Element {
     setToInitialPositionIfCondition({
       condition: (targetX, targetY): boolean =>
         rows - 1 < targetX || cols - 1 < targetY,
-      nodePositions: [finishNode],
+      nodePositions: [endNode],
     });
   }, [rows, cols]);
 
@@ -322,33 +337,6 @@ function Pathfinding(): JSX.Element {
 
   const setIsHoldingClickToTrue = (): void => {
     isHoldingClick.current = true;
-  };
-
-  function dispatchEvent({
-    clientX,
-    clientY,
-  }: { clientX: number; clientY: number }): void {
-    const node = document.elementFromPoint(clientX, clientY);
-    if (node) {
-      const button = node.closest('button');
-      if (button) {
-        button.dispatchEvent(
-          new MouseEvent('mousedown', {
-            bubbles: true,
-            clientX,
-            clientY,
-          }),
-        );
-      }
-    }
-  }
-
-  const dispatchPointerDown: TouchEventHandler<HTMLElement> = (
-    e: TouchEvent<HTMLElement>,
-  ): void => {
-    const touch = e.touches[0];
-    const { clientX, clientY } = touch;
-    dispatchEvent({ clientX, clientY });
   };
 
   const dispatchMouseDown: MouseEventHandler<HTMLElement> = (
@@ -394,7 +382,7 @@ function Pathfinding(): JSX.Element {
         {grid.map((row, x) =>
           row.map((nodeValueFirstChar, y) => (
             <Node
-              finishNode={finishNode}
+              endNode={endNode}
               grid={grid}
               key={`node-x-${x}-y-${y}-value-${nodeValueFirstChar}`}
               nodeTypeInitialValue={NODE_TYPE[nodeValueFirstChar]}
