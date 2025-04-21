@@ -17,7 +17,7 @@ import type { ReadonlyDeep, StringSlice } from 'type-fest';
 import styles from './pathfinding.module.css';
 
 type NodeTypeKey = 'wall' | 'empty' | 'end' | 'start';
-type NodePosition = { x: number; y: number };
+type NodePosition = { col: number; row: number };
 type NodeType = (typeof NODE_TYPE)[NodeTypeKey];
 type NodeTypeKeyFirstChar = StringSlice<NodeTypeKey, 0, 1>;
 
@@ -74,11 +74,11 @@ function getNodeTypeFirstChar(value: NodeTypeKey): NodeTypeKeyFirstChar {
 }
 
 function composeInitialPosition(): NodePosition {
-  return { x: -1, y: -1 };
+  return { col: -1, row: -1 };
 }
 
 function isInitialPosition(nodePosition: NodePosition): boolean {
-  return nodePosition.x === -1 && nodePosition.y === -1;
+  return nodePosition.col === -1 && nodePosition.row === -1;
 }
 
 function isStartNode(nodeType: NodeType): boolean {
@@ -101,36 +101,39 @@ function setToInitialPositionIfCondition({
   condition,
   nodePositions,
 }: {
-  condition: (targetX: number, targetY: number) => boolean;
+  condition: ({
+    targetCol,
+    targetRow,
+  }: { targetCol: number; targetRow: number }) => boolean;
   nodePositions: RefObject<NodePosition>[];
 }): void {
   for (const nodePosition of nodePositions) {
-    const { x, y } = nodePosition.current;
-    if (condition(x, y)) {
+    const { col, row } = nodePosition.current;
+    if (condition({ targetCol: col, targetRow: row })) {
       nodePosition.current = composeInitialPosition();
     }
   }
 }
 
 function getElementByPosition({
-  x,
-  y,
-}: { x: number; y: number }): HTMLButtonElement | null {
-  return document.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+  col,
+  row,
+}: { col: number; row: number }): HTMLButtonElement | null {
+  return document.querySelector(`[data-col="${col}"][data-row="${row}"]`);
 }
 
 function mutateAssociatedParagraph({
+  col,
   nodeTypeClassName,
+  row,
   textContent,
-  x,
-  y,
 }: {
+  col: number;
   nodeTypeClassName: string;
+  row: number;
   textContent: NodeTypeKey;
-  x: number;
-  y: number;
 }): void {
-  const node = getElementByPosition({ x, y });
+  const node = getElementByPosition({ col, row });
   if (node) {
     const paragraph = node.querySelector('p');
     if (paragraph) {
@@ -142,59 +145,59 @@ function mutateAssociatedParagraph({
 
 function handleSpecialNode({
   grid,
+  newCol,
   newNodeTypeValue,
-  newX,
-  newY,
+  newRow,
   otherSpecialNodes,
   specialNode,
 }: {
   grid: NodeTypeKey[][];
+  newCol: number;
   newNodeTypeValue: NodeTypeKey;
-  newX: number;
-  newY: number;
+  newRow: number;
   otherSpecialNodes: RefObject<NodePosition>[];
   specialNode: RefObject<NodePosition>;
 }): void {
-  const { x, y } = specialNode.current;
+  const { col, row } = specialNode.current;
   if (!isInitialPosition(specialNode.current)) {
-    grid[x][y] = NODE_TYPE.empty.value;
+    grid[row][col] = NODE_TYPE.empty.value;
     mutateAssociatedParagraph({
+      col,
       nodeTypeClassName: NODE_TYPE.empty.className,
+      row,
       textContent: NODE_TYPE.empty.value,
-      x,
-      y,
     });
   }
   setToInitialPositionIfCondition({
-    condition: (targetX, targetY): boolean =>
-      newX === targetX && newY === targetY,
+    condition: ({ targetCol, targetRow }): boolean =>
+      newCol === targetCol && newRow === targetRow,
     nodePositions: otherSpecialNodes,
   });
   mutateAssociatedParagraph({
+    col: newCol,
     nodeTypeClassName: NODE_TYPE[newNodeTypeValue].className,
+    row: newRow,
     textContent: newNodeTypeValue,
-    x: newX,
-    y: newY,
   });
-  specialNode.current = { x: newX, y: newY };
+  specialNode.current = { col: newCol, row: newRow };
 }
 
 function Node({
+  col,
   endNode,
   grid,
   nodeTypeInitialValue,
+  row,
   selectedNodeType,
   startNode,
-  x,
-  y,
 }: {
+  col: number;
   endNode: RefObject<NodePosition>;
   grid: NodeTypeKey[][];
   nodeTypeInitialValue: NodeType;
+  row: number;
   selectedNodeType: NodeType;
   startNode: RefObject<NodePosition>;
-  x: number;
-  y: number;
 }): JSX.Element {
   const [nodeType, setNodeType] = useState(nodeTypeInitialValue);
 
@@ -202,9 +205,9 @@ function Node({
     if (isStartNode(newNodeType)) {
       handleSpecialNode({
         grid,
+        newCol: col,
         newNodeTypeValue: newNodeType.value,
-        newX: x,
-        newY: y,
+        newRow: row,
         otherSpecialNodes: [endNode],
         specialNode: startNode,
       });
@@ -212,29 +215,29 @@ function Node({
     if (isEndNode(newNodeType)) {
       handleSpecialNode({
         grid,
+        newCol: col,
         newNodeTypeValue: newNodeType.value,
-        newX: x,
-        newY: y,
+        newRow: row,
         otherSpecialNodes: [startNode],
         specialNode: endNode,
       });
     }
     if (isWallNode(newNodeType) || isEmptyNode(newNodeType)) {
       setToInitialPositionIfCondition({
-        condition: (targetX, targetY): boolean =>
-          x === targetX && y === targetY,
+        condition: ({ targetCol, targetRow }): boolean =>
+          col === targetCol && row === targetRow,
         nodePositions: [startNode, endNode],
       });
     }
     setNodeType(NODE_TYPE[newNodeType.value]);
-    grid[x][y] = newNodeType.value;
+    grid[row][col] = newNodeType.value;
   };
 
   return (
     <button
       className={styles.node}
-      data-x={x}
-      data-y={y}
+      data-col={col}
+      data-row={row}
       onContextMenu={(e): void => e.preventDefault()}
       onMouseDown={(): void => setNewNodeType(selectedNodeType)}
       onTouchStart={(): void => setNewNodeType(selectedNodeType)}
@@ -306,27 +309,24 @@ function Pathfinding(): JSX.Element {
       const newGrid = Array.from({ length: rows }, () =>
         Array.from({ length: cols }, () => NODE_TYPE.empty.value),
       );
-      for (let x = 0; x < rows; x += 1) {
-        for (let y = 0; y < cols; y += 1) {
-          const nodeValue = prevGrid[x]?.[y];
+      for (let row = 0; row < rows; row += 1) {
+        for (let col = 0; col < cols; col += 1) {
+          const nodeValue = prevGrid[row]?.[col];
           if (nodeValue !== undefined) {
-            newGrid[x][y] = nodeValue;
+            newGrid[row][col] = nodeValue;
           }
         }
       }
       return newGrid;
     });
-  }, [rows, cols]);
-
-  useEffect(() => {
     setToInitialPositionIfCondition({
-      condition: (targetX, targetY): boolean =>
-        rows - 1 < targetX || cols - 1 < targetY,
+      condition: ({ targetCol, targetRow }): boolean =>
+        cols - 1 < targetCol || rows - 1 < targetRow,
       nodePositions: [startNode],
     });
     setToInitialPositionIfCondition({
-      condition: (targetX, targetY): boolean =>
-        rows - 1 < targetX || cols - 1 < targetY,
+      condition: ({ targetCol, targetRow }): boolean =>
+        cols - 1 < targetCol || rows - 1 < targetRow,
       nodePositions: [endNode],
     });
   }, [rows, cols]);
@@ -379,17 +379,17 @@ function Pathfinding(): JSX.Element {
         ref={ref}
         style={NODE_SIZE_VAR}
       >
-        {grid.map((row, x) =>
-          row.map((nodeValueFirstChar, y) => (
+        {grid.map((gridRow, row) =>
+          gridRow.map((nodeTypeKey, col) => (
             <Node
+              col={col}
               endNode={endNode}
               grid={grid}
-              key={`node-x-${x}-y-${y}-value-${nodeValueFirstChar}`}
-              nodeTypeInitialValue={NODE_TYPE[nodeValueFirstChar]}
+              key={`node-row-${row}-col-${col}-value-${nodeTypeKey}`}
+              nodeTypeInitialValue={NODE_TYPE[nodeTypeKey]}
+              row={row}
               selectedNodeType={selectedNodeType}
               startNode={startNode}
-              x={x}
-              y={y}
             />
           )),
         )}
