@@ -270,10 +270,10 @@ const unsetBodyOverflow = (): void => {
 function Pathfinding(): JSX.Element {
   const [cols, setCols] = useState(0);
   const [rows, setRows] = useState(0);
-  const [selectedNodeType, setSelectedNodeType] = useState(DEFAULT_NODE_TYPE);
   const [grid, setGrid] = useState<NodeTypeKey[][]>([]);
-  const startNode = useRef<NodePosition>(composeInitialPosition());
+  const [selectedNodeType, setSelectedNodeType] = useState(DEFAULT_NODE_TYPE);
   const finishNode = useRef<NodePosition>(composeInitialPosition());
+  const startNode = useRef<NodePosition>(composeInitialPosition());
   const isHoldingClick = useRef(false);
   const { dimensions, ref } = useResizeDimensions(RESIZE_DIMENSIONS);
 
