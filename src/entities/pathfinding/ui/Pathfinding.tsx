@@ -5,10 +5,12 @@ import pxToRem from '@/shared/lib/pxToRem.ts';
 import useOnClickOutside from '@/shared/lib/useOnClickOutside.ts';
 import useResizeDimensions from '@/shared/lib/useResizeDimensions.ts';
 import type {
+  Dispatch,
   JSX,
   MouseEvent,
   MouseEventHandler,
   RefObject,
+  SetStateAction,
   TouchEvent,
   TouchEventHandler,
 } from 'react';
@@ -149,6 +151,7 @@ function handleSpecialNode({
   newNodeTypeValue,
   newRow,
   otherSpecialNodes,
+  setGrid,
   specialNode,
 }: {
   grid: NodeTypeKey[][];
@@ -156,11 +159,13 @@ function handleSpecialNode({
   newNodeTypeValue: NodeTypeKey;
   newRow: number;
   otherSpecialNodes: RefObject<NodePosition>[];
+  setGrid: Dispatch<SetStateAction<NodeTypeKey[][]>>;
   specialNode: RefObject<NodePosition>;
 }): void {
   const { col, row } = specialNode.current;
   if (!isInitialPosition(specialNode.current)) {
     grid[row][col] = NODE_TYPE.empty.value;
+    setGrid(grid);
     mutateAssociatedParagraph({
       col,
       nodeTypeClassName: NODE_TYPE.empty.className,
@@ -189,6 +194,7 @@ function Node({
   nodeTypeInitialValue,
   row,
   selectedNodeType,
+  setGrid,
   startNode,
 }: {
   col: number;
@@ -197,6 +203,7 @@ function Node({
   nodeTypeInitialValue: NodeType;
   row: number;
   selectedNodeType: NodeType;
+  setGrid: Dispatch<SetStateAction<NodeTypeKey[][]>>;
   startNode: RefObject<NodePosition>;
 }): JSX.Element {
   const [nodeType, setNodeType] = useState(nodeTypeInitialValue);
@@ -209,6 +216,7 @@ function Node({
         newNodeTypeValue: newNodeType.value,
         newRow: row,
         otherSpecialNodes: [endNode],
+        setGrid,
         specialNode: startNode,
       });
     }
@@ -219,6 +227,7 @@ function Node({
         newNodeTypeValue: newNodeType.value,
         newRow: row,
         otherSpecialNodes: [startNode],
+        setGrid,
         specialNode: endNode,
       });
     }
@@ -229,8 +238,9 @@ function Node({
         nodePositions: [startNode, endNode],
       });
     }
-    setNodeType(NODE_TYPE[newNodeType.value]);
     grid[row][col] = newNodeType.value;
+    setGrid(grid);
+    setNodeType(NODE_TYPE[newNodeType.value]);
   };
 
   return (
@@ -389,6 +399,7 @@ function Pathfinding(): JSX.Element {
               nodeTypeInitialValue={NODE_TYPE[nodeTypeKey]}
               row={row}
               selectedNodeType={selectedNodeType}
+              setGrid={setGrid}
               startNode={startNode}
             />
           )),
