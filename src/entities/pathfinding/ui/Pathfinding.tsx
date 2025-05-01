@@ -37,13 +37,13 @@ const NODE_SIZE_VAR = composeCSSCustomProperty(
   'node-size',
   `${NODE_DIM_SIZE}rem`,
 );
-const NODE_TYPE: ReadonlyDeep<{
-  [key in NodeTypeKey]: { value: NodeTypeKey; className: string };
-}> = {
-  wall: { value: 'wall', className: styles.wall },
-  empty: { value: 'empty', className: styles.empty },
-  end: { value: 'end', className: styles.end },
-  start: { value: 'start', className: styles.start },
+const NODE_TYPE: ReadonlyDeep<
+  Record<NodeTypeKey, { className: string; value: NodeTypeKey }>
+> = {
+  wall: { className: styles.wall, value: 'wall' },
+  empty: { className: styles.empty, value: 'empty' },
+  end: { className: styles.end, value: 'end' },
+  start: { className: styles.start, value: 'start' },
 };
 const NODE_TYPES = Object.values(NODE_TYPE);
 const DEFAULT_NODE_TYPE = NODE_TYPE.wall;
