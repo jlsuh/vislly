@@ -7,7 +7,7 @@ type FooterProps = {
 
 function Footer({ sxFooter }: FooterProps): JSX.Element {
   return (
-    <footer className={`${styles.footer} ${sxFooter}`}>
+    <footer className={sxFooter}>
       <div className={styles.footerContainer}>
         <span className={styles.copyrightNotice}>
           Copyright &copy; 2025 Joel Suh. All rights reserved.
