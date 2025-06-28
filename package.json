@@ -7,7 +7,7 @@
     "biome:ci": "biome ci .",
     "biome:format": "biome check --write --unsafe .",
     "biome:migrate": "biome migrate --write",
-    "build": "tsc --extendedDiagnostics --erasableSyntaxOnly && next build",
+    "build": "tsc --extendedDiagnostics --erasableSyntaxOnly && next build --turbopack",
     "depc:ci": "pnpm depc:report && pnpm depc:metrics && pnpm depc:gen",
     "depc:gen": "depcruise -I \"^src\" -T dot ./src | dot -T svg | depcruise-wrap-stream-in-html > ./dependency-graph.html && pnpm depc:open",
     "depc:genl": "depcruise src -I \"^src\" -S 2 -T dot | dot -T svg | depcruise-wrap-stream-in-html > ./dependency-graph.html && pnpm depc:open",
@@ -19,18 +19,18 @@
   },
   "dependencies": {
     "d3": "7.9.0",
-    "next": "15.3.1",
+    "next": "15.3.4",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.9.4",
+    "@biomejs/biome": "2.0.6",
     "@types/d3": "7.4.3",
-    "@types/node": "22.15.3",
-    "@types/react": "19.1.2",
-    "@types/react-dom": "19.1.3",
-    "dependency-cruiser": "16.10.1",
-    "type-fest": "4.40.1",
+    "@types/node": "24.0.7",
+    "@types/react": "19.1.8",
+    "@types/react-dom": "19.1.6",
+    "dependency-cruiser": "16.10.3",
+    "type-fest": "4.41.0",
     "typescript": "5.8.3"
   },
   "pnpm": {
