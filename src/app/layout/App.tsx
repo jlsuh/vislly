@@ -1,9 +1,9 @@
 import type { JSX, PropsWithChildren } from 'react';
+import styles from './app.module.css';
 import Footer from './Footer.tsx';
 import Header from './Header.tsx';
 import Main from './Main.tsx';
 import NavigationList from './NavigationList.tsx';
-import styles from './app.module.css';
 
 function App({ children }: PropsWithChildren): JSX.Element {
   return (

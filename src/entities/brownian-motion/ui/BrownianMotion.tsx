@@ -1,8 +1,8 @@
 'use client';
 
+import { type JSX, useEffect, useId } from 'react';
 import getRootFontSize from '@/shared/lib/getRootFontSize.ts';
 import useResizeDimensions from '@/shared/lib/useResizeDimensions';
-import { type JSX, useEffect } from 'react';
 import {
   type Angle,
   type CoefficientOfRestitution,
@@ -150,12 +150,17 @@ const RESIZE_DIMENSIONS = {
   width: 0,
 };
 
-const BLUE = new RGBA(0.23725490196, 0.53725490196, 0.85490196078, 0.25);
-const POLLEN = new RGBA(0.97647058823, 0.81568627451, 0.0862745098, 1);
+const BLUE = new RGBA(
+  0.237_254_901_96,
+  0.537_254_901_96,
+  0.854_901_960_78,
+  0.25,
+);
+const POLLEN = new RGBA(0.976_470_588_23, 0.815_686_274_51, 0.086_274_509_8, 1);
 const PURPLE = new RGBA(
-  0.7843137254901961,
-  0.4549019607843137,
-  0.6980392156862745,
+  0.784_313_725_490_196_1,
+  0.454_901_960_784_313_7,
+  0.698_039_215_686_274_5,
   1,
 );
 
@@ -170,16 +175,19 @@ const POLLEN_RADIUS = 35;
 function BrownianMotion(): JSX.Element {
   const { dimensions, ref } = useResizeDimensions(RESIZE_DIMENSIONS);
 
+  const particlesCanvasId = useId();
+  const historicalCanvasId = useId();
+
   useEffect(() => {
     const currentMoleculeRadius = scaleMagnitudeByRem(MOLECULE_RADIUS);
     const currentMoleculeDiameter = scaleMagnitudeByRem(MOLECULE_DIAMETER);
     const currentPollenRadius = scaleMagnitudeByRem(POLLEN_RADIUS);
     const currentInitialSpeed = scaleMagnitudeByRem(INITIAL_SPEED);
     const historicalContext = getCanvasCtxByRef(
-      document.getElementById('historical') as HTMLCanvasElement,
+      document.getElementById(historicalCanvasId) as HTMLCanvasElement,
     );
     const particlesContext = getCanvasCtxByRef(
-      document.getElementById('particles') as HTMLCanvasElement,
+      document.getElementById(particlesCanvasId) as HTMLCanvasElement,
     );
     configureHistoricalCanvas(historicalContext);
     const particles = [
@@ -208,7 +216,7 @@ function BrownianMotion(): JSX.Element {
         ),
       })),
     ];
-    const intervalID = window.setInterval(() =>
+    const intervalId = window.setInterval(() =>
       update({
         cor: COR,
         particles,
@@ -218,21 +226,26 @@ function BrownianMotion(): JSX.Element {
         particlesContext,
       }),
     );
-    return (): void => window.clearInterval(intervalID);
-  }, [dimensions.boundedHeight, dimensions.boundedWidth]);
+    return (): void => window.clearInterval(intervalId);
+  }, [
+    dimensions.boundedHeight,
+    dimensions.boundedWidth,
+    particlesCanvasId,
+    historicalCanvasId,
+  ]);
 
   return (
     <div className={styles.brownianMotionContainer} ref={ref}>
       <canvas
         className={styles.particlesCanvas}
         height={dimensions.boundedHeight}
-        id="particles"
+        id={particlesCanvasId}
         width={dimensions.boundedWidth}
       />
       <canvas
         className={styles.historicalCanvas}
         height={dimensions.boundedHeight}
-        id="historical"
+        id={historicalCanvasId}
         width={dimensions.boundedWidth}
       />
     </div>

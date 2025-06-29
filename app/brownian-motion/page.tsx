@@ -1,5 +1,5 @@
-import BrownianMotion from '@/entities/brownian-motion/ui/BrownianMotion';
 import type { JSX } from 'react';
+import BrownianMotion from '@/entities/brownian-motion/ui/BrownianMotion';
 
 export default function Page(): JSX.Element {
   return (

@@ -1,5 +1,5 @@
-import PrefetchOnHoverLink from '@/shared/ui/PrefetchOnHoverLink/PrefetchOnHoverLink.tsx';
 import type { JSX } from 'react';
+import PrefetchOnHoverLink from '@/shared/ui/PrefetchOnHoverLink/PrefetchOnHoverLink.tsx';
 import styles from './navigation-list.module.css';
 
 function NavigationList(): JSX.Element {

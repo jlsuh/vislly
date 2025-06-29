@@ -1,7 +1,7 @@
-import brownianMotionImage from '@/../public/images/brownian-motion.jpg';
-import PrefetchOnHoverLink from '@/shared/ui/PrefetchOnHoverLink/PrefetchOnHoverLink';
 import Image from 'next/image';
 import type { JSX } from 'react';
+import brownianMotionImage from '@/../public/images/brownian-motion.jpg';
+import PrefetchOnHoverLink from '@/shared/ui/PrefetchOnHoverLink/PrefetchOnHoverLink';
 import styles from './gallery-section.module.css';
 
 function GallerySection(): JSX.Element {

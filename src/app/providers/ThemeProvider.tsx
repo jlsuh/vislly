@@ -1,12 +1,12 @@
 'use client';
 
-import useSystemAppearance from '@/shared/lib/useSystemAppearance';
 import {
   type JSX,
   type PropsWithChildren,
   useEffect,
   useSyncExternalStore,
 } from 'react';
+import useSystemAppearance from '@/shared/lib/useSystemAppearance';
 import { THEME_VALUES, Theme, type ThemeValue } from '../config/theme.ts';
 import ThemeContext from './ThemeContext.tsx';
 

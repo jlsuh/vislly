@@ -1,5 +1,5 @@
-import PrefetchOnHoverLink from '@/shared/ui/PrefetchOnHoverLink/PrefetchOnHoverLink';
 import type { JSX } from 'react';
+import PrefetchOnHoverLink from '@/shared/ui/PrefetchOnHoverLink/PrefetchOnHoverLink';
 import styles from './brand-logo.module.css';
 
 function BrandLogo(): JSX.Element {

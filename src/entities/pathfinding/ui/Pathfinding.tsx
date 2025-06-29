@@ -1,9 +1,5 @@
 'use client';
 
-import composeCSSCustomProperty from '@/shared/lib/composeCSSVariable.ts';
-import pxToRem from '@/shared/lib/pxToRem.ts';
-import useOnClickOutside from '@/shared/lib/useOnClickOutside.ts';
-import useResizeDimensions from '@/shared/lib/useResizeDimensions.ts';
 import type {
   Dispatch,
   JSX,
@@ -14,8 +10,12 @@ import type {
   TouchEvent,
   TouchEventHandler,
 } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import type { ReadonlyDeep, StringSlice } from 'type-fest';
+import composeCssCustomProperty from '@/shared/lib/composeCssVariable.ts';
+import pxToRem from '@/shared/lib/pxToRem.ts';
+import useOnClickOutside from '@/shared/lib/useOnClickOutside.ts';
+import useResizeDimensions from '@/shared/lib/useResizeDimensions.ts';
 import styles from './pathfinding.module.css';
 
 type NodeTypeKey = 'wall' | 'empty' | 'end' | 'start';
@@ -35,7 +35,7 @@ const RESIZE_DIMENSIONS = {
 };
 
 const NODE_DIM_SIZE = 1;
-const NODE_SIZE_VAR = composeCSSCustomProperty(
+const NODE_SIZE_VAR = composeCssCustomProperty(
   'node-size',
   `${NODE_DIM_SIZE}rem`,
 );
@@ -106,7 +106,10 @@ function setToInitialPositionIfCondition({
   condition: ({
     targetCol,
     targetRow,
-  }: { targetCol: number; targetRow: number }) => boolean;
+  }: {
+    targetCol: number;
+    targetRow: number;
+  }) => boolean;
   nodePositions: RefObject<NodePosition>[];
 }): void {
   for (const nodePosition of nodePositions) {
@@ -120,7 +123,10 @@ function setToInitialPositionIfCondition({
 function getElementByPosition({
   col,
   row,
-}: { col: number; row: number }): HTMLButtonElement | null {
+}: {
+  col: number;
+  row: number;
+}): HTMLButtonElement | null {
   return document.querySelector(`[data-col="${col}"][data-row="${row}"]`);
 }
 
@@ -263,7 +269,10 @@ function Node({
 function dispatchEvent({
   clientX,
   clientY,
-}: { clientX: number; clientY: number }): void {
+}: {
+  clientX: number;
+  clientY: number;
+}): void {
   const node = document.elementFromPoint(clientX, clientY);
   if (node) {
     const button = node.closest('button');
@@ -304,14 +313,13 @@ function Pathfinding(): JSX.Element {
   const startNode = useRef<NodePosition>(composeInitialPosition());
   const isHoldingClick = useRef(false);
   const { dimensions, ref } = useResizeDimensions(RESIZE_DIMENSIONS);
+  const nodeTypeSelectId = useId();
 
   useOnClickOutside([ref], unsetBodyOverflow);
 
   useEffect(() => {
     setCols(Math.floor(pxToRem(dimensions.boundedWidth) / NODE_DIM_SIZE));
     setRows(Math.floor(pxToRem(dimensions.boundedHeight) / NODE_DIM_SIZE));
-    console.log('>>>>> startNode', startNode.current);
-    console.log('>>>>> endNode', endNode.current);
   }, [dimensions.boundedHeight, dimensions.boundedWidth]);
 
   useEffect(() => {
@@ -362,7 +370,7 @@ function Pathfinding(): JSX.Element {
   return (
     <>
       <select
-        id="node-type-select"
+        id={nodeTypeSelectId}
         key={selectedNodeType.value}
         onChange={(e): void => {
           const { value } = e.target;

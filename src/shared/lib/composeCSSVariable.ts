@@ -1,16 +1,16 @@
 import type { CSSProperties } from 'react';
 
-interface CSSCustomProperty extends CSSProperties {
+interface CssCustomProperty extends CSSProperties {
   [key: `--${string}`]: string | number;
 }
 
-function composeCSSCustomProperty(
+function composeCssCustomProperty(
   identifier: string,
   value: string | number,
-): CSSCustomProperty {
+): CssCustomProperty {
   return {
     [`--${identifier}`]: value,
   };
 }
 
-export default composeCSSCustomProperty;
+export default composeCssCustomProperty;

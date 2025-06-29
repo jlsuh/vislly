@@ -1,6 +1,6 @@
 import { type RefObject, useEffect } from 'react';
 
-function isDOMNode(target: EventTarget | null): target is Node {
+function isDomNode(target: EventTarget | null): target is Node {
   return target instanceof Node;
 }
 
@@ -12,7 +12,7 @@ function useOnClickOutside(
     const listener = (e: Event): void => {
       const { target } = e;
       for (const ref of refs) {
-        if (!isDOMNode(target)) {
+        if (!isDomNode(target)) {
           return;
         }
         if (ref.current?.contains(target)) {

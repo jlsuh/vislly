@@ -9,19 +9,19 @@ const ONLY_LIGHT = 'light';
 type ThemeValue = typeof ONLY_DARK | typeof ONLY_LIGHT;
 
 type ThemeType = {
-  Icon: () => JSX.Element;
+  icon: () => JSX.Element;
   next: ThemeValue;
   value: ThemeValue;
 };
 
 const Theme: ReadonlyDeep<Record<ThemeValue, ThemeType>> = {
   [ONLY_LIGHT]: {
-    Icon: LightThemeIcon,
+    icon: LightThemeIcon,
     next: ONLY_DARK,
     value: ONLY_LIGHT,
   },
   [ONLY_DARK]: {
-    Icon: DarkThemeIcon,
+    icon: DarkThemeIcon,
     next: ONLY_LIGHT,
     value: ONLY_DARK,
   },

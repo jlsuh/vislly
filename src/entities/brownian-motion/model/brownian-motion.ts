@@ -15,9 +15,9 @@ type ParticleSettings = {
   readonly y: Coord;
 };
 type Radius = number;
-type RGBAChannels = ConstructorParameters<typeof RGBA>;
+type RgbaChannels = ConstructorParameters<typeof Rgba>;
 
-class RGBA {
+class Rgba {
   public readonly r: Channel;
   public readonly g: Channel;
   public readonly b: Channel;
@@ -33,7 +33,7 @@ class RGBA {
     this.a = a;
   }
 
-  private containsInvalidValues(rgbaChannels: RGBAChannels): boolean {
+  private containsInvalidValues(rgbaChannels: RgbaChannels): boolean {
     return rgbaChannels.some((value: Channel) => value < 0 || value > 1);
   }
 
@@ -102,8 +102,7 @@ class Particle {
     const d = this.curr.sub(that.curr);
     const v = this.v.sub(that.v);
     const minusV = v.map((x) => -x);
-    const minusVDot = d.dot(minusV);
-    return minusVDot > 0;
+    return d.dot(minusV) > 0;
   }
 
   private rSqrd(that: Particle): number {
@@ -151,7 +150,7 @@ class Particle {
 
 export {
   Particle,
-  RGBA,
+  Rgba as RGBA,
   Vector2,
   type Angle,
   type Channel,

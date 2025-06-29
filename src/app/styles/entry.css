@@ -314,10 +314,10 @@
       ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
       "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
       "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    --mona-sans: "Mona Sans", MonaSansFallback,
-      var(--generic-fallback-font-stack);
-    --monaspace: MonaspaceNeon, MonaspaceNeonFallback,
-      var(--generic-fallback-font-stack);
+    --mona-sans:
+      "Mona Sans", MonaSansFallback, var(--generic-fallback-font-stack);
+    --monaspace:
+      MonaspaceNeon, MonaspaceNeonFallback, var(--generic-fallback-font-stack);
 
     h1,
     h2,
@@ -356,7 +356,8 @@
   }
 
   ::view-transition-new(root) {
-    mask: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><filter id='blur'><feGaussianBlur stdDeviation='2'/></filter></defs><circle cx='0' cy='0' r='18' fill='white' filter='url(%23blur)'/></svg>")
+    mask:
+      url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><filter id='blur'><feGaussianBlur stdDeviation='2'/></filter></defs><circle cx='0' cy='0' r='18' fill='white' filter='url(%23blur)'/></svg>")
       top left / 0 no-repeat;
     mask-origin: content-box;
     animation: scale 600ms;
@@ -385,7 +386,8 @@
     font-family: "Mona Sans";
     font-stretch: 75% 125%;
     font-weight: 200 900;
-    src: url("/fonts/Mona-Sans.woff2") format("woff2 supports variations"),
+    src:
+      url("/fonts/Mona-Sans.woff2") format("woff2 supports variations"),
       url("/fonts/Mona-Sans.woff2") format("woff2-variations");
   }
 
