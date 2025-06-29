@@ -4,8 +4,7 @@ import type { JSX } from 'react';
 function NotFound(): JSX.Element {
   return (
     <div>
-      <h2>Not Found</h2>
-      <p>Could not find requested resource</p>
+      <h1>Not Found</h1>
       <Link href="/">Return Home</Link>
     </div>
   );
