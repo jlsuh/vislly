@@ -150,7 +150,7 @@ class Particle {
 
 export {
   Particle,
-  Rgba as RGBA,
+  Rgba,
   Vector2,
   type Angle,
   type Channel,
