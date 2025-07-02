@@ -311,8 +311,8 @@ function Pathfinding(): JSX.Element {
   const [selectedNodeType, setSelectedNodeType] = useState(DEFAULT_NODE_TYPE);
   const endNode = useRef<NodePosition>(composeInitialPosition());
   const startNode = useRef<NodePosition>(composeInitialPosition());
-  const isHoldingClick = useRef(false);
-  const { dimensions, ref } = useResizeDimensions(RESIZE_DIMENSIONS);
+  const { dimensions, ref } =
+    useResizeDimensions<HTMLElement>(RESIZE_DIMENSIONS);
   const nodeTypeSelectId = useId();
 
   useOnClickOutside([ref], unsetBodyOverflow);

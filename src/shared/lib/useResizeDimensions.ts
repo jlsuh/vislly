@@ -33,9 +33,11 @@ function composeResizeDimensions(
   };
 }
 
-function useResizeDimensions(initialDimensions: ResizeDimensions): {
+function useResizeDimensions<T = Element>(
+  initialDimensions: ResizeDimensions,
+): {
   dimensions: ResizeDimensions;
-  ref: RefObject<null>;
+  ref: RefObject<T | null>;
 } {
   const [currentHeight, setCurrentHeight] = useState(0);
   const [currentWidth, setCurrentWidth] = useState(0);

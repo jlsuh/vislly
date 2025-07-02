@@ -173,7 +173,8 @@ const NUMBER_OF_PARTICLES = 500;
 const POLLEN_RADIUS = 35;
 
 function BrownianMotion(): JSX.Element {
-  const { dimensions, ref } = useResizeDimensions(RESIZE_DIMENSIONS);
+  const { dimensions, ref } =
+    useResizeDimensions<HTMLDivElement>(RESIZE_DIMENSIONS);
 
   const particlesCanvasId = useId();
   const historicalCanvasId = useId();
