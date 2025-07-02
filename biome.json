@@ -157,7 +157,7 @@
         "noImportantStyles": "error",
         "noImportCycles": "error",
         "noNestedComponentDefinitions": "error",
-        "noNoninteractiveElementInteractions": "off",
+        "noNoninteractiveElementInteractions": "error",
         "noProcessGlobal": "error",
         "noReactPropAssign": "error",
         "noRestrictedElements": "error",
