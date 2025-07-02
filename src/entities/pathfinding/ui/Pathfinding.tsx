@@ -3,17 +3,17 @@
 import type {
   Dispatch,
   JSX,
-  MouseEvent,
-  MouseEventHandler,
+  PointerEvent,
+  PointerEventHandler,
   RefObject,
   SetStateAction,
   TouchEvent,
-  TouchEventHandler,
 } from 'react';
 import { useEffect, useId, useRef, useState } from 'react';
 import type { ReadonlyDeep, StringSlice } from 'type-fest';
 import composeCssCustomProperty from '@/shared/lib/composeCssVariable.ts';
 import pxToRem from '@/shared/lib/pxToRem.ts';
+import useIsHoldingClickOnElement from '@/shared/lib/useIsHoldingClickOnElement.ts';
 import useOnClickOutside from '@/shared/lib/useOnClickOutside.ts';
 import useResizeDimensions from '@/shared/lib/useResizeDimensions.ts';
 import styles from './pathfinding.module.css';
@@ -142,13 +142,15 @@ function mutateAssociatedParagraph({
   textContent: NodeTypeKey;
 }): void {
   const node = getElementByPosition({ col, row });
-  if (node) {
-    const paragraph = node.querySelector('p');
-    if (paragraph) {
-      paragraph.className = `${styles.nodeText} ${nodeTypeClassName}`;
-      paragraph.textContent = getNodeTypeFirstChar(textContent);
-    }
+  if (node === null) {
+    return;
   }
+  const paragraph = node.querySelector('p');
+  if (paragraph === null) {
+    return;
+  }
+  paragraph.className = `${styles.nodeText} ${nodeTypeClassName}`;
+  paragraph.textContent = getNodeTypeFirstChar(textContent);
 }
 
 function handleSpecialNode({
@@ -266,7 +268,7 @@ function Node({
   );
 }
 
-function dispatchEvent({
+function dispatchMouseDownOnNode({
   clientX,
   clientY,
 }: {
@@ -274,26 +276,38 @@ function dispatchEvent({
   clientY: number;
 }): void {
   const node = document.elementFromPoint(clientX, clientY);
-  if (node) {
-    const button = node.closest('button');
-    if (button) {
-      button.dispatchEvent(
-        new MouseEvent('mousedown', {
-          bubbles: true,
-          clientX,
-          clientY,
-        }),
-      );
-    }
+  if (node === null) {
+    return;
   }
+  const button = node.closest('button');
+  if (button === null) {
+    return;
+  }
+  button.dispatchEvent(
+    new MouseEvent('mousedown', {
+      bubbles: true,
+      clientX,
+      clientY,
+    }),
+  );
 }
 
-const dispatchPointerDown: TouchEventHandler<HTMLElement> = (
-  e: TouchEvent<HTMLElement>,
-): void => {
+function dispatchOnPointerMove(
+  isHoldingClickRef: RefObject<boolean>,
+): PointerEventHandler<HTMLElement> {
+  return (e: PointerEvent<HTMLElement>) => {
+    if (!isHoldingClickRef.current) {
+      return;
+    }
+    const { clientX, clientY } = e;
+    dispatchMouseDownOnNode({ clientX, clientY });
+  };
+}
+
+const dispatchOnTouchMove = (e: TouchEvent<HTMLElement>): void => {
   const touch = e.touches[0];
   const { clientX, clientY } = touch;
-  dispatchEvent({ clientX, clientY });
+  dispatchMouseDownOnNode({ clientX, clientY });
 };
 
 const hideBodyOverflow = (): void => {
@@ -313,6 +327,7 @@ function Pathfinding(): JSX.Element {
   const startNode = useRef<NodePosition>(composeInitialPosition());
   const { dimensions, ref } =
     useResizeDimensions<HTMLElement>(RESIZE_DIMENSIONS);
+  const { isHoldingClickRef } = useIsHoldingClickOnElement(ref);
   const nodeTypeSelectId = useId();
 
   useOnClickOutside([ref], unsetBodyOverflow);
@@ -330,9 +345,10 @@ function Pathfinding(): JSX.Element {
       for (let row = 0; row < rows; row += 1) {
         for (let col = 0; col < cols; col += 1) {
           const nodeValue = prevGrid[row]?.[col];
-          if (nodeValue !== undefined) {
-            newGrid[row][col] = nodeValue;
+          if (nodeValue === undefined) {
+            continue;
           }
+          newGrid[row][col] = nodeValue;
         }
       }
       return newGrid;
@@ -348,24 +364,6 @@ function Pathfinding(): JSX.Element {
       nodePositions: [endNode],
     });
   }, [rows, cols]);
-
-  const setIsHoldingClickToFalse = (): void => {
-    isHoldingClick.current = false;
-  };
-
-  const setIsHoldingClickToTrue = (): void => {
-    isHoldingClick.current = true;
-  };
-
-  const dispatchMouseDown: MouseEventHandler<HTMLElement> = (
-    e: MouseEvent<HTMLElement>,
-  ): void => {
-    if (!isHoldingClick.current) {
-      return;
-    }
-    const { clientX, clientY } = e;
-    dispatchEvent({ clientX, clientY });
-  };
 
   return (
     <>
@@ -388,11 +386,9 @@ function Pathfinding(): JSX.Element {
       <section
         aria-label="Pathfinding grid"
         className={styles.grid}
-        onMouseDown={setIsHoldingClickToTrue}
-        onMouseLeave={setIsHoldingClickToFalse}
-        onMouseMove={dispatchMouseDown}
-        onMouseUp={setIsHoldingClickToFalse}
-        onTouchMove={dispatchPointerDown}
+        onPointerMove={dispatchOnPointerMove(isHoldingClickRef)}
+        onTouchEnd={unsetBodyOverflow}
+        onTouchMove={dispatchOnTouchMove}
         onTouchStart={hideBodyOverflow}
         ref={ref}
         style={NODE_SIZE_VAR}
