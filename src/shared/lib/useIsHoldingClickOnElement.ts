@@ -12,7 +12,7 @@ function useIsHoldingClickOnElement(ref: RefObject<EventTarget | null>): {
     const setIsHoldingClickToFalse = () => {
       isHoldingClickRef.current = false;
     };
-    const element = ref.current ?? new HTMLElement();
+    const element = ref.current ?? new Element();
     if (!element) {
       return;
     }
