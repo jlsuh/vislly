@@ -10,18 +10,17 @@ import type {
   TouchEvent,
 } from 'react';
 import { useEffect, useId, useRef, useState } from 'react';
-import type { ReadonlyDeep, StringSlice } from 'type-fest';
 import composeCssCustomProperty from '@/shared/lib/composeCssVariable.ts';
 import pxToRem from '@/shared/lib/pxToRem.ts';
 import useIsHoldingClickOnElement from '@/shared/lib/useIsHoldingClickOnElement.ts';
 import useOnClickOutside from '@/shared/lib/useOnClickOutside.ts';
 import useResizeDimensions from '@/shared/lib/useResizeDimensions.ts';
+import {
+  type NodeTypeKey,
+  type NodeTypeKeyFirstChar,
+  PathfindingNode,
+} from '../model/pathfinding.ts';
 import styles from './pathfinding.module.css';
-
-type NodeTypeKey = 'wall' | 'empty' | 'end' | 'start';
-type NodePosition = { col: number; row: number };
-type NodeType = (typeof NODE_TYPE)[NodeTypeKey];
-type NodeTypeKeyFirstChar = StringSlice<NodeTypeKey, 0, 1>;
 
 const RESIZE_DIMENSIONS = {
   boundedHeight: 0,
@@ -33,29 +32,24 @@ const RESIZE_DIMENSIONS = {
   height: 0,
   width: 0,
 };
-
 const NODE_DIM_SIZE = 1;
 const NODE_SIZE_VAR = composeCssCustomProperty(
   'node-size',
   `${NODE_DIM_SIZE}rem`,
 );
-const NODE_TYPE: ReadonlyDeep<
-  Record<NodeTypeKey, { className: string; value: NodeTypeKey }>
-> = {
-  wall: { className: styles.wall, value: 'wall' },
-  empty: { className: styles.empty, value: 'empty' },
-  end: { className: styles.end, value: 'end' },
-  start: { className: styles.start, value: 'start' },
-};
-const NODE_TYPES = Object.values(NODE_TYPE);
-const DEFAULT_NODE_TYPE = NODE_TYPE.wall;
+const POSSIBLE_NODES: PathfindingNode[] = [
+  new PathfindingNode({ row: -1, col: -1, value: 'empty' }),
+  new PathfindingNode({ row: -1, col: -1, value: 'wall' }),
+  new PathfindingNode({ row: -1, col: -1, value: 'start' }),
+  new PathfindingNode({ row: -1, col: -1, value: 'end' }),
+];
 
 function isNodeType(value: unknown): value is NodeTypeKey {
-  return NODE_TYPES.some((nodeType) => nodeType.value === value);
+  return POSSIBLE_NODES.some((nodeType) => nodeType.value === value);
 }
 
 function isNodeTypeFirstChar(value: unknown): value is NodeTypeKeyFirstChar {
-  return NODE_TYPES.some((nodeType) => nodeType.value.charAt(0) === value);
+  return POSSIBLE_NODES.some((nodeType) => nodeType.value.charAt(0) === value);
 }
 
 function assertIsNodeTypeKey(value: unknown): asserts value is NodeTypeKey {
@@ -75,51 +69,6 @@ function getNodeTypeFirstChar(value: NodeTypeKey): NodeTypeKeyFirstChar {
   return firstChar;
 }
 
-function composeInitialPosition(): NodePosition {
-  return { col: -1, row: -1 };
-}
-
-function isInitialPosition(nodePosition: NodePosition): boolean {
-  return nodePosition.col === -1 && nodePosition.row === -1;
-}
-
-function isStartNode(nodeType: NodeType): boolean {
-  return nodeType.value === NODE_TYPE.start.value;
-}
-
-function isEndNode(nodeType: NodeType): boolean {
-  return nodeType.value === NODE_TYPE.end.value;
-}
-
-function isWallNode(nodeType: NodeType): boolean {
-  return nodeType.value === NODE_TYPE.wall.value;
-}
-
-function isEmptyNode(nodeType: NodeType): boolean {
-  return nodeType.value === NODE_TYPE.empty.value;
-}
-
-function setToInitialPositionIfCondition({
-  condition,
-  nodePositions,
-}: {
-  condition: ({
-    targetCol,
-    targetRow,
-  }: {
-    targetCol: number;
-    targetRow: number;
-  }) => boolean;
-  nodePositions: RefObject<NodePosition>[];
-}): void {
-  for (const nodePosition of nodePositions) {
-    const { col, row } = nodePosition.current;
-    if (condition({ targetCol: col, targetRow: row })) {
-      nodePosition.current = composeInitialPosition();
-    }
-  }
-}
-
 function getElementByPosition({
   col,
   row,
@@ -131,16 +80,11 @@ function getElementByPosition({
 }
 
 function mutateAssociatedParagraph({
-  col,
-  nodeTypeClassName,
-  row,
-  textContent,
+  pathfindingNode,
 }: {
-  col: number;
-  nodeTypeClassName: string;
-  row: number;
-  textContent: NodeTypeKey;
+  pathfindingNode: PathfindingNode;
 }): void {
+  const { value, row, col } = pathfindingNode;
   const node = getElementByPosition({ col, row });
   if (node === null) {
     return;
@@ -149,106 +93,116 @@ function mutateAssociatedParagraph({
   if (paragraph === null) {
     return;
   }
-  paragraph.className = `${styles.nodeText} ${nodeTypeClassName}`;
-  paragraph.textContent = getNodeTypeFirstChar(textContent);
+  paragraph.className = `${styles.nodeText} ${styles[value]}`;
+  paragraph.textContent = getNodeTypeFirstChar(value);
 }
 
 function handleSpecialNode({
   grid,
   newCol,
-  newNodeTypeValue,
+  newPathfindingNode,
   newRow,
   otherSpecialNodes,
   setGrid,
   specialNode,
 }: {
-  grid: NodeTypeKey[][];
+  grid: PathfindingNode[][];
   newCol: number;
-  newNodeTypeValue: NodeTypeKey;
+  newPathfindingNode: PathfindingNode;
   newRow: number;
-  otherSpecialNodes: RefObject<NodePosition>[];
-  setGrid: Dispatch<SetStateAction<NodeTypeKey[][]>>;
-  specialNode: RefObject<NodePosition>;
+  otherSpecialNodes: RefObject<PathfindingNode>[];
+  setGrid: Dispatch<SetStateAction<PathfindingNode[][]>>;
+  specialNode: RefObject<PathfindingNode>;
 }): void {
   const { col, row } = specialNode.current;
-  if (!isInitialPosition(specialNode.current)) {
-    grid[row][col] = NODE_TYPE.empty.value;
+  if (!specialNode.current.isInitialPosition()) {
+    grid[row][col] = new PathfindingNode({ row, col, value: 'empty' });
     setGrid(grid);
     mutateAssociatedParagraph({
-      col,
-      nodeTypeClassName: NODE_TYPE.empty.className,
-      row,
-      textContent: NODE_TYPE.empty.value,
+      pathfindingNode: new PathfindingNode({ row, col, value: 'empty' }),
     });
   }
-  setToInitialPositionIfCondition({
-    condition: ({ targetCol, targetRow }): boolean =>
-      newCol === targetCol && newRow === targetRow,
-    nodePositions: otherSpecialNodes,
-  });
+  for (const node of otherSpecialNodes) {
+    node.current.setToInitialPositionIfCondition({
+      condition: ({ targetCol, targetRow }): boolean =>
+        newCol === targetCol && newRow === targetRow,
+    });
+  }
   mutateAssociatedParagraph({
-    col: newCol,
-    nodeTypeClassName: NODE_TYPE[newNodeTypeValue].className,
-    row: newRow,
-    textContent: newNodeTypeValue,
+    pathfindingNode: new PathfindingNode({
+      row: newRow,
+      col: newCol,
+      value: newPathfindingNode.value,
+    }),
   });
-  specialNode.current = { col: newCol, row: newRow };
+  specialNode.current = new PathfindingNode({
+    row: newRow,
+    col: newCol,
+    value: newPathfindingNode.value,
+  });
 }
 
 function Node({
   col,
   endNode,
   grid,
-  nodeTypeInitialValue,
+  pathfindingNode,
   row,
-  selectedNodeType,
+  selectedNodeOption,
   setGrid,
   startNode,
 }: {
   col: number;
-  endNode: RefObject<NodePosition>;
-  grid: NodeTypeKey[][];
-  nodeTypeInitialValue: NodeType;
+  endNode: RefObject<PathfindingNode>;
+  grid: PathfindingNode[][];
+  pathfindingNode: PathfindingNode;
   row: number;
-  selectedNodeType: NodeType;
-  setGrid: Dispatch<SetStateAction<NodeTypeKey[][]>>;
-  startNode: RefObject<NodePosition>;
+  selectedNodeOption: PathfindingNode;
+  setGrid: Dispatch<SetStateAction<PathfindingNode[][]>>;
+  startNode: RefObject<PathfindingNode>;
 }): JSX.Element {
-  const [nodeType, setNodeType] = useState(nodeTypeInitialValue);
+  const [nodeType, setNodeType] = useState(pathfindingNode);
 
-  const setNewNodeType = (newNodeType: NodeType): void => {
-    if (isStartNode(newNodeType)) {
+  const setNewNodeType = (newPathfindingNode: PathfindingNode): void => {
+    if (newPathfindingNode.isStartNode()) {
       handleSpecialNode({
         grid,
         newCol: col,
-        newNodeTypeValue: newNodeType.value,
+        newPathfindingNode,
         newRow: row,
         otherSpecialNodes: [endNode],
         setGrid,
         specialNode: startNode,
       });
     }
-    if (isEndNode(newNodeType)) {
+    if (newPathfindingNode.isEndNode()) {
       handleSpecialNode({
         grid,
         newCol: col,
-        newNodeTypeValue: newNodeType.value,
+        newPathfindingNode,
         newRow: row,
         otherSpecialNodes: [startNode],
         setGrid,
         specialNode: endNode,
       });
     }
-    if (isWallNode(newNodeType) || isEmptyNode(newNodeType)) {
-      setToInitialPositionIfCondition({
+    if (newPathfindingNode.isWallNode() || newPathfindingNode.isEmptyNode()) {
+      startNode.current.setToInitialPositionIfCondition({
         condition: ({ targetCol, targetRow }): boolean =>
           col === targetCol && row === targetRow,
-        nodePositions: [startNode, endNode],
+      });
+      endNode.current.setToInitialPositionIfCondition({
+        condition: ({ targetCol, targetRow }): boolean =>
+          col === targetCol && row === targetRow,
       });
     }
-    grid[row][col] = newNodeType.value;
+    grid[row][col] = new PathfindingNode({
+      row,
+      col,
+      value: newPathfindingNode.value,
+    });
     setGrid(grid);
-    setNodeType(NODE_TYPE[newNodeType.value]);
+    setNodeType(newPathfindingNode);
   };
 
   return (
@@ -257,11 +211,11 @@ function Node({
       data-col={col}
       data-row={row}
       onContextMenu={(e): void => e.preventDefault()}
-      onMouseDown={(): void => setNewNodeType(selectedNodeType)}
-      onTouchStart={(): void => setNewNodeType(selectedNodeType)}
+      onMouseDown={(): void => setNewNodeType(selectedNodeOption)}
+      onTouchStart={(): void => setNewNodeType(selectedNodeOption)}
       type="button"
     >
-      <p className={`${styles.nodeText} ${nodeType.className}`}>
+      <p className={`${styles.nodeText} ${styles[nodeType.value]}`}>
         {getNodeTypeFirstChar(nodeType.value)}
       </p>
     </button>
@@ -321,10 +275,20 @@ const unsetBodyOverflow = (): void => {
 function Pathfinding(): JSX.Element {
   const [cols, setCols] = useState(0);
   const [rows, setRows] = useState(0);
-  const [grid, setGrid] = useState<NodeTypeKey[][]>([]);
-  const [selectedNodeType, setSelectedNodeType] = useState(DEFAULT_NODE_TYPE);
-  const endNode = useRef<NodePosition>(composeInitialPosition());
-  const startNode = useRef<NodePosition>(composeInitialPosition());
+  const [grid, setGrid] = useState<PathfindingNode[][]>([]);
+  const [selectedNodeOption, setSelectedNodeOption] = useState(
+    new PathfindingNode({ row: -1, col: -1, value: 'wall' }),
+  );
+  const endNode = useRef(
+    new PathfindingNode({
+      row: -1,
+      col: -1,
+      value: 'end',
+    }),
+  );
+  const startNode = useRef(
+    new PathfindingNode({ row: -1, col: -1, value: 'start' }),
+  );
   const { dimensions, ref } =
     useResizeDimensions<HTMLElement>(RESIZE_DIMENSIONS);
   const { isHoldingClickRef } = useIsHoldingClickOnElement(ref);
@@ -339,12 +303,15 @@ function Pathfinding(): JSX.Element {
 
   useEffect(() => {
     setGrid((prevGrid) => {
-      const newGrid = Array.from({ length: rows }, () =>
-        Array.from({ length: cols }, () => NODE_TYPE.empty.value),
+      const newGrid = Array.from({ length: rows }, (_, row) =>
+        Array.from(
+          { length: cols },
+          (__, col) => new PathfindingNode({ row, col, value: 'empty' }),
+        ),
       );
       for (let row = 0; row < rows; row += 1) {
         for (let col = 0; col < cols; col += 1) {
-          const nodeValue = prevGrid[row]?.[col];
+          const nodeValue: PathfindingNode | undefined = prevGrid[row]?.[col];
           if (nodeValue === undefined) {
             continue;
           }
@@ -353,15 +320,13 @@ function Pathfinding(): JSX.Element {
       }
       return newGrid;
     });
-    setToInitialPositionIfCondition({
+    startNode.current.setToInitialPositionIfCondition({
       condition: ({ targetCol, targetRow }): boolean =>
         cols - 1 < targetCol || rows - 1 < targetRow,
-      nodePositions: [startNode],
     });
-    setToInitialPositionIfCondition({
+    endNode.current.setToInitialPositionIfCondition({
       condition: ({ targetCol, targetRow }): boolean =>
         cols - 1 < targetCol || rows - 1 < targetRow,
-      nodePositions: [endNode],
     });
   }, [rows, cols]);
 
@@ -369,17 +334,19 @@ function Pathfinding(): JSX.Element {
     <>
       <select
         id={nodeTypeSelectId}
-        key={selectedNodeType.value}
+        key={selectedNodeOption.value}
         onChange={(e): void => {
           const { value } = e.target;
           assertIsNodeTypeKey(value);
-          setSelectedNodeType(NODE_TYPE[value]);
+          setSelectedNodeOption(
+            new PathfindingNode({ row: -1, col: -1, value }),
+          );
         }}
-        value={selectedNodeType.value}
+        value={selectedNodeOption.value}
       >
-        {NODE_TYPES.map((nodeType) => (
-          <option key={nodeType.value} value={nodeType.value}>
-            {nodeType.value.charAt(0).toUpperCase() + nodeType.value.slice(1)}
+        {POSSIBLE_NODES.map(({ value }) => (
+          <option key={value} value={value}>
+            {value.charAt(0).toUpperCase() + value.slice(1)}
           </option>
         ))}
       </select>
@@ -394,15 +361,15 @@ function Pathfinding(): JSX.Element {
         style={NODE_SIZE_VAR}
       >
         {grid.map((gridRow, row) =>
-          gridRow.map((nodeTypeKey, col) => (
+          gridRow.map((pathfindingNode, col) => (
             <Node
               col={col}
               endNode={endNode}
               grid={grid}
-              key={`node-row-${row}-col-${col}-value-${nodeTypeKey}`}
-              nodeTypeInitialValue={NODE_TYPE[nodeTypeKey]}
+              key={`node-row-${row}-col-${col}-value-${pathfindingNode.value}`}
+              pathfindingNode={pathfindingNode}
               row={row}
-              selectedNodeType={selectedNodeType}
+              selectedNodeOption={selectedNodeOption}
               setGrid={setGrid}
               startNode={startNode}
             />
