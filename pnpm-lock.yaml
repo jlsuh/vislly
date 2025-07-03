@@ -28,8 +28,8 @@ importers:
         specifier: 7.4.3
         version: 7.4.3
       '@types/node':
-        specifier: 24.0.7
-        version: 24.0.7
+        specifier: 24.0.10
+        version: 24.0.10
       '@types/react':
         specifier: 19.1.8
         version: 19.1.8
@@ -37,8 +37,8 @@ importers:
         specifier: 19.1.6
         version: 19.1.6(@types/react@19.1.8)
       dependency-cruiser:
-        specifier: 16.10.3
-        version: 16.10.3
+        specifier: 16.10.4
+        version: 16.10.4
       type-fest:
         specifier: 4.41.0
         version: 4.41.0
@@ -373,8 +373,8 @@ packages:
   '@types/geojson@7946.0.16':
     resolution: {integrity: sha512-6C8nqWur3j98U6+lXDfTUWIfgvZU+EumvpHKcYjujKH7woYyLj2sUmff0tRhrqM7BohUw7Pz3ZB1jj2gW9Fvmg==}
 
-  '@types/node@24.0.7':
-    resolution: {integrity: sha512-YIEUUr4yf8q8oQoXPpSlnvKNVKDQlPMWrmOcgzoduo7kvA2UF0/BwJ/eMKFTiTtkNL17I0M6Xe2tvwFU7be6iw==}
+  '@types/node@24.0.10':
+    resolution: {integrity: sha512-ENHwaH+JIRTDIEEbDK6QSQntAYGtbvdDXnMXnZaZ6k13Du1dPMmprkEHIL7ok2Wl2aZevetwTAb5S+7yIF+enA==}
 
   '@types/react-dom@19.1.6':
     resolution: {integrity: sha512-4hOiT/dwO8Ko0gV1m/TJZYk3y0KBnY9vzDh7W+DH17b2HFSOGgdj33dhihPeuy3l0q23+4e+hoXHV6hCC4dCXw==}
@@ -392,8 +392,8 @@ packages:
     peerDependencies:
       acorn: ^6.0.0 || ^7.0.0 || ^8.0.0
 
-  acorn-loose@8.5.1:
-    resolution: {integrity: sha512-H68u/wiI8PAsSBclEIWwUg3dqEaDZXQHCovulbedgp78zJstjn7gDjfGgwUtW0BHi+KasryFLreHAGX/iXU85A==}
+  acorn-loose@8.5.2:
+    resolution: {integrity: sha512-PPvV6g8UGMGgjrMu+n/f9E/tCSkNQ2Y97eFvuVdJfG11+xdIeDcLyNdC8SHcrHbRqkfwLASdplyR6B6sKM1U4A==}
     engines: {node: '>=0.4.0'}
 
   acorn-walk@8.3.4:
@@ -581,8 +581,8 @@ packages:
   delaunator@5.0.1:
     resolution: {integrity: sha512-8nvh+XBe96aCESrGOqMp/84b13H9cdKbG5P2ejQCh4d4sK9RL4371qou9drQjMhvnPmhWl5hnmqbEE0fXr9Xnw==}
 
-  dependency-cruiser@16.10.3:
-    resolution: {integrity: sha512-5fUuitVV6yFe6xSbFTMF1DH8vBvjxbYVUaOa4lowQyC5SwiR3oGQwlMryMbADtfVHscgFnOj2WtF3j+xQMTkSg==}
+  dependency-cruiser@16.10.4:
+    resolution: {integrity: sha512-hrxVOjIm8idZ9ZVDGSyyG3SHiNcEUPhL6RTEmO/3wfQWLepH5pA3nuDMMrcJ1DkZztFA7xg3tk8OVO+MmwwH9w==}
     engines: {node: ^18.17||>=20}
     hasBin: true
 
@@ -1118,7 +1118,7 @@ snapshots:
 
   '@types/geojson@7946.0.16': {}
 
-  '@types/node@24.0.7':
+  '@types/node@24.0.10':
     dependencies:
       undici-types: 7.8.0
 
@@ -1136,7 +1136,7 @@ snapshots:
     dependencies:
       acorn: 8.15.0
 
-  acorn-loose@8.5.1:
+  acorn-loose@8.5.2:
     dependencies:
       acorn: 8.15.0
 
@@ -1350,12 +1350,12 @@ snapshots:
     dependencies:
       robust-predicates: 3.0.2
 
-  dependency-cruiser@16.10.3:
+  dependency-cruiser@16.10.4:
     dependencies:
       acorn: 8.15.0
       acorn-jsx: 5.3.2(acorn@8.15.0)
       acorn-jsx-walk: 2.0.0
-      acorn-loose: 8.5.1
+      acorn-loose: 8.5.2
       acorn-walk: 8.3.4
       ajv: 8.17.1
       commander: 13.1.0
