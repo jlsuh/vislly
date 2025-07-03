@@ -16,8 +16,8 @@ import useIsHoldingClickOnElement from '@/shared/lib/useIsHoldingClickOnElement.
 import useOnClickOutside from '@/shared/lib/useOnClickOutside.ts';
 import useResizeDimensions from '@/shared/lib/useResizeDimensions.ts';
 import {
-  type NodeTypeKey,
-  type NodeTypeKeyFirstChar,
+  assertIsNodeTypeKey,
+  NODE_OPTIONS,
   PathfindingNode,
 } from '../model/pathfinding.ts';
 import styles from './pathfinding.module.css';
@@ -37,37 +37,6 @@ const NODE_SIZE_VAR = composeCssCustomProperty(
   'node-size',
   `${NODE_DIM_SIZE}rem`,
 );
-const POSSIBLE_NODES: PathfindingNode[] = [
-  new PathfindingNode({ row: -1, col: -1, value: 'empty' }),
-  new PathfindingNode({ row: -1, col: -1, value: 'wall' }),
-  new PathfindingNode({ row: -1, col: -1, value: 'start' }),
-  new PathfindingNode({ row: -1, col: -1, value: 'end' }),
-];
-
-function isNodeType(value: unknown): value is NodeTypeKey {
-  return POSSIBLE_NODES.some((nodeType) => nodeType.value === value);
-}
-
-function isNodeTypeFirstChar(value: unknown): value is NodeTypeKeyFirstChar {
-  return POSSIBLE_NODES.some((nodeType) => nodeType.value.charAt(0) === value);
-}
-
-function assertIsNodeTypeKey(value: unknown): asserts value is NodeTypeKey {
-  if (typeof value !== 'string') {
-    throw new Error(`Expected a string, but received: ${typeof value}`);
-  }
-  if (!isNodeType(value)) {
-    throw new Error(`Invalid node type: ${value}`);
-  }
-}
-
-function getNodeTypeFirstChar(value: NodeTypeKey): NodeTypeKeyFirstChar {
-  const firstChar = value.charAt(0);
-  if (!isNodeTypeFirstChar(firstChar)) {
-    throw new Error(`Invalid node type first character: ${firstChar}`);
-  }
-  return firstChar;
-}
 
 function getElementByPosition({
   col,
@@ -84,8 +53,10 @@ function mutateAssociatedParagraph({
 }: {
   pathfindingNode: PathfindingNode;
 }): void {
-  const { value, row, col } = pathfindingNode;
-  const node = getElementByPosition({ col, row });
+  const node = getElementByPosition({
+    col: pathfindingNode.col,
+    row: pathfindingNode.row,
+  });
   if (node === null) {
     return;
   }
@@ -93,8 +64,8 @@ function mutateAssociatedParagraph({
   if (paragraph === null) {
     return;
   }
-  paragraph.className = `${styles.nodeText} ${styles[value]}`;
-  paragraph.textContent = getNodeTypeFirstChar(value);
+  paragraph.className = `${styles.nodeText} ${styles[pathfindingNode.value]}`;
+  paragraph.textContent = pathfindingNode.getFirstChar();
 }
 
 function handleSpecialNode({
@@ -216,7 +187,7 @@ function Node({
       type="button"
     >
       <p className={`${styles.nodeText} ${styles[nodeType.value]}`}>
-        {getNodeTypeFirstChar(nodeType.value)}
+        {nodeType.getFirstChar()}
       </p>
     </button>
   );
@@ -344,9 +315,9 @@ function Pathfinding(): JSX.Element {
         }}
         value={selectedNodeOption.value}
       >
-        {POSSIBLE_NODES.map(({ value }) => (
-          <option key={value} value={value}>
-            {value.charAt(0).toUpperCase() + value.slice(1)}
+        {NODE_OPTIONS.map((option) => (
+          <option key={option} value={option}>
+            {option.charAt(0).toUpperCase() + option.slice(1)}
           </option>
         ))}
       </select>
