@@ -79,8 +79,8 @@ function handleSpecialNode({
     mutateAssociatedParagraph(grid[pivotRow][pivotCol]);
   }
   for (const specialNode of specialNodes) {
-    const { row: specialRow, col: specialCol } = specialNode.current;
-    if (nodeCol === specialCol && nodeRow === specialRow) {
+    const gridNode = grid[nodeRow][nodeCol];
+    if (gridNode.positionEquals(specialNode.current)) {
       specialNode.current.eliminateFromGrid();
     }
   }
@@ -90,21 +90,21 @@ function handleSpecialNode({
 
 function Node({
   grid,
+  gridNode,
   endNode,
   startNode,
-  initialNode,
   selectedNodeOption,
   setGrid,
 }: {
   grid: PathfindingNode[][];
+  gridNode: PathfindingNode;
   endNode: RefObject<PathfindingNode>;
   startNode: RefObject<PathfindingNode>;
-  initialNode: PathfindingNode;
   selectedNodeOption: PathfindingNode;
   setGrid: Dispatch<SetStateAction<PathfindingNode[][]>>;
 }): JSX.Element {
-  const [node, setNode] = useState(initialNode);
-  const { row: nodeRow, col: nodeCol } = initialNode;
+  const [node, setNode] = useState(gridNode);
+  const { row: nodeRow, col: nodeCol } = gridNode;
 
   const setNewNodeType = (newPathfindingNode: PathfindingNode): void => {
     if (newPathfindingNode.isStartNode()) {
@@ -128,12 +128,10 @@ function Node({
         setGrid,
       });
     } else {
-      const { row: startRow, col: startCol } = startNode.current;
-      if (nodeCol === startCol && nodeRow === startRow) {
+      if (gridNode.positionEquals(startNode.current)) {
         startNode.current.eliminateFromGrid();
       }
-      const { row: endRow, col: endCol } = endNode.current;
-      if (nodeCol === endCol && nodeRow === endRow) {
+      if (gridNode.positionEquals(endNode.current)) {
         endNode.current.eliminateFromGrid();
       }
     }
@@ -295,13 +293,13 @@ function Pathfinding(): JSX.Element {
         style={NODE_SIZE_VAR}
       >
         {grid.map((gridRow, nodeRow) =>
-          gridRow.map((initialNode, nodeCol) => (
+          gridRow.map((gridNode, nodeCol) => (
             <Node
+              key={`node-row-${nodeRow}-col-${nodeCol}-value-${gridNode.value}`}
               grid={grid}
-              key={`node-row-${nodeRow}-col-${nodeCol}-value-${initialNode.value}`}
+              gridNode={gridNode}
               endNode={endNode}
               startNode={startNode}
-              initialNode={initialNode}
               selectedNodeOption={selectedNodeOption}
               setGrid={setGrid}
             />
