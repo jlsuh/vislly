@@ -83,9 +83,9 @@ function handleSpecialNode({
     setGrid(grid);
     mutateAssociatedParagraph(grid[pivotRow][pivotCol]);
   }
+  const targetNode = grid[nodeRow][nodeCol];
   for (const specialNode of specialNodes) {
-    const gridNode = grid[nodeRow][nodeCol];
-    if (gridNode.positionEquals(specialNode.current)) {
+    if (targetNode.positionEquals(specialNode.current)) {
       specialNode.current.eliminateFromGrid();
     }
   }
