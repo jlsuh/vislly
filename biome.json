@@ -175,7 +175,7 @@
         "useConsistentObjectDefinition": "error",
         "useConsistentResponse": "error",
         "useExhaustiveSwitchCases": "error",
-        "useExplicitType": "off",
+        "useExplicitType": "error",
         "useExportsLast": "error",
         "useForComponent": "off",
         "useGoogleFontPreconnect": "error",
