@@ -13,4 +13,4 @@ function composeCssCustomProperty(
   };
 }
 
-export default composeCssCustomProperty;
+export { composeCssCustomProperty, type CssCustomProperty };

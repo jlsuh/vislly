@@ -150,14 +150,19 @@ const RESIZE_DIMENSIONS = {
   width: 0,
 };
 
-const BLUE = new Rgba(
+const BLUE: Rgba = new Rgba(
   0.237_254_901_96,
   0.537_254_901_96,
   0.854_901_960_78,
   0.25,
 );
-const POLLEN = new Rgba(0.976_470_588_23, 0.815_686_274_51, 0.086_274_509_8, 1);
-const PURPLE = new Rgba(
+const POLLEN: Rgba = new Rgba(
+  0.976_470_588_23,
+  0.815_686_274_51,
+  0.086_274_509_8,
+  1,
+);
+const PURPLE: Rgba = new Rgba(
   0.784_313_725_490_196_1,
   0.454_901_960_784_313_7,
   0.698_039_215_686_274_5,
@@ -168,7 +173,7 @@ const COR: CoefficientOfRestitution = 1;
 const DEFAULT_ROOT_FONT_SIZE = 16;
 const INITIAL_SPEED = 1.5;
 const MOLECULE_RADIUS = 6;
-const MOLECULE_DIAMETER = MOLECULE_RADIUS * 2;
+const MOLECULE_DIAMETER: number = MOLECULE_RADIUS * 2;
 const NUMBER_OF_PARTICLES = 500;
 const POLLEN_RADIUS = 35;
 

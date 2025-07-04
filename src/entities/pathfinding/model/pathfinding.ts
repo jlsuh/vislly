@@ -15,28 +15,28 @@ class PathfindingNode {
     this.value = value;
   }
 
-  public eliminateFromGrid() {
+  public eliminateFromGrid(): void {
     this.row = -1;
     this.col = -1;
   }
 
-  public positionEquals(that: PathfindingNode) {
+  public positionEquals(that: PathfindingNode): boolean {
     return this.row === that.row && this.col === that.col;
   }
 
-  public getFirstChar() {
+  public getFirstChar(): NodeTypeKeyFirstChar {
     return this.value.charAt(0) as NodeTypeKeyFirstChar;
   }
 
-  public appearsOnGrid() {
+  public appearsOnGrid(): boolean {
     return this.row !== -1 && this.col !== -1;
   }
 
-  public isEndNode() {
+  public isEndNode(): boolean {
     return this.value === 'end';
   }
 
-  public isStartNode() {
+  public isStartNode(): boolean {
     return this.value === 'start';
   }
 }

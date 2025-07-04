@@ -1,8 +1,10 @@
 'use client';
 
 import type {
+  ChangeEvent,
   Dispatch,
   JSX,
+  MouseEvent,
   PointerEvent,
   PointerEventHandler,
   RefObject,
@@ -10,7 +12,10 @@ import type {
   TouchEvent,
 } from 'react';
 import { useEffect, useId, useRef, useState } from 'react';
-import composeCssCustomProperty from '@/shared/lib/composeCssVariable.ts';
+import {
+  type CssCustomProperty,
+  composeCssCustomProperty,
+} from '@/shared/lib/composeCssVariable.ts';
 import pxToRem from '@/shared/lib/pxToRem.ts';
 import useIsHoldingClickOnElement from '@/shared/lib/useIsHoldingClickOnElement.ts';
 import useOnClickOutside from '@/shared/lib/useOnClickOutside.ts';
@@ -34,7 +39,7 @@ const RESIZE_DIMENSIONS = {
   width: 0,
 };
 const NODE_DIM_SIZE = 1;
-const NODE_SIZE_VAR = composeCssCustomProperty(
+const NODE_SIZE_VAR: CssCustomProperty = composeCssCustomProperty(
   'node-size',
   `${NODE_DIM_SIZE}rem`,
 );
@@ -149,7 +154,9 @@ function Node({
       className={styles.node}
       data-col={nodeCol}
       data-row={nodeRow}
-      onContextMenu={(e): void => e.preventDefault()}
+      onContextMenu={(e: MouseEvent<HTMLButtonElement>): void =>
+        e.preventDefault()
+      }
       onMouseDown={(): void => setNewNodeType(selectedNodeOption)}
       onTouchStart={(): void => setNewNodeType(selectedNodeOption)}
       type="button"
@@ -266,7 +273,7 @@ function Pathfinding(): JSX.Element {
       <select
         id={nodeTypeSelectId}
         key={selectedNodeOption.value}
-        onChange={(e): void => {
+        onChange={(e: ChangeEvent<HTMLSelectElement>): void => {
           const { value } = e.target;
           assertIsNodeTypeKey(value);
           setSelectedNodeOption(new PathfindingNode(-1, -1, value));

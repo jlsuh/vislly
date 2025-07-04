@@ -6,10 +6,10 @@ function useIsHoldingClickOnElement(ref: RefObject<EventTarget | null>): {
   const isHoldingClickRef = useRef(false);
 
   useEffect(() => {
-    const setIsHoldingClickToTrue = () => {
+    const setIsHoldingClickToTrue = (): void => {
       isHoldingClickRef.current = true;
     };
-    const setIsHoldingClickToFalse = () => {
+    const setIsHoldingClickToFalse = (): void => {
       isHoldingClickRef.current = false;
     };
     const element = ref.current ?? new Element();
