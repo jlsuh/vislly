@@ -18,6 +18,7 @@ import useResizeDimensions from '@/shared/lib/useResizeDimensions.ts';
 import {
   assertIsNodeTypeKey,
   NODE_OPTIONS,
+  type NodeTypeKey,
   PathfindingNode,
 } from '../model/pathfinding.ts';
 import styles from './pathfinding.module.css';
@@ -38,156 +39,126 @@ const NODE_SIZE_VAR = composeCssCustomProperty(
   `${NODE_DIM_SIZE}rem`,
 );
 
-function getElementByPosition({
-  col,
-  row,
-}: {
-  col: number;
-  row: number;
-}): HTMLButtonElement | null {
-  return document.querySelector(`[data-col="${col}"][data-row="${row}"]`);
-}
-
-function mutateAssociatedParagraph({
-  pathfindingNode,
-}: {
-  pathfindingNode: PathfindingNode;
-}): void {
-  const node = getElementByPosition({
-    col: pathfindingNode.col,
-    row: pathfindingNode.row,
-  });
-  if (node === null) {
+function mutateAssociatedParagraph(node: PathfindingNode): void {
+  const { row, col, value } = node;
+  const element = document.querySelector(
+    `[data-row="${row}"][data-col="${col}"]`,
+  );
+  if (element === null) {
     return;
   }
-  const paragraph = node.querySelector('p');
+  const paragraph = element.querySelector('p');
   if (paragraph === null) {
     return;
   }
-  paragraph.className = `${styles.nodeText} ${styles[pathfindingNode.value]}`;
-  paragraph.textContent = pathfindingNode.getFirstChar();
+  paragraph.className = `${styles.nodeText} ${styles[value]}`;
+  paragraph.textContent = node.getFirstChar();
 }
 
 function handleSpecialNode({
   grid,
-  newCol,
-  newPathfindingNode,
-  newRow,
-  otherSpecialNodes,
+  nodeCol,
+  nodeRow,
+  newValue,
+  pivotSpecialNode,
+  specialNodes,
   setGrid,
-  specialNode,
 }: {
   grid: PathfindingNode[][];
-  newCol: number;
-  newPathfindingNode: PathfindingNode;
-  newRow: number;
-  otherSpecialNodes: RefObject<PathfindingNode>[];
+  nodeCol: number;
+  nodeRow: number;
+  newValue: NodeTypeKey;
+  pivotSpecialNode: RefObject<PathfindingNode>;
+  specialNodes: RefObject<PathfindingNode>[];
   setGrid: Dispatch<SetStateAction<PathfindingNode[][]>>;
-  specialNode: RefObject<PathfindingNode>;
 }): void {
-  const { col, row } = specialNode.current;
-  if (!specialNode.current.isInitialPosition()) {
-    grid[row][col] = new PathfindingNode({ row, col, value: 'empty' });
+  if (pivotSpecialNode.current.appearsOnGrid()) {
+    const { row: pivotRow, col: pivotCol } = pivotSpecialNode.current;
+    grid[pivotRow][pivotCol] = new PathfindingNode(pivotRow, pivotCol, 'empty');
     setGrid(grid);
-    mutateAssociatedParagraph({
-      pathfindingNode: new PathfindingNode({ row, col, value: 'empty' }),
-    });
+    mutateAssociatedParagraph(grid[pivotRow][pivotCol]);
   }
-  for (const node of otherSpecialNodes) {
-    node.current.setToInitialPositionIfCondition({
-      condition: ({ targetCol, targetRow }): boolean =>
-        newCol === targetCol && newRow === targetRow,
-    });
+  for (const specialNode of specialNodes) {
+    const { row: specialRow, col: specialCol } = specialNode.current;
+    if (nodeCol === specialCol && nodeRow === specialRow) {
+      specialNode.current.eliminateFromGrid();
+    }
   }
-  mutateAssociatedParagraph({
-    pathfindingNode: new PathfindingNode({
-      row: newRow,
-      col: newCol,
-      value: newPathfindingNode.value,
-    }),
-  });
-  specialNode.current = new PathfindingNode({
-    row: newRow,
-    col: newCol,
-    value: newPathfindingNode.value,
-  });
+  pivotSpecialNode.current = new PathfindingNode(nodeRow, nodeCol, newValue);
+  mutateAssociatedParagraph(pivotSpecialNode.current);
 }
 
 function Node({
-  col,
-  endNode,
   grid,
-  pathfindingNode,
-  row,
+  endNode,
+  startNode,
+  initialNode,
   selectedNodeOption,
   setGrid,
-  startNode,
 }: {
-  col: number;
-  endNode: RefObject<PathfindingNode>;
   grid: PathfindingNode[][];
-  pathfindingNode: PathfindingNode;
-  row: number;
+  endNode: RefObject<PathfindingNode>;
+  startNode: RefObject<PathfindingNode>;
+  initialNode: PathfindingNode;
   selectedNodeOption: PathfindingNode;
   setGrid: Dispatch<SetStateAction<PathfindingNode[][]>>;
-  startNode: RefObject<PathfindingNode>;
 }): JSX.Element {
-  const [nodeType, setNodeType] = useState(pathfindingNode);
+  const [node, setNode] = useState(initialNode);
+  const { row: nodeRow, col: nodeCol } = initialNode;
 
   const setNewNodeType = (newPathfindingNode: PathfindingNode): void => {
     if (newPathfindingNode.isStartNode()) {
       handleSpecialNode({
         grid,
-        newCol: col,
-        newPathfindingNode,
-        newRow: row,
-        otherSpecialNodes: [endNode],
+        nodeCol,
+        nodeRow,
+        newValue: newPathfindingNode.value,
+        pivotSpecialNode: startNode,
+        specialNodes: [endNode],
         setGrid,
-        specialNode: startNode,
       });
-    }
-    if (newPathfindingNode.isEndNode()) {
+    } else if (newPathfindingNode.isEndNode()) {
       handleSpecialNode({
         grid,
-        newCol: col,
-        newPathfindingNode,
-        newRow: row,
-        otherSpecialNodes: [startNode],
+        nodeCol,
+        nodeRow,
+        newValue: newPathfindingNode.value,
+        pivotSpecialNode: endNode,
+        specialNodes: [startNode],
         setGrid,
-        specialNode: endNode,
       });
+    } else {
+      const { row: startRow, col: startCol } = startNode.current;
+      if (nodeCol === startCol && nodeRow === startRow) {
+        startNode.current.eliminateFromGrid();
+      }
+      const { row: endRow, col: endCol } = endNode.current;
+      if (nodeCol === endCol && nodeRow === endRow) {
+        endNode.current.eliminateFromGrid();
+      }
     }
-    if (newPathfindingNode.isWallNode() || newPathfindingNode.isEmptyNode()) {
-      startNode.current.setToInitialPositionIfCondition({
-        condition: ({ targetCol, targetRow }): boolean =>
-          col === targetCol && row === targetRow,
-      });
-      endNode.current.setToInitialPositionIfCondition({
-        condition: ({ targetCol, targetRow }): boolean =>
-          col === targetCol && row === targetRow,
-      });
-    }
-    grid[row][col] = new PathfindingNode({
-      row,
-      col,
-      value: newPathfindingNode.value,
-    });
+    grid[nodeRow][nodeCol] = new PathfindingNode(
+      nodeRow,
+      nodeCol,
+      newPathfindingNode.value,
+    );
     setGrid(grid);
-    setNodeType(newPathfindingNode);
+    setNode(newPathfindingNode);
+    console.log(startNode.current, endNode.current);
   };
 
   return (
     <button
       className={styles.node}
-      data-col={col}
-      data-row={row}
+      data-col={nodeCol}
+      data-row={nodeRow}
       onContextMenu={(e): void => e.preventDefault()}
       onMouseDown={(): void => setNewNodeType(selectedNodeOption)}
       onTouchStart={(): void => setNewNodeType(selectedNodeOption)}
       type="button"
     >
-      <p className={`${styles.nodeText} ${styles[nodeType.value]}`}>
-        {nodeType.getFirstChar()}
+      <p className={`${styles.nodeText} ${styles[node.value]}`}>
+        {node.getFirstChar()}
       </p>
     </button>
   );
@@ -248,18 +219,10 @@ function Pathfinding(): JSX.Element {
   const [rows, setRows] = useState(0);
   const [grid, setGrid] = useState<PathfindingNode[][]>([]);
   const [selectedNodeOption, setSelectedNodeOption] = useState(
-    new PathfindingNode({ row: -1, col: -1, value: 'wall' }),
+    new PathfindingNode(-1, -1, 'wall'),
   );
-  const endNode = useRef(
-    new PathfindingNode({
-      row: -1,
-      col: -1,
-      value: 'end',
-    }),
-  );
-  const startNode = useRef(
-    new PathfindingNode({ row: -1, col: -1, value: 'start' }),
-  );
+  const endNode = useRef(new PathfindingNode(-1, -1, 'end'));
+  const startNode = useRef(new PathfindingNode(-1, -1, 'start'));
   const { dimensions, ref } =
     useResizeDimensions<HTMLElement>(RESIZE_DIMENSIONS);
   const { isHoldingClickRef } = useIsHoldingClickOnElement(ref);
@@ -277,7 +240,7 @@ function Pathfinding(): JSX.Element {
       const newGrid = Array.from({ length: rows }, (_, row) =>
         Array.from(
           { length: cols },
-          (__, col) => new PathfindingNode({ row, col, value: 'empty' }),
+          (__, col) => new PathfindingNode(row, col, 'empty'),
         ),
       );
       for (let row = 0; row < rows; row += 1) {
@@ -291,15 +254,17 @@ function Pathfinding(): JSX.Element {
       }
       return newGrid;
     });
-    startNode.current.setToInitialPositionIfCondition({
-      condition: ({ targetCol, targetRow }): boolean =>
-        cols - 1 < targetCol || rows - 1 < targetRow,
-    });
-    endNode.current.setToInitialPositionIfCondition({
-      condition: ({ targetCol, targetRow }): boolean =>
-        cols - 1 < targetCol || rows - 1 < targetRow,
-    });
+    const { row: startRow, col: startCol } = startNode.current;
+    if (cols - 1 < startCol || rows - 1 < startRow) {
+      startNode.current.eliminateFromGrid();
+    }
+    const { row: endRow, col: endCol } = endNode.current;
+    if (cols - 1 < endCol || rows - 1 < endRow) {
+      endNode.current.eliminateFromGrid();
+    }
   }, [rows, cols]);
+
+  console.log('>>>>> grid:', grid);
 
   return (
     <>
@@ -309,9 +274,7 @@ function Pathfinding(): JSX.Element {
         onChange={(e): void => {
           const { value } = e.target;
           assertIsNodeTypeKey(value);
-          setSelectedNodeOption(
-            new PathfindingNode({ row: -1, col: -1, value }),
-          );
+          setSelectedNodeOption(new PathfindingNode(-1, -1, value));
         }}
         value={selectedNodeOption.value}
       >
@@ -331,18 +294,16 @@ function Pathfinding(): JSX.Element {
         ref={ref}
         style={NODE_SIZE_VAR}
       >
-        {grid.map((gridRow, row) =>
-          gridRow.map((pathfindingNode, col) => (
+        {grid.map((gridRow, nodeRow) =>
+          gridRow.map((initialNode, nodeCol) => (
             <Node
-              col={col}
-              endNode={endNode}
               grid={grid}
-              key={`node-row-${row}-col-${col}-value-${pathfindingNode.value}`}
-              pathfindingNode={pathfindingNode}
-              row={row}
+              key={`node-row-${nodeRow}-col-${nodeCol}-value-${initialNode.value}`}
+              endNode={endNode}
+              startNode={startNode}
+              initialNode={initialNode}
               selectedNodeOption={selectedNodeOption}
               setGrid={setGrid}
-              startNode={startNode}
             />
           )),
         )}

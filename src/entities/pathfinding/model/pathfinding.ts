@@ -8,48 +8,28 @@ class PathfindingNode {
   public col: number;
   public value: NodeTypeKey;
 
-  public constructor({
-    row,
-    col,
-    value,
-  }: { row: number; col: number; value: NodeTypeKey }) {
+  public constructor(row: number, col: number, value: NodeTypeKey) {
     assertIsNodeTypeKey(value);
     this.row = row;
     this.col = col;
     this.value = value;
   }
 
-  public setToInitialPositionIfCondition({
-    condition,
-  }: {
-    condition: ({
-      targetCol,
-      targetRow,
-    }: {
-      targetCol: number;
-      targetRow: number;
-    }) => boolean;
-  }) {
-    if (condition({ targetCol: this.col, targetRow: this.row })) {
-      this.row = -1;
-      this.col = -1;
-    }
+  public eliminateFromGrid() {
+    this.row = -1;
+    this.col = -1;
+  }
+
+  public positionEquals(that: PathfindingNode) {
+    return this.row === that.row && this.col === that.col;
   }
 
   public getFirstChar() {
     return this.value.charAt(0) as NodeTypeKeyFirstChar;
   }
 
-  public isInitialPosition() {
-    return this.row === -1 && this.col === -1;
-  }
-
-  public isWallNode() {
-    return this.value === 'wall';
-  }
-
-  public isEmptyNode() {
-    return this.value === 'empty';
+  public appearsOnGrid() {
+    return this.row !== -1 && this.col !== -1;
   }
 
   public isEndNode() {
