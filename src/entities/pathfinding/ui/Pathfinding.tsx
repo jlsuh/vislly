@@ -142,7 +142,6 @@ function Node({
     );
     setGrid(grid);
     setNode(newPathfindingNode);
-    console.log(startNode.current, endNode.current);
   };
 
   return (
@@ -261,8 +260,6 @@ function Pathfinding(): JSX.Element {
       endNode.current.eliminateFromGrid();
     }
   }, [rows, cols]);
-
-  console.log('>>>>> grid:', grid);
 
   return (
     <>

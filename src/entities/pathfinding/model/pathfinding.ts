@@ -56,11 +56,4 @@ function isNodeType(value: unknown): value is NodeTypeKey {
   return NODE_OPTIONS.some((nodeType) => nodeType === value);
 }
 
-export {
-  assertIsNodeTypeKey,
-  isNodeType,
-  NODE_OPTIONS,
-  PathfindingNode,
-  type NodeTypeKey,
-  type NodeTypeKeyFirstChar,
-};
+export { assertIsNodeTypeKey, NODE_OPTIONS, PathfindingNode, type NodeTypeKey };
