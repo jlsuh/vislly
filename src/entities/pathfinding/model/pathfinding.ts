@@ -1,11 +1,9 @@
+import type { ReadonlyDeep } from 'type-fest';
+
 const EMPTY = 'empty';
 const END = 'end';
 const START = 'start';
 const WALL = 'wall';
-
-const NODES_OF_INTEREST: Set<NodeOfInterest> = new Set([END, START]);
-const NODES: Set<NodeTypeKey> = new Set([WALL, EMPTY, END, START]);
-const NODE_VALUES: NodeTypeKey[] = Array.from(NODES);
 
 type NodeTypeKey = typeof WALL | typeof EMPTY | typeof END | typeof START;
 type NodeOfInterest = Extract<NodeTypeKey, typeof END | typeof START>;
@@ -54,19 +52,30 @@ class PathfindingNode {
   }
 }
 
-function isString(value: unknown): value is string {
-  return typeof value === 'string';
+const NODES: ReadonlyDeep<Record<NodeTypeKey, NodeTypeKey>> = {
+  wall: WALL,
+  empty: EMPTY,
+  end: END,
+  start: START,
+};
+const NODES_OF_INTEREST: ReadonlyDeep<Record<NodeOfInterest, NodeOfInterest>> =
+  {
+    end: END,
+    start: START,
+  };
+const NODE_VALUES: NodeTypeKey[] = Object.values(NODES);
+const NODE_OF_INTEREST_VALUES: NodeOfInterest[] =
+  Object.values(NODES_OF_INTEREST);
+
+function isNodeType(value: string): value is NodeTypeKey {
+  return NODE_VALUES.some((node) => node === value);
 }
 
-function isNodeType(value: unknown): value is NodeTypeKey {
-  return isString(value) && NODES.has(value as NodeTypeKey);
+function isNodeOfInterest(value: NodeTypeKey): value is NodeOfInterest {
+  return NODE_OF_INTEREST_VALUES.some((node) => node === value);
 }
 
-function isNodeOfInterest(value: unknown): value is NodeOfInterest {
-  return isString(value) && NODES_OF_INTEREST.has(value as NodeOfInterest);
-}
-
-function assertIsNodeTypeKey(value: unknown): asserts value is NodeTypeKey {
+function assertIsNodeTypeKey(value: string): asserts value is NodeTypeKey {
   if (!isNodeType(value)) {
     throw new Error(`Invalid node type: ${value}`);
   }

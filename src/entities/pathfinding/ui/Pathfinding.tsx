@@ -24,6 +24,7 @@ import {
   assertIsNodeTypeKey,
   isNodeOfInterest,
   NODE_VALUES,
+  NODES,
   type NodeOfInterest,
   PathfindingNode,
 } from '../model/pathfinding.ts';
@@ -78,7 +79,11 @@ function handleSpecialNode({
 }): void {
   if (nodesOfInterest.current[newValue].appearsOnGrid()) {
     const { row: pivotRow, col: pivotCol } = nodesOfInterest.current[newValue];
-    grid[pivotRow][pivotCol] = new PathfindingNode(pivotRow, pivotCol, 'empty');
+    grid[pivotRow][pivotCol] = new PathfindingNode(
+      pivotRow,
+      pivotCol,
+      NODES.empty,
+    );
     setGrid(grid);
     mutateAssociatedParagraph(grid[pivotRow][pivotCol]);
   }
@@ -212,11 +217,11 @@ function Pathfinding(): JSX.Element {
   const [rows, setRows] = useState(0);
   const [grid, setGrid] = useState<PathfindingNode[][]>([]);
   const [selectedNodeOption, setSelectedNodeOption] = useState(
-    new PathfindingNode(-1, -1, 'wall'),
+    new PathfindingNode(-1, -1, NODES.wall),
   );
   const nodesOfInterest = useRef<Record<NodeOfInterest, PathfindingNode>>({
-    start: new PathfindingNode(-1, -1, 'start'),
-    end: new PathfindingNode(-1, -1, 'end'),
+    start: new PathfindingNode(-1, -1, NODES.start),
+    end: new PathfindingNode(-1, -1, NODES.end),
   });
   const { dimensions, ref } =
     useResizeDimensions<HTMLElement>(RESIZE_DIMENSIONS);
@@ -235,7 +240,7 @@ function Pathfinding(): JSX.Element {
       const newGrid = Array.from({ length: rows }, (_, row) =>
         Array.from(
           { length: cols },
-          (__, col) => new PathfindingNode(row, col, 'empty'),
+          (__, col) => new PathfindingNode(row, col, NODES.empty),
         ),
       );
       for (let row = 0; row < rows; row += 1) {
