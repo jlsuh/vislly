@@ -1,21 +1,27 @@
-type Angle = number;
-type Channel = number;
+import { type Branded, make } from '@/shared/lib/branding';
+
+type Channel = Branded<number, 'Channel'>;
 type CoefficientOfRestitution = number;
-type Coord = number;
-type FillColor = string;
-type Limit = number;
-type Mass = number;
 type ParticleSettings = {
-  readonly fillColor: FillColor;
+  readonly fillColor: string;
   readonly isTracked: boolean;
-  readonly r: Radius;
-  readonly vix: Coord;
-  readonly viy: Coord;
-  readonly x: Coord;
-  readonly y: Coord;
+  readonly r: number;
+  readonly vix: number;
+  readonly viy: number;
+  readonly x: number;
+  readonly y: number;
 };
-type Radius = number;
-type RgbaChannels = ConstructorParameters<typeof Rgba>;
+
+const makeChannel: (value: unknown) => Channel = make<Channel>(
+  (value: unknown): asserts value is Channel => {
+    if (typeof value !== 'number' || !Number.isFinite(value)) {
+      throw new TypeError('Channel must be a finite number');
+    }
+    if (value < 0 || value > 1) {
+      throw new RangeError('RGBA channel value must be between 0 and 1');
+    }
+  },
+);
 
 class Rgba {
   public readonly r: Channel;
@@ -23,18 +29,11 @@ class Rgba {
   public readonly b: Channel;
   public readonly a: Channel;
 
-  public constructor(r: Channel, g: Channel, b: Channel, a: Channel) {
-    if (this.containsInvalidValues([r, g, b, a])) {
-      throw new RangeError('RGBA channel value must be between 0 and 1');
-    }
-    this.r = r;
-    this.g = g;
-    this.b = b;
-    this.a = a;
-  }
-
-  private containsInvalidValues(rgbaChannels: RgbaChannels): boolean {
-    return rgbaChannels.some((value: Channel) => value < 0 || value > 1);
+  public constructor(r: number, g: number, b: number, a: number) {
+    this.r = makeChannel(r);
+    this.g = makeChannel(g);
+    this.b = makeChannel(b);
+    this.a = makeChannel(a);
   }
 
   public toStyle(): string {
@@ -43,10 +42,10 @@ class Rgba {
 }
 
 class Vector2 {
-  public readonly x: Coord;
-  public readonly y: Coord;
+  public readonly x: number;
+  public readonly y: number;
 
-  public constructor(x: Coord, y: Coord) {
+  public constructor(x: number, y: number) {
     this.x = x;
     this.y = y;
   }
@@ -59,7 +58,7 @@ class Vector2 {
     return this.x * that.x + this.y * that.y;
   }
 
-  public map(fn: (x: number) => number): Vector2 {
+  public map(fn: (number: number) => number): Vector2 {
     return new Vector2(fn(this.x), fn(this.y));
   }
 
@@ -75,10 +74,10 @@ class Vector2 {
 }
 
 class Particle {
-  public readonly fillColor: FillColor;
+  public readonly fillColor: string;
   public readonly isTracked: boolean;
-  public readonly mass: Mass;
-  public readonly r: Radius;
+  public readonly mass: number;
+  public readonly r: number;
   public curr: Vector2;
   public prev: Vector2;
   public v: Vector2;
@@ -128,11 +127,11 @@ class Particle {
     that.v = new Vector2(v2x, v2y);
   }
 
-  public isHorizontalWallCollision(width: Limit): boolean {
+  public isHorizontalWallCollision(width: number): boolean {
     return this.curr.x - this.r < 0 || this.curr.x + this.r > width;
   }
 
-  public isVerticalWallCollision(height: Limit): boolean {
+  public isVerticalWallCollision(height: number): boolean {
     return this.curr.y - this.r < 0 || this.curr.y + this.r > height;
   }
 
@@ -152,12 +151,6 @@ export {
   Particle,
   Rgba,
   Vector2,
-  type Angle,
-  type Channel,
   type CoefficientOfRestitution,
-  type Coord,
-  type FillColor,
-  type Limit,
-  type Mass,
   type ParticleSettings,
 };

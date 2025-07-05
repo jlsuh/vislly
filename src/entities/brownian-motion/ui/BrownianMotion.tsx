@@ -4,10 +4,7 @@ import { type JSX, useEffect, useId } from 'react';
 import getRootFontSize from '@/shared/lib/getRootFontSize.ts';
 import useResizeDimensions from '@/shared/lib/useResizeDimensions';
 import {
-  type Angle,
   type CoefficientOfRestitution,
-  type Coord,
-  type Limit,
   Particle,
   type ParticleSettings,
   Rgba,
@@ -15,11 +12,11 @@ import {
 } from '../model/brownian-motion.ts';
 import styles from './brownian-motion.module.css';
 
-function getRandomAngle(): Angle {
+function getRandomAngle(): number {
   return Math.random() * 2 * Math.PI;
 }
 
-function getRandomBetween(min: Limit, max: Limit): Coord {
+function getRandomBetween(min: number, max: number): number {
   return Math.random() * (max - min) + min;
 }
 
@@ -61,8 +58,8 @@ function configureHistoricalCanvas(
 }
 
 function resetCanvas(
-  width: Limit,
-  height: Limit,
+  width: number,
+  height: number,
   particlesContext: CanvasRenderingContext2D,
 ): void {
   particlesContext.clearRect(0, 0, width, height);
@@ -78,7 +75,7 @@ function handleParticleCollisions(
   }
 }
 
-function handleWallCollision(p: Particle, width: Limit, height: Limit): void {
+function handleWallCollision(p: Particle, width: number, height: number): void {
   if (p.isHorizontalWallCollision(width)) {
     p.v = new Vector2(-p.v.x, p.v.y);
   }
@@ -106,8 +103,8 @@ const update = ({
 }: {
   cor: CoefficientOfRestitution;
   particles: Particle[];
-  height: Limit;
-  width: Limit;
+  height: number;
+  width: number;
   historicalContext: CanvasRenderingContext2D;
   particlesContext: CanvasRenderingContext2D;
 }): void => {
