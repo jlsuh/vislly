@@ -22,6 +22,7 @@ import useOnClickOutside from '@/shared/lib/useOnClickOutside.ts';
 import useResizeDimensions from '@/shared/lib/useResizeDimensions.ts';
 import {
   assertIsNodeTypeKey,
+  INITIAL_COORDINATE,
   isNodeOfInterest,
   NODE_VALUES,
   NODES,
@@ -217,11 +218,15 @@ function Pathfinding(): JSX.Element {
   const [rows, setRows] = useState(0);
   const [grid, setGrid] = useState<PathfindingNode[][]>([]);
   const [selectedNodeOption, setSelectedNodeOption] = useState(
-    new PathfindingNode(-1, -1, NODES.wall),
+    new PathfindingNode(INITIAL_COORDINATE, INITIAL_COORDINATE, NODES.wall),
   );
   const nodesOfInterest = useRef<Record<NodeOfInterest, PathfindingNode>>({
-    start: new PathfindingNode(-1, -1, NODES.start),
-    end: new PathfindingNode(-1, -1, NODES.end),
+    start: new PathfindingNode(
+      INITIAL_COORDINATE,
+      INITIAL_COORDINATE,
+      NODES.start,
+    ),
+    end: new PathfindingNode(INITIAL_COORDINATE, INITIAL_COORDINATE, NODES.end),
   });
   const { dimensions, ref } =
     useResizeDimensions<HTMLElement>(RESIZE_DIMENSIONS);
@@ -274,7 +279,9 @@ function Pathfinding(): JSX.Element {
         onChange={(e: ChangeEvent<HTMLSelectElement>): void => {
           const { value } = e.target;
           assertIsNodeTypeKey(value);
-          setSelectedNodeOption(new PathfindingNode(-1, -1, value));
+          setSelectedNodeOption(
+            new PathfindingNode(INITIAL_COORDINATE, INITIAL_COORDINATE, value),
+          );
         }}
         value={selectedNodeOption.value}
       >

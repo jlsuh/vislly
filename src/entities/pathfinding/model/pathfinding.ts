@@ -1,4 +1,4 @@
-import type { ReadonlyDeep } from 'type-fest';
+import type { ReadonlyDeep, StringSlice } from 'type-fest';
 
 const EMPTY = 'empty';
 const END = 'end';
@@ -7,8 +7,9 @@ const WALL = 'wall';
 
 type NodeTypeKey = typeof WALL | typeof EMPTY | typeof END | typeof START;
 type NodeOfInterest = Extract<NodeTypeKey, typeof END | typeof START>;
-type NodeTypeKeyFirstChar =
-  `${NodeTypeKey extends `${infer FirstChar}${string}` ? FirstChar : never}`;
+type NodeTypeKeyFirstChar = StringSlice<NodeTypeKey, 0, 1>;
+
+const INITIAL_COORDINATE = -1;
 
 class PathfindingNode {
   public row: number;
@@ -23,8 +24,8 @@ class PathfindingNode {
   }
 
   public eliminateFromGrid(): void {
-    this.row = -1;
-    this.col = -1;
+    this.row = INITIAL_COORDINATE;
+    this.col = INITIAL_COORDINATE;
   }
 
   public positionEquals(that: PathfindingNode): boolean {
@@ -36,7 +37,7 @@ class PathfindingNode {
   }
 
   public appearsOnGrid(): boolean {
-    return this.row !== -1 && this.col !== -1;
+    return this.row !== INITIAL_COORDINATE && this.col !== INITIAL_COORDINATE;
   }
 
   private isEndNode(): boolean {
@@ -83,6 +84,7 @@ function assertIsNodeTypeKey(value: string): asserts value is NodeTypeKey {
 
 export {
   assertIsNodeTypeKey,
+  INITIAL_COORDINATE,
   isNodeOfInterest,
   NODE_VALUES,
   NODES,
