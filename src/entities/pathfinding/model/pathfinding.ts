@@ -1,7 +1,16 @@
-import type { StringSlice } from 'type-fest';
+const EMPTY = 'empty';
+const END = 'end';
+const START = 'start';
+const WALL = 'wall';
 
-type NodeTypeKey = 'wall' | 'empty' | 'end' | 'start';
-type NodeTypeKeyFirstChar = StringSlice<NodeTypeKey, 0, 1>;
+const NODES_OF_INTEREST: Set<NodeOfInterest> = new Set([END, START]);
+const NODES: Set<NodeTypeKey> = new Set([WALL, EMPTY, END, START]);
+const NODE_VALUES: NodeTypeKey[] = Array.from(NODES);
+
+type NodeTypeKey = typeof WALL | typeof EMPTY | typeof END | typeof START;
+type NodeOfInterest = Extract<NodeTypeKey, typeof END | typeof START>;
+type NodeTypeKeyFirstChar =
+  `${NodeTypeKey extends `${infer FirstChar}${string}` ? FirstChar : never}`;
 
 class PathfindingNode {
   public row: number;
@@ -32,28 +41,43 @@ class PathfindingNode {
     return this.row !== -1 && this.col !== -1;
   }
 
-  public isEndNode(): boolean {
-    return this.value === 'end';
+  private isEndNode(): boolean {
+    return this.value === END;
   }
 
-  public isStartNode(): boolean {
-    return this.value === 'start';
+  private isStartNode(): boolean {
+    return this.value === START;
+  }
+
+  public isNodeOfInterest(): boolean {
+    return this.isEndNode() || this.isStartNode();
   }
 }
 
-const NODE_OPTIONS: NodeTypeKey[] = ['wall', 'empty', 'start', 'end'];
+function isString(value: unknown): value is string {
+  return typeof value === 'string';
+}
+
+function isNodeType(value: unknown): value is NodeTypeKey {
+  return isString(value) && NODES.has(value as NodeTypeKey);
+}
+
+function isNodeOfInterest(value: unknown): value is NodeOfInterest {
+  return isString(value) && NODES_OF_INTEREST.has(value as NodeOfInterest);
+}
 
 function assertIsNodeTypeKey(value: unknown): asserts value is NodeTypeKey {
-  if (typeof value !== 'string') {
-    throw new Error(`Expected a string, but received: ${typeof value}`);
-  }
   if (!isNodeType(value)) {
     throw new Error(`Invalid node type: ${value}`);
   }
 }
 
-function isNodeType(value: unknown): value is NodeTypeKey {
-  return NODE_OPTIONS.some((nodeType) => nodeType === value);
-}
-
-export { assertIsNodeTypeKey, NODE_OPTIONS, PathfindingNode, type NodeTypeKey };
+export {
+  assertIsNodeTypeKey,
+  isNodeOfInterest,
+  NODE_VALUES,
+  NODES,
+  PathfindingNode,
+  type NodeOfInterest,
+  type NodeTypeKey,
+};

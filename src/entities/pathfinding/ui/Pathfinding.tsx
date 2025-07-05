@@ -22,8 +22,9 @@ import useOnClickOutside from '@/shared/lib/useOnClickOutside.ts';
 import useResizeDimensions from '@/shared/lib/useResizeDimensions.ts';
 import {
   assertIsNodeTypeKey,
-  NODE_OPTIONS,
-  type NodeTypeKey,
+  isNodeOfInterest,
+  NODE_VALUES,
+  type NodeOfInterest,
   PathfindingNode,
 } from '../model/pathfinding.ts';
 import styles from './pathfinding.module.css';
@@ -62,49 +63,50 @@ function mutateAssociatedParagraph(node: PathfindingNode): void {
 
 function handleSpecialNode({
   grid,
+  newValue,
   nodeCol,
   nodeRow,
-  newValue,
-  pivotSpecialNode,
-  specialNodes,
+  nodesOfInterest,
   setGrid,
 }: {
   grid: PathfindingNode[][];
+  newValue: NodeOfInterest;
   nodeCol: number;
   nodeRow: number;
-  newValue: NodeTypeKey;
-  pivotSpecialNode: RefObject<PathfindingNode>;
-  specialNodes: RefObject<PathfindingNode>[];
+  nodesOfInterest: RefObject<Record<NodeOfInterest, PathfindingNode>>;
   setGrid: Dispatch<SetStateAction<PathfindingNode[][]>>;
 }): void {
-  if (pivotSpecialNode.current.appearsOnGrid()) {
-    const { row: pivotRow, col: pivotCol } = pivotSpecialNode.current;
+  if (nodesOfInterest.current[newValue].appearsOnGrid()) {
+    const { row: pivotRow, col: pivotCol } = nodesOfInterest.current[newValue];
     grid[pivotRow][pivotCol] = new PathfindingNode(pivotRow, pivotCol, 'empty');
     setGrid(grid);
     mutateAssociatedParagraph(grid[pivotRow][pivotCol]);
   }
   const targetNode = grid[nodeRow][nodeCol];
-  for (const specialNode of specialNodes) {
-    if (targetNode.positionEquals(specialNode.current)) {
-      specialNode.current.eliminateFromGrid();
-    }
+  if (
+    targetNode.isNodeOfInterest() &&
+    nodesOfInterest.current[newValue].positionEquals(targetNode)
+  ) {
+    targetNode.eliminateFromGrid();
   }
-  pivotSpecialNode.current = new PathfindingNode(nodeRow, nodeCol, newValue);
-  mutateAssociatedParagraph(pivotSpecialNode.current);
+  nodesOfInterest.current[newValue] = new PathfindingNode(
+    nodeRow,
+    nodeCol,
+    newValue,
+  );
+  mutateAssociatedParagraph(nodesOfInterest.current[newValue]);
 }
 
 function Node({
   grid,
   gridNode,
-  endNode,
-  startNode,
+  nodesOfInterest,
   selectedNodeOption,
   setGrid,
 }: {
   grid: PathfindingNode[][];
   gridNode: PathfindingNode;
-  endNode: RefObject<PathfindingNode>;
-  startNode: RefObject<PathfindingNode>;
+  nodesOfInterest: RefObject<Record<NodeOfInterest, PathfindingNode>>;
   selectedNodeOption: PathfindingNode;
   setGrid: Dispatch<SetStateAction<PathfindingNode[][]>>;
 }): JSX.Element {
@@ -112,39 +114,26 @@ function Node({
   const { row: nodeRow, col: nodeCol } = gridNode;
 
   const setNewNodeType = (newPathfindingNode: PathfindingNode): void => {
-    if (newPathfindingNode.isStartNode()) {
+    const newValue = newPathfindingNode.value;
+    if (isNodeOfInterest(newValue)) {
       handleSpecialNode({
         grid,
+        newValue,
         nodeCol,
         nodeRow,
-        newValue: newPathfindingNode.value,
-        pivotSpecialNode: startNode,
-        specialNodes: [endNode],
-        setGrid,
-      });
-    } else if (newPathfindingNode.isEndNode()) {
-      handleSpecialNode({
-        grid,
-        nodeCol,
-        nodeRow,
-        newValue: newPathfindingNode.value,
-        pivotSpecialNode: endNode,
-        specialNodes: [startNode],
+        nodesOfInterest,
         setGrid,
       });
     } else {
-      if (gridNode.positionEquals(startNode.current)) {
-        startNode.current.eliminateFromGrid();
+      const { start, end } = nodesOfInterest.current;
+      if (gridNode.positionEquals(start)) {
+        start.eliminateFromGrid();
       }
-      if (gridNode.positionEquals(endNode.current)) {
-        endNode.current.eliminateFromGrid();
+      if (gridNode.positionEquals(end)) {
+        end.eliminateFromGrid();
       }
     }
-    grid[nodeRow][nodeCol] = new PathfindingNode(
-      nodeRow,
-      nodeCol,
-      newPathfindingNode.value,
-    );
+    grid[nodeRow][nodeCol] = new PathfindingNode(nodeRow, nodeCol, newValue);
     setGrid(grid);
     setNode(newPathfindingNode);
   };
@@ -225,8 +214,10 @@ function Pathfinding(): JSX.Element {
   const [selectedNodeOption, setSelectedNodeOption] = useState(
     new PathfindingNode(-1, -1, 'wall'),
   );
-  const endNode = useRef(new PathfindingNode(-1, -1, 'end'));
-  const startNode = useRef(new PathfindingNode(-1, -1, 'start'));
+  const nodesOfInterest = useRef<Record<NodeOfInterest, PathfindingNode>>({
+    start: new PathfindingNode(-1, -1, 'start'),
+    end: new PathfindingNode(-1, -1, 'end'),
+  });
   const { dimensions, ref } =
     useResizeDimensions<HTMLElement>(RESIZE_DIMENSIONS);
   const { isHoldingClickRef } = useIsHoldingClickOnElement(ref);
@@ -258,13 +249,15 @@ function Pathfinding(): JSX.Element {
       }
       return newGrid;
     });
-    const { row: startRow, col: startCol } = startNode.current;
+    const startNode = nodesOfInterest.current.start;
+    const { row: startRow, col: startCol } = startNode;
     if (cols - 1 < startCol || rows - 1 < startRow) {
-      startNode.current.eliminateFromGrid();
+      startNode.eliminateFromGrid();
     }
-    const { row: endRow, col: endCol } = endNode.current;
+    const endNode = nodesOfInterest.current.end;
+    const { row: endCol, col: endRow } = endNode;
     if (cols - 1 < endCol || rows - 1 < endRow) {
-      endNode.current.eliminateFromGrid();
+      endNode.eliminateFromGrid();
     }
   }, [rows, cols]);
 
@@ -280,7 +273,7 @@ function Pathfinding(): JSX.Element {
         }}
         value={selectedNodeOption.value}
       >
-        {NODE_OPTIONS.map((option) => (
+        {NODE_VALUES.map((option) => (
           <option key={option} value={option}>
             {option}
           </option>
@@ -302,8 +295,7 @@ function Pathfinding(): JSX.Element {
               key={`node-row-${nodeRow}-col-${nodeCol}-value-${gridNode.value}`}
               grid={grid}
               gridNode={gridNode}
-              endNode={endNode}
-              startNode={startNode}
+              nodesOfInterest={nodesOfInterest}
               selectedNodeOption={selectedNodeOption}
               setGrid={setGrid}
             />
