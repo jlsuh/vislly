@@ -7,12 +7,12 @@ import {
   useState,
 } from 'react';
 import {
-  assertIsNodeOfInterest,
+  assertIsSpecialNodeKey,
   INITIAL_COORDINATE,
   NODE_STRATEGIES,
-  type NodeOfInterest,
   PathfindingNode,
   type PathfindingNodeStrategy,
+  type PathfindingSpecialNodeKey,
 } from '../model/pathfinding.ts';
 import styles from './node.module.css';
 
@@ -37,18 +37,18 @@ function handleSpecialNode({
   newNodeStrategy,
   nodeCol,
   nodeRow,
-  nodesOfInterest,
+  specialNodes,
 }: {
   grid: PathfindingNode[][];
   newNodeStrategy: PathfindingNodeStrategy;
   nodeCol: number;
   nodeRow: number;
-  nodesOfInterest: RefObject<Record<NodeOfInterest, PathfindingNode>>;
+  specialNodes: RefObject<Record<PathfindingSpecialNodeKey, PathfindingNode>>;
 }): void {
   const newValue = newNodeStrategy.value;
-  assertIsNodeOfInterest(newValue);
-  if (nodesOfInterest.current[newValue].appearsOnGrid()) {
-    const { row: pivotRow, col: pivotCol } = nodesOfInterest.current[newValue];
+  assertIsSpecialNodeKey(newValue);
+  if (specialNodes.current[newValue].appearsOnGrid()) {
+    const { row: pivotRow, col: pivotCol } = specialNodes.current[newValue];
     grid[pivotRow][pivotCol] = new PathfindingNode(
       pivotRow,
       pivotCol,
@@ -56,38 +56,38 @@ function handleSpecialNode({
     );
     mutateAssociatedParagraph(grid[pivotRow][pivotCol]);
   }
-  const newNodesOfInterest = {
-    ...nodesOfInterest.current,
+  const newSpecialNodes = {
+    ...specialNodes.current,
   };
   const targetNode = grid[nodeRow][nodeCol];
-  if (targetNode.isNodeOfInterest()) {
+  if (targetNode.isSpecial()) {
     const targetNodeValue = targetNode.value;
-    assertIsNodeOfInterest(targetNodeValue);
-    newNodesOfInterest[targetNodeValue] = new PathfindingNode(
+    assertIsSpecialNodeKey(targetNodeValue);
+    newSpecialNodes[targetNodeValue] = new PathfindingNode(
       INITIAL_COORDINATE,
       INITIAL_COORDINATE,
       NODE_STRATEGIES[targetNodeValue],
     );
   }
-  newNodesOfInterest[newValue] = new PathfindingNode(
+  newSpecialNodes[newValue] = new PathfindingNode(
     nodeRow,
     nodeCol,
     newNodeStrategy,
   );
-  mutateAssociatedParagraph(newNodesOfInterest[newValue]);
-  nodesOfInterest.current = newNodesOfInterest;
+  mutateAssociatedParagraph(newSpecialNodes[newValue]);
+  specialNodes.current = newSpecialNodes;
 }
 
 function Node({
   grid,
   gridNode,
-  nodesOfInterest,
+  specialNodes,
   selectedNodeStrategy,
   setGrid,
 }: {
   grid: PathfindingNode[][];
   gridNode: PathfindingNode;
-  nodesOfInterest: RefObject<Record<NodeOfInterest, PathfindingNode>>;
+  specialNodes: RefObject<Record<PathfindingSpecialNodeKey, PathfindingNode>>;
   selectedNodeStrategy: PathfindingNodeStrategy;
   setGrid: Dispatch<SetStateAction<PathfindingNode[][]>>;
 }): JSX.Element {
@@ -95,17 +95,17 @@ function Node({
   const { row: nodeRow, col: nodeCol } = gridNode;
 
   const setNewNodeType = (newNodeStrategy: PathfindingNodeStrategy): void => {
-    if (newNodeStrategy.isNodeOfInterest()) {
+    if (newNodeStrategy.isSpecial()) {
       handleSpecialNode({
         grid,
         newNodeStrategy,
         nodeCol,
         nodeRow,
-        nodesOfInterest,
+        specialNodes,
       });
     } else {
-      nodesOfInterest.current = {
-        ...nodesOfInterest.current,
+      specialNodes.current = {
+        ...specialNodes.current,
         [newNodeStrategy.value]: new PathfindingNode(
           INITIAL_COORDINATE,
           INITIAL_COORDINATE,
@@ -120,8 +120,8 @@ function Node({
     );
     setGrid(grid);
     setNode(grid[nodeRow][nodeCol]);
-    console.log('>>>>>> Start:', nodesOfInterest.current.start);
-    console.log('>>>>>> End:', nodesOfInterest.current.end);
+    console.log('>>>>>> Start:', specialNodes.current.start);
+    console.log('>>>>>> End:', specialNodes.current.end);
   };
 
   return (

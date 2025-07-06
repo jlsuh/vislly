@@ -18,12 +18,12 @@ import useIsHoldingClickOnElement from '@/shared/lib/useIsHoldingClickOnElement.
 import useOnClickOutside from '@/shared/lib/useOnClickOutside.ts';
 import useResizeDimensions from '@/shared/lib/useResizeDimensions.ts';
 import {
-  assertIsNodeOfInterest,
-  assertIsNodeTypeKey,
+  assertIsNodeKey,
+  assertIsSpecialNodeKey,
   INITIAL_COORDINATE,
   NODE_STRATEGIES,
-  type NodeOfInterest,
   PathfindingNode,
+  type PathfindingSpecialNodeKey,
 } from '../model/pathfinding.ts';
 import Node from './Node.tsx';
 import styles from './pathfinding-grid.module.css';
@@ -117,26 +117,26 @@ function composeNewGrid(
   return newGrid;
 }
 
-function handleOverflownNodesOfInterest(
-  nodesOfInterest: RefObject<Record<NodeOfInterest, PathfindingNode>>,
+function handleOverflownSpecialNodes(
+  specialNodes: RefObject<Record<PathfindingSpecialNodeKey, PathfindingNode>>,
   rows: number,
   cols: number,
 ): void {
-  const newNodesOfInterest: Record<NodeOfInterest, PathfindingNode> = {
-    ...nodesOfInterest.current,
+  const newSpecialNodes: Record<PathfindingSpecialNodeKey, PathfindingNode> = {
+    ...specialNodes.current,
   };
-  for (const nodeOfInterest of Object.values(nodesOfInterest.current)) {
-    const { row, col, value } = nodeOfInterest;
+  for (const specialNode of Object.values(specialNodes.current)) {
+    const { row, col, value } = specialNode;
     if (col > cols - 1 || row > rows - 1) {
-      assertIsNodeOfInterest(value);
-      newNodesOfInterest[value] = new PathfindingNode(
+      assertIsSpecialNodeKey(value);
+      newSpecialNodes[value] = new PathfindingNode(
         INITIAL_COORDINATE,
         INITIAL_COORDINATE,
         NODE_STRATEGIES[value],
       );
     }
   }
-  nodesOfInterest.current = newNodesOfInterest;
+  specialNodes.current = newSpecialNodes;
 }
 
 function PathfindingGrid(): JSX.Element {
@@ -146,7 +146,9 @@ function PathfindingGrid(): JSX.Element {
   const [selectedNodeStrategy, setSelectedNodeStrategy] = useState(
     NODE_STRATEGIES.wall,
   );
-  const nodesOfInterest = useRef<Record<NodeOfInterest, PathfindingNode>>({
+  const specialNodes = useRef<
+    Record<PathfindingSpecialNodeKey, PathfindingNode>
+  >({
     start: new PathfindingNode(
       INITIAL_COORDINATE,
       INITIAL_COORDINATE,
@@ -172,9 +174,9 @@ function PathfindingGrid(): JSX.Element {
 
   useEffect(() => {
     setGrid((prevGrid) => composeNewGrid(prevGrid, rows, cols));
-    handleOverflownNodesOfInterest(nodesOfInterest, rows, cols);
-    console.log('>>>>>> Start:', nodesOfInterest.current.start);
-    console.log('>>>>>> End:', nodesOfInterest.current.end);
+    handleOverflownSpecialNodes(specialNodes, rows, cols);
+    console.log('>>>>>> Start:', specialNodes.current.start);
+    console.log('>>>>>> End:', specialNodes.current.end);
   }, [rows, cols]);
 
   return (
@@ -184,7 +186,7 @@ function PathfindingGrid(): JSX.Element {
         key={selectedNodeStrategy.value}
         onChange={(e: ChangeEvent<HTMLSelectElement>): void => {
           const { value } = e.target;
-          assertIsNodeTypeKey(value);
+          assertIsNodeKey(value);
           setSelectedNodeStrategy(NODE_STRATEGIES[value]);
         }}
         value={selectedNodeStrategy.value}
@@ -211,7 +213,7 @@ function PathfindingGrid(): JSX.Element {
               key={`node-row-${nodeRow}-col-${nodeCol}-value-${gridNode.value}`}
               grid={grid}
               gridNode={gridNode}
-              nodesOfInterest={nodesOfInterest}
+              specialNodes={specialNodes}
               selectedNodeStrategy={selectedNodeStrategy}
               setGrid={setGrid}
             />
