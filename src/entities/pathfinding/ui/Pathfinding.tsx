@@ -89,12 +89,13 @@ function handleSpecialNode({
   }
   const targetNode = grid[nodeRow][nodeCol];
   if (targetNode.isNodeOfInterest()) {
+    const targetNodeValue = targetNode.value;
     nodesOfInterest.current = {
       ...nodesOfInterest.current,
-      [targetNode.value]: new PathfindingNode(
+      [targetNodeValue]: new PathfindingNode(
         INITIAL_COORDINATE,
         INITIAL_COORDINATE,
-        NODE_STRATEGIES[targetNode.value],
+        NODE_STRATEGIES[targetNodeValue],
       ),
     };
   }
