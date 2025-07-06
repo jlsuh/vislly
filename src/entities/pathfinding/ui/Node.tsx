@@ -107,15 +107,14 @@ function Node({
         nodeRow,
         specialNodes,
       });
-    } else {
-      specialNodes.current = {
-        ...specialNodes.current,
-        [newNodeStrategy.value]: new PathfindingNode(
-          INITIAL_COORDINATE,
-          INITIAL_COORDINATE,
-          newNodeStrategy,
-        ),
-      };
+    } else if (grid[nodeRow][nodeCol].isSpecial()) {
+      const specialNodeValue = grid[nodeRow][nodeCol].value;
+      assertIsSpecialNodeKey(specialNodeValue);
+      specialNodes.current[specialNodeValue] = new PathfindingNode(
+        INITIAL_COORDINATE,
+        INITIAL_COORDINATE,
+        NODE_STRATEGIES[specialNodeValue],
+      );
     }
     grid[nodeRow][nodeCol] = new PathfindingNode(
       nodeRow,
