@@ -16,27 +16,7 @@ type PathfindingSpecialNodeKey = Extract<
 >;
 type PathfindingNodeKeyFirstChar = StringSlice<PathfindingNodeKey, 0, 1>;
 
-function isNodeType(value: string): value is PathfindingNodeKey {
-  return value === EMPTY || value === END || value === START || value === WALL;
-}
-
-function assertIsNodeKey(value: string): asserts value is PathfindingNodeKey {
-  if (!isNodeType(value)) {
-    throw new Error(`Invalid node type: ${value}`);
-  }
-}
-
-function assertIsSpecialNodeKey(
-  value: string,
-): asserts value is PathfindingSpecialNodeKey {
-  if (value !== END && value !== START) {
-    throw new Error(`Invalid special node key: ${value}`);
-  }
-}
-
 export {
-  assertIsNodeKey,
-  assertIsSpecialNodeKey,
   EMPTY,
   END,
   START,

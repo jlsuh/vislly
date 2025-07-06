@@ -17,16 +17,15 @@ import pxToRem from '@/shared/lib/pxToRem.ts';
 import useIsHoldingClickOnElement from '@/shared/lib/useIsHoldingClickOnElement.ts';
 import useOnClickOutside from '@/shared/lib/useOnClickOutside.ts';
 import useResizeDimensions from '@/shared/lib/useResizeDimensions.ts';
-import {
-  assertIsNodeKey,
-  assertIsSpecialNodeKey,
-  type PathfindingSpecialNodeKey,
-} from '../model/pathfinding.ts';
+import type { PathfindingSpecialNodeKey } from '../model/pathfinding.ts';
 import {
   INITIAL_COORDINATE,
   PathfindingNode,
 } from '../model/pathfinding-node.ts';
-import { NODE_STRATEGIES } from '../model/pathfinding-node-strategy.ts';
+import {
+  NODE_STRATEGIES,
+  PathfindingNodeStrategy,
+} from '../model/pathfinding-node-strategy.ts';
 import Node from './Node.tsx';
 import styles from './pathfinding-grid.module.css';
 
@@ -130,7 +129,7 @@ function handleOverflownSpecialNodes(
   for (const specialNode of Object.values(specialNodes.current)) {
     const { row, col, value } = specialNode;
     if (col > cols - 1 || row > rows - 1) {
-      assertIsSpecialNodeKey(value);
+      PathfindingNodeStrategy.assertIsSpecialNode(value);
       newSpecialNodes[value] = new PathfindingNode(
         INITIAL_COORDINATE,
         INITIAL_COORDINATE,
@@ -165,7 +164,7 @@ function PathfindingGrid(): JSX.Element {
   const { dimensions, ref } =
     useResizeDimensions<HTMLElement>(RESIZE_DIMENSIONS);
   const { isHoldingClickRef } = useIsHoldingClickOnElement(ref);
-  const nodeTypeSelectId = useId();
+  const nodeStrategySelectId = useId();
 
   useOnClickOutside([ref], unsetBodyOverflow);
 
@@ -177,18 +176,22 @@ function PathfindingGrid(): JSX.Element {
   useEffect(() => {
     setGrid((prevGrid) => composeNewGrid(prevGrid, rows, cols));
     handleOverflownSpecialNodes(specialNodes, rows, cols);
+  }, [rows, cols]);
+
+  useEffect(() => {
+    console.log('>>>>> grid:', grid);
     console.log('>>>>>> Start:', specialNodes.current.start);
     console.log('>>>>>> End:', specialNodes.current.end);
-  }, [rows, cols]);
+  }, [grid]);
 
   return (
     <>
       <select
-        id={nodeTypeSelectId}
+        id={nodeStrategySelectId}
         key={selectedNodeStrategy.value}
         onChange={(e: ChangeEvent<HTMLSelectElement>): void => {
           const { value } = e.target;
-          assertIsNodeKey(value);
+          PathfindingNodeStrategy.assertIsNode(value);
           setSelectedNodeStrategy(NODE_STRATEGIES[value]);
         }}
         value={selectedNodeStrategy.value}

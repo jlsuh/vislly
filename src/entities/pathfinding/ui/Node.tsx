@@ -6,17 +6,15 @@ import {
   type SetStateAction,
   useState,
 } from 'react';
-import {
-  assertIsSpecialNodeKey,
-  type PathfindingSpecialNodeKey,
-} from '../model/pathfinding.ts';
+import type { ReadonlyDeep } from 'type-fest';
+import type { PathfindingSpecialNodeKey } from '../model/pathfinding.ts';
 import {
   INITIAL_COORDINATE,
   PathfindingNode,
 } from '../model/pathfinding-node.ts';
 import {
   NODE_STRATEGIES,
-  type PathfindingNodeStrategy,
+  PathfindingNodeStrategy,
 } from '../model/pathfinding-node-strategy.ts';
 import styles from './node.module.css';
 
@@ -44,13 +42,13 @@ function handleSpecialNode({
   specialNodes,
 }: {
   grid: PathfindingNode[][];
-  newNodeStrategy: PathfindingNodeStrategy;
+  newNodeStrategy: ReadonlyDeep<PathfindingNodeStrategy>;
   nodeCol: number;
   nodeRow: number;
   specialNodes: RefObject<Record<PathfindingSpecialNodeKey, PathfindingNode>>;
 }): void {
   const newValue = newNodeStrategy.value;
-  assertIsSpecialNodeKey(newValue);
+  PathfindingNodeStrategy.assertIsSpecialNode(newValue);
   if (specialNodes.current[newValue].appearsOnGrid()) {
     const { row: pivotRow, col: pivotCol } = specialNodes.current[newValue];
     grid[pivotRow][pivotCol] = new PathfindingNode(
@@ -66,7 +64,7 @@ function handleSpecialNode({
   const targetNode = grid[nodeRow][nodeCol];
   if (targetNode.isSpecial()) {
     const targetNodeValue = targetNode.value;
-    assertIsSpecialNodeKey(targetNodeValue);
+    PathfindingNodeStrategy.assertIsSpecialNode(targetNodeValue);
     newSpecialNodes[targetNodeValue] = new PathfindingNode(
       INITIAL_COORDINATE,
       INITIAL_COORDINATE,
@@ -92,13 +90,15 @@ function Node({
   grid: PathfindingNode[][];
   gridNode: PathfindingNode;
   specialNodes: RefObject<Record<PathfindingSpecialNodeKey, PathfindingNode>>;
-  selectedNodeStrategy: PathfindingNodeStrategy;
+  selectedNodeStrategy: ReadonlyDeep<PathfindingNodeStrategy>;
   setGrid: Dispatch<SetStateAction<PathfindingNode[][]>>;
 }): JSX.Element {
   const [node, setNode] = useState(gridNode);
   const { row: nodeRow, col: nodeCol } = gridNode;
 
-  const setNewNodeType = (newNodeStrategy: PathfindingNodeStrategy): void => {
+  const setNewNodeStrategy = (
+    newNodeStrategy: ReadonlyDeep<PathfindingNodeStrategy>,
+  ): void => {
     if (newNodeStrategy.isSpecial()) {
       handleSpecialNode({
         grid,
@@ -109,7 +109,7 @@ function Node({
       });
     } else if (grid[nodeRow][nodeCol].isSpecial()) {
       const specialNodeValue = grid[nodeRow][nodeCol].value;
-      assertIsSpecialNodeKey(specialNodeValue);
+      PathfindingNodeStrategy.assertIsSpecialNode(specialNodeValue);
       specialNodes.current[specialNodeValue] = new PathfindingNode(
         INITIAL_COORDINATE,
         INITIAL_COORDINATE,
@@ -135,8 +135,8 @@ function Node({
       onContextMenu={(e: MouseEvent<HTMLButtonElement>): void =>
         e.preventDefault()
       }
-      onMouseDown={(): void => setNewNodeType(selectedNodeStrategy)}
-      onTouchStart={(): void => setNewNodeType(selectedNodeStrategy)}
+      onMouseDown={(): void => setNewNodeStrategy(selectedNodeStrategy)}
+      onTouchStart={(): void => setNewNodeStrategy(selectedNodeStrategy)}
       type="button"
     >
       <p className={`${styles.nodeText} ${styles[node.value]}`}>

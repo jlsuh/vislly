@@ -1,10 +1,10 @@
 import type { ReadonlyDeep } from 'type-fest';
 import {
-  assertIsNodeKey,
   EMPTY,
   END,
   type PathfindingNodeKey,
   type PathfindingNodeKeyFirstChar,
+  type PathfindingSpecialNodeKey,
   START,
   WALL,
 } from './pathfinding.ts';
@@ -13,8 +13,34 @@ abstract class PathfindingNodeStrategy {
   public readonly value: PathfindingNodeKey;
 
   public constructor(value: PathfindingNodeKey) {
-    assertIsNodeKey(value);
+    PathfindingNodeStrategy.assertIsNode(value);
     this.value = value;
+  }
+
+  private isNode(value: string): value is PathfindingNodeKey {
+    return (
+      value === EMPTY || value === END || value === START || value === WALL
+    );
+  }
+
+  private isSpecialNode(value: string): value is PathfindingSpecialNodeKey {
+    return value === END || value === START;
+  }
+
+  public static assertIsNode(
+    value: string,
+  ): asserts value is PathfindingNodeKey {
+    if (!PathfindingNodeStrategy.prototype.isNode(value)) {
+      throw new Error(`Invalid node: ${value}`);
+    }
+  }
+
+  public static assertIsSpecialNode(
+    value: string,
+  ): asserts value is PathfindingSpecialNodeKey {
+    if (!PathfindingNodeStrategy.prototype.isSpecialNode(value)) {
+      throw new Error(`Invalid special node: ${value}`);
+    }
   }
 
   public getFirstChar(): PathfindingNodeKeyFirstChar {

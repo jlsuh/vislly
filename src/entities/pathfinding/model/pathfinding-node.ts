@@ -1,3 +1,4 @@
+import type { ReadonlyDeep } from 'type-fest';
 import type {
   PathfindingNodeKey,
   PathfindingNodeKeyFirstChar,
@@ -9,12 +10,12 @@ const INITIAL_COORDINATE = -1;
 class PathfindingNode {
   public readonly row: number;
   public readonly col: number;
-  public readonly pathfindingNodeStrategy: PathfindingNodeStrategy;
+  public pathfindingNodeStrategy: ReadonlyDeep<PathfindingNodeStrategy>;
 
   public constructor(
     row: number,
     col: number,
-    pathfindingNodeStrategy: PathfindingNodeStrategy,
+    pathfindingNodeStrategy: ReadonlyDeep<PathfindingNodeStrategy>,
   ) {
     this.pathfindingNodeStrategy = pathfindingNodeStrategy;
     this.row = row;
