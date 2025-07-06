@@ -12,9 +12,9 @@ type NodeTypeKeyFirstChar = StringSlice<NodeTypeKey, 0, 1>;
 const INITIAL_COORDINATE = -1;
 
 class PathfindingNode {
-  public row: number;
-  public col: number;
-  public pathfindingNodeStrategy: PathfindingNodeStrategy;
+  public readonly row: number;
+  public readonly col: number;
+  public readonly pathfindingNodeStrategy: PathfindingNodeStrategy;
 
   public constructor(
     row: number,
@@ -24,11 +24,6 @@ class PathfindingNode {
     this.pathfindingNodeStrategy = pathfindingNodeStrategy;
     this.row = row;
     this.col = col;
-  }
-
-  public eliminateFromGrid(): void {
-    this.row = INITIAL_COORDINATE;
-    this.col = INITIAL_COORDINATE;
   }
 
   public positionEquals(that: PathfindingNode): boolean {
@@ -53,7 +48,7 @@ class PathfindingNode {
 }
 
 abstract class PathfindingNodeStrategy {
-  public value: NodeTypeKey;
+  public readonly value: NodeTypeKey;
 
   public constructor(value: NodeTypeKey) {
     assertIsNodeTypeKey(value);
