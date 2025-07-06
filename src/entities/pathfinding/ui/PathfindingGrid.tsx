@@ -139,7 +139,7 @@ function handleOverflownNodesOfInterest(
   nodesOfInterest.current = newNodesOfInterest;
 }
 
-function Pathfinding(): JSX.Element {
+function PathfindingGrid(): JSX.Element {
   const [cols, setCols] = useState(0);
   const [rows, setRows] = useState(0);
   const [grid, setGrid] = useState<PathfindingNode[][]>([]);
@@ -222,4 +222,4 @@ function Pathfinding(): JSX.Element {
   );
 }
 
-export default Pathfinding;
+export default PathfindingGrid;
