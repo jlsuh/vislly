@@ -17,15 +17,13 @@ import pxToRem from '@/shared/lib/pxToRem.ts';
 import useIsHoldingClickOnElement from '@/shared/lib/useIsHoldingClickOnElement.ts';
 import useOnClickOutside from '@/shared/lib/useOnClickOutside.ts';
 import useResizeDimensions from '@/shared/lib/useResizeDimensions.ts';
-import type { PathfindingSpecialNodeKey } from '../model/pathfinding.ts';
 import {
   INITIAL_COORDINATE,
-  PathfindingNode,
-} from '../model/pathfinding-node.ts';
-import {
   NODE_STRATEGIES,
+  PathfindingNode,
   PathfindingNodeStrategy,
-} from '../model/pathfinding-node-strategy.ts';
+  type PathfindingSpecialNodeKey,
+} from '../model/pathfinding.ts';
 import Node from './Node.tsx';
 import styles from './pathfinding-grid.module.css';
 

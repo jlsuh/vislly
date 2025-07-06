@@ -7,15 +7,13 @@ import {
   useState,
 } from 'react';
 import type { ReadonlyDeep } from 'type-fest';
-import type { PathfindingSpecialNodeKey } from '../model/pathfinding.ts';
 import {
   INITIAL_COORDINATE,
-  PathfindingNode,
-} from '../model/pathfinding-node.ts';
-import {
   NODE_STRATEGIES,
+  PathfindingNode,
   PathfindingNodeStrategy,
-} from '../model/pathfinding-node-strategy.ts';
+  type PathfindingSpecialNodeKey,
+} from '../model/pathfinding.ts';
 import styles from './node.module.css';
 
 function mutateAssociatedParagraph(node: PathfindingNode): void {
