@@ -87,23 +87,26 @@ function handleSpecialNode({
     );
     mutateAssociatedParagraph(grid[pivotRow][pivotCol]);
   }
+  const newNodesOfInterest = {
+    ...nodesOfInterest.current,
+  };
   const targetNode = grid[nodeRow][nodeCol];
   if (targetNode.isNodeOfInterest()) {
     const targetNodeValue = targetNode.value;
-    nodesOfInterest.current = {
-      ...nodesOfInterest.current,
-      [targetNodeValue]: new PathfindingNode(
-        INITIAL_COORDINATE,
-        INITIAL_COORDINATE,
-        NODE_STRATEGIES[targetNodeValue],
-      ),
-    };
+    assertIsNodeOfInterest(targetNodeValue);
+    newNodesOfInterest[targetNodeValue] = new PathfindingNode(
+      INITIAL_COORDINATE,
+      INITIAL_COORDINATE,
+      NODE_STRATEGIES[targetNodeValue],
+    );
   }
-  nodesOfInterest.current = {
-    ...nodesOfInterest.current,
-    [newValue]: new PathfindingNode(nodeRow, nodeCol, newNodeStrategy),
-  };
-  mutateAssociatedParagraph(nodesOfInterest.current[newValue]);
+  newNodesOfInterest[newValue] = new PathfindingNode(
+    nodeRow,
+    nodeCol,
+    newNodeStrategy,
+  );
+  mutateAssociatedParagraph(newNodesOfInterest[newValue]);
+  nodesOfInterest.current = newNodesOfInterest;
 }
 
 function Node({
@@ -148,6 +151,8 @@ function Node({
     );
     setGrid(grid);
     setNode(grid[nodeRow][nodeCol]);
+    console.log('>>>>>> Start:', nodesOfInterest.current.start);
+    console.log('>>>>>> End:', nodesOfInterest.current.end);
   };
 
   return (
@@ -219,6 +224,51 @@ const unsetBodyOverflow = (): void => {
   document.body.style.overflow = 'unset';
 };
 
+function composeNewGrid(
+  prevGrid: PathfindingNode[][],
+  rows: number,
+  cols: number,
+): PathfindingNode[][] {
+  const newGrid = Array.from({ length: rows }, (_, row) =>
+    Array.from(
+      { length: cols },
+      (__, col) => new PathfindingNode(row, col, NODE_STRATEGIES.empty),
+    ),
+  );
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      const nodeValue: PathfindingNode | undefined = prevGrid[row]?.[col];
+      if (nodeValue === undefined) {
+        continue;
+      }
+      newGrid[row][col] = nodeValue;
+    }
+  }
+  return newGrid;
+}
+
+function handleOverflownNodesOfInterest(
+  nodesOfInterest: RefObject<Record<NodeOfInterest, PathfindingNode>>,
+  rows: number,
+  cols: number,
+): void {
+  const newNodesOfInterest: Record<NodeOfInterest, PathfindingNode> = {
+    ...nodesOfInterest.current,
+  };
+  for (const nodeOfInterest of Object.values(nodesOfInterest.current)) {
+    const { row, col, value } = nodeOfInterest;
+    if (col > cols - 1 || row > rows - 1) {
+      assertIsNodeOfInterest(value);
+      newNodesOfInterest[value] = new PathfindingNode(
+        INITIAL_COORDINATE,
+        INITIAL_COORDINATE,
+        NODE_STRATEGIES[value],
+      );
+    }
+  }
+  nodesOfInterest.current = newNodesOfInterest;
+}
+
 function Pathfinding(): JSX.Element {
   const [cols, setCols] = useState(0);
   const [rows, setRows] = useState(0);
@@ -251,45 +301,10 @@ function Pathfinding(): JSX.Element {
   }, [dimensions.boundedHeight, dimensions.boundedWidth]);
 
   useEffect(() => {
-    setGrid((prevGrid) => {
-      const newGrid = Array.from({ length: rows }, (_, row) =>
-        Array.from(
-          { length: cols },
-          (__, col) => new PathfindingNode(row, col, NODE_STRATEGIES.empty),
-        ),
-      );
-      for (let row = 0; row < rows; row += 1) {
-        for (let col = 0; col < cols; col += 1) {
-          const nodeValue: PathfindingNode | undefined = prevGrid[row]?.[col];
-          if (nodeValue === undefined) {
-            continue;
-          }
-          newGrid[row][col] = nodeValue;
-        }
-      }
-      return newGrid;
-    });
-    const { start, end } = nodesOfInterest.current;
-    const { row: startRow, col: startCol } = start;
-    const { row: endCol, col: endRow } = end;
-    nodesOfInterest.current = {
-      start:
-        cols - 1 < startCol || rows - 1 < startRow
-          ? new PathfindingNode(
-              INITIAL_COORDINATE,
-              INITIAL_COORDINATE,
-              NODE_STRATEGIES.start,
-            )
-          : new PathfindingNode(startRow, startCol, NODE_STRATEGIES.start),
-      end:
-        cols - 1 < endCol || rows - 1 < endRow
-          ? new PathfindingNode(
-              INITIAL_COORDINATE,
-              INITIAL_COORDINATE,
-              NODE_STRATEGIES.end,
-            )
-          : new PathfindingNode(endRow, endCol, NODE_STRATEGIES.end),
-    };
+    setGrid((prevGrid) => composeNewGrid(prevGrid, rows, cols));
+    handleOverflownNodesOfInterest(nodesOfInterest, rows, cols);
+    console.log('>>>>>> Start:', nodesOfInterest.current.start);
+    console.log('>>>>>> End:', nodesOfInterest.current.end);
   }, [rows, cols]);
 
   return (
