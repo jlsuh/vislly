@@ -26,7 +26,7 @@ import {
   PathfindingNode,
 } from '../model/pathfinding.ts';
 import Node from './Node.tsx';
-import styles from './pathfinding.module.css';
+import styles from './pathfinding-grid.module.css';
 
 const RESIZE_DIMENSIONS = {
   boundedHeight: 0,
