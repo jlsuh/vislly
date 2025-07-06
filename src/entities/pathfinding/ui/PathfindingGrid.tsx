@@ -20,11 +20,13 @@ import useResizeDimensions from '@/shared/lib/useResizeDimensions.ts';
 import {
   assertIsNodeKey,
   assertIsSpecialNodeKey,
-  INITIAL_COORDINATE,
-  NODE_STRATEGIES,
-  PathfindingNode,
   type PathfindingSpecialNodeKey,
 } from '../model/pathfinding.ts';
+import {
+  INITIAL_COORDINATE,
+  PathfindingNode,
+} from '../model/pathfinding-node.ts';
+import { NODE_STRATEGIES } from '../model/pathfinding-node-strategy.ts';
 import Node from './Node.tsx';
 import styles from './pathfinding-grid.module.css';
 

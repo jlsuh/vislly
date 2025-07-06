@@ -8,12 +8,16 @@ import {
 } from 'react';
 import {
   assertIsSpecialNodeKey,
-  INITIAL_COORDINATE,
-  NODE_STRATEGIES,
-  PathfindingNode,
-  type PathfindingNodeStrategy,
   type PathfindingSpecialNodeKey,
 } from '../model/pathfinding.ts';
+import {
+  INITIAL_COORDINATE,
+  PathfindingNode,
+} from '../model/pathfinding-node.ts';
+import {
+  NODE_STRATEGIES,
+  type PathfindingNodeStrategy,
+} from '../model/pathfinding-node-strategy.ts';
 import styles from './node.module.css';
 
 function mutateAssociatedParagraph(node: PathfindingNode): void {
