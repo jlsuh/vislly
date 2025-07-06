@@ -14,13 +14,16 @@ const INITIAL_COORDINATE = -1;
 class PathfindingNode {
   public row: number;
   public col: number;
-  public value: NodeTypeKey;
+  public pathfindingNodeStrategy: PathfindingNodeStrategy;
 
-  public constructor(row: number, col: number, value: NodeTypeKey) {
-    assertIsNodeTypeKey(value);
+  public constructor(
+    row: number,
+    col: number,
+    pathfindingNodeStrategy: PathfindingNodeStrategy,
+  ) {
+    this.pathfindingNodeStrategy = pathfindingNodeStrategy;
     this.row = row;
     this.col = col;
-    this.value = value;
   }
 
   public eliminateFromGrid(): void {
@@ -32,48 +35,73 @@ class PathfindingNode {
     return this.row === that.row && this.col === that.col;
   }
 
-  public getFirstChar(): NodeTypeKeyFirstChar {
-    return this.value.charAt(0) as NodeTypeKeyFirstChar;
-  }
-
   public appearsOnGrid(): boolean {
     return this.row !== INITIAL_COORDINATE && this.col !== INITIAL_COORDINATE;
   }
 
-  private isEndNode(): boolean {
-    return this.value === END;
-  }
-
-  private isStartNode(): boolean {
-    return this.value === START;
+  public getFirstChar(): NodeTypeKeyFirstChar {
+    return this.pathfindingNodeStrategy.getFirstChar();
   }
 
   public isNodeOfInterest(): boolean {
-    return this.isEndNode() || this.isStartNode();
+    return this.pathfindingNodeStrategy.isNodeOfInterest();
+  }
+
+  public get value(): NodeTypeKey {
+    return this.pathfindingNodeStrategy.value;
   }
 }
 
-const NODES: ReadonlyDeep<Record<NodeTypeKey, NodeTypeKey>> = {
-  wall: WALL,
-  empty: EMPTY,
-  end: END,
-  start: START,
-};
-const NODES_OF_INTEREST: ReadonlyDeep<Record<NodeOfInterest, NodeOfInterest>> =
-  {
-    end: END,
-    start: START,
-  };
-const NODE_VALUES: NodeTypeKey[] = Object.values(NODES);
-const NODE_OF_INTEREST_VALUES: NodeOfInterest[] =
-  Object.values(NODES_OF_INTEREST);
+abstract class PathfindingNodeStrategy {
+  public value: NodeTypeKey;
 
-function isNodeType(value: string): value is NodeTypeKey {
-  return NODE_VALUES.some((node) => node === value);
+  public constructor(value: NodeTypeKey) {
+    assertIsNodeTypeKey(value);
+    this.value = value;
+  }
+
+  public getFirstChar(): NodeTypeKeyFirstChar {
+    return this.value.charAt(0) as NodeTypeKeyFirstChar;
+  }
+
+  public abstract isNodeOfInterest(): boolean;
 }
 
-function isNodeOfInterest(value: NodeTypeKey): value is NodeOfInterest {
-  return NODE_OF_INTEREST_VALUES.some((node) => node === value);
+class PathfindingStartNodeStrategy extends PathfindingNodeStrategy {
+  public isNodeOfInterest(): boolean {
+    return true;
+  }
+}
+
+class PathfindingEndNodeStrategy extends PathfindingNodeStrategy {
+  public isNodeOfInterest(): boolean {
+    return true;
+  }
+}
+
+class PathfindingEmptyNodeStrategy extends PathfindingNodeStrategy {
+  public isNodeOfInterest(): boolean {
+    return false;
+  }
+}
+
+class PathfindingWallNodeStrategy extends PathfindingNodeStrategy {
+  public isNodeOfInterest(): boolean {
+    return false;
+  }
+}
+
+const NODE_STRATEGIES: ReadonlyDeep<
+  Record<NodeTypeKey, PathfindingNodeStrategy>
+> = {
+  empty: new PathfindingEmptyNodeStrategy(EMPTY),
+  end: new PathfindingEndNodeStrategy(END),
+  start: new PathfindingStartNodeStrategy(START),
+  wall: new PathfindingWallNodeStrategy(WALL),
+};
+
+function isNodeType(value: string): value is NodeTypeKey {
+  return value === EMPTY || value === END || value === START || value === WALL;
 }
 
 function assertIsNodeTypeKey(value: string): asserts value is NodeTypeKey {
@@ -82,13 +110,25 @@ function assertIsNodeTypeKey(value: string): asserts value is NodeTypeKey {
   }
 }
 
+function assertIsNodeOfInterest(
+  value: string,
+): asserts value is NodeOfInterest {
+  if (value !== END && value !== START) {
+    throw new Error(`Invalid node of interest: ${value}`);
+  }
+}
+
 export {
+  assertIsNodeOfInterest,
   assertIsNodeTypeKey,
   INITIAL_COORDINATE,
-  isNodeOfInterest,
-  NODE_VALUES,
-  NODES,
+  NODE_STRATEGIES,
+  PathfindingEmptyNodeStrategy,
+  PathfindingEndNodeStrategy,
   PathfindingNode,
+  PathfindingStartNodeStrategy,
+  PathfindingWallNodeStrategy,
   type NodeOfInterest,
   type NodeTypeKey,
+  type PathfindingNodeStrategy,
 };

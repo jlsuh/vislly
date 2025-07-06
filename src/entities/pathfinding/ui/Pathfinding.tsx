@@ -21,13 +21,13 @@ import useIsHoldingClickOnElement from '@/shared/lib/useIsHoldingClickOnElement.
 import useOnClickOutside from '@/shared/lib/useOnClickOutside.ts';
 import useResizeDimensions from '@/shared/lib/useResizeDimensions.ts';
 import {
+  assertIsNodeOfInterest,
   assertIsNodeTypeKey,
   INITIAL_COORDINATE,
-  isNodeOfInterest,
-  NODE_VALUES,
-  NODES,
+  NODE_STRATEGIES,
   type NodeOfInterest,
   PathfindingNode,
+  type PathfindingNodeStrategy,
 } from '../model/pathfinding.ts';
 import styles from './pathfinding.module.css';
 
@@ -65,25 +65,27 @@ function mutateAssociatedParagraph(node: PathfindingNode): void {
 
 function handleSpecialNode({
   grid,
-  newValue,
+  newNodeStrategy,
   nodeCol,
   nodeRow,
   nodesOfInterest,
   setGrid,
 }: {
   grid: PathfindingNode[][];
-  newValue: NodeOfInterest;
+  newNodeStrategy: PathfindingNodeStrategy;
   nodeCol: number;
   nodeRow: number;
   nodesOfInterest: RefObject<Record<NodeOfInterest, PathfindingNode>>;
   setGrid: Dispatch<SetStateAction<PathfindingNode[][]>>;
 }): void {
+  const newValue = newNodeStrategy.value;
+  assertIsNodeOfInterest(newValue);
   if (nodesOfInterest.current[newValue].appearsOnGrid()) {
     const { row: pivotRow, col: pivotCol } = nodesOfInterest.current[newValue];
     grid[pivotRow][pivotCol] = new PathfindingNode(
       pivotRow,
       pivotCol,
-      NODES.empty,
+      NODE_STRATEGIES.empty,
     );
     setGrid(grid);
     mutateAssociatedParagraph(grid[pivotRow][pivotCol]);
@@ -98,7 +100,7 @@ function handleSpecialNode({
   nodesOfInterest.current[newValue] = new PathfindingNode(
     nodeRow,
     nodeCol,
-    newValue,
+    newNodeStrategy,
   );
   mutateAssociatedParagraph(nodesOfInterest.current[newValue]);
 }
@@ -107,24 +109,23 @@ function Node({
   grid,
   gridNode,
   nodesOfInterest,
-  selectedNodeOption,
+  selectedNodeStrategy,
   setGrid,
 }: {
   grid: PathfindingNode[][];
   gridNode: PathfindingNode;
   nodesOfInterest: RefObject<Record<NodeOfInterest, PathfindingNode>>;
-  selectedNodeOption: PathfindingNode;
+  selectedNodeStrategy: PathfindingNodeStrategy;
   setGrid: Dispatch<SetStateAction<PathfindingNode[][]>>;
 }): JSX.Element {
   const [node, setNode] = useState(gridNode);
   const { row: nodeRow, col: nodeCol } = gridNode;
 
-  const setNewNodeType = (newPathfindingNode: PathfindingNode): void => {
-    const newValue = newPathfindingNode.value;
-    if (isNodeOfInterest(newValue)) {
+  const setNewNodeType = (newNodeStrategy: PathfindingNodeStrategy): void => {
+    if (newNodeStrategy.isNodeOfInterest()) {
       handleSpecialNode({
         grid,
-        newValue,
+        newNodeStrategy,
         nodeCol,
         nodeRow,
         nodesOfInterest,
@@ -139,9 +140,13 @@ function Node({
         end.eliminateFromGrid();
       }
     }
-    grid[nodeRow][nodeCol] = new PathfindingNode(nodeRow, nodeCol, newValue);
+    grid[nodeRow][nodeCol] = new PathfindingNode(
+      nodeRow,
+      nodeCol,
+      newNodeStrategy,
+    );
     setGrid(grid);
-    setNode(newPathfindingNode);
+    setNode(grid[nodeRow][nodeCol]);
   };
 
   return (
@@ -152,8 +157,8 @@ function Node({
       onContextMenu={(e: MouseEvent<HTMLButtonElement>): void =>
         e.preventDefault()
       }
-      onMouseDown={(): void => setNewNodeType(selectedNodeOption)}
-      onTouchStart={(): void => setNewNodeType(selectedNodeOption)}
+      onMouseDown={(): void => setNewNodeType(selectedNodeStrategy)}
+      onTouchStart={(): void => setNewNodeType(selectedNodeStrategy)}
       type="button"
     >
       <p className={`${styles.nodeText} ${styles[node.value]}`}>
@@ -217,16 +222,20 @@ function Pathfinding(): JSX.Element {
   const [cols, setCols] = useState(0);
   const [rows, setRows] = useState(0);
   const [grid, setGrid] = useState<PathfindingNode[][]>([]);
-  const [selectedNodeOption, setSelectedNodeOption] = useState(
-    new PathfindingNode(INITIAL_COORDINATE, INITIAL_COORDINATE, NODES.wall),
+  const [selectedNodeStrategy, setSelectedNodeStrategy] = useState(
+    NODE_STRATEGIES.wall,
   );
   const nodesOfInterest = useRef<Record<NodeOfInterest, PathfindingNode>>({
     start: new PathfindingNode(
       INITIAL_COORDINATE,
       INITIAL_COORDINATE,
-      NODES.start,
+      NODE_STRATEGIES.start,
     ),
-    end: new PathfindingNode(INITIAL_COORDINATE, INITIAL_COORDINATE, NODES.end),
+    end: new PathfindingNode(
+      INITIAL_COORDINATE,
+      INITIAL_COORDINATE,
+      NODE_STRATEGIES.end,
+    ),
   });
   const { dimensions, ref } =
     useResizeDimensions<HTMLElement>(RESIZE_DIMENSIONS);
@@ -245,7 +254,7 @@ function Pathfinding(): JSX.Element {
       const newGrid = Array.from({ length: rows }, (_, row) =>
         Array.from(
           { length: cols },
-          (__, col) => new PathfindingNode(row, col, NODES.empty),
+          (__, col) => new PathfindingNode(row, col, NODE_STRATEGIES.empty),
         ),
       );
       for (let row = 0; row < rows; row += 1) {
@@ -275,19 +284,17 @@ function Pathfinding(): JSX.Element {
     <>
       <select
         id={nodeTypeSelectId}
-        key={selectedNodeOption.value}
+        key={selectedNodeStrategy.value}
         onChange={(e: ChangeEvent<HTMLSelectElement>): void => {
           const { value } = e.target;
           assertIsNodeTypeKey(value);
-          setSelectedNodeOption(
-            new PathfindingNode(INITIAL_COORDINATE, INITIAL_COORDINATE, value),
-          );
+          setSelectedNodeStrategy(NODE_STRATEGIES[value]);
         }}
-        value={selectedNodeOption.value}
+        value={selectedNodeStrategy.value}
       >
-        {NODE_VALUES.map((option) => (
-          <option key={option} value={option}>
-            {option}
+        {Object.values(NODE_STRATEGIES).map(({ value }) => (
+          <option key={value} value={value}>
+            {value}
           </option>
         ))}
       </select>
@@ -308,7 +315,7 @@ function Pathfinding(): JSX.Element {
               grid={grid}
               gridNode={gridNode}
               nodesOfInterest={nodesOfInterest}
-              selectedNodeOption={selectedNodeOption}
+              selectedNodeStrategy={selectedNodeStrategy}
               setGrid={setGrid}
             />
           )),
