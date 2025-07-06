@@ -69,14 +69,12 @@ function handleSpecialNode({
   nodeCol,
   nodeRow,
   nodesOfInterest,
-  setGrid,
 }: {
   grid: PathfindingNode[][];
   newNodeStrategy: PathfindingNodeStrategy;
   nodeCol: number;
   nodeRow: number;
   nodesOfInterest: RefObject<Record<NodeOfInterest, PathfindingNode>>;
-  setGrid: Dispatch<SetStateAction<PathfindingNode[][]>>;
 }): void {
   const newValue = newNodeStrategy.value;
   assertIsNodeOfInterest(newValue);
@@ -87,21 +85,23 @@ function handleSpecialNode({
       pivotCol,
       NODE_STRATEGIES.empty,
     );
-    setGrid(grid);
     mutateAssociatedParagraph(grid[pivotRow][pivotCol]);
   }
   const targetNode = grid[nodeRow][nodeCol];
-  if (
-    targetNode.isNodeOfInterest() &&
-    nodesOfInterest.current[newValue].positionEquals(targetNode)
-  ) {
-    targetNode.eliminateFromGrid();
+  if (targetNode.isNodeOfInterest()) {
+    nodesOfInterest.current = {
+      ...nodesOfInterest.current,
+      [targetNode.value]: new PathfindingNode(
+        INITIAL_COORDINATE,
+        INITIAL_COORDINATE,
+        NODE_STRATEGIES[targetNode.value],
+      ),
+    };
   }
-  nodesOfInterest.current[newValue] = new PathfindingNode(
-    nodeRow,
-    nodeCol,
-    newNodeStrategy,
-  );
+  nodesOfInterest.current = {
+    ...nodesOfInterest.current,
+    [newValue]: new PathfindingNode(nodeRow, nodeCol, newNodeStrategy),
+  };
   mutateAssociatedParagraph(nodesOfInterest.current[newValue]);
 }
 
@@ -129,16 +129,16 @@ function Node({
         nodeCol,
         nodeRow,
         nodesOfInterest,
-        setGrid,
       });
     } else {
-      const { start, end } = nodesOfInterest.current;
-      if (gridNode.positionEquals(start)) {
-        start.eliminateFromGrid();
-      }
-      if (gridNode.positionEquals(end)) {
-        end.eliminateFromGrid();
-      }
+      nodesOfInterest.current = {
+        ...nodesOfInterest.current,
+        [newNodeStrategy.value]: new PathfindingNode(
+          INITIAL_COORDINATE,
+          INITIAL_COORDINATE,
+          newNodeStrategy,
+        ),
+      };
     }
     grid[nodeRow][nodeCol] = new PathfindingNode(
       nodeRow,
@@ -268,16 +268,27 @@ function Pathfinding(): JSX.Element {
       }
       return newGrid;
     });
-    const startNode = nodesOfInterest.current.start;
-    const { row: startRow, col: startCol } = startNode;
-    if (cols - 1 < startCol || rows - 1 < startRow) {
-      startNode.eliminateFromGrid();
-    }
-    const endNode = nodesOfInterest.current.end;
-    const { row: endCol, col: endRow } = endNode;
-    if (cols - 1 < endCol || rows - 1 < endRow) {
-      endNode.eliminateFromGrid();
-    }
+    const { start, end } = nodesOfInterest.current;
+    const { row: startRow, col: startCol } = start;
+    const { row: endCol, col: endRow } = end;
+    nodesOfInterest.current = {
+      start:
+        cols - 1 < startCol || rows - 1 < startRow
+          ? new PathfindingNode(
+              INITIAL_COORDINATE,
+              INITIAL_COORDINATE,
+              NODE_STRATEGIES.start,
+            )
+          : new PathfindingNode(startRow, startCol, NODE_STRATEGIES.start),
+      end:
+        cols - 1 < endCol || rows - 1 < endRow
+          ? new PathfindingNode(
+              INITIAL_COORDINATE,
+              INITIAL_COORDINATE,
+              NODE_STRATEGIES.end,
+            )
+          : new PathfindingNode(endRow, endCol, NODE_STRATEGIES.end),
+    };
   }, [rows, cols]);
 
   return (
