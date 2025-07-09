@@ -167,9 +167,11 @@ function PathfindingGrid(): JSX.Element {
     handleOverflownTerminalCells(terminalVertices, rows, cols);
   }, [rows, cols]);
 
-  useEffect(() => {
-    console.log('>>>>> grid:', grid);
-  }, [grid]);
+  const log = (): void => {
+    console.log('Grid:', grid);
+    console.log('Start:', terminalVertices.current.start);
+    console.log('End:', terminalVertices.current.end);
+  };
 
   return (
     <>
@@ -189,6 +191,9 @@ function PathfindingGrid(): JSX.Element {
           </option>
         ))}
       </select>
+      <button onClick={log} type="button">
+        Log
+      </button>
       <section
         aria-label="Pathfinding grid"
         className={styles.grid}

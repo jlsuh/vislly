@@ -79,20 +79,6 @@ function Cell({
     grid[cellRow][cellCol] = new Vertex(cellRow, cellCol, newVertexName);
     setGrid(grid);
     setCell(grid[cellRow][cellCol].deepCopy());
-    console.log('>>>>> Start:', terminalVertices.current.start);
-    console.log('>>>>> End:', terminalVertices.current.end);
-    console.log(
-      '>>>>> Start on grid:',
-      grid[terminalVertices.current.start.row]?.[
-        terminalVertices.current.start.col
-      ],
-    );
-    console.log(
-      '>>>>> End on grid:',
-      grid[terminalVertices.current.end.row]?.[
-        terminalVertices.current.end.col
-      ],
-    );
   };
 
   return (
