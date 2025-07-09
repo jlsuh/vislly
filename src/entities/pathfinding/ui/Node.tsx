@@ -10,13 +10,13 @@ import type { ReadonlyDeep } from 'type-fest';
 import {
   INITIAL_COORDINATE,
   NODE_STRATEGIES,
-  PathfindingNode,
-  PathfindingNodeStrategy,
-  type PathfindingSpecialNodeKey,
+  type TerminalVertex,
+  Vertex,
+  VertexStrategy,
 } from '../model/pathfinding.ts';
 import styles from './node.module.css';
 
-function mutateAssociatedParagraph(node: PathfindingNode): void {
+function mutateAssociatedParagraph(node: Vertex): void {
   const { row, col, value } = node;
   const element = document.querySelector(
     `[data-row="${row}"][data-col="${col}"]`,
@@ -32,97 +32,89 @@ function mutateAssociatedParagraph(node: PathfindingNode): void {
   paragraph.textContent = node.getFirstChar();
 }
 
-function handleSpecialNode({
+function handleTerminalNode({
   grid,
   newNodeStrategy,
   nodeCol,
   nodeRow,
-  specialNodes,
+  terminalNodes,
 }: {
-  grid: PathfindingNode[][];
-  newNodeStrategy: ReadonlyDeep<PathfindingNodeStrategy>;
+  grid: Vertex[][];
+  newNodeStrategy: ReadonlyDeep<VertexStrategy>;
   nodeCol: number;
   nodeRow: number;
-  specialNodes: RefObject<Record<PathfindingSpecialNodeKey, PathfindingNode>>;
+  terminalNodes: RefObject<Record<TerminalVertex, Vertex>>;
 }): void {
   const newValue = newNodeStrategy.value;
-  PathfindingNodeStrategy.assertIsSpecialNode(newValue);
-  if (specialNodes.current[newValue].appearsOnGrid()) {
-    const { row: pivotRow, col: pivotCol } = specialNodes.current[newValue];
-    grid[pivotRow][pivotCol] = new PathfindingNode(
+  VertexStrategy.assertIsTerminalNode(newValue);
+  if (terminalNodes.current[newValue].appearsOnGrid()) {
+    const { row: pivotRow, col: pivotCol } = terminalNodes.current[newValue];
+    grid[pivotRow][pivotCol] = new Vertex(
       pivotRow,
       pivotCol,
       NODE_STRATEGIES.empty,
     );
     mutateAssociatedParagraph(grid[pivotRow][pivotCol]);
   }
-  const newSpecialNodes = {
-    ...specialNodes.current,
+  const newterminalNodes = {
+    ...terminalNodes.current,
   };
   const targetNode = grid[nodeRow][nodeCol];
-  if (targetNode.isSpecial()) {
+  if (targetNode.isTerminal()) {
     const targetNodeValue = targetNode.value;
-    PathfindingNodeStrategy.assertIsSpecialNode(targetNodeValue);
-    newSpecialNodes[targetNodeValue] = new PathfindingNode(
+    VertexStrategy.assertIsTerminalNode(targetNodeValue);
+    newterminalNodes[targetNodeValue] = new Vertex(
       INITIAL_COORDINATE,
       INITIAL_COORDINATE,
       NODE_STRATEGIES[targetNodeValue],
     );
   }
-  newSpecialNodes[newValue] = new PathfindingNode(
-    nodeRow,
-    nodeCol,
-    newNodeStrategy,
-  );
-  mutateAssociatedParagraph(newSpecialNodes[newValue]);
-  specialNodes.current = newSpecialNodes;
+  newterminalNodes[newValue] = new Vertex(nodeRow, nodeCol, newNodeStrategy);
+  mutateAssociatedParagraph(newterminalNodes[newValue]);
+  terminalNodes.current = newterminalNodes;
 }
 
 function Node({
   grid,
   gridNode,
-  specialNodes,
+  terminalNodes,
   selectedNodeStrategy,
   setGrid,
 }: {
-  grid: PathfindingNode[][];
-  gridNode: PathfindingNode;
-  specialNodes: RefObject<Record<PathfindingSpecialNodeKey, PathfindingNode>>;
-  selectedNodeStrategy: ReadonlyDeep<PathfindingNodeStrategy>;
-  setGrid: Dispatch<SetStateAction<PathfindingNode[][]>>;
+  grid: Vertex[][];
+  gridNode: Vertex;
+  terminalNodes: RefObject<Record<TerminalVertex, Vertex>>;
+  selectedNodeStrategy: ReadonlyDeep<VertexStrategy>;
+  setGrid: Dispatch<SetStateAction<Vertex[][]>>;
 }): JSX.Element {
   const [node, setNode] = useState(gridNode);
   const { row: nodeRow, col: nodeCol } = gridNode;
 
   const setNewNodeStrategy = (
-    newNodeStrategy: ReadonlyDeep<PathfindingNodeStrategy>,
+    newNodeStrategy: ReadonlyDeep<VertexStrategy>,
   ): void => {
-    if (newNodeStrategy.isSpecial()) {
-      handleSpecialNode({
+    if (newNodeStrategy.isTerminal()) {
+      handleTerminalNode({
         grid,
         newNodeStrategy,
         nodeCol,
         nodeRow,
-        specialNodes,
+        terminalNodes,
       });
-    } else if (grid[nodeRow][nodeCol].isSpecial()) {
-      const specialNodeValue = grid[nodeRow][nodeCol].value;
-      PathfindingNodeStrategy.assertIsSpecialNode(specialNodeValue);
-      specialNodes.current[specialNodeValue] = new PathfindingNode(
+    } else if (grid[nodeRow][nodeCol].isTerminal()) {
+      const terminalNodeValue = grid[nodeRow][nodeCol].value;
+      VertexStrategy.assertIsTerminalNode(terminalNodeValue);
+      terminalNodes.current[terminalNodeValue] = new Vertex(
         INITIAL_COORDINATE,
         INITIAL_COORDINATE,
-        NODE_STRATEGIES[specialNodeValue],
+        NODE_STRATEGIES[terminalNodeValue],
       );
     }
-    grid[nodeRow][nodeCol] = new PathfindingNode(
-      nodeRow,
-      nodeCol,
-      newNodeStrategy,
-    );
+    grid[nodeRow][nodeCol] = new Vertex(nodeRow, nodeCol, newNodeStrategy);
     setGrid(grid);
     setNode(grid[nodeRow][nodeCol]);
-    console.log('>>>>>> Start:', specialNodes.current.start);
-    console.log('>>>>>> End:', specialNodes.current.end);
+    console.log('>>>>>> Start:', terminalNodes.current.start);
+    console.log('>>>>>> End:', terminalNodes.current.end);
   };
 
   return (

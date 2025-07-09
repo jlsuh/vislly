@@ -20,9 +20,9 @@ import useResizeDimensions from '@/shared/lib/useResizeDimensions.ts';
 import {
   INITIAL_COORDINATE,
   NODE_STRATEGIES,
-  PathfindingNode,
-  PathfindingNodeStrategy,
-  type PathfindingSpecialNodeKey,
+  type TerminalVertex,
+  Vertex,
+  VertexStrategy,
 } from '../model/pathfinding.ts';
 import Node from './Node.tsx';
 import styles from './pathfinding-grid.module.css';
@@ -94,19 +94,19 @@ const unsetBodyOverflow = (): void => {
 };
 
 function composeNewGrid(
-  prevGrid: PathfindingNode[][],
+  prevGrid: Vertex[][],
   rows: number,
   cols: number,
-): PathfindingNode[][] {
+): Vertex[][] {
   const newGrid = Array.from({ length: rows }, (_, row) =>
     Array.from(
       { length: cols },
-      (__, col) => new PathfindingNode(row, col, NODE_STRATEGIES.empty),
+      (__, col) => new Vertex(row, col, NODE_STRATEGIES.empty),
     ),
   );
   for (let row = 0; row < rows; row += 1) {
     for (let col = 0; col < cols; col += 1) {
-      const nodeValue: PathfindingNode | undefined = prevGrid[row]?.[col];
+      const nodeValue: Vertex | undefined = prevGrid[row]?.[col];
       if (nodeValue === undefined) {
         continue;
       }
@@ -116,44 +116,42 @@ function composeNewGrid(
   return newGrid;
 }
 
-function handleOverflownSpecialNodes(
-  specialNodes: RefObject<Record<PathfindingSpecialNodeKey, PathfindingNode>>,
+function handleOverflownTerminalNodes(
+  terminalNodes: RefObject<Record<TerminalVertex, Vertex>>,
   rows: number,
   cols: number,
 ): void {
-  const newSpecialNodes: Record<PathfindingSpecialNodeKey, PathfindingNode> = {
-    ...specialNodes.current,
+  const newTerminalNodes: Record<TerminalVertex, Vertex> = {
+    ...terminalNodes.current,
   };
-  for (const specialNode of Object.values(specialNodes.current)) {
-    const { row, col, value } = specialNode;
+  for (const terminalNode of Object.values(terminalNodes.current)) {
+    const { row, col, value } = terminalNode;
     if (col > cols - 1 || row > rows - 1) {
-      PathfindingNodeStrategy.assertIsSpecialNode(value);
-      newSpecialNodes[value] = new PathfindingNode(
+      VertexStrategy.assertIsTerminalNode(value);
+      newTerminalNodes[value] = new Vertex(
         INITIAL_COORDINATE,
         INITIAL_COORDINATE,
         NODE_STRATEGIES[value],
       );
     }
   }
-  specialNodes.current = newSpecialNodes;
+  terminalNodes.current = newTerminalNodes;
 }
 
 function PathfindingGrid(): JSX.Element {
   const [cols, setCols] = useState(0);
   const [rows, setRows] = useState(0);
-  const [grid, setGrid] = useState<PathfindingNode[][]>([]);
+  const [grid, setGrid] = useState<Vertex[][]>([]);
   const [selectedNodeStrategy, setSelectedNodeStrategy] = useState(
     NODE_STRATEGIES.wall,
   );
-  const specialNodes = useRef<
-    Record<PathfindingSpecialNodeKey, PathfindingNode>
-  >({
-    start: new PathfindingNode(
+  const terminalNodes = useRef<Record<TerminalVertex, Vertex>>({
+    start: new Vertex(
       INITIAL_COORDINATE,
       INITIAL_COORDINATE,
       NODE_STRATEGIES.start,
     ),
-    end: new PathfindingNode(
+    end: new Vertex(
       INITIAL_COORDINATE,
       INITIAL_COORDINATE,
       NODE_STRATEGIES.end,
@@ -173,13 +171,13 @@ function PathfindingGrid(): JSX.Element {
 
   useEffect(() => {
     setGrid((prevGrid) => composeNewGrid(prevGrid, rows, cols));
-    handleOverflownSpecialNodes(specialNodes, rows, cols);
+    handleOverflownTerminalNodes(terminalNodes, rows, cols);
   }, [rows, cols]);
 
   useEffect(() => {
     console.log('>>>>> grid:', grid);
-    console.log('>>>>>> Start:', specialNodes.current.start);
-    console.log('>>>>>> End:', specialNodes.current.end);
+    console.log('>>>>>> Start:', terminalNodes.current.start);
+    console.log('>>>>>> End:', terminalNodes.current.end);
   }, [grid]);
 
   return (
@@ -189,7 +187,7 @@ function PathfindingGrid(): JSX.Element {
         key={selectedNodeStrategy.value}
         onChange={(e: ChangeEvent<HTMLSelectElement>): void => {
           const { value } = e.target;
-          PathfindingNodeStrategy.assertIsNode(value);
+          VertexStrategy.assertIsNode(value);
           setSelectedNodeStrategy(NODE_STRATEGIES[value]);
         }}
         value={selectedNodeStrategy.value}
@@ -216,7 +214,7 @@ function PathfindingGrid(): JSX.Element {
               key={`node-row-${nodeRow}-col-${nodeCol}-value-${gridNode.value}`}
               grid={grid}
               gridNode={gridNode}
-              specialNodes={specialNodes}
+              terminalNodes={terminalNodes}
               selectedNodeStrategy={selectedNodeStrategy}
               setGrid={setGrid}
             />

@@ -7,28 +7,21 @@ const WALL = 'wall';
 
 const INITIAL_COORDINATE = -1;
 
-type PathfindingNodeKey =
-  | typeof WALL
-  | typeof EMPTY
-  | typeof END
-  | typeof START;
-type PathfindingSpecialNodeKey = Extract<
-  PathfindingNodeKey,
-  typeof END | typeof START
->;
-type PathfindingNodeKeyFirstChar = StringSlice<PathfindingNodeKey, 0, 1>;
+type VertexName = typeof WALL | typeof EMPTY | typeof END | typeof START;
+type TerminalVertex = Extract<VertexName, typeof END | typeof START>;
+type VertexNameFirstChar = StringSlice<VertexName, 0, 1>;
 
-class PathfindingNode {
+class Vertex {
   public readonly row: number;
   public readonly col: number;
-  public pathfindingNodeStrategy: ReadonlyDeep<PathfindingNodeStrategy>;
+  public vertexStrategy: ReadonlyDeep<VertexStrategy>;
 
   public constructor(
     row: number,
     col: number,
-    pathfindingNodeStrategy: ReadonlyDeep<PathfindingNodeStrategy>,
+    vertexStrategy: ReadonlyDeep<VertexStrategy>,
   ) {
-    this.pathfindingNodeStrategy = pathfindingNodeStrategy;
+    this.vertexStrategy = vertexStrategy;
     this.row = row;
     this.col = col;
   }
@@ -37,91 +30,87 @@ class PathfindingNode {
     return this.row !== INITIAL_COORDINATE && this.col !== INITIAL_COORDINATE;
   }
 
-  public getFirstChar(): PathfindingNodeKeyFirstChar {
-    return this.pathfindingNodeStrategy.getFirstChar();
+  public getFirstChar(): VertexNameFirstChar {
+    return this.vertexStrategy.getFirstChar();
   }
 
-  public isSpecial(): boolean {
-    return this.pathfindingNodeStrategy.isSpecial();
+  public isTerminal(): boolean {
+    return this.vertexStrategy.isTerminal();
   }
 
-  public get value(): PathfindingNodeKey {
-    return this.pathfindingNodeStrategy.value;
+  public get value(): VertexName {
+    return this.vertexStrategy.value;
   }
 }
 
-abstract class PathfindingNodeStrategy {
-  public readonly value: PathfindingNodeKey;
+abstract class VertexStrategy {
+  public readonly value: VertexName;
 
-  public constructor(value: PathfindingNodeKey) {
-    PathfindingNodeStrategy.assertIsNode(value);
+  public constructor(value: VertexName) {
+    VertexStrategy.assertIsNode(value);
     this.value = value;
   }
 
-  private isNode(value: string): value is PathfindingNodeKey {
+  private isNode(value: string): value is VertexName {
     return (
       value === EMPTY || value === END || value === START || value === WALL
     );
   }
 
-  private isSpecialNode(value: string): value is PathfindingSpecialNodeKey {
+  private isTerminalNode(value: string): value is TerminalVertex {
     return value === END || value === START;
   }
 
-  public static assertIsNode(
-    value: string,
-  ): asserts value is PathfindingNodeKey {
-    if (!PathfindingNodeStrategy.prototype.isNode(value)) {
+  public static assertIsNode(value: string): asserts value is VertexName {
+    if (!VertexStrategy.prototype.isNode(value)) {
       throw new Error(`Invalid node: ${value}`);
     }
   }
 
-  public static assertIsSpecialNode(
+  public static assertIsTerminalNode(
     value: string,
-  ): asserts value is PathfindingSpecialNodeKey {
-    if (!PathfindingNodeStrategy.prototype.isSpecialNode(value)) {
-      throw new Error(`Invalid special node: ${value}`);
+  ): asserts value is TerminalVertex {
+    if (!VertexStrategy.prototype.isTerminalNode(value)) {
+      throw new Error(`Invalid terminal node: ${value}`);
     }
   }
 
-  public getFirstChar(): PathfindingNodeKeyFirstChar {
-    return this.value.charAt(0) as PathfindingNodeKeyFirstChar;
+  public getFirstChar(): VertexNameFirstChar {
+    return this.value.charAt(0) as VertexNameFirstChar;
   }
 
-  public abstract isSpecial(): boolean;
+  public abstract isTerminal(): boolean;
 }
 
-class PathfindingStartNodeStrategy extends PathfindingNodeStrategy {
-  public isSpecial(): boolean {
+class StartVertexStrategy extends VertexStrategy {
+  public isTerminal(): boolean {
     return true;
   }
 }
 
-class PathfindingEndNodeStrategy extends PathfindingNodeStrategy {
-  public isSpecial(): boolean {
+class EndVertexStrategy extends VertexStrategy {
+  public isTerminal(): boolean {
     return true;
   }
 }
 
-class PathfindingEmptyNodeStrategy extends PathfindingNodeStrategy {
-  public isSpecial(): boolean {
+class EmptyVertexStrategy extends VertexStrategy {
+  public isTerminal(): boolean {
     return false;
   }
 }
 
-class PathfindingWallNodeStrategy extends PathfindingNodeStrategy {
-  public isSpecial(): boolean {
+class WallVertexStrategy extends VertexStrategy {
+  public isTerminal(): boolean {
     return false;
   }
 }
 
-const NODE_STRATEGIES: ReadonlyDeep<
-  Record<PathfindingNodeKey, PathfindingNodeStrategy>
-> = {
-  empty: new PathfindingEmptyNodeStrategy(EMPTY),
-  end: new PathfindingEndNodeStrategy(END),
-  start: new PathfindingStartNodeStrategy(START),
-  wall: new PathfindingWallNodeStrategy(WALL),
+const NODE_STRATEGIES: ReadonlyDeep<Record<VertexName, VertexStrategy>> = {
+  empty: new EmptyVertexStrategy(EMPTY),
+  end: new EndVertexStrategy(END),
+  start: new StartVertexStrategy(START),
+  wall: new WallVertexStrategy(WALL),
 };
 
 export {
@@ -129,11 +118,11 @@ export {
   END,
   INITIAL_COORDINATE,
   NODE_STRATEGIES,
-  PathfindingNode,
-  PathfindingNodeStrategy,
   START,
+  Vertex,
+  VertexStrategy,
   WALL,
-  type PathfindingNodeKey,
-  type PathfindingNodeKeyFirstChar,
-  type PathfindingSpecialNodeKey,
+  type TerminalVertex,
+  type VertexName,
+  type VertexNameFirstChar,
 };
