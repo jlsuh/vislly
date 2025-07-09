@@ -169,8 +169,6 @@ function PathfindingGrid(): JSX.Element {
 
   useEffect(() => {
     console.log('>>>>> grid:', grid);
-    console.log('>>>>>> Start:', terminalVertices.current.start);
-    console.log('>>>>>> End:', terminalVertices.current.end);
   }, [grid]);
 
   return (
