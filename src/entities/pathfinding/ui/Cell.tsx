@@ -17,7 +17,7 @@ import {
 import styles from './cell.module.css';
 
 function setParagraphStyle(vertex: Vertex): void {
-  const { row, col, vertexName } = vertex;
+  const { row, col, name } = vertex;
   const element = document.querySelector(
     `[data-row="${row}"][data-col="${col}"]`,
   );
@@ -28,7 +28,7 @@ function setParagraphStyle(vertex: Vertex): void {
   if (paragraph === null) {
     return;
   }
-  paragraph.className = `${styles.cellText} ${styles[vertexName]}`;
+  paragraph.className = `${styles.cellText} ${styles[name]}`;
   paragraph.textContent = vertex.getFirstChar();
 }
 
@@ -49,7 +49,7 @@ function Cell({
   const { row: cellRow, col: cellCol } = gridCell;
 
   const setNewVertexName = (newVertexName: VertexName): void => {
-    const targetVertexName = grid[cellRow][cellCol].vertexName;
+    const targetVertexName = grid[cellRow][cellCol].name;
     if (isTerminal(targetVertexName)) {
       terminalVertices.current[targetVertexName] = new Vertex(
         INITIAL_COORDINATE,
@@ -96,7 +96,7 @@ function Cell({
       onTouchStart={() => setNewVertexName(selectedVertexName)}
       type="button"
     >
-      <p className={`${styles.cellText} ${styles[cell.vertexName]}`}>
+      <p className={`${styles.cellText} ${styles[cell.name]}`}>
         {cell.getFirstChar()}
       </p>
     </button>

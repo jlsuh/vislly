@@ -128,13 +128,13 @@ function handleOverflownTerminalCells(
     ...terminalCells.current,
   };
   for (const terminalCell of Object.values(terminalCells.current)) {
-    const { row, col, vertexName } = terminalCell;
+    const { row, col, name } = terminalCell;
     if (col > cols - 1 || row > rows - 1) {
-      assertIsTerminal(vertexName);
-      newTerminalCells[vertexName] = new Vertex(
+      assertIsTerminal(name);
+      newTerminalCells[name] = new Vertex(
         INITIAL_COORDINATE,
         INITIAL_COORDINATE,
-        vertexName,
+        name,
       );
     }
   }
@@ -208,7 +208,7 @@ function PathfindingGrid(): JSX.Element {
         {grid.map((gridRow, cellRow) =>
           gridRow.map((gridCell, cellCol) => (
             <Cell
-              key={`cell-row-${cellRow}-col-${cellCol}-value-${gridCell.vertexName}`}
+              key={`cell-row-${cellRow}-col-${cellCol}-value-${gridCell.name}`}
               grid={grid}
               gridCell={gridCell}
               terminalVertices={terminalVertices}

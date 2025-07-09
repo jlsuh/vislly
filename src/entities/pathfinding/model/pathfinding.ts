@@ -14,16 +14,16 @@ type VertexNameFirstChar = StringSlice<VertexName, 0, 1>;
 class Vertex {
   public readonly row: number;
   public readonly col: number;
-  public readonly vertexName: VertexName;
+  public readonly name: VertexName;
 
   public constructor(row: number, col: number, vertexName: VertexName) {
-    this.vertexName = vertexName;
+    this.name = vertexName;
     this.row = row;
     this.col = col;
   }
 
   public deepCopy(): Vertex {
-    return new Vertex(this.row, this.col, this.vertexName);
+    return new Vertex(this.row, this.col, this.name);
   }
 
   public appearsOnGrid(): boolean {
@@ -31,7 +31,7 @@ class Vertex {
   }
 
   public getFirstChar(): VertexNameFirstChar {
-    return this.vertexName.charAt(0) as VertexNameFirstChar;
+    return this.name.charAt(0) as VertexNameFirstChar;
   }
 }
 
