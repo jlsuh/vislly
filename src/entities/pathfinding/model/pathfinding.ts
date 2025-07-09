@@ -1,4 +1,4 @@
-import type { StringSlice } from 'type-fest';
+import type { ReadonlyDeep, StringSlice } from 'type-fest';
 
 const EMPTY = 'empty';
 const END = 'end';
@@ -7,8 +7,8 @@ const WALL = 'wall';
 
 const INITIAL_COORDINATE = -1;
 
-type VertexName = typeof WALL | typeof EMPTY | typeof END | typeof START;
-type TerminalVertex = Extract<VertexName, typeof END | typeof START>;
+type VertexName = typeof WALL | typeof EMPTY | typeof START | typeof END;
+type TerminalVertex = Extract<VertexName, typeof START | typeof END>;
 type VertexNameFirstChar = StringSlice<VertexName, 0, 1>;
 
 class Vertex {
@@ -16,54 +16,60 @@ class Vertex {
   public readonly col: number;
   public readonly name: VertexName;
 
-  public constructor(row: number, col: number, vertexName: VertexName) {
-    this.name = vertexName;
+  public constructor(row: number, col: number, name: VertexName) {
+    assertIsVertexName(name);
+    this.name = name;
     this.row = row;
     this.col = col;
-  }
-
-  public deepCopy(): Vertex {
-    return new Vertex(this.row, this.col, this.name);
   }
 
   public appearsOnGrid(): boolean {
     return this.row !== INITIAL_COORDINATE && this.col !== INITIAL_COORDINATE;
   }
 
-  public getFirstChar(): VertexNameFirstChar {
+  public deepCopy(): Vertex {
+    return new Vertex(this.row, this.col, this.name);
+  }
+
+  public get firstChar(): VertexNameFirstChar {
     return this.name.charAt(0) as VertexNameFirstChar;
   }
 }
 
-function isVertex(value: string): value is VertexName {
-  return value === EMPTY || value === WALL || value === END || value === START;
+function isVertexName(value: unknown): value is VertexName {
+  return value === WALL || value === EMPTY || value === START || value === END;
 }
 
-function isTerminal(value: string): value is TerminalVertex {
-  return value === END || value === START;
-}
-
-function assertIsVertex(value: string): asserts value is VertexName {
-  if (!isVertex(value)) {
+function assertIsVertexName(value: unknown): asserts value is VertexName {
+  if (!isVertexName(value)) {
     throw new Error(`Invalid vertex: ${value}`);
   }
 }
 
-function assertIsTerminal(value: string): asserts value is TerminalVertex {
-  if (!isTerminal(value)) {
+function isTerminalVertex(value: unknown): value is TerminalVertex {
+  return value === START || value === END;
+}
+
+function assertIsTerminalVertex(
+  value: unknown,
+): asserts value is TerminalVertex {
+  if (!isTerminalVertex(value)) {
     throw new Error(`Invalid terminal vertex: ${value}`);
   }
 }
 
+const VERTEX_NAMES: ReadonlyDeep<VertexName[]> = [WALL, EMPTY, START, END];
+
 export {
-  assertIsTerminal,
-  assertIsVertex,
+  assertIsTerminalVertex,
+  assertIsVertexName,
   EMPTY,
   END,
   INITIAL_COORDINATE,
-  isTerminal,
+  isTerminalVertex,
   START,
   Vertex,
+  VERTEX_NAMES,
   WALL,
   type TerminalVertex,
   type VertexName,

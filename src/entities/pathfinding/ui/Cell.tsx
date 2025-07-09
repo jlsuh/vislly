@@ -9,7 +9,7 @@ import {
 import {
   EMPTY,
   INITIAL_COORDINATE,
-  isTerminal,
+  isTerminalVertex,
   type TerminalVertex,
   Vertex,
   type VertexName,
@@ -29,7 +29,7 @@ function setParagraphStyle(vertex: Vertex): void {
     return;
   }
   paragraph.className = `${styles.cellText} ${styles[name]}`;
-  paragraph.textContent = vertex.getFirstChar();
+  paragraph.textContent = vertex.firstChar;
 }
 
 function Cell({
@@ -50,14 +50,14 @@ function Cell({
 
   const setNewVertexName = (newVertexName: VertexName): void => {
     const targetVertexName = grid[cellRow][cellCol].name;
-    if (isTerminal(targetVertexName)) {
+    if (isTerminalVertex(targetVertexName)) {
       terminalVertices.current[targetVertexName] = new Vertex(
         INITIAL_COORDINATE,
         INITIAL_COORDINATE,
         targetVertexName,
       );
     }
-    if (isTerminal(newVertexName)) {
+    if (isTerminalVertex(newVertexName)) {
       const terminalVertex = terminalVertices.current[newVertexName];
       if (terminalVertex.appearsOnGrid()) {
         const { row: terminalVertexRow, col: terminalVertexCol } =
@@ -97,7 +97,7 @@ function Cell({
       type="button"
     >
       <p className={`${styles.cellText} ${styles[cell.name]}`}>
-        {cell.getFirstChar()}
+        {cell.firstChar}
       </p>
     </button>
   );

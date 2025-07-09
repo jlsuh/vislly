@@ -18,13 +18,14 @@ import useIsHoldingClickOnElement from '@/shared/lib/useIsHoldingClickOnElement.
 import useOnClickOutside from '@/shared/lib/useOnClickOutside.ts';
 import useResizeDimensions from '@/shared/lib/useResizeDimensions.ts';
 import {
-  assertIsTerminal,
-  assertIsVertex,
+  assertIsTerminalVertex,
+  assertIsVertexName,
   EMPTY,
   END,
   INITIAL_COORDINATE,
   START,
   type TerminalVertex,
+  VERTEX_NAMES,
   Vertex,
   type VertexName,
   WALL,
@@ -130,7 +131,7 @@ function handleOverflownTerminalCells(
   for (const terminalCell of Object.values(terminalCells.current)) {
     const { row, col, name } = terminalCell;
     if (col > cols - 1 || row > rows - 1) {
-      assertIsTerminal(name);
+      assertIsTerminalVertex(name);
       newTerminalCells[name] = new Vertex(
         INITIAL_COORDINATE,
         INITIAL_COORDINATE,
@@ -181,12 +182,12 @@ function PathfindingGrid(): JSX.Element {
         key={selectedVertexName}
         onChange={(e: ChangeEvent<HTMLSelectElement>) => {
           const { value } = e.target;
-          assertIsVertex(value);
+          assertIsVertexName(value);
           setSelectedVertexName(value);
         }}
         value={selectedVertexName}
       >
-        {[WALL, EMPTY, END, START].map((vertexName) => (
+        {VERTEX_NAMES.map((vertexName) => (
           <option key={vertexName} value={vertexName}>
             {vertexName}
           </option>
