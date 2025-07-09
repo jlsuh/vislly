@@ -103,17 +103,18 @@ function composeNewGrid(
   rows: number,
   cols: number,
 ): Vertex[][] {
-  const newGrid = Array.from({ length: rows }, (_, row) =>
-    Array.from({ length: cols }, (__, col) => new Vertex(row, col, EMPTY)),
-  );
+  const newGrid: Vertex[][] = [];
   for (let row = 0; row < rows; row += 1) {
+    const newRow: Vertex[] = [];
     for (let col = 0; col < cols; col += 1) {
-      const vertex: Vertex | undefined = prevGrid[row]?.[col];
-      if (vertex === undefined) {
-        continue;
+      const prevVertex: Vertex | undefined = prevGrid[row]?.[col];
+      if (prevVertex === undefined) {
+        newRow.push(new Vertex(row, col, EMPTY));
+      } else {
+        newRow.push(prevVertex);
       }
-      newGrid[row][col] = vertex;
     }
+    newGrid.push(newRow);
   }
   return newGrid;
 }
