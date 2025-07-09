@@ -36,7 +36,7 @@ class Vertex {
 }
 
 function isVertex(value: string): value is VertexName {
-  return value === EMPTY || value === END || value === START || value === WALL;
+  return value === EMPTY || value === WALL || value === END || value === START;
 }
 
 function isTerminal(value: string): value is TerminalVertex {
