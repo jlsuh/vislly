@@ -176,7 +176,7 @@ function PathfindingGrid(): JSX.Element {
       <select
         id={vertexNameSelectId}
         key={selectedVertexName}
-        onChange={(e: ChangeEvent<HTMLSelectElement>): void => {
+        onChange={(e: ChangeEvent<HTMLSelectElement>) => {
           const { value } = e.target;
           assertIsVertex(value);
           setSelectedVertexName(value);

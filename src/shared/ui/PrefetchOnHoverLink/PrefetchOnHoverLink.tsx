@@ -28,19 +28,19 @@ function PrefetchOnHoverLink(props: PrefetchOnHoverLinkProps): JSX.Element {
       className={styles.prefetchOnHoverLink}
       {...props}
       prefetch={false}
-      onFocus={(e: FocusEvent<HTMLAnchorElement, Element>): void => {
+      onFocus={(e: FocusEvent<HTMLAnchorElement, Element>) => {
         conditionalPrefetch();
         if (props.onFocus) {
           props.onFocus(e);
         }
       }}
-      onPointerEnter={(e: PointerEvent<HTMLAnchorElement>): void => {
+      onPointerEnter={(e: PointerEvent<HTMLAnchorElement>) => {
         conditionalPrefetch();
         if (props.onPointerEnter) {
           props.onPointerEnter(e);
         }
       }}
-      onTouchStart={(e: TouchEvent<HTMLAnchorElement>): void => {
+      onTouchStart={(e: TouchEvent<HTMLAnchorElement>) => {
         conditionalPrefetch();
         if (props.onTouchStart) {
           props.onTouchStart(e);

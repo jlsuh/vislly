@@ -100,11 +100,9 @@ function Cell({
       className={styles.cell}
       data-col={cellCol}
       data-row={cellRow}
-      onContextMenu={(e: MouseEvent<HTMLButtonElement>): void =>
-        e.preventDefault()
-      }
-      onMouseDown={(): void => setNewVertexName(selectedVertexName)}
-      onTouchStart={(): void => setNewVertexName(selectedVertexName)}
+      onContextMenu={(e: MouseEvent<HTMLButtonElement>) => e.preventDefault()}
+      onMouseDown={() => setNewVertexName(selectedVertexName)}
+      onTouchStart={() => setNewVertexName(selectedVertexName)}
       type="button"
     >
       <p className={`${styles.cellText} ${styles[cell.vertexName]}`}>

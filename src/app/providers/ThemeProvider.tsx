@@ -41,7 +41,7 @@ function getThemeSnapshot(prefersDarkColorScheme: boolean) {
 
 const subscribeToStorage = (callback: () => void): (() => void) => {
   window.addEventListener(STORAGE, callback);
-  return (): void => {
+  return () => {
     window.removeEventListener(STORAGE, callback);
   };
 };

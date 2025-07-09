@@ -27,7 +27,7 @@ function useOnClickOutside(
     document.addEventListener('touchstart', listener, {
       capture: true,
     });
-    return (): void => {
+    return () => {
       document.removeEventListener('click', listener, {
         capture: true,
       });

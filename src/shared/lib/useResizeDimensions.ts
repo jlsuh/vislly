@@ -55,7 +55,7 @@ function useResizeDimensions<T = Element>(
       }
     });
     resizeObserver.observe(element);
-    return (): void => resizeObserver.unobserve(element);
+    return () => resizeObserver.unobserve(element);
   }, [currentHeight, currentWidth]);
 
   const initialResizeDimensions = composeResizeDimensions(initialDimensions);

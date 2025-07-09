@@ -229,7 +229,7 @@ function BrownianMotion(): JSX.Element {
         particlesContext,
       }),
     );
-    return (): void => window.clearInterval(intervalId);
+    return () => window.clearInterval(intervalId);
   }, [
     dimensions.boundedHeight,
     dimensions.boundedWidth,
