@@ -16,7 +16,7 @@ import {
   Vertex,
   type VertexName,
 } from '../model/pathfinding.ts';
-import styles from './node.module.css';
+import styles from './cell.module.css';
 
 function mutateAssociatedParagraph(vertex: Vertex): void {
   const { row, col, vertexName } = vertex;
@@ -30,7 +30,7 @@ function mutateAssociatedParagraph(vertex: Vertex): void {
   if (paragraph === null) {
     return;
   }
-  paragraph.className = `${styles.nodeText} ${styles[vertexName]}`;
+  paragraph.className = `${styles.cellText} ${styles[vertexName]}`;
   paragraph.textContent = vertex.getFirstChar();
 }
 
@@ -75,21 +75,21 @@ function handleTerminalVertex({
   terminalVertices.current = newterminalVertices;
 }
 
-function Node({
+function Cell({
   grid,
-  gridNode,
+  gridCell,
   terminalVertices,
   selectedVertexName,
   setGrid,
 }: {
   grid: Vertex[][];
-  gridNode: Vertex;
+  gridCell: Vertex;
   terminalVertices: RefObject<Record<TerminalVertex, Vertex>>;
   selectedVertexName: ReadonlyDeep<VertexName>;
   setGrid: Dispatch<SetStateAction<Vertex[][]>>;
 }): JSX.Element {
-  const [node, setNode] = useState(gridNode);
-  const { row: vertexRow, col: vertexCol } = gridNode;
+  const [cell, setCell] = useState(gridCell);
+  const { row: vertexRow, col: vertexCol } = gridCell;
 
   const setNewVertexName = (newvertexName: ReadonlyDeep<VertexName>): void => {
     if (isTerminal(newvertexName)) {
@@ -115,14 +115,14 @@ function Node({
       newvertexName,
     );
     setGrid(grid);
-    setNode(grid[vertexRow][vertexCol]);
+    setCell(grid[vertexRow][vertexCol]);
     console.log('>>>>>> Start:', terminalVertices.current.start);
     console.log('>>>>>> End:', terminalVertices.current.end);
   };
 
   return (
     <button
-      className={styles.node}
+      className={styles.cell}
       data-col={vertexCol}
       data-row={vertexRow}
       onContextMenu={(e: MouseEvent<HTMLButtonElement>): void =>
@@ -132,11 +132,11 @@ function Node({
       onTouchStart={(): void => setNewVertexName(selectedVertexName)}
       type="button"
     >
-      <p className={`${styles.nodeText} ${styles[node.vertexName]}`}>
-        {node.getFirstChar()}
+      <p className={`${styles.cellText} ${styles[cell.vertexName]}`}>
+        {cell.getFirstChar()}
       </p>
     </button>
   );
 }
 
-export default Node;
+export default Cell;

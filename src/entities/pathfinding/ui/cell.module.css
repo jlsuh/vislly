@@ -1,18 +1,18 @@
 @layer components {
-  .node {
+  .cell {
     background-color: lightgray;
     border: none;
     color: inherit;
     cursor: pointer;
     font-size: 0.0325rem;
-    height: var(--node-size);
+    height: var(--cell-size);
     outline: 0.0625rem solid black;
     padding: 0;
     user-select: none;
-    width: var(--node-size);
+    width: var(--cell-size);
   }
 
-  .nodeText {
+  .cellText {
     color: black;
     font-size: 0.5rem;
     margin: 0;

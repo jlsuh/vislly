@@ -29,7 +29,7 @@ import {
   type VertexName,
   WALL,
 } from '../model/pathfinding.ts';
-import Node from './Node.tsx';
+import Cell from './Cell.tsx';
 import styles from './pathfinding-grid.module.css';
 
 const RESIZE_DIMENSIONS = {
@@ -42,24 +42,24 @@ const RESIZE_DIMENSIONS = {
   height: 0,
   width: 0,
 };
-const NODE_DIM_SIZE = 1;
-const NODE_SIZE_VAR: CssCustomProperty = composeCssCustomProperty(
-  'node-size',
-  `${NODE_DIM_SIZE}rem`,
+const CELL_DIM_SIZE = 1;
+const CELL_SIZE_VAR: CssCustomProperty = composeCssCustomProperty(
+  'cell-size',
+  `${CELL_DIM_SIZE}rem`,
 );
 
-function dispatchMouseDownOnNode({
+function dispatchMouseDownOnCell({
   clientX,
   clientY,
 }: {
   clientX: number;
   clientY: number;
 }): void {
-  const node = document.elementFromPoint(clientX, clientY);
-  if (node === null) {
+  const cell = document.elementFromPoint(clientX, clientY);
+  if (cell === null) {
     return;
   }
-  const button = node.closest('button');
+  const button = cell.closest('button');
   if (button === null) {
     return;
   }
@@ -80,14 +80,14 @@ function dispatchOnPointerMove(
       return;
     }
     const { clientX, clientY } = e;
-    dispatchMouseDownOnNode({ clientX, clientY });
+    dispatchMouseDownOnCell({ clientX, clientY });
   };
 }
 
 const dispatchOnTouchMove = (e: TouchEvent<HTMLElement>): void => {
   const touch = e.touches[0];
   const { clientX, clientY } = touch;
-  dispatchMouseDownOnNode({ clientX, clientY });
+  dispatchMouseDownOnCell({ clientX, clientY });
 };
 
 const hideBodyOverflow = (): void => {
@@ -118,26 +118,26 @@ function composeNewGrid(
   return newGrid;
 }
 
-function handleOverflownTerminalNodes(
-  terminalNodes: RefObject<Record<TerminalVertex, Vertex>>,
+function handleOverflownTerminalCells(
+  terminalCells: RefObject<Record<TerminalVertex, Vertex>>,
   rows: number,
   cols: number,
 ): void {
-  const newTerminalNodes: Record<TerminalVertex, Vertex> = {
-    ...terminalNodes.current,
+  const newTerminalCells: Record<TerminalVertex, Vertex> = {
+    ...terminalCells.current,
   };
-  for (const terminalNode of Object.values(terminalNodes.current)) {
-    const { row, col, vertexName } = terminalNode;
+  for (const terminalCell of Object.values(terminalCells.current)) {
+    const { row, col, vertexName } = terminalCell;
     if (col > cols - 1 || row > rows - 1) {
       assertIsTerminal(vertexName);
-      newTerminalNodes[vertexName] = new Vertex(
+      newTerminalCells[vertexName] = new Vertex(
         INITIAL_COORDINATE,
         INITIAL_COORDINATE,
         vertexName,
       );
     }
   }
-  terminalNodes.current = newTerminalNodes;
+  terminalCells.current = newTerminalCells;
 }
 
 function PathfindingGrid(): JSX.Element {
@@ -158,13 +158,13 @@ function PathfindingGrid(): JSX.Element {
   useOnClickOutside([ref], unsetBodyOverflow);
 
   useEffect(() => {
-    setCols(Math.floor(pxToRem(dimensions.boundedWidth) / NODE_DIM_SIZE));
-    setRows(Math.floor(pxToRem(dimensions.boundedHeight) / NODE_DIM_SIZE));
+    setCols(Math.floor(pxToRem(dimensions.boundedWidth) / CELL_DIM_SIZE));
+    setRows(Math.floor(pxToRem(dimensions.boundedHeight) / CELL_DIM_SIZE));
   }, [dimensions.boundedHeight, dimensions.boundedWidth]);
 
   useEffect(() => {
     setGrid((prevGrid) => composeNewGrid(prevGrid, rows, cols));
-    handleOverflownTerminalNodes(terminalVertices, rows, cols);
+    handleOverflownTerminalCells(terminalVertices, rows, cols);
   }, [rows, cols]);
 
   useEffect(() => {
@@ -199,14 +199,14 @@ function PathfindingGrid(): JSX.Element {
         onTouchMove={dispatchOnTouchMove}
         onTouchStart={hideBodyOverflow}
         ref={ref}
-        style={NODE_SIZE_VAR}
+        style={CELL_SIZE_VAR}
       >
-        {grid.map((gridRow, nodeRow) =>
-          gridRow.map((gridNode, nodeCol) => (
-            <Node
-              key={`node-row-${nodeRow}-col-${nodeCol}-value-${gridNode.vertexName}`}
+        {grid.map((gridRow, cellRow) =>
+          gridRow.map((gridCell, cellCol) => (
+            <Cell
+              key={`cell-row-${cellRow}-col-${cellCol}-value-${gridCell.vertexName}`}
               grid={grid}
-              gridNode={gridNode}
+              gridCell={gridCell}
               terminalVertices={terminalVertices}
               selectedVertexName={selectedVertexName}
               setGrid={setGrid}
