@@ -1,15 +1,12 @@
 import type { JSX, PropsWithChildren } from 'react';
 import styles from './main.module.css';
 
-type MainProps = PropsWithChildren<{
-  sxContent: string;
-  sxMain: string;
-}>;
+type MainProps = PropsWithChildren;
 
-function Main({ children, sxContent, sxMain }: MainProps): JSX.Element {
+function Main({ children }: MainProps): JSX.Element {
   return (
-    <main className={`${styles.main} ${sxMain}`}>
-      <div className={`${styles.content} ${sxContent}`}>{children}</div>
+    <main className={styles.main}>
+      <div className={styles.content}>{children}</div>
     </main>
   );
 }
