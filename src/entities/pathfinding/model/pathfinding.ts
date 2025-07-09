@@ -22,16 +22,16 @@ class Vertex {
     this.col = col;
   }
 
+  public deepCopy(): Vertex {
+    return new Vertex(this.row, this.col, this.vertexName);
+  }
+
   public appearsOnGrid(): boolean {
     return this.row !== INITIAL_COORDINATE && this.col !== INITIAL_COORDINATE;
   }
 
   public getFirstChar(): VertexNameFirstChar {
     return this.vertexName.charAt(0) as VertexNameFirstChar;
-  }
-
-  public isTerminal(): boolean {
-    return isTerminal(this.vertexName);
   }
 }
 

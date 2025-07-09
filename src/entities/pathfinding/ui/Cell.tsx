@@ -32,45 +32,6 @@ function mutateAssociatedParagraph(vertex: Vertex): void {
   paragraph.textContent = vertex.getFirstChar();
 }
 
-function handleTerminalVertex({
-  grid,
-  newvertexName,
-  vertexCol,
-  vertexRow,
-  terminalVertices,
-}: {
-  grid: Vertex[][];
-  newvertexName: TerminalVertex;
-  vertexCol: number;
-  vertexRow: number;
-  terminalVertices: RefObject<Record<TerminalVertex, Vertex>>;
-}): void {
-  if (terminalVertices.current[newvertexName].appearsOnGrid()) {
-    const { row: pivotRow, col: pivotCol } =
-      terminalVertices.current[newvertexName];
-    grid[pivotRow][pivotCol] = new Vertex(pivotRow, pivotCol, EMPTY);
-    mutateAssociatedParagraph(grid[pivotRow][pivotCol]);
-  }
-  const newterminalVertices = {
-    ...terminalVertices.current,
-  };
-  const targetVertexName = grid[vertexRow][vertexCol].vertexName;
-  if (isTerminal(targetVertexName)) {
-    newterminalVertices[targetVertexName] = new Vertex(
-      INITIAL_COORDINATE,
-      INITIAL_COORDINATE,
-      targetVertexName,
-    );
-  }
-  newterminalVertices[newvertexName] = new Vertex(
-    vertexRow,
-    vertexCol,
-    newvertexName,
-  );
-  mutateAssociatedParagraph(newterminalVertices[newvertexName]);
-  terminalVertices.current = newterminalVertices;
-}
-
 function Cell({
   grid,
   gridCell,
@@ -85,32 +46,39 @@ function Cell({
   setGrid: Dispatch<SetStateAction<Vertex[][]>>;
 }): JSX.Element {
   const [cell, setCell] = useState(gridCell);
-  const { row: vertexRow, col: vertexCol } = gridCell;
-  const targetVertexName = grid[vertexRow][vertexCol].vertexName;
+  const { row: cellRow, col: cellCol } = gridCell;
 
-  const setNewVertexName = (newvertexName: VertexName): void => {
-    if (isTerminal(newvertexName)) {
-      handleTerminalVertex({
-        grid,
-        newvertexName,
-        vertexCol,
-        vertexRow,
-        terminalVertices,
-      });
-    } else if (isTerminal(targetVertexName)) {
+  const setNewVertexName = (newVertexName: VertexName): void => {
+    const targetVertexName = grid[cellRow][cellCol].vertexName;
+    if (isTerminal(targetVertexName)) {
       terminalVertices.current[targetVertexName] = new Vertex(
         INITIAL_COORDINATE,
         INITIAL_COORDINATE,
         targetVertexName,
       );
     }
-    grid[vertexRow][vertexCol] = new Vertex(
-      vertexRow,
-      vertexCol,
-      newvertexName,
-    );
+    if (isTerminal(newVertexName)) {
+      const currentTerminalVertex = terminalVertices.current[newVertexName];
+      if (currentTerminalVertex.appearsOnGrid()) {
+        const { row: vertexRow, col: vertexCol } = currentTerminalVertex;
+        const newEmptyVertex = new Vertex(vertexRow, vertexCol, EMPTY);
+        grid[vertexRow][vertexCol] = newEmptyVertex;
+        mutateAssociatedParagraph(newEmptyVertex);
+      }
+      const newterminalVertices = {
+        ...terminalVertices.current,
+      };
+      newterminalVertices[newVertexName] = new Vertex(
+        cellRow,
+        cellCol,
+        newVertexName,
+      );
+      mutateAssociatedParagraph(newterminalVertices[newVertexName]);
+      terminalVertices.current = newterminalVertices;
+    }
+    grid[cellRow][cellCol] = new Vertex(cellRow, cellCol, newVertexName);
     setGrid(grid);
-    setCell(grid[vertexRow][vertexCol]);
+    setCell(grid[cellRow][cellCol].deepCopy());
     console.log('>>>>>> Start:', terminalVertices.current.start);
     console.log('>>>>>> End:', terminalVertices.current.end);
   };
@@ -118,8 +86,8 @@ function Cell({
   return (
     <button
       className={styles.cell}
-      data-col={vertexCol}
-      data-row={vertexRow}
+      data-col={cellCol}
+      data-row={cellRow}
       onContextMenu={(e: MouseEvent<HTMLButtonElement>): void =>
         e.preventDefault()
       }
