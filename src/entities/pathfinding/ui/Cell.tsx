@@ -16,7 +16,7 @@ import {
 } from '../model/pathfinding.ts';
 import styles from './cell.module.css';
 
-function mutateAssociatedParagraph(vertex: Vertex): void {
+function setParagraphStyle(vertex: Vertex): void {
   const { row, col, vertexName } = vertex;
   const element = document.querySelector(
     `[data-row="${row}"][data-col="${col}"]`,
@@ -58,12 +58,17 @@ function Cell({
       );
     }
     if (isTerminal(newVertexName)) {
-      const currentTerminalVertex = terminalVertices.current[newVertexName];
-      if (currentTerminalVertex.appearsOnGrid()) {
-        const { row: vertexRow, col: vertexCol } = currentTerminalVertex;
-        const newEmptyVertex = new Vertex(vertexRow, vertexCol, EMPTY);
-        grid[vertexRow][vertexCol] = newEmptyVertex;
-        mutateAssociatedParagraph(newEmptyVertex);
+      const terminalVertex = terminalVertices.current[newVertexName];
+      if (terminalVertex.appearsOnGrid()) {
+        const { row: terminalVertexRow, col: terminalVertexCol } =
+          terminalVertex;
+        const newEmptyVertex = new Vertex(
+          terminalVertexRow,
+          terminalVertexCol,
+          EMPTY,
+        );
+        grid[terminalVertexRow][terminalVertexCol] = newEmptyVertex;
+        setParagraphStyle(newEmptyVertex);
       }
       const newterminalVertices = {
         ...terminalVertices.current,
@@ -73,7 +78,7 @@ function Cell({
         cellCol,
         newVertexName,
       );
-      mutateAssociatedParagraph(newterminalVertices[newVertexName]);
+      setParagraphStyle(newterminalVertices[newVertexName]);
       terminalVertices.current = newterminalVertices;
     }
     grid[cellRow][cellCol] = new Vertex(cellRow, cellCol, newVertexName);
