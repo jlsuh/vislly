@@ -1,4 +1,4 @@
-import type { ReadonlyDeep, StringSlice } from 'type-fest';
+import type { StringSlice } from 'type-fest';
 
 const EMPTY = 'empty';
 const END = 'end';
@@ -14,14 +14,10 @@ type VertexNameFirstChar = StringSlice<VertexName, 0, 1>;
 class Vertex {
   public readonly row: number;
   public readonly col: number;
-  public vertexStrategy: ReadonlyDeep<VertexStrategy>;
+  public readonly vertexName: VertexName;
 
-  public constructor(
-    row: number,
-    col: number,
-    vertexStrategy: ReadonlyDeep<VertexStrategy>,
-  ) {
-    this.vertexStrategy = vertexStrategy;
+  public constructor(row: number, col: number, vertexName: VertexName) {
+    this.vertexName = vertexName;
     this.row = row;
     this.col = col;
   }
@@ -31,98 +27,44 @@ class Vertex {
   }
 
   public getFirstChar(): VertexNameFirstChar {
-    return this.vertexStrategy.getFirstChar();
+    return this.vertexName.charAt(0) as VertexNameFirstChar;
   }
 
   public isTerminal(): boolean {
-    return this.vertexStrategy.isTerminal();
-  }
-
-  public get value(): VertexName {
-    return this.vertexStrategy.value;
+    return isTerminal(this.vertexName);
   }
 }
 
-abstract class VertexStrategy {
-  public readonly value: VertexName;
-
-  public constructor(value: VertexName) {
-    VertexStrategy.assertIsNode(value);
-    this.value = value;
-  }
-
-  private isNode(value: string): value is VertexName {
-    return (
-      value === EMPTY || value === END || value === START || value === WALL
-    );
-  }
-
-  private isTerminalNode(value: string): value is TerminalVertex {
-    return value === END || value === START;
-  }
-
-  public static assertIsNode(value: string): asserts value is VertexName {
-    if (!VertexStrategy.prototype.isNode(value)) {
-      throw new Error(`Invalid node: ${value}`);
-    }
-  }
-
-  public static assertIsTerminalNode(
-    value: string,
-  ): asserts value is TerminalVertex {
-    if (!VertexStrategy.prototype.isTerminalNode(value)) {
-      throw new Error(`Invalid terminal node: ${value}`);
-    }
-  }
-
-  public getFirstChar(): VertexNameFirstChar {
-    return this.value.charAt(0) as VertexNameFirstChar;
-  }
-
-  public abstract isTerminal(): boolean;
+function isVertex(value: string): value is VertexName {
+  return value === EMPTY || value === END || value === START || value === WALL;
 }
 
-class StartVertexStrategy extends VertexStrategy {
-  public isTerminal(): boolean {
-    return true;
+function isTerminal(value: string): value is TerminalVertex {
+  return value === END || value === START;
+}
+
+function assertIsVertex(value: string): asserts value is VertexName {
+  if (!isVertex(value)) {
+    throw new Error(`Invalid vertex: ${value}`);
   }
 }
 
-class EndVertexStrategy extends VertexStrategy {
-  public isTerminal(): boolean {
-    return true;
+function assertIsTerminal(value: string): asserts value is TerminalVertex {
+  if (!isTerminal(value)) {
+    throw new Error(`Invalid terminal vertex: ${value}`);
   }
 }
-
-class EmptyVertexStrategy extends VertexStrategy {
-  public isTerminal(): boolean {
-    return false;
-  }
-}
-
-class WallVertexStrategy extends VertexStrategy {
-  public isTerminal(): boolean {
-    return false;
-  }
-}
-
-const NODE_STRATEGIES: ReadonlyDeep<Record<VertexName, VertexStrategy>> = {
-  empty: new EmptyVertexStrategy(EMPTY),
-  end: new EndVertexStrategy(END),
-  start: new StartVertexStrategy(START),
-  wall: new WallVertexStrategy(WALL),
-};
 
 export {
+  assertIsVertex,
+  assertIsTerminal,
   EMPTY,
   END,
   INITIAL_COORDINATE,
-  NODE_STRATEGIES,
+  isTerminal,
   START,
   Vertex,
-  VertexStrategy,
   WALL,
   type TerminalVertex,
   type VertexName,
-  type VertexNameFirstChar,
 };

@@ -18,11 +18,16 @@ import useIsHoldingClickOnElement from '@/shared/lib/useIsHoldingClickOnElement.
 import useOnClickOutside from '@/shared/lib/useOnClickOutside.ts';
 import useResizeDimensions from '@/shared/lib/useResizeDimensions.ts';
 import {
+  assertIsTerminal,
+  assertIsVertex,
+  EMPTY,
+  END,
   INITIAL_COORDINATE,
-  NODE_STRATEGIES,
+  START,
   type TerminalVertex,
   Vertex,
-  VertexStrategy,
+  type VertexName,
+  WALL,
 } from '../model/pathfinding.ts';
 import Node from './Node.tsx';
 import styles from './pathfinding-grid.module.css';
@@ -99,18 +104,15 @@ function composeNewGrid(
   cols: number,
 ): Vertex[][] {
   const newGrid = Array.from({ length: rows }, (_, row) =>
-    Array.from(
-      { length: cols },
-      (__, col) => new Vertex(row, col, NODE_STRATEGIES.empty),
-    ),
+    Array.from({ length: cols }, (__, col) => new Vertex(row, col, EMPTY)),
   );
   for (let row = 0; row < rows; row += 1) {
     for (let col = 0; col < cols; col += 1) {
-      const nodeValue: Vertex | undefined = prevGrid[row]?.[col];
-      if (nodeValue === undefined) {
+      const vertex: Vertex | undefined = prevGrid[row]?.[col];
+      if (vertex === undefined) {
         continue;
       }
-      newGrid[row][col] = nodeValue;
+      newGrid[row][col] = vertex;
     }
   }
   return newGrid;
@@ -125,13 +127,13 @@ function handleOverflownTerminalNodes(
     ...terminalNodes.current,
   };
   for (const terminalNode of Object.values(terminalNodes.current)) {
-    const { row, col, value } = terminalNode;
+    const { row, col, vertexName } = terminalNode;
     if (col > cols - 1 || row > rows - 1) {
-      VertexStrategy.assertIsTerminalNode(value);
-      newTerminalNodes[value] = new Vertex(
+      assertIsTerminal(vertexName);
+      newTerminalNodes[vertexName] = new Vertex(
         INITIAL_COORDINATE,
         INITIAL_COORDINATE,
-        NODE_STRATEGIES[value],
+        vertexName,
       );
     }
   }
@@ -142,25 +144,16 @@ function PathfindingGrid(): JSX.Element {
   const [cols, setCols] = useState(0);
   const [rows, setRows] = useState(0);
   const [grid, setGrid] = useState<Vertex[][]>([]);
-  const [selectedNodeStrategy, setSelectedNodeStrategy] = useState(
-    NODE_STRATEGIES.wall,
-  );
-  const terminalNodes = useRef<Record<TerminalVertex, Vertex>>({
-    start: new Vertex(
-      INITIAL_COORDINATE,
-      INITIAL_COORDINATE,
-      NODE_STRATEGIES.start,
-    ),
-    end: new Vertex(
-      INITIAL_COORDINATE,
-      INITIAL_COORDINATE,
-      NODE_STRATEGIES.end,
-    ),
+  const [selectedVertexName, setSelectedVertexName] =
+    useState<VertexName>(WALL);
+  const terminalVertices = useRef<Record<TerminalVertex, Vertex>>({
+    start: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, START),
+    end: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, END),
   });
   const { dimensions, ref } =
     useResizeDimensions<HTMLElement>(RESIZE_DIMENSIONS);
   const { isHoldingClickRef } = useIsHoldingClickOnElement(ref);
-  const nodeStrategySelectId = useId();
+  const vertexNameSelectId = useId();
 
   useOnClickOutside([ref], unsetBodyOverflow);
 
@@ -171,30 +164,30 @@ function PathfindingGrid(): JSX.Element {
 
   useEffect(() => {
     setGrid((prevGrid) => composeNewGrid(prevGrid, rows, cols));
-    handleOverflownTerminalNodes(terminalNodes, rows, cols);
+    handleOverflownTerminalNodes(terminalVertices, rows, cols);
   }, [rows, cols]);
 
   useEffect(() => {
     console.log('>>>>> grid:', grid);
-    console.log('>>>>>> Start:', terminalNodes.current.start);
-    console.log('>>>>>> End:', terminalNodes.current.end);
+    console.log('>>>>>> Start:', terminalVertices.current.start);
+    console.log('>>>>>> End:', terminalVertices.current.end);
   }, [grid]);
 
   return (
     <>
       <select
-        id={nodeStrategySelectId}
-        key={selectedNodeStrategy.value}
+        id={vertexNameSelectId}
+        key={selectedVertexName}
         onChange={(e: ChangeEvent<HTMLSelectElement>): void => {
           const { value } = e.target;
-          VertexStrategy.assertIsNode(value);
-          setSelectedNodeStrategy(NODE_STRATEGIES[value]);
+          assertIsVertex(value);
+          setSelectedVertexName(value);
         }}
-        value={selectedNodeStrategy.value}
+        value={selectedVertexName}
       >
-        {Object.values(NODE_STRATEGIES).map(({ value }) => (
-          <option key={value} value={value}>
-            {value}
+        {[WALL, EMPTY, END, START].map((vertexName) => (
+          <option key={vertexName} value={vertexName}>
+            {vertexName}
           </option>
         ))}
       </select>
@@ -211,11 +204,11 @@ function PathfindingGrid(): JSX.Element {
         {grid.map((gridRow, nodeRow) =>
           gridRow.map((gridNode, nodeCol) => (
             <Node
-              key={`node-row-${nodeRow}-col-${nodeCol}-value-${gridNode.value}`}
+              key={`node-row-${nodeRow}-col-${nodeCol}-value-${gridNode.vertexName}`}
               grid={grid}
               gridNode={gridNode}
-              terminalNodes={terminalNodes}
-              selectedNodeStrategy={selectedNodeStrategy}
+              terminalVertices={terminalVertices}
+              selectedVertexName={selectedVertexName}
               setGrid={setGrid}
             />
           )),

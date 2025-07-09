@@ -8,16 +8,18 @@ import {
 } from 'react';
 import type { ReadonlyDeep } from 'type-fest';
 import {
+  assertIsTerminal,
+  EMPTY,
   INITIAL_COORDINATE,
-  NODE_STRATEGIES,
+  isTerminal,
   type TerminalVertex,
   Vertex,
-  VertexStrategy,
+  type VertexName,
 } from '../model/pathfinding.ts';
 import styles from './node.module.css';
 
-function mutateAssociatedParagraph(node: Vertex): void {
-  const { row, col, value } = node;
+function mutateAssociatedParagraph(vertex: Vertex): void {
+  const { row, col, vertexName } = vertex;
   const element = document.querySelector(
     `[data-row="${row}"][data-col="${col}"]`,
   );
@@ -28,108 +30,109 @@ function mutateAssociatedParagraph(node: Vertex): void {
   if (paragraph === null) {
     return;
   }
-  paragraph.className = `${styles.nodeText} ${styles[value]}`;
-  paragraph.textContent = node.getFirstChar();
+  paragraph.className = `${styles.nodeText} ${styles[vertexName]}`;
+  paragraph.textContent = vertex.getFirstChar();
 }
 
-function handleTerminalNode({
+function handleTerminalVertex({
   grid,
-  newNodeStrategy,
-  nodeCol,
-  nodeRow,
-  terminalNodes,
+  newvertexName,
+  vertexCol,
+  vertexRow,
+  terminalVertices,
 }: {
   grid: Vertex[][];
-  newNodeStrategy: ReadonlyDeep<VertexStrategy>;
-  nodeCol: number;
-  nodeRow: number;
-  terminalNodes: RefObject<Record<TerminalVertex, Vertex>>;
+  newvertexName: ReadonlyDeep<VertexName>;
+  vertexCol: number;
+  vertexRow: number;
+  terminalVertices: RefObject<Record<TerminalVertex, Vertex>>;
 }): void {
-  const newValue = newNodeStrategy.value;
-  VertexStrategy.assertIsTerminalNode(newValue);
-  if (terminalNodes.current[newValue].appearsOnGrid()) {
-    const { row: pivotRow, col: pivotCol } = terminalNodes.current[newValue];
-    grid[pivotRow][pivotCol] = new Vertex(
-      pivotRow,
-      pivotCol,
-      NODE_STRATEGIES.empty,
-    );
+  assertIsTerminal(newvertexName);
+  if (terminalVertices.current[newvertexName].appearsOnGrid()) {
+    const { row: pivotRow, col: pivotCol } =
+      terminalVertices.current[newvertexName];
+    grid[pivotRow][pivotCol] = new Vertex(pivotRow, pivotCol, EMPTY);
     mutateAssociatedParagraph(grid[pivotRow][pivotCol]);
   }
-  const newterminalNodes = {
-    ...terminalNodes.current,
+  const newterminalVertices = {
+    ...terminalVertices.current,
   };
-  const targetNode = grid[nodeRow][nodeCol];
-  if (targetNode.isTerminal()) {
-    const targetNodeValue = targetNode.value;
-    VertexStrategy.assertIsTerminalNode(targetNodeValue);
-    newterminalNodes[targetNodeValue] = new Vertex(
+  const targetVertex = grid[vertexRow][vertexCol];
+  if (targetVertex.isTerminal()) {
+    assertIsTerminal(targetVertex.vertexName);
+    newterminalVertices[targetVertex.vertexName] = new Vertex(
       INITIAL_COORDINATE,
       INITIAL_COORDINATE,
-      NODE_STRATEGIES[targetNodeValue],
+      targetVertex.vertexName,
     );
   }
-  newterminalNodes[newValue] = new Vertex(nodeRow, nodeCol, newNodeStrategy);
-  mutateAssociatedParagraph(newterminalNodes[newValue]);
-  terminalNodes.current = newterminalNodes;
+  newterminalVertices[newvertexName] = new Vertex(
+    vertexRow,
+    vertexCol,
+    newvertexName,
+  );
+  mutateAssociatedParagraph(newterminalVertices[newvertexName]);
+  terminalVertices.current = newterminalVertices;
 }
 
 function Node({
   grid,
   gridNode,
-  terminalNodes,
-  selectedNodeStrategy,
+  terminalVertices,
+  selectedVertexName,
   setGrid,
 }: {
   grid: Vertex[][];
   gridNode: Vertex;
-  terminalNodes: RefObject<Record<TerminalVertex, Vertex>>;
-  selectedNodeStrategy: ReadonlyDeep<VertexStrategy>;
+  terminalVertices: RefObject<Record<TerminalVertex, Vertex>>;
+  selectedVertexName: ReadonlyDeep<VertexName>;
   setGrid: Dispatch<SetStateAction<Vertex[][]>>;
 }): JSX.Element {
   const [node, setNode] = useState(gridNode);
-  const { row: nodeRow, col: nodeCol } = gridNode;
+  const { row: vertexRow, col: vertexCol } = gridNode;
 
-  const setNewNodeStrategy = (
-    newNodeStrategy: ReadonlyDeep<VertexStrategy>,
-  ): void => {
-    if (newNodeStrategy.isTerminal()) {
-      handleTerminalNode({
+  const setNewVertexName = (newvertexName: ReadonlyDeep<VertexName>): void => {
+    if (isTerminal(newvertexName)) {
+      handleTerminalVertex({
         grid,
-        newNodeStrategy,
-        nodeCol,
-        nodeRow,
-        terminalNodes,
+        newvertexName,
+        vertexCol,
+        vertexRow,
+        terminalVertices,
       });
-    } else if (grid[nodeRow][nodeCol].isTerminal()) {
-      const terminalNodeValue = grid[nodeRow][nodeCol].value;
-      VertexStrategy.assertIsTerminalNode(terminalNodeValue);
-      terminalNodes.current[terminalNodeValue] = new Vertex(
+    } else if (grid[vertexRow][vertexCol].isTerminal()) {
+      const terminalVertexName = grid[vertexRow][vertexCol].vertexName;
+      assertIsTerminal(terminalVertexName);
+      terminalVertices.current[terminalVertexName] = new Vertex(
         INITIAL_COORDINATE,
         INITIAL_COORDINATE,
-        NODE_STRATEGIES[terminalNodeValue],
+        terminalVertexName,
       );
     }
-    grid[nodeRow][nodeCol] = new Vertex(nodeRow, nodeCol, newNodeStrategy);
+    grid[vertexRow][vertexCol] = new Vertex(
+      vertexRow,
+      vertexCol,
+      newvertexName,
+    );
     setGrid(grid);
-    setNode(grid[nodeRow][nodeCol]);
-    console.log('>>>>>> Start:', terminalNodes.current.start);
-    console.log('>>>>>> End:', terminalNodes.current.end);
+    setNode(grid[vertexRow][vertexCol]);
+    console.log('>>>>>> Start:', terminalVertices.current.start);
+    console.log('>>>>>> End:', terminalVertices.current.end);
   };
 
   return (
     <button
       className={styles.node}
-      data-col={nodeCol}
-      data-row={nodeRow}
+      data-col={vertexCol}
+      data-row={vertexRow}
       onContextMenu={(e: MouseEvent<HTMLButtonElement>): void =>
         e.preventDefault()
       }
-      onMouseDown={(): void => setNewNodeStrategy(selectedNodeStrategy)}
-      onTouchStart={(): void => setNewNodeStrategy(selectedNodeStrategy)}
+      onMouseDown={(): void => setNewVertexName(selectedVertexName)}
+      onTouchStart={(): void => setNewVertexName(selectedVertexName)}
       type="button"
     >
-      <p className={`${styles.nodeText} ${styles[node.value]}`}>
+      <p className={`${styles.nodeText} ${styles[node.vertexName]}`}>
         {node.getFirstChar()}
       </p>
     </button>
