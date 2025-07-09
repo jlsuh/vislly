@@ -56,8 +56,8 @@ function assertIsTerminal(value: string): asserts value is TerminalVertex {
 }
 
 export {
-  assertIsVertex,
   assertIsTerminal,
+  assertIsVertex,
   EMPTY,
   END,
   INITIAL_COORDINATE,

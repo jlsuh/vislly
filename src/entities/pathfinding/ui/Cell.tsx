@@ -6,9 +6,7 @@ import {
   type SetStateAction,
   useState,
 } from 'react';
-import type { ReadonlyDeep } from 'type-fest';
 import {
-  assertIsTerminal,
   EMPTY,
   INITIAL_COORDINATE,
   isTerminal,
@@ -42,12 +40,11 @@ function handleTerminalVertex({
   terminalVertices,
 }: {
   grid: Vertex[][];
-  newvertexName: ReadonlyDeep<VertexName>;
+  newvertexName: TerminalVertex;
   vertexCol: number;
   vertexRow: number;
   terminalVertices: RefObject<Record<TerminalVertex, Vertex>>;
 }): void {
-  assertIsTerminal(newvertexName);
   if (terminalVertices.current[newvertexName].appearsOnGrid()) {
     const { row: pivotRow, col: pivotCol } =
       terminalVertices.current[newvertexName];
@@ -57,13 +54,12 @@ function handleTerminalVertex({
   const newterminalVertices = {
     ...terminalVertices.current,
   };
-  const targetVertex = grid[vertexRow][vertexCol];
-  if (targetVertex.isTerminal()) {
-    assertIsTerminal(targetVertex.vertexName);
-    newterminalVertices[targetVertex.vertexName] = new Vertex(
+  const targetVertexName = grid[vertexRow][vertexCol].vertexName;
+  if (isTerminal(targetVertexName)) {
+    newterminalVertices[targetVertexName] = new Vertex(
       INITIAL_COORDINATE,
       INITIAL_COORDINATE,
-      targetVertex.vertexName,
+      targetVertexName,
     );
   }
   newterminalVertices[newvertexName] = new Vertex(
@@ -85,13 +81,14 @@ function Cell({
   grid: Vertex[][];
   gridCell: Vertex;
   terminalVertices: RefObject<Record<TerminalVertex, Vertex>>;
-  selectedVertexName: ReadonlyDeep<VertexName>;
+  selectedVertexName: VertexName;
   setGrid: Dispatch<SetStateAction<Vertex[][]>>;
 }): JSX.Element {
   const [cell, setCell] = useState(gridCell);
   const { row: vertexRow, col: vertexCol } = gridCell;
+  const targetVertexName = grid[vertexRow][vertexCol].vertexName;
 
-  const setNewVertexName = (newvertexName: ReadonlyDeep<VertexName>): void => {
+  const setNewVertexName = (newvertexName: VertexName): void => {
     if (isTerminal(newvertexName)) {
       handleTerminalVertex({
         grid,
@@ -100,13 +97,11 @@ function Cell({
         vertexRow,
         terminalVertices,
       });
-    } else if (grid[vertexRow][vertexCol].isTerminal()) {
-      const terminalVertexName = grid[vertexRow][vertexCol].vertexName;
-      assertIsTerminal(terminalVertexName);
-      terminalVertices.current[terminalVertexName] = new Vertex(
+    } else if (isTerminal(targetVertexName)) {
+      terminalVertices.current[targetVertexName] = new Vertex(
         INITIAL_COORDINATE,
         INITIAL_COORDINATE,
-        terminalVertexName,
+        targetVertexName,
       );
     }
     grid[vertexRow][vertexCol] = new Vertex(
