@@ -192,6 +192,8 @@ module.exports = {
           '^src/features',
           '^src/entities',
           '^src/shared',
+          '^node_modules',
+          '^public',
         ],
       },
     },
@@ -205,6 +207,8 @@ module.exports = {
           '^src/features',
           '^src/entities',
           '^src/shared',
+          '^node_modules',
+          '^public',
         ],
       },
     },
@@ -217,31 +221,46 @@ module.exports = {
           '^src/features',
           '^src/entities',
           '^src/shared',
+          '^node_modules',
+          '^public',
         ],
       },
     },
     {
       from: { path: '(^src/widgets)' },
       to: {
-        path: ['^$1', '^src/features', '^src/entities', '^src/shared'],
+        path: [
+          '^$1',
+          '^src/features',
+          '^src/entities',
+          '^src/shared',
+          '^node_modules',
+          '^public',
+        ],
       },
     },
     {
       from: { path: '(^src/features)' },
       to: {
-        path: ['^$1', '^src/entities', '^src/shared'],
+        path: [
+          '^$1',
+          '^src/entities',
+          '^src/shared',
+          '^node_modules',
+          '^public',
+        ],
       },
     },
     {
       from: { path: '(^src/entities)' },
       to: {
-        path: ['^$1', '^src/shared'],
+        path: ['^$1', '^src/shared', '^node_modules', '^public'],
       },
     },
     {
       from: { path: '(^src/shared)' },
       to: {
-        path: ['^$1'],
+        path: ['^$1', '^node_modules', '^public'],
       },
     },
     {
