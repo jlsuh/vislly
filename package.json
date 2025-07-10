@@ -7,10 +7,10 @@
     "biome:ci": "biome ci .",
     "biome:format": "biome check --write --unsafe .",
     "biome:migrate": "biome migrate --write",
-    "build": "tsc --extendedDiagnostics --erasableSyntaxOnly && next build",
-    "depc:ci": "pnpm depc:report && pnpm depc:metrics && pnpm depc:gen",
-    "depc:gen": "depcruise -I \"^src\" -T dot ./src | dot -T svg | depcruise-wrap-stream-in-html > ./dependency-graph.html && pnpm depc:open",
-    "depc:genl": "depcruise src -I \"^src\" -S 2 -T dot | dot -T svg | depcruise-wrap-stream-in-html > ./dependency-graph.html && pnpm depc:open",
+    "build": "tsc --extendedDiagnostics --erasableSyntaxOnly && next build --turbopack",
+    "depc:ci": "bun depc:report && bun depc:metrics && bun depc:gen",
+    "depc:gen": "depcruise -I \"^src\" -T dot ./src | dot -T svg | depcruise-wrap-stream-in-html > ./dependency-graph.html && bun depc:open",
+    "depc:genl": "depcruise src -I \"^src\" -S 2 -T dot | dot -T svg | depcruise-wrap-stream-in-html > ./dependency-graph.html && bun depc:open",
     "depc:metrics": "depcruise ./src --metrics -T metrics",
     "depc:open": "open ./dependency-graph.html || start ./dependency-graph.html",
     "depc:report": "depcruise ./src",
@@ -18,22 +18,17 @@
     "preview": "next start"
   },
   "dependencies": {
-    "d3": "7.9.0",
-    "next": "15.2.4",
+    "next": "15.3.5",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.9.4",
-    "@types/d3": "7.4.3",
-    "@types/node": "22.13.14",
-    "@types/react": "19.0.12",
-    "@types/react-dom": "19.0.4",
-    "dependency-cruiser": "16.10.0",
-    "type-fest": "4.38.0",
-    "typescript": "5.8.2"
-  },
-  "pnpm": {
-    "neverBuiltDependencies": []
+    "@biomejs/biome": "2.0.6",
+    "@types/node": "24.0.12",
+    "@types/react": "19.1.8",
+    "@types/react-dom": "19.1.6",
+    "dependency-cruiser": "16.10.4",
+    "type-fest": "4.41.0",
+    "typescript": "5.8.3"
   }
 }

@@ -1,24 +1,22 @@
 'use client';
 
+import { type JSX, useEffect, useId } from 'react';
+import getRootFontSize from '@/shared/lib/getRootFontSize.ts';
 import useResizeDimensions from '@/shared/lib/useResizeDimensions';
-import { type JSX, useEffect } from 'react';
 import {
-  type Angle,
   type CoefficientOfRestitution,
-  type Coord,
-  type Limit,
   Particle,
   type ParticleSettings,
-  RGBA,
+  Rgba,
   Vector2,
 } from '../model/brownian-motion.ts';
 import styles from './brownian-motion.module.css';
 
-function getRandomAngle(): Angle {
+function getRandomAngle(): number {
   return Math.random() * 2 * Math.PI;
 }
 
-function getRandomBetween(min: Limit, max: Limit): Coord {
+function getRandomBetween(min: number, max: number): number {
   return Math.random() * (max - min) + min;
 }
 
@@ -60,8 +58,8 @@ function configureHistoricalCanvas(
 }
 
 function resetCanvas(
-  width: Limit,
-  height: Limit,
+  width: number,
+  height: number,
   particlesContext: CanvasRenderingContext2D,
 ): void {
   particlesContext.clearRect(0, 0, width, height);
@@ -77,7 +75,7 @@ function handleParticleCollisions(
   }
 }
 
-function handleWallCollision(p: Particle, width: Limit, height: Limit): void {
+function handleWallCollision(p: Particle, width: number, height: number): void {
   if (p.isHorizontalWallCollision(width)) {
     p.v = new Vector2(-p.v.x, p.v.y);
   }
@@ -105,8 +103,8 @@ const update = ({
 }: {
   cor: CoefficientOfRestitution;
   particles: Particle[];
-  height: Limit;
-  width: Limit;
+  height: number;
+  width: number;
   historicalContext: CanvasRenderingContext2D;
   particlesContext: CanvasRenderingContext2D;
 }): void => {
@@ -132,6 +130,12 @@ function composeParticles(
   );
 }
 
+function scaleMagnitudeByRem(magnitudeBase: number): number {
+  const rootFontSize = getRootFontSize();
+  const scaleFactor = rootFontSize / DEFAULT_ROOT_FONT_SIZE;
+  return scaleFactor * magnitudeBase;
+}
+
 const RESIZE_DIMENSIONS = {
   boundedHeight: 0,
   boundedWidth: 0,
@@ -143,39 +147,57 @@ const RESIZE_DIMENSIONS = {
   width: 0,
 };
 
-const BLUE = new RGBA(0.23725490196, 0.53725490196, 0.85490196078, 0.25);
-const POLLEN = new RGBA(0.97647058823, 0.81568627451, 0.0862745098, 1);
-const PURPLE = new RGBA(
-  0.7843137254901961,
-  0.4549019607843137,
-  0.6980392156862745,
+const BLUE: Rgba = new Rgba(
+  0.237_254_901_96,
+  0.537_254_901_96,
+  0.854_901_960_78,
+  0.25,
+);
+const POLLEN: Rgba = new Rgba(
+  0.976_470_588_23,
+  0.815_686_274_51,
+  0.086_274_509_8,
+  1,
+);
+const PURPLE: Rgba = new Rgba(
+  0.784_313_725_490_196_1,
+  0.454_901_960_784_313_7,
+  0.698_039_215_686_274_5,
   1,
 );
 
 const COR: CoefficientOfRestitution = 1;
+const DEFAULT_ROOT_FONT_SIZE = 16;
 const INITIAL_SPEED = 1.5;
 const MOLECULE_RADIUS = 6;
-const MOLECULE_DIAMETER = MOLECULE_RADIUS * 2;
+const MOLECULE_DIAMETER: number = MOLECULE_RADIUS * 2;
 const NUMBER_OF_PARTICLES = 500;
 const POLLEN_RADIUS = 35;
 
 function BrownianMotion(): JSX.Element {
-  const { dimensions, ref: mainContainerRef } =
-    useResizeDimensions(RESIZE_DIMENSIONS);
+  const { dimensions, ref } =
+    useResizeDimensions<HTMLDivElement>(RESIZE_DIMENSIONS);
+
+  const particlesCanvasId = useId();
+  const historicalCanvasId = useId();
 
   useEffect(() => {
+    const currentMoleculeRadius = scaleMagnitudeByRem(MOLECULE_RADIUS);
+    const currentMoleculeDiameter = scaleMagnitudeByRem(MOLECULE_DIAMETER);
+    const currentPollenRadius = scaleMagnitudeByRem(POLLEN_RADIUS);
+    const currentInitialSpeed = scaleMagnitudeByRem(INITIAL_SPEED);
     const historicalContext = getCanvasCtxByRef(
-      document.getElementById('historical') as HTMLCanvasElement,
+      document.getElementById(historicalCanvasId) as HTMLCanvasElement,
     );
     const particlesContext = getCanvasCtxByRef(
-      document.getElementById('particles') as HTMLCanvasElement,
+      document.getElementById(particlesCanvasId) as HTMLCanvasElement,
     );
     configureHistoricalCanvas(historicalContext);
     const particles = [
       ...composeParticles(1, () => ({
         fillColor: POLLEN.toStyle(),
         isTracked: true,
-        r: POLLEN_RADIUS,
+        r: currentPollenRadius,
         vix: 0,
         viy: 0,
         x: dimensions.boundedWidth / 2,
@@ -184,20 +206,20 @@ function BrownianMotion(): JSX.Element {
       ...composeParticles(NUMBER_OF_PARTICLES, () => ({
         fillColor: BLUE.toStyle(),
         isTracked: false,
-        r: MOLECULE_RADIUS,
-        vix: Math.random() * INITIAL_SPEED * Math.cos(getRandomAngle()),
-        viy: Math.random() * INITIAL_SPEED * Math.sin(getRandomAngle()),
+        r: currentMoleculeRadius,
+        vix: Math.random() * currentInitialSpeed * Math.cos(getRandomAngle()),
+        viy: Math.random() * currentInitialSpeed * Math.sin(getRandomAngle()),
         x: getRandomBetween(
-          MOLECULE_DIAMETER,
-          dimensions.boundedWidth - MOLECULE_DIAMETER,
+          currentMoleculeDiameter,
+          dimensions.boundedWidth - currentMoleculeDiameter,
         ),
         y: getRandomBetween(
-          MOLECULE_DIAMETER,
-          dimensions.boundedHeight - MOLECULE_DIAMETER,
+          currentMoleculeDiameter,
+          dimensions.boundedHeight - currentMoleculeDiameter,
         ),
       })),
     ];
-    const intervalID = window.setInterval(() =>
+    const intervalId = window.setInterval(() =>
       update({
         cor: COR,
         particles,
@@ -207,21 +229,26 @@ function BrownianMotion(): JSX.Element {
         particlesContext,
       }),
     );
-    return (): void => window.clearInterval(intervalID);
-  }, [dimensions.boundedHeight, dimensions.boundedWidth]);
+    return () => window.clearInterval(intervalId);
+  }, [
+    dimensions.boundedHeight,
+    dimensions.boundedWidth,
+    particlesCanvasId,
+    historicalCanvasId,
+  ]);
 
   return (
-    <div className={styles.brownianMotionContainer} ref={mainContainerRef}>
+    <div className={styles.brownianMotionContainer} ref={ref}>
       <canvas
         className={styles.particlesCanvas}
         height={dimensions.boundedHeight}
-        id="particles"
+        id={particlesCanvasId}
         width={dimensions.boundedWidth}
       />
       <canvas
         className={styles.historicalCanvas}
         height={dimensions.boundedHeight}
-        id="historical"
+        id={historicalCanvasId}
         width={dimensions.boundedWidth}
       />
     </div>

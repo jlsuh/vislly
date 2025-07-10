@@ -2,7 +2,7 @@ import type { JSX, PropsWithChildren } from 'react';
 import styles from './icon-button.module.css';
 
 type CheckboxControlledButtonProps = {
-  inputID: string;
+  inputId: string;
   isCheckboxControlled: true;
   onChangeIconButton?: () => void;
   sxInput?: string;
@@ -10,7 +10,7 @@ type CheckboxControlledButtonProps = {
 };
 
 type NonCheckboxControlledButtonProps = {
-  inputID?: never;
+  inputId?: never;
   isCheckboxControlled: false;
   onChangeIconButton?: never;
   sxInput?: never;
@@ -23,7 +23,7 @@ type IconButtonProps = PropsWithChildren<
 
 function IconButton({
   children,
-  inputID,
+  inputId,
   isCheckboxControlled,
   onChangeIconButton,
   sxInput = '',
@@ -34,12 +34,12 @@ function IconButton({
       {isCheckboxControlled ? (
         <label
           className={`${styles.iconButtonContainer} ${sxLabel}`}
-          htmlFor={inputID}
+          htmlFor={inputId}
           onChange={onChangeIconButton}
         >
           <input
             className={`${styles.iconButtonInput} ${sxInput}`}
-            id={inputID}
+            id={inputId}
             type="checkbox"
           />
           {children}

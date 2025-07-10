@@ -2,7 +2,13 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import type { ComponentPropsWithoutRef, JSX } from 'react';
+import type {
+  ComponentPropsWithoutRef,
+  FocusEvent,
+  JSX,
+  PointerEvent,
+  TouchEvent,
+} from 'react';
 import styles from './prefetch-on-hover-link.module.css';
 
 type PrefetchOnHoverLinkProps = ComponentPropsWithoutRef<typeof Link>;
@@ -22,19 +28,19 @@ function PrefetchOnHoverLink(props: PrefetchOnHoverLinkProps): JSX.Element {
       className={styles.prefetchOnHoverLink}
       {...props}
       prefetch={false}
-      onFocus={(e): void => {
+      onFocus={(e: FocusEvent<HTMLAnchorElement, Element>) => {
         conditionalPrefetch();
         if (props.onFocus) {
           props.onFocus(e);
         }
       }}
-      onPointerEnter={(e): void => {
+      onPointerEnter={(e: PointerEvent<HTMLAnchorElement>) => {
         conditionalPrefetch();
         if (props.onPointerEnter) {
           props.onPointerEnter(e);
         }
       }}
-      onTouchStart={(e): void => {
+      onTouchStart={(e: TouchEvent<HTMLAnchorElement>) => {
         conditionalPrefetch();
         if (props.onTouchStart) {
           props.onTouchStart(e);

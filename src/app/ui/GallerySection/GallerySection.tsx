@@ -1,7 +1,8 @@
-import brownianMotionImage from '@/../public/images/brownian-motion.jpg';
-import PrefetchOnHoverLink from '@/shared/ui/PrefetchOnHoverLink/PrefetchOnHoverLink';
 import Image from 'next/image';
 import type { JSX } from 'react';
+import brownianMotionImage from '@/../public/images/brownian-motion.jpg';
+import wip from '@/../public/images/wip.jpg';
+import PrefetchOnHoverLink from '@/shared/ui/PrefetchOnHoverLink/PrefetchOnHoverLink';
 import styles from './gallery-section.module.css';
 
 function GallerySection(): JSX.Element {
@@ -19,6 +20,18 @@ function GallerySection(): JSX.Element {
           <figcaption className={styles.figureCaption}>
             Brownian Motion
           </figcaption>
+        </figure>
+      </PrefetchOnHoverLink>
+      <PrefetchOnHoverLink href="/pathfinding">
+        <figure className={styles.figure}>
+          <Image
+            alt="Pathfinding"
+            className={styles.figureImage}
+            placeholder="blur"
+            priority={true}
+            src={wip}
+          />
+          <figcaption className={styles.figureCaption}>Pathfinding</figcaption>
         </figure>
       </PrefetchOnHoverLink>
     </section>

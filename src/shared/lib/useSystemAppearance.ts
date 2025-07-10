@@ -22,7 +22,7 @@ function useSystemAppearance(): {
       mediaQueryListListener,
       { capture: true },
     );
-    return (): void =>
+    return () =>
       prefersDarkColorSchemeMediaQueryList.removeEventListener(
         CHANGE_EVENT,
         mediaQueryListListener,

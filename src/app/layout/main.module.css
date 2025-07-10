@@ -6,37 +6,14 @@
     max-width: 60rem;
     padding: 1.25rem;
   }
-
   .content,
   .main {
     display: flex;
   }
 
-  .sidebar {
-    --top-offset: calc(4rem + 6px);
-    display: none;
-    height: calc(100vh - var(--top-offset));
-    overflow-x: hidden;
-    overflow-y: auto;
-    position: fixed;
-    width: 100vw;
-    z-index: 1;
-  }
-
   @media (width >= 68rem) {
     .main {
       gap: 1rem;
-    }
-
-    .sidebar {
-      display: unset;
-      flex-basis: 14rem;
-      height: unset;
-      max-height: calc(100vh - var(--top-offset));
-      position: -webkit-sticky;
-      position: sticky;
-      top: var(--top-offset);
-      width: unset;
     }
   }
 }

@@ -1,0 +1,12 @@
+@layer components {
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, var(--cell-size));
+    grid-template-rows: repeat(auto-fit, var(--cell-size));
+    height: 40rem;
+    justify-content: center;
+    max-height: 70vh;
+    user-select: none;
+    width: 100%;
+  }
+}

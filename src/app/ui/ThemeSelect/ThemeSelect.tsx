@@ -8,11 +8,11 @@ import IconButton from '../IconButton/IconButton.tsx';
 function ThemeSelect(): JSX.Element {
   const { toggleTheme, currentThemeValue } = use(ThemeContext);
 
-  const CurrentThemeIcon = Theme[currentThemeValue].Icon;
+  const CurrentThemeIcon = Theme[currentThemeValue].icon;
 
   return (
     <IconButton
-      inputID="theme-icon-button"
+      inputId="theme-icon-button"
       isCheckboxControlled={true}
       onChangeIconButton={toggleTheme}
     >
