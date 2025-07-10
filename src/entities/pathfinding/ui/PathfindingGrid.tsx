@@ -138,7 +138,8 @@ function handleOverflownTerminalCells(
   };
   for (const terminalCell of Object.values(terminalCells.current)) {
     const { row, col, name } = terminalCell;
-    if (col > cols - 1 || row > rows - 1) {
+    const isOverflown = col > cols - 1 || row > rows - 1;
+    if (isOverflown) {
       assertIsTerminalVertex(name);
       newTerminalCells[name] = new Vertex(
         INITIAL_COORDINATE,
