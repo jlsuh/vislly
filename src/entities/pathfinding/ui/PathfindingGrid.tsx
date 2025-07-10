@@ -12,8 +12,8 @@ import { useEffect, useId, useRef, useState } from 'react';
 import {
   type CssCustomProperty,
   composeCssCustomProperty,
-} from '@/shared/lib/composeCssVariable.ts';
-import pxToRem from '@/shared/lib/pxToRem.ts';
+  pxToRem,
+} from '@/shared/lib/css.ts';
 import useIsHoldingClickOnElement from '@/shared/lib/useIsHoldingClickOnElement.ts';
 import useOnClickOutside from '@/shared/lib/useOnClickOutside.ts';
 import useResizeDimensions from '@/shared/lib/useResizeDimensions.ts';
