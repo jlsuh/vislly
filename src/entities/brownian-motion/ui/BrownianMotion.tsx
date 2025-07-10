@@ -1,7 +1,7 @@
 'use client';
 
 import { type JSX, useEffect, useId } from 'react';
-import getRootFontSize from '@/shared/lib/getRootFontSize.ts';
+import { getRootFontSize } from '@/shared/lib/css.ts';
 import useResizeDimensions from '@/shared/lib/useResizeDimensions';
 import {
   type CoefficientOfRestitution,
