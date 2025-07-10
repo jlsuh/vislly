@@ -203,8 +203,7 @@ dist
 # SvelteKit build / generate output
 .svelte-kit
 
-# End of https://www.toptal.com/developers/gitignore/api/node,nextjs,macos
-
 # Project specific
-
 dependency-graph.html
+
+# End of https://www.toptal.com/developers/gitignore/api/node,nextjs,macos

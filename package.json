@@ -8,9 +8,9 @@
     "biome:format": "biome check --write --unsafe .",
     "biome:migrate": "biome migrate --write",
     "build": "tsc --extendedDiagnostics --erasableSyntaxOnly && next build --turbopack",
-    "depc:ci": "pnpm depc:report && pnpm depc:metrics && pnpm depc:gen",
-    "depc:gen": "depcruise -I \"^src\" -T dot ./src | dot -T svg | depcruise-wrap-stream-in-html > ./dependency-graph.html && pnpm depc:open",
-    "depc:genl": "depcruise src -I \"^src\" -S 2 -T dot | dot -T svg | depcruise-wrap-stream-in-html > ./dependency-graph.html && pnpm depc:open",
+    "depc:ci": "bun depc:report && bun depc:metrics && bun depc:gen",
+    "depc:gen": "depcruise -I \"^src\" -T dot ./src | dot -T svg | depcruise-wrap-stream-in-html > ./dependency-graph.html && bun depc:open",
+    "depc:genl": "depcruise src -I \"^src\" -S 2 -T dot | dot -T svg | depcruise-wrap-stream-in-html > ./dependency-graph.html && bun depc:open",
     "depc:metrics": "depcruise ./src --metrics -T metrics",
     "depc:open": "open ./dependency-graph.html || start ./dependency-graph.html",
     "depc:report": "depcruise ./src",
@@ -32,8 +32,5 @@
     "dependency-cruiser": "16.10.4",
     "type-fest": "4.41.0",
     "typescript": "5.8.3"
-  },
-  "pnpm": {
-    "neverBuiltDependencies": []
   }
 }
