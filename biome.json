@@ -149,7 +149,7 @@
         "noAwaitInLoop": "error",
         "noBitwiseOperators": "error",
         "noConstantBinaryExpression": "error",
-        "noDestructuredProps": "error",
+        "noDestructuredProps": "off",
         "noExcessiveLinesPerFunction": "off",
         "noFloatingPromises": "error",
         "noGlobalDirnameFilename": "error",
