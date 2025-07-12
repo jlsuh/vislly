@@ -20,5 +20,8 @@
   },
   "[javascript]": {
     "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[github-actions-workflow]": {
+    "editor.defaultFormatter": "bluebrown.yamlfmt"
   }
 }
