@@ -387,8 +387,8 @@
     font-stretch: 75% 125%;
     font-weight: 200 900;
     src:
-      url("/fonts/Mona-Sans.woff2") format("woff2 supports variations"),
-      url("/fonts/Mona-Sans.woff2") format("woff2-variations");
+      url("/vislly/fonts/Mona-Sans.woff2") format("woff2 supports variations"),
+      url("/vislly/fonts/Mona-Sans.woff2") format("woff2-variations");
   }
 
   /**
@@ -407,7 +407,7 @@
     font-display: swap;
     font-family: MonaspaceNeon;
     font-weight: 200 800;
-    src: url("/fonts/MonaspaceNeon.woff2") format("woff2");
+    src: url("/vislly/fonts/MonaspaceNeon.woff2") format("woff2");
   }
 
   /**
