@@ -15,7 +15,8 @@
     "depc:open": "open ./dependency-graph.html || start ./dependency-graph.html",
     "depc:report": "depcruise ./src",
     "dev": "next dev --turbopack",
-    "preview": "next start"
+    "serve": "serve ./out",
+    "start": "next start"
   },
   "dependencies": {
     "next": "15.3.5",
@@ -28,6 +29,7 @@
     "@types/react": "19.1.8",
     "@types/react-dom": "19.1.6",
     "dependency-cruiser": "16.10.4",
+    "serve": "14.2.4",
     "type-fest": "4.41.0",
     "typescript": "5.8.3"
   }
