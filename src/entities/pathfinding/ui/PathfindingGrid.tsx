@@ -16,7 +16,10 @@ import {
 } from '@/shared/lib/css.ts';
 import useIsHoldingClickOnElement from '@/shared/lib/useIsHoldingClickOnElement.ts';
 import useOnClickOutside from '@/shared/lib/useOnClickOutside.ts';
-import useResizeDimensions from '@/shared/lib/useResizeDimensions.ts';
+import {
+  type ResizeDimensions,
+  useResizeDimensions,
+} from '@/shared/lib/useResizeDimensions.ts';
 import {
   assertIsTerminalVertex,
   assertIsVertexName,
@@ -33,7 +36,7 @@ import {
 import Cell from './Cell.tsx';
 import styles from './pathfinding-grid.module.css';
 
-const RESIZE_DIMENSIONS = {
+const RESIZE_DIMENSIONS: ResizeDimensions = {
   boundedHeight: 0,
   boundedWidth: 0,
   marginBottom: 0,

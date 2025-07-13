@@ -2,7 +2,10 @@
 
 import { type JSX, useEffect, useId } from 'react';
 import { getRootFontSize } from '@/shared/lib/css.ts';
-import useResizeDimensions from '@/shared/lib/useResizeDimensions';
+import {
+  type ResizeDimensions,
+  useResizeDimensions,
+} from '@/shared/lib/useResizeDimensions.ts';
 import {
   type CoefficientOfRestitution,
   Particle,
@@ -136,7 +139,7 @@ function scaleMagnitudeByRem(magnitudeBase: number): number {
   return scaleFactor * magnitudeBase;
 }
 
-const RESIZE_DIMENSIONS = {
+const RESIZE_DIMENSIONS: ResizeDimensions = {
   boundedHeight: 0,
   boundedWidth: 0,
   marginBottom: 0,

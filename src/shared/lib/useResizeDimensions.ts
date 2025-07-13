@@ -69,4 +69,4 @@ function useResizeDimensions<T = Element>(
   return { dimensions, ref };
 }
 
-export default useResizeDimensions;
+export { useResizeDimensions, type ResizeDimensions };
