@@ -32,7 +32,7 @@ import {
   Vertex,
   type VertexName,
   WALL,
-} from '../model/pathfinding.ts';
+} from '../model/vertex.ts';
 import Cell from './Cell.tsx';
 import styles from './pathfinding-grid.module.css';
 

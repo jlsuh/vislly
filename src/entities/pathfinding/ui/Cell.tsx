@@ -13,7 +13,7 @@ import {
   type TerminalVertex,
   Vertex,
   type VertexName,
-} from '../model/pathfinding.ts';
+} from '../model/vertex.ts';
 import styles from './cell.module.css';
 
 function setParagraphStyle(vertex: Vertex): void {
