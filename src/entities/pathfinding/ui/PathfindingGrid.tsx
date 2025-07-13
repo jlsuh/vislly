@@ -20,6 +20,7 @@ import {
   type ResizeDimensions,
   useResizeDimensions,
 } from '@/shared/lib/useResizeDimensions.ts';
+import { BfsStrategy } from '../model/pathfinding-algorithms.ts';
 import {
   assertIsTerminalVertex,
   assertIsVertexName,
@@ -169,6 +170,9 @@ function PathfindingGrid(): JSX.Element {
   const { isHoldingClickRef } = useIsHoldingClickOnElement(ref);
   const vertexNameSelectId = useId();
 
+  const [solution, setSolution] = useState<Vertex[]>([]);
+  const [visited, setVisited] = useState<Set<Vertex>>(new Set());
+
   useOnClickOutside([ref], unsetBodyOverflow);
 
   useEffect(() => {
@@ -186,6 +190,37 @@ function PathfindingGrid(): JSX.Element {
     console.log('Start:', terminalVertices.current.start);
     console.log('End:', terminalVertices.current.end);
   };
+
+  useEffect(() => {
+    for (const vertex of visited) {
+      const { row, col } = vertex;
+      const element = document.querySelector(
+        `[data-row="${row}"][data-col="${col}"]`,
+      );
+      if (element === null) {
+        return;
+      }
+      const paragraph = element.querySelector('p');
+      if (paragraph === null) {
+        return;
+      }
+      paragraph.style = 'color: blue;';
+    }
+    for (const vertex of solution) {
+      const { row, col, name } = vertex;
+      const element = document.querySelector(
+        `[data-row="${row}"][data-col="${col}"]`,
+      );
+      if (element === null) {
+        return;
+      }
+      const paragraph = element.querySelector('p');
+      if (paragraph === null) {
+        return;
+      }
+      paragraph.style = `color: ${name === START ? 'green' : 'red'};`;
+    }
+  }, [solution, visited]);
 
   return (
     <>
@@ -207,6 +242,28 @@ function PathfindingGrid(): JSX.Element {
       </select>
       <button onClick={log} type="button">
         Log
+      </button>
+      <button
+        type="button"
+        onClick={() => {
+          const bfs = new BfsStrategy();
+          const start = terminalVertices.current.start;
+          const end = terminalVertices.current.end;
+          if (!(start.appearsOnGrid() && end.appearsOnGrid())) {
+            return;
+          }
+          const [reconstructedPath, reconstructedVisited] = bfs.solve(
+            grid,
+            start,
+            end,
+          );
+          setSolution(reconstructedPath);
+          setVisited(reconstructedVisited);
+          console.log('Solution:', reconstructedPath);
+          console.log('Visited:', reconstructedVisited);
+        }}
+      >
+        Start
       </button>
       <section
         aria-label="Pathfinding grid"
