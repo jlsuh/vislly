@@ -15,7 +15,7 @@
     "depc:open": "open ./dependency-graph.html || start ./dependency-graph.html",
     "depc:report": "depcruise ./src",
     "dev": "next dev --turbopack",
-    "serve": "serve ./out",
+    "serve": "bun run build && serve ./out",
     "start": "next start"
   },
   "dependencies": {
