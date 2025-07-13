@@ -4,8 +4,9 @@
     flex: 1;
     margin: 0 auto;
     max-width: 60rem;
-    padding: 1.25rem;
+    padding: 0 1.25rem;
   }
+
   .content,
   .main {
     display: flex;
