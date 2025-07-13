@@ -4,7 +4,7 @@ import styles from './brand-logo.module.css';
 
 function BrandLogo(): JSX.Element {
   return (
-    <PrefetchOnHoverLink className={styles.brand} href="//">
+    <PrefetchOnHoverLink className={styles.brand} href="/">
       <svg
         aria-hidden="true"
         className={styles.brandEye}
