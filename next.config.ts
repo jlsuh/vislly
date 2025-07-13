@@ -7,7 +7,6 @@ const nextConfig: NextConfig = {
   },
   output: 'export',
   reactProductionProfiling: true,
-  trailingSlash: true,
 };
 
 export default nextConfig;
