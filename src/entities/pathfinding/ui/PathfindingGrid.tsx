@@ -96,7 +96,7 @@ const hideBodyOverflow = (): void => {
 };
 
 const unsetBodyOverflow = (): void => {
-  document.body.style.overflow = 'unset';
+  document.body.style.overflow = '';
 };
 
 function composeNewRow(
