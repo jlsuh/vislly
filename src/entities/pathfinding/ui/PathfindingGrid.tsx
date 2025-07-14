@@ -170,11 +170,7 @@ function setButtonStyle(vertex: Vertex, backgroundColor: string): void {
   paragraph.style = `background-color: ${backgroundColor};`;
 }
 
-const ANIMATION_DELAY = 100;
-
-function wait(ms: number): Promise<void> {
-  return new Promise((res) => setTimeout(res, ms));
-}
+const ANIMATION_DELAY = 25;
 
 function PathfindingGrid(): JSX.Element {
   const [cols, setCols] = useState(0);
@@ -232,34 +228,31 @@ function PathfindingGrid(): JSX.Element {
       </button>
       <button
         type="button"
-        onClick={async () => {
+        onClick={() => {
           const bfs = new BfsStrategy();
           const start = terminalVertices.current.start;
           const end = terminalVertices.current.end;
-          if (!(start.appearsOnGrid() && end.appearsOnGrid())) {
+          if (!start.appearsOnGrid()) {
+            return;
+          }
+          if (!end.appearsOnGrid()) {
             return;
           }
           const gen = bfs.solve(grid, start, end);
           let it = gen.next();
-          while (!it.done) {
-            const visited = it.value;
-            const visitedCell = Array.from(visited)[visited.size - 1];
-            setButtonStyle(visitedCell, '#8A2BE2');
-            await wait(ANIMATION_DELAY);
-            it = gen.next();
-          }
-          const [solution, lastReturnVisited] = it.value;
-          const visitedCell =
-            Array.from(lastReturnVisited)[lastReturnVisited.size - 1];
-          setButtonStyle(visitedCell, '#8A2BE2');
-          await wait(ANIMATION_DELAY);
-          console.log('Solution:', solution);
-          console.log('Visited:', lastReturnVisited);
-          for (const vertex of solution) {
-            setButtonStyle(vertex, '#DC143C');
-            await wait(ANIMATION_DELAY);
-          }
-          console.log('Done');
+          const interval = window.setInterval(() => {
+            if (it.done) {
+              const solution = it.value.slice(1, it.value.length - 1);
+              for (const vertex of solution) {
+                setButtonStyle(vertex, '#DC143C');
+              }
+              window.clearInterval(interval);
+            } else {
+              const visited = it.value;
+              setButtonStyle(visited, '#8A2BE2');
+              it = gen.next();
+            }
+          }, ANIMATION_DELAY);
         }}
       >
         Start

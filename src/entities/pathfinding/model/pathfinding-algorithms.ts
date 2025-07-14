@@ -6,13 +6,11 @@ class BfsStrategy {
     start: Vertex,
     end: Vertex,
   ): Vertex[] {
-    console.log('>>>>> previous:', previous);
     const path: Vertex[] = [];
     let current: Vertex | null = end;
     while (current !== start) {
-      console.log('>>>>> current:', current);
       if (current === null) {
-        throw new Error('No path found');
+        throw new Error('Current vertex is null, path reconstruction failed');
       }
       path.unshift(current);
       current = previous.get(current) ?? null;
@@ -51,40 +49,31 @@ class BfsStrategy {
     grid: Vertex[][],
     start: Vertex,
     end: Vertex,
-  ): Generator<Set<Vertex>, [Vertex[], Set<Vertex>]> {
+  ): Generator<Vertex, Vertex[]> {
     const queue: Vertex[] = [start];
-    const visited: Set<Vertex> = new Set();
-    const previous: Map<Vertex, Vertex | null> = new Map();
-
-    for (const row of grid) {
-      for (const vertex of row) {
-        previous.set(vertex, null);
-      }
-    }
-
-    visited.add(start);
-
+    const visited: Set<Vertex> = new Set([start]);
+    const previous: Map<Vertex, Vertex | null> = new Map(
+      grid.flatMap((row) => row.map((vertex) => [vertex, null])),
+    );
     while (queue.length > 0) {
       const current =
         queue.shift() ??
         (() => {
           throw new Error('Queue is empty');
         })();
-
       for (const neighbor of this.getNeighbors(grid, current)) {
         if (!visited.has(neighbor)) {
           previous.set(neighbor, current);
           if (neighbor.name === end.name) {
-            return [this.reconstructPath(previous, start, neighbor), visited];
+            return this.reconstructPath(previous, start, neighbor);
           }
           queue.push(neighbor);
           visited.add(neighbor);
-          yield visited;
+          yield neighbor;
         }
       }
     }
-
-    return [this.reconstructPath(previous, start, end), visited];
+    throw new Error('No path found');
   }
 }
 
