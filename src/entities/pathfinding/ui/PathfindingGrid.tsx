@@ -155,6 +155,27 @@ function handleOverflownTerminalCells(
   terminalCells.current = newTerminalCells;
 }
 
+function setButtonStyle(vertex: Vertex, backgroundColor: string): void {
+  const { row, col } = vertex;
+  const element = document.querySelector(
+    `[data-row="${row}"][data-col="${col}"]`,
+  );
+  if (element === null) {
+    return;
+  }
+  const paragraph = element.querySelector('p');
+  if (paragraph === null) {
+    return;
+  }
+  paragraph.style = `background-color: ${backgroundColor};`;
+}
+
+const ANIMATION_DELAY = 100;
+
+function wait(ms: number): Promise<void> {
+  return new Promise((res) => setTimeout(res, ms));
+}
+
 function PathfindingGrid(): JSX.Element {
   const [cols, setCols] = useState(0);
   const [rows, setRows] = useState(0);
@@ -169,9 +190,6 @@ function PathfindingGrid(): JSX.Element {
     useResizeDimensions<HTMLElement>(RESIZE_DIMENSIONS);
   const { isHoldingClickRef } = useIsHoldingClickOnElement(ref);
   const vertexNameSelectId = useId();
-
-  const [solution, setSolution] = useState<Vertex[]>([]);
-  const [visited, setVisited] = useState<Set<Vertex>>(new Set());
 
   useOnClickOutside([ref], unsetBodyOverflow);
 
@@ -190,37 +208,6 @@ function PathfindingGrid(): JSX.Element {
     console.log('Start:', terminalVertices.current.start);
     console.log('End:', terminalVertices.current.end);
   };
-
-  useEffect(() => {
-    for (const vertex of visited) {
-      const { row, col } = vertex;
-      const element = document.querySelector(
-        `[data-row="${row}"][data-col="${col}"]`,
-      );
-      if (element === null) {
-        return;
-      }
-      const paragraph = element.querySelector('p');
-      if (paragraph === null) {
-        return;
-      }
-      paragraph.style = 'color: blue;';
-    }
-    for (const vertex of solution) {
-      const { row, col, name } = vertex;
-      const element = document.querySelector(
-        `[data-row="${row}"][data-col="${col}"]`,
-      );
-      if (element === null) {
-        return;
-      }
-      const paragraph = element.querySelector('p');
-      if (paragraph === null) {
-        return;
-      }
-      paragraph.style = `color: ${name === START ? 'green' : 'red'};`;
-    }
-  }, [solution, visited]);
 
   return (
     <>
@@ -245,22 +232,34 @@ function PathfindingGrid(): JSX.Element {
       </button>
       <button
         type="button"
-        onClick={() => {
+        onClick={async () => {
           const bfs = new BfsStrategy();
           const start = terminalVertices.current.start;
           const end = terminalVertices.current.end;
           if (!(start.appearsOnGrid() && end.appearsOnGrid())) {
             return;
           }
-          const [reconstructedPath, reconstructedVisited] = bfs.solve(
-            grid,
-            start,
-            end,
-          );
-          setSolution(reconstructedPath);
-          setVisited(reconstructedVisited);
-          console.log('Solution:', reconstructedPath);
-          console.log('Visited:', reconstructedVisited);
+          const gen = bfs.solve(grid, start, end);
+          let it = gen.next();
+          while (!it.done) {
+            const visited = it.value;
+            const visitedCell = Array.from(visited)[visited.size - 1];
+            setButtonStyle(visitedCell, '#8A2BE2');
+            await wait(ANIMATION_DELAY);
+            it = gen.next();
+          }
+          const [solution, lastReturnVisited] = it.value;
+          const visitedCell =
+            Array.from(lastReturnVisited)[lastReturnVisited.size - 1];
+          setButtonStyle(visitedCell, '#8A2BE2');
+          await wait(ANIMATION_DELAY);
+          console.log('Solution:', solution);
+          console.log('Visited:', lastReturnVisited);
+          for (const vertex of solution) {
+            setButtonStyle(vertex, '#DC143C');
+            await wait(ANIMATION_DELAY);
+          }
+          console.log('Done');
         }}
       >
         Start

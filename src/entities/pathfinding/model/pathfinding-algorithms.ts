@@ -39,7 +39,7 @@ class BfsStrategy {
         newCol < grid[0].length
       ) {
         const neighbor = grid[newRow][newCol];
-        if (neighbor.name !== 'wall') {
+        if (neighbor.name !== 'wall' && neighbor.name !== 'start') {
           neighbors.push(neighbor);
         }
       }
@@ -47,11 +47,11 @@ class BfsStrategy {
     return neighbors;
   }
 
-  public solve(
+  public *solve(
     grid: Vertex[][],
     start: Vertex,
     end: Vertex,
-  ): [Vertex[], Set<Vertex>] {
+  ): Generator<Set<Vertex>, [Vertex[], Set<Vertex>]> {
     const queue: Vertex[] = [start];
     const visited: Set<Vertex> = new Set();
     const previous: Map<Vertex, Vertex | null> = new Map();
@@ -73,18 +73,18 @@ class BfsStrategy {
 
       for (const neighbor of this.getNeighbors(grid, current)) {
         if (!visited.has(neighbor)) {
+          previous.set(neighbor, current);
           if (neighbor.name === end.name) {
-            previous.set(neighbor, current);
             return [this.reconstructPath(previous, start, neighbor), visited];
           }
           queue.push(neighbor);
           visited.add(neighbor);
-          previous.set(neighbor, current);
+          yield visited;
         }
       }
     }
 
-    return [[], visited];
+    return [this.reconstructPath(previous, start, end), visited];
   }
 }
 
