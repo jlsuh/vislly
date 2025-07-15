@@ -20,7 +20,11 @@ import {
   type ResizeDimensions,
   useResizeDimensions,
 } from '@/shared/lib/useResizeDimensions.ts';
-import { BfsStrategy } from '../model/pathfinding-algorithms.ts';
+import {
+  assertIsPathfindingAlgorithm,
+  PATHFINDING_ALGORITHMS,
+  type PathfindingAlgorithm,
+} from '../model/pathfinding-algorithms.ts';
 import {
   assertIsTerminalVertex,
   assertIsVertexName,
@@ -170,7 +174,8 @@ function setButtonStyle(vertex: Vertex, backgroundColor: string): void {
   paragraph.style = `background-color: ${backgroundColor};`;
 }
 
-const ANIMATION_DELAY = 25;
+const ANIMATION_DELAY = 10;
+const INITIAL_ALGORITHM = 'bfs';
 
 function PathfindingGrid(): JSX.Element {
   const [cols, setCols] = useState(0);
@@ -178,6 +183,8 @@ function PathfindingGrid(): JSX.Element {
   const [grid, setGrid] = useState<Vertex[][]>([]);
   const [selectedVertexName, setSelectedVertexName] =
     useState<VertexName>(WALL);
+  const [selectedAlgorithmName, setSelectedAlgorithmName] =
+    useState<PathfindingAlgorithm>(INITIAL_ALGORITHM);
   const terminalVertices = useRef<Record<TerminalVertex, Vertex>>({
     start: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, START),
     end: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, END),
@@ -223,13 +230,28 @@ function PathfindingGrid(): JSX.Element {
           </option>
         ))}
       </select>
+      <select
+        id={algorithmSelectId}
+        key={selectedAlgorithmName}
+        onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+          const { value } = e.target;
+          assertIsPathfindingAlgorithm(value);
+          setSelectedAlgorithmName(value);
+        }}
+        value={selectedAlgorithmName}
+      >
+        {Object.values(PATHFINDING_ALGORITHMS).map(({ label }) => (
+          <option key={label} value={label}>
+            {label}
+          </option>
+        ))}
+      </select>
       <button onClick={log} type="button">
         Log
       </button>
       <button
         type="button"
         onClick={() => {
-          const bfs = new BfsStrategy();
           const start = terminalVertices.current.start;
           const end = terminalVertices.current.end;
           if (!start.appearsOnGrid()) {
@@ -240,7 +262,8 @@ function PathfindingGrid(): JSX.Element {
             console.error('End vertex is not set on the grid');
             return;
           }
-          const generator = bfs.generator(grid, start, end);
+          const { strategy } = PATHFINDING_ALGORITHMS[selectedAlgorithmName];
+          const generator = strategy.generator(grid, start, end);
           const interval = window.setInterval(() => {
             let it: IteratorResult<Vertex, Vertex[]>;
             try {

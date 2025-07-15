@@ -1,6 +1,9 @@
+import type { ReadonlyDeep } from 'type-fest';
 import type { Vertex } from './vertex.ts';
 
-class BfsStrategy {
+type PathfindingAlgorithm = 'bfs';
+
+abstract class PathfindingStrategy {
   private isWithinBounds(
     col: number,
     row: number,
@@ -8,24 +11,6 @@ class BfsStrategy {
     gridRows: number,
   ): boolean {
     return row >= 0 && row < gridRows && col >= 0 && col < gridCols;
-  }
-
-  public reconstructPath(
-    previous: Map<Vertex, Vertex | null>,
-    start: Vertex,
-    end: Vertex,
-  ): Vertex[] {
-    const path: Vertex[] = [];
-    let current: Vertex | null = end;
-    while (current !== start) {
-      if (current === null) {
-        throw new Error('Current vertex is null, path reconstruction failed');
-      }
-      path.unshift(current);
-      current = previous.get(current) ?? null;
-    }
-    path.unshift(start);
-    return path;
   }
 
   public getNeighbors(grid: Vertex[][], vertex: Vertex): Vertex[] {
@@ -49,6 +34,32 @@ class BfsStrategy {
     return neighbors;
   }
 
+  public reconstructPath(
+    previous: Map<Vertex, Vertex | null>,
+    start: Vertex,
+    end: Vertex,
+  ): Vertex[] {
+    const path: Vertex[] = [];
+    let current: Vertex | null = end;
+    while (current !== start) {
+      if (current === null) {
+        throw new Error('Current vertex is null, path reconstruction failed');
+      }
+      path.unshift(current);
+      current = previous.get(current) ?? null;
+    }
+    path.unshift(start);
+    return path;
+  }
+
+  public abstract generator(
+    grid: Vertex[][],
+    start: Vertex,
+    end: Vertex,
+  ): Generator<Vertex, Vertex[]>;
+}
+
+class BfsStrategy extends PathfindingStrategy {
   public *generator(
     grid: Vertex[][],
     start: Vertex,
@@ -65,13 +76,13 @@ class BfsStrategy {
         (() => {
           throw new Error('Queue is empty');
         })();
-      for (const neighbor of this.getNeighbors(grid, current)) {
+      for (const neighbor of super.getNeighbors(grid, current)) {
         if (visited.has(neighbor)) {
           continue;
         }
         previous.set(neighbor, current);
         if (neighbor.name === end.name) {
-          return this.reconstructPath(previous, start, neighbor);
+          return super.reconstructPath(previous, start, neighbor);
         }
         queue.push(neighbor);
         visited.add(neighbor);
@@ -82,4 +93,28 @@ class BfsStrategy {
   }
 }
 
-export { BfsStrategy };
+function assertIsPathfindingAlgorithm(
+  value: unknown,
+): asserts value is PathfindingAlgorithm {
+  if (
+    typeof value !== 'string' ||
+    !Object.keys(PATHFINDING_ALGORITHMS).includes(value)
+  ) {
+    throw new Error(`Invalid pathfinding algorithm: ${value}`);
+  }
+}
+
+const PATHFINDING_ALGORITHMS: ReadonlyDeep<
+  Record<
+    PathfindingAlgorithm,
+    { strategy: PathfindingStrategy; label: PathfindingAlgorithm }
+  >
+> = {
+  bfs: { strategy: new BfsStrategy(), label: 'bfs' },
+};
+
+export {
+  assertIsPathfindingAlgorithm,
+  PATHFINDING_ALGORITHMS,
+  type PathfindingAlgorithm,
+};
