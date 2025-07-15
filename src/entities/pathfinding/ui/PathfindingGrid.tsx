@@ -193,6 +193,7 @@ function PathfindingGrid(): JSX.Element {
     useResizeDimensions<HTMLElement>(RESIZE_DIMENSIONS);
   const { isHoldingClickRef } = useIsHoldingClickOnElement(ref);
   const vertexNameSelectId = useId();
+  const algorithmSelectId = useId();
 
   useOnClickOutside([ref], unsetBodyOverflow);
 
