@@ -233,25 +233,33 @@ function PathfindingGrid(): JSX.Element {
           const start = terminalVertices.current.start;
           const end = terminalVertices.current.end;
           if (!start.appearsOnGrid()) {
+            console.error('Start vertex is not set on the grid');
             return;
           }
           if (!end.appearsOnGrid()) {
+            console.error('End vertex is not set on the grid');
             return;
           }
-          const gen = bfs.solve(grid, start, end);
-          let it = gen.next();
+          const generator = bfs.generator(grid, start, end);
           const interval = window.setInterval(() => {
-            if (it.done) {
-              const solution = it.value.slice(1, it.value.length - 1);
-              for (const vertex of solution) {
-                setButtonStyle(vertex, '#DC143C');
-              }
+            let it: IteratorResult<Vertex, Vertex[]>;
+            try {
+              it = generator.next();
+            } catch (error) {
+              console.info('Error during Pathfinding:', error);
               window.clearInterval(interval);
-            } else {
-              const visited = it.value;
-              setButtonStyle(visited, '#8A2BE2');
-              it = gen.next();
+              return;
             }
+            const { done, value } = it;
+            if (!done) {
+              setButtonStyle(value, '#8A2BE2');
+              return;
+            }
+            const pathWithoutTerminals = value.slice(1, value.length - 1);
+            for (const vertex of pathWithoutTerminals) {
+              setButtonStyle(vertex, '#DC143C');
+            }
+            window.clearInterval(interval);
           }, ANIMATION_DELAY);
         }}
       >

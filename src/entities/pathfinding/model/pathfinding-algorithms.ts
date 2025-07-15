@@ -1,6 +1,15 @@
 import type { Vertex } from './vertex.ts';
 
 class BfsStrategy {
+  private isWithinBounds(
+    col: number,
+    row: number,
+    gridCols: number,
+    gridRows: number,
+  ): boolean {
+    return row >= 0 && row < gridRows && col >= 0 && col < gridCols;
+  }
+
   public reconstructPath(
     previous: Map<Vertex, Vertex | null>,
     start: Vertex,
@@ -28,15 +37,10 @@ class BfsStrategy {
       { row: 1, col: 0 },
     ];
     for (const dir of directions) {
-      const newRow = vertex.row + dir.row;
-      const newCol = vertex.col + dir.col;
-      if (
-        newRow >= 0 &&
-        newRow < grid.length &&
-        newCol >= 0 &&
-        newCol < grid[0].length
-      ) {
-        const neighbor = grid[newRow][newCol];
+      const dRow = vertex.row + dir.row;
+      const dCol = vertex.col + dir.col;
+      if (this.isWithinBounds(dCol, dRow, grid[0].length, grid.length)) {
+        const neighbor = grid[dRow][dCol];
         if (neighbor.name !== 'wall' && neighbor.name !== 'start') {
           neighbors.push(neighbor);
         }
@@ -45,7 +49,7 @@ class BfsStrategy {
     return neighbors;
   }
 
-  public *solve(
+  public *generator(
     grid: Vertex[][],
     start: Vertex,
     end: Vertex,
@@ -62,18 +66,19 @@ class BfsStrategy {
           throw new Error('Queue is empty');
         })();
       for (const neighbor of this.getNeighbors(grid, current)) {
-        if (!visited.has(neighbor)) {
-          previous.set(neighbor, current);
-          if (neighbor.name === end.name) {
-            return this.reconstructPath(previous, start, neighbor);
-          }
-          queue.push(neighbor);
-          visited.add(neighbor);
-          yield neighbor;
+        if (visited.has(neighbor)) {
+          continue;
         }
+        previous.set(neighbor, current);
+        if (neighbor.name === end.name) {
+          return this.reconstructPath(previous, start, neighbor);
+        }
+        queue.push(neighbor);
+        visited.add(neighbor);
+        yield neighbor;
       }
     }
-    throw new Error('No path found');
+    throw new Error('BFS: No path found');
   }
 }
 
