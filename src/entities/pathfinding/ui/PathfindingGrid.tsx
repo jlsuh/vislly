@@ -213,7 +213,7 @@ function PathfindingGrid(): JSX.Element {
     console.log('End:', terminalVertices.current.end);
   };
 
-  const startPathfinding = (): void => {
+  const findPath = (): void => {
     const { start, end } = terminalVertices.current;
     if (!start.appearsOnGrid()) {
       console.error('Start vertex is not set on the grid');
@@ -284,7 +284,7 @@ function PathfindingGrid(): JSX.Element {
       <button onClick={log} type="button">
         Log
       </button>
-      <button type="button" onClick={startPathfinding}>
+      <button type="button" onClick={findPath}>
         Start
       </button>
       <section
