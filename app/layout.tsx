@@ -13,10 +13,7 @@ export default function RootLayout({
 }: Readonly<PropsWithChildren>): JSX.Element {
   return (
     <html lang="en">
-      <head>
-        <meta content="dark light" name="color-scheme" />
-      </head>
-      <body>
+      <body data-theme="dark">
         <ThemeProvider>
           <App>{children}</App>
         </ThemeProvider>
