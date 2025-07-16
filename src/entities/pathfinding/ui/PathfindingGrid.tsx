@@ -185,6 +185,9 @@ function PathfindingGrid(): JSX.Element {
     useState<VertexName>(WALL);
   const [selectedAlgorithmName, setSelectedAlgorithmName] =
     useState<PathfindingAlgorithm>(INITIAL_ALGORITHM);
+  const isAnimationRunningRef = useRef(false);
+  const [isAnimationRunning, setIsAnimationRunning] = useState(false);
+  const lastGenerator = useRef<Iterator<Vertex, Vertex[]>>(null);
   const terminalVertices = useRef<Record<TerminalVertex, Vertex>>({
     start: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, START),
     end: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, END),
@@ -205,6 +208,11 @@ function PathfindingGrid(): JSX.Element {
   useEffect(() => {
     setGrid((prevGrid) => composeNewGrid(prevGrid, rows, cols));
     handleOverflownTerminalCells(terminalVertices, rows, cols);
+    return () => {
+      isAnimationRunningRef.current = false;
+      setIsAnimationRunning(false);
+      lastGenerator.current = null;
+    };
   }, [rows, cols]);
 
   const log = (): void => {
@@ -223,12 +231,21 @@ function PathfindingGrid(): JSX.Element {
       console.error('End vertex is not set on the grid');
       return;
     }
-    const { strategy } = PATHFINDING_ALGORITHMS[selectedAlgorithmName];
-    const generator = strategy.generator(grid, start, end);
+    setIsAnimationRunning(true);
+    isAnimationRunningRef.current = true;
     const intervalId = window.setInterval(() => {
+      if (lastGenerator.current === null) {
+        const { strategy } = PATHFINDING_ALGORITHMS[selectedAlgorithmName];
+        const generator = strategy.generator(grid, start, end);
+        lastGenerator.current = generator;
+      }
+      if (!isAnimationRunningRef.current) {
+        window.clearInterval(intervalId);
+        return;
+      }
       let it: IteratorResult<Vertex, Vertex[]>;
       try {
-        it = generator.next();
+        it = lastGenerator.current.next();
       } catch (error) {
         console.info('Error during Pathfinding:', error);
         window.clearInterval(intervalId);
@@ -243,8 +260,15 @@ function PathfindingGrid(): JSX.Element {
       for (const vertex of pathWithoutTerminals) {
         setButtonStyle(vertex, '#DC143C');
       }
+      lastGenerator.current = null;
+      isAnimationRunningRef.current = false;
       window.clearInterval(intervalId);
     }, ANIMATION_DELAY);
+  };
+
+  const stopAnimation = (): void => {
+    isAnimationRunningRef.current = false;
+    setIsAnimationRunning(false);
   };
 
   return (
@@ -284,8 +308,11 @@ function PathfindingGrid(): JSX.Element {
       <button onClick={log} type="button">
         Log
       </button>
-      <button type="button" onClick={findPath}>
-        Start
+      <button
+        type="button"
+        onClick={isAnimationRunning ? stopAnimation : findPath}
+      >
+        {isAnimationRunning ? 'Stop' : 'Start'}
       </button>
       <section
         aria-label="Pathfinding grid"
