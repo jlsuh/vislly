@@ -19,6 +19,19 @@
 
 @layer themes {
   :root {
+    /**
+     * @see https://lightningcss.dev/transpilation.html#light-dark()-color-function
+     */
+    color-scheme: light dark;
+
+    &[data-theme="dark"] {
+      color-scheme: dark;
+    }
+
+    &[data-theme="light"] {
+      color-scheme: light;
+    }
+
     --color-primary-light: rgb(0 0 0);
     --color-surface-tint-light: rgb(95 94 94);
     --color-on-primary-light: rgb(255 255 255);

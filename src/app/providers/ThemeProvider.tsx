@@ -12,8 +12,7 @@ import ThemeContext from './ThemeContext.tsx';
 
 type ThemeProviderProps = PropsWithChildren;
 
-const CONTENT = 'content';
-const META_COLOR_SCHEME_NAME_SELECTOR = 'meta[name="color-scheme"]';
+const DATA_THEME = 'data-theme';
 const STORAGE = 'storage';
 const THEME_KEY = 'theme';
 
@@ -76,13 +75,7 @@ function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
     if (currentThemeValue === null) {
       return;
     }
-    const metaColorScheme = document.querySelector(
-      META_COLOR_SCHEME_NAME_SELECTOR,
-    );
-    if (metaColorScheme === null) {
-      return;
-    }
-    metaColorScheme.setAttribute(CONTENT, currentThemeValue);
+    document.documentElement.setAttribute(DATA_THEME, currentThemeValue);
   }, [currentThemeValue]);
 
   if (currentThemeValue === null) {
