@@ -217,9 +217,9 @@ function PathfindingGrid(): JSX.Element {
   }, [rows, cols]);
 
   const log = (): void => {
-    console.log('Grid:', grid);
-    console.log('Start:', terminalVertices.current.start);
-    console.log('End:', terminalVertices.current.end);
+    console.info('Grid:', grid);
+    console.info('Start:', terminalVertices.current.start);
+    console.info('End:', terminalVertices.current.end);
   };
 
   const findPath = (): void => {
