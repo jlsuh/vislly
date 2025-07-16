@@ -56,7 +56,7 @@ abstract class PathfindingStrategy {
     grid: Vertex[][],
     start: Vertex,
     end: Vertex,
-  ): Generator<Vertex, Vertex[]>;
+  ): Generator<Vertex[], Vertex[]>;
 }
 
 class BfsStrategy extends PathfindingStrategy {
@@ -64,7 +64,7 @@ class BfsStrategy extends PathfindingStrategy {
     grid: Vertex[][],
     start: Vertex,
     end: Vertex,
-  ): Generator<Vertex, Vertex[]> {
+  ): Generator<Vertex[], Vertex[]> {
     const queue: Vertex[] = [start];
     const visited: Set<Vertex> = new Set([start]);
     const previous: Map<Vertex, Vertex | null> = new Map(
@@ -86,7 +86,7 @@ class BfsStrategy extends PathfindingStrategy {
         }
         queue.push(neighbor);
         visited.add(neighbor);
-        yield neighbor;
+        yield [...visited];
       }
     }
     throw new Error('BFS: No path found');

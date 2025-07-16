@@ -119,7 +119,6 @@ function composeNewRow(
       newRow.push(new Vertex(row, col, EMPTY));
     } else {
       newRow.push(prevVertex);
-      setButtonStyle(prevVertex, '');
     }
   }
   return newRow;
@@ -175,35 +174,46 @@ function setButtonStyle(vertex: Vertex, backgroundColor: string): void {
   paragraph.style = `background-color: ${backgroundColor};`;
 }
 
+function resetButtonStyles(vertices: Vertex[]): void {
+  for (const vertex of vertices) {
+    setButtonStyle(vertex, '');
+  }
+}
+
 const ANIMATION_DELAY = 10;
 const INITIAL_ALGORITHM = 'bfs';
 
 function PathfindingGrid(): JSX.Element {
   const [cols, setCols] = useState(0);
-  const [rows, setRows] = useState(0);
   const [grid, setGrid] = useState<Vertex[][]>([]);
-  const [selectedVertexName, setSelectedVertexName] =
-    useState<VertexName>(WALL);
+  const [isAnimationRunning, setIsAnimationRunning] = useState(false);
+  const [rows, setRows] = useState(0);
   const [selectedAlgorithmName, setSelectedAlgorithmName] =
     useState<PathfindingAlgorithm>(INITIAL_ALGORITHM);
+  const [selectedVertexName, setSelectedVertexName] =
+    useState<VertexName>(WALL);
+
   const isAnimationRunningRef = useRef(false);
-  const [isAnimationRunning, setIsAnimationRunning] = useState(false);
-  const lastGenerator = useRef<Iterator<Vertex, Vertex[]>>(null);
+  const lastGenerator = useRef<Iterator<Vertex[], Vertex[]>>(null);
+  const lastVisitedVertices = useRef<Vertex[]>([]);
   const terminalVertices = useRef<Record<TerminalVertex, Vertex>>({
     start: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, START),
     end: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, END),
   });
+
+  const algorithmSelectId = useId();
+  const vertexNameSelectId = useId();
+
   const { dimensions, ref } =
     useResizeDimensions<HTMLElement>(RESIZE_DIMENSIONS);
   const { isHoldingClickRef } = useIsHoldingClickOnElement(ref);
-  const vertexNameSelectId = useId();
-  const algorithmSelectId = useId();
 
   useOnClickOutside([ref], clearBodyOverflow);
 
   useEffect(() => {
     setCols(Math.floor(pxToRem(dimensions.boundedWidth) / CELL_DIM_SIZE));
     setRows(Math.floor(pxToRem(dimensions.boundedHeight) / CELL_DIM_SIZE));
+    resetButtonStyles(lastVisitedVertices.current);
   }, [dimensions.boundedHeight, dimensions.boundedWidth]);
 
   useEffect(() => {
@@ -216,12 +226,6 @@ function PathfindingGrid(): JSX.Element {
     };
   }, [rows, cols]);
 
-  const log = (): void => {
-    console.info('Grid:', grid);
-    console.info('Start:', terminalVertices.current.start);
-    console.info('End:', terminalVertices.current.end);
-  };
-
   const findPath = (): void => {
     const { start, end } = terminalVertices.current;
     if (!start.appearsOnGrid()) {
@@ -231,6 +235,9 @@ function PathfindingGrid(): JSX.Element {
     if (!end.appearsOnGrid()) {
       console.error('End vertex is not set on the grid');
       return;
+    }
+    if (lastGenerator.current === null) {
+      resetButtonStyles(lastVisitedVertices.current);
     }
     setIsAnimationRunning(true);
     isAnimationRunningRef.current = true;
@@ -244,17 +251,26 @@ function PathfindingGrid(): JSX.Element {
         window.clearInterval(intervalId);
         return;
       }
-      let it: IteratorResult<Vertex, Vertex[]>;
+      let it: IteratorResult<Vertex[], Vertex[]>;
       try {
         it = lastGenerator.current.next();
       } catch (error) {
         console.info('Error during Pathfinding:', error);
+        lastGenerator.current = null;
+        isAnimationRunningRef.current = false;
+        setIsAnimationRunning(false);
         window.clearInterval(intervalId);
         return;
       }
       const { done, value } = it;
+      const lastVisited = value.at(-1);
+      if (lastVisited === undefined) {
+        console.error('No last visited vertex found');
+        return;
+      }
       if (!done) {
-        setButtonStyle(value, '#8A2BE2');
+        setButtonStyle(lastVisited, '#8A2BE2');
+        lastVisitedVertices.current = value;
         return;
       }
       const pathWithoutTerminals = value.slice(1, value.length - 1);
@@ -263,6 +279,7 @@ function PathfindingGrid(): JSX.Element {
       }
       lastGenerator.current = null;
       isAnimationRunningRef.current = false;
+      setIsAnimationRunning(false);
       window.clearInterval(intervalId);
     }, ANIMATION_DELAY);
   };
@@ -270,6 +287,13 @@ function PathfindingGrid(): JSX.Element {
   const stopAnimation = (): void => {
     isAnimationRunningRef.current = false;
     setIsAnimationRunning(false);
+  };
+
+  const reset = (): void => {
+    resetButtonStyles(lastVisitedVertices.current);
+    isAnimationRunningRef.current = false;
+    setIsAnimationRunning(false);
+    lastGenerator.current = null;
   };
 
   return (
@@ -306,14 +330,14 @@ function PathfindingGrid(): JSX.Element {
           </option>
         ))}
       </select>
-      <button onClick={log} type="button">
-        Log
-      </button>
       <button
         type="button"
         onClick={isAnimationRunning ? stopAnimation : findPath}
       >
-        {isAnimationRunning ? 'Stop' : 'Start'}
+        {isAnimationRunning ? 'Stop' : 'Play'}
+      </button>
+      <button onClick={reset} type="button">
+        Reset
       </button>
       <section
         aria-label="Pathfinding grid"
