@@ -213,6 +213,40 @@ function PathfindingGrid(): JSX.Element {
     console.log('End:', terminalVertices.current.end);
   };
 
+  const startPathfinding = (): void => {
+    const { start, end } = terminalVertices.current;
+    if (!start.appearsOnGrid()) {
+      console.error('Start vertex is not set on the grid');
+      return;
+    }
+    if (!end.appearsOnGrid()) {
+      console.error('End vertex is not set on the grid');
+      return;
+    }
+    const { strategy } = PATHFINDING_ALGORITHMS[selectedAlgorithmName];
+    const generator = strategy.generator(grid, start, end);
+    const intervalId = window.setInterval(() => {
+      let it: IteratorResult<Vertex, Vertex[]>;
+      try {
+        it = generator.next();
+      } catch (error) {
+        console.info('Error during Pathfinding:', error);
+        window.clearInterval(intervalId);
+        return;
+      }
+      const { done, value } = it;
+      if (!done) {
+        setButtonStyle(value, '#8A2BE2');
+        return;
+      }
+      const pathWithoutTerminals = value.slice(1, value.length - 1);
+      for (const vertex of pathWithoutTerminals) {
+        setButtonStyle(vertex, '#DC143C');
+      }
+      window.clearInterval(intervalId);
+    }, ANIMATION_DELAY);
+  };
+
   return (
     <>
       <select
@@ -250,43 +284,7 @@ function PathfindingGrid(): JSX.Element {
       <button onClick={log} type="button">
         Log
       </button>
-      <button
-        type="button"
-        onClick={() => {
-          const start = terminalVertices.current.start;
-          const end = terminalVertices.current.end;
-          if (!start.appearsOnGrid()) {
-            console.error('Start vertex is not set on the grid');
-            return;
-          }
-          if (!end.appearsOnGrid()) {
-            console.error('End vertex is not set on the grid');
-            return;
-          }
-          const { strategy } = PATHFINDING_ALGORITHMS[selectedAlgorithmName];
-          const generator = strategy.generator(grid, start, end);
-          const interval = window.setInterval(() => {
-            let it: IteratorResult<Vertex, Vertex[]>;
-            try {
-              it = generator.next();
-            } catch (error) {
-              console.info('Error during Pathfinding:', error);
-              window.clearInterval(interval);
-              return;
-            }
-            const { done, value } = it;
-            if (!done) {
-              setButtonStyle(value, '#8A2BE2');
-              return;
-            }
-            const pathWithoutTerminals = value.slice(1, value.length - 1);
-            for (const vertex of pathWithoutTerminals) {
-              setButtonStyle(vertex, '#DC143C');
-            }
-            window.clearInterval(interval);
-          }, ANIMATION_DELAY);
-        }}
-      >
+      <button type="button" onClick={startPathfinding}>
         Start
       </button>
       <section
