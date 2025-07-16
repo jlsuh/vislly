@@ -103,7 +103,7 @@ const hideBodyOverflow = (): void => {
   document.body.style.overflow = 'hidden';
 };
 
-const unsetBodyOverflow = (): void => {
+const clearBodyOverflow = (): void => {
   document.body.style.overflow = '';
 };
 
@@ -195,7 +195,7 @@ function PathfindingGrid(): JSX.Element {
   const vertexNameSelectId = useId();
   const algorithmSelectId = useId();
 
-  useOnClickOutside([ref], unsetBodyOverflow);
+  useOnClickOutside([ref], clearBodyOverflow);
 
   useEffect(() => {
     setCols(Math.floor(pxToRem(dimensions.boundedWidth) / CELL_DIM_SIZE));
@@ -291,7 +291,7 @@ function PathfindingGrid(): JSX.Element {
         aria-label="Pathfinding grid"
         className={styles.grid}
         onPointerMove={dispatchOnPointerMove(isHoldingClickRef)}
-        onTouchEnd={unsetBodyOverflow}
+        onTouchEnd={clearBodyOverflow}
         onTouchMove={dispatchOnTouchMove}
         onTouchStart={hideBodyOverflow}
         ref={ref}
