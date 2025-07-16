@@ -119,6 +119,7 @@ function composeNewRow(
       newRow.push(new Vertex(row, col, EMPTY));
     } else {
       newRow.push(prevVertex);
+      setButtonStyle(prevVertex, '');
     }
   }
   return newRow;
