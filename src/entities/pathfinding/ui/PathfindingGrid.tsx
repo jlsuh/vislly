@@ -7,6 +7,7 @@ import type {
   PointerEventHandler,
   RefObject,
   TouchEvent,
+  TouchEventHandler,
 } from 'react';
 import { useEffect, useId, useRef, useState } from 'react';
 import {
@@ -83,21 +84,34 @@ function dispatchMouseDownOnCell({
 
 function dispatchOnPointerMove(
   isHoldingClickRef: RefObject<boolean>,
+  lastVisitedVertices: RefObject<Vertex[]>,
+  reset: () => void,
 ): PointerEventHandler<HTMLElement> {
   return (e: PointerEvent<HTMLElement>) => {
     if (!isHoldingClickRef.current) {
       return;
+    }
+    if (lastVisitedVertices.current.length > 0) {
+      reset();
     }
     const { clientX, clientY } = e;
     dispatchMouseDownOnCell({ clientX, clientY });
   };
 }
 
-const dispatchOnTouchMove = (e: TouchEvent<HTMLElement>): void => {
-  const touch = e.touches[0];
-  const { clientX, clientY } = touch;
-  dispatchMouseDownOnCell({ clientX, clientY });
-};
+function dispatchOnTouchMove(
+  lastVisitedVertices: RefObject<Vertex[]>,
+  reset: () => void,
+): TouchEventHandler<HTMLElement> {
+  return (e: TouchEvent<HTMLElement>) => {
+    if (lastVisitedVertices.current.length > 0) {
+      reset();
+    }
+    const touch = e.touches[0];
+    const { clientX, clientY } = touch;
+    dispatchMouseDownOnCell({ clientX, clientY });
+  };
+}
 
 const hideBodyOverflow = (): void => {
   document.body.style.overflow = 'hidden';
@@ -213,7 +227,6 @@ function PathfindingGrid(): JSX.Element {
   useEffect(() => {
     setCols(Math.floor(pxToRem(dimensions.boundedWidth) / CELL_DIM_SIZE));
     setRows(Math.floor(pxToRem(dimensions.boundedHeight) / CELL_DIM_SIZE));
-    resetButtonStyles(lastVisitedVertices.current);
   }, [dimensions.boundedHeight, dimensions.boundedWidth]);
 
   useEffect(() => {
@@ -226,13 +239,16 @@ function PathfindingGrid(): JSX.Element {
     };
   }, [rows, cols]);
 
+  useEffect(() => {
+    resetButtonStyles(grid.flat());
+  }, [grid]);
+
   const findPath = (): void => {
-    const { start, end } = terminalVertices.current;
-    if (!start.appearsOnGrid()) {
+    if (!terminalVertices.current.start.appearsOnGrid()) {
       console.error('Start vertex is not set on the grid');
       return;
     }
-    if (!end.appearsOnGrid()) {
+    if (!terminalVertices.current.end.appearsOnGrid()) {
       console.error('End vertex is not set on the grid');
       return;
     }
@@ -244,7 +260,11 @@ function PathfindingGrid(): JSX.Element {
     const intervalId = window.setInterval(() => {
       if (lastGenerator.current === null) {
         const { strategy } = PATHFINDING_ALGORITHMS[selectedAlgorithmName];
-        const generator = strategy.generator(grid, start, end);
+        const generator = strategy.generator(
+          grid,
+          terminalVertices.current.start,
+          terminalVertices.current.end,
+        );
         lastGenerator.current = generator;
       }
       if (!isAnimationRunningRef.current) {
@@ -291,6 +311,7 @@ function PathfindingGrid(): JSX.Element {
 
   const reset = (): void => {
     resetButtonStyles(lastVisitedVertices.current);
+    lastVisitedVertices.current = [];
     isAnimationRunningRef.current = false;
     setIsAnimationRunning(false);
     lastGenerator.current = null;
@@ -342,9 +363,13 @@ function PathfindingGrid(): JSX.Element {
       <section
         aria-label="Pathfinding grid"
         className={styles.grid}
-        onPointerMove={dispatchOnPointerMove(isHoldingClickRef)}
+        onPointerMove={dispatchOnPointerMove(
+          isHoldingClickRef,
+          lastVisitedVertices,
+          reset,
+        )}
         onTouchEnd={clearBodyOverflow}
-        onTouchMove={dispatchOnTouchMove}
+        onTouchMove={dispatchOnTouchMove(lastVisitedVertices, reset)}
         onTouchStart={hideBodyOverflow}
         ref={ref}
         style={CELL_SIZE_VAR}
@@ -352,12 +377,14 @@ function PathfindingGrid(): JSX.Element {
         {grid.map((gridRow, cellRow) =>
           gridRow.map((gridCell, cellCol) => (
             <Cell
-              key={`cell-row-${cellRow}-col-${cellCol}-value-${gridCell.name}`}
               grid={grid}
               gridCell={gridCell}
-              terminalVertices={terminalVertices}
+              key={`cell-row-${cellRow}-col-${cellCol}-value-${gridCell.name}`}
+              lastVisitedVertices={lastVisitedVertices}
+              reset={reset}
               selectedVertexName={selectedVertexName}
               setGrid={setGrid}
+              terminalVertices={terminalVertices}
             />
           )),
         )}

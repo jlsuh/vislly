@@ -35,20 +35,27 @@ function setParagraphStyle(vertex: Vertex): void {
 function Cell({
   grid,
   gridCell,
-  terminalVertices,
+  lastVisitedVertices,
+  reset,
   selectedVertexName,
   setGrid,
+  terminalVertices,
 }: {
   grid: Vertex[][];
   gridCell: Vertex;
-  terminalVertices: RefObject<Record<TerminalVertex, Vertex>>;
+  lastVisitedVertices: RefObject<Vertex[]>;
+  reset: () => void;
   selectedVertexName: VertexName;
   setGrid: Dispatch<SetStateAction<Vertex[][]>>;
+  terminalVertices: RefObject<Record<TerminalVertex, Vertex>>;
 }): JSX.Element {
   const [cell, setCell] = useState(gridCell);
   const { row: cellRow, col: cellCol } = gridCell;
 
   const setNewVertexName = (newVertexName: VertexName): void => {
+    if (lastVisitedVertices.current.length > 0) {
+      reset();
+    }
     const targetVertexName = grid[cellRow][cellCol].name;
     if (isTerminalVertex(targetVertexName)) {
       terminalVertices.current[targetVertexName] = new Vertex(
