@@ -19,18 +19,18 @@
   }
 
   .empty {
-    background-color: lightgray;
+    background-color: #d3d3d3;
   }
 
   .end {
-    background-color: dodgerblue;
+    background-color: #ee4400;
   }
 
   .start {
-    background-color: greenyellow;
+    background-color: #00dd00;
   }
 
   .wall {
-    background-color: grey;
+    background-color: #808080;
   }
 }
