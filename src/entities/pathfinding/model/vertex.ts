@@ -31,6 +31,10 @@ class Vertex {
     return new Vertex(this.row, this.col, this.name);
   }
 
+  public positionEquals(that: Vertex): boolean {
+    return this.row === that.row && this.col === that.col;
+  }
+
   public get firstChar(): VertexNameFirstChar {
     return this.name.charAt(0) as VertexNameFirstChar;
   }

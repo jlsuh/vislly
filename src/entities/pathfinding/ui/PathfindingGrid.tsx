@@ -40,6 +40,7 @@ import {
   WALL,
 } from '../model/vertex.ts';
 import Cell from './Cell.tsx';
+import { getElementByCoordinates } from './getElementByCoordinates.ts';
 import styles from './pathfinding-grid.module.css';
 
 const RESIZE_DIMENSIONS: ResizeDimensions = {
@@ -173,24 +174,21 @@ function handleOverflownTerminalCells(
   terminalCells.current = newTerminalCells;
 }
 
-function setButtonStyle(vertex: Vertex, backgroundColor: string): void {
+function setButtonBackground(vertex: Vertex, backgroundColor: string): void {
   const { row, col } = vertex;
-  const element = document.querySelector(
-    `[data-row="${row}"][data-col="${col}"]`,
-  );
-  if (element === null) {
-    return;
-  }
-  const paragraph = element.querySelector('p');
-  if (paragraph === null) {
-    return;
-  }
-  paragraph.style = `background-color: ${backgroundColor};`;
+  const element = getElementByCoordinates(row, col);
+  element.setAttribute('style', `background-color: ${backgroundColor};`);
+}
+
+function removeButtonBackground(vertex: Vertex): void {
+  const { row, col } = vertex;
+  const element = getElementByCoordinates(row, col);
+  element.removeAttribute('style');
 }
 
 function resetButtonStyles(vertices: Vertex[]): void {
   for (const vertex of vertices) {
-    setButtonStyle(vertex, '');
+    removeButtonBackground(vertex);
   }
 }
 
@@ -243,13 +241,27 @@ function PathfindingGrid(): JSX.Element {
     resetButtonStyles(grid.flat());
   }, [grid]);
 
+  const stopAnimation = (): void => {
+    isAnimationRunningRef.current = false;
+    setIsAnimationRunning(false);
+  };
+
+  const reset = (): void => {
+    resetButtonStyles(lastVisitedVertices.current);
+    lastVisitedVertices.current = [];
+    isAnimationRunningRef.current = false;
+    setIsAnimationRunning(false);
+    lastGenerator.current = null;
+  };
+
   const findPath = (): void => {
-    if (!terminalVertices.current.start.appearsOnGrid()) {
-      console.error('Start vertex is not set on the grid');
+    const { start: initialStart, end: initialEnd } = terminalVertices.current;
+    if (!initialStart.appearsOnGrid()) {
+      console.info('Start vertex is not set on the grid');
       return;
     }
-    if (!terminalVertices.current.end.appearsOnGrid()) {
-      console.error('End vertex is not set on the grid');
+    if (!initialEnd.appearsOnGrid()) {
+      console.info('End vertex is not set on the grid');
       return;
     }
     if (lastGenerator.current === null) {
@@ -259,29 +271,17 @@ function PathfindingGrid(): JSX.Element {
     isAnimationRunningRef.current = true;
     if (lastGenerator.current === null) {
       const { strategy } = PATHFINDING_ALGORITHMS[selectedAlgorithmName];
-      const generator = strategy.generator(
-        grid,
-        terminalVertices.current.start,
-        terminalVertices.current.end,
-      );
+      const generator = strategy.generator(grid, initialStart, initialEnd);
       lastGenerator.current = generator;
     }
-    const initialStart = terminalVertices.current.start;
-    const initialEnd = terminalVertices.current.end;
     const intervalId = window.setInterval(() => {
-      if (
-        initialStart.row !== terminalVertices.current.start.row ||
-        initialStart.col !== terminalVertices.current.start.col
-      ) {
+      if (!terminalVertices.current.start.positionEquals(initialStart)) {
         console.info('Start vertex has been moved, exiting animation');
         reset();
         window.clearInterval(intervalId);
         return;
       }
-      if (
-        initialEnd.row !== terminalVertices.current.end.row ||
-        initialEnd.col !== terminalVertices.current.end.col
-      ) {
+      if (!terminalVertices.current.end.positionEquals(initialEnd)) {
         console.info('End vertex has been moved, exiting animation');
         reset();
         window.clearInterval(intervalId);
@@ -308,36 +308,22 @@ function PathfindingGrid(): JSX.Element {
       const { done, value } = it;
       const lastVisited = value.at(-1);
       if (lastVisited === undefined) {
-        console.error('No last visited vertex found');
-        return;
+        throw new Error('Last visited vertex is undefined');
       }
       if (!done) {
-        setButtonStyle(lastVisited, '#AFEEEE');
+        setButtonBackground(lastVisited, '#AFEEEE');
         lastVisitedVertices.current = value;
         return;
       }
-      const pathWithoutTerminals = value.slice(1, value.length - 1);
+      const pathWithoutTerminals = value.slice(1, -1);
       for (const vertex of pathWithoutTerminals) {
-        setButtonStyle(vertex, '#FEF250');
+        setButtonBackground(vertex, '#FEF250');
       }
       lastGenerator.current = null;
       isAnimationRunningRef.current = false;
       setIsAnimationRunning(false);
       window.clearInterval(intervalId);
     }, ANIMATION_DELAY);
-  };
-
-  const stopAnimation = (): void => {
-    isAnimationRunningRef.current = false;
-    setIsAnimationRunning(false);
-  };
-
-  const reset = (): void => {
-    resetButtonStyles(lastVisitedVertices.current);
-    lastVisitedVertices.current = [];
-    isAnimationRunningRef.current = false;
-    setIsAnimationRunning(false);
-    lastGenerator.current = null;
   };
 
   return (

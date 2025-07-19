@@ -8,21 +8,12 @@ import {
   type VertexName,
 } from '../model/vertex.ts';
 import styles from './cell.module.css';
+import { getElementByCoordinates } from './getElementByCoordinates.ts';
 
-function setParagraphStyle(vertex: Vertex): void {
+function setButtonStyle(vertex: Vertex): void {
   const { row, col, name } = vertex;
-  const element = document.querySelector(
-    `[data-row="${row}"][data-col="${col}"]`,
-  );
-  if (element === null) {
-    return;
-  }
-  const paragraph = element.querySelector('p');
-  if (paragraph === null) {
-    return;
-  }
-  paragraph.className = `${styles.cellText} ${styles[name]}`;
-  paragraph.textContent = vertex.firstChar;
+  const element = getElementByCoordinates(row, col);
+  element.className = `${styles.cell} ${styles[name]}`;
 }
 
 function Cell({
@@ -66,7 +57,7 @@ function Cell({
           EMPTY,
         );
         grid[terminalVertexRow][terminalVertexCol] = newEmptyVertex;
-        setParagraphStyle(newEmptyVertex);
+        setButtonStyle(newEmptyVertex);
       }
       const newterminalVertices = {
         ...terminalVertices.current,
@@ -76,7 +67,7 @@ function Cell({
         cellCol,
         newVertexName,
       );
-      setParagraphStyle(newterminalVertices[newVertexName]);
+      setButtonStyle(newterminalVertices[newVertexName]);
       terminalVertices.current = newterminalVertices;
     }
     grid[cellRow][cellCol] = new Vertex(cellRow, cellCol, newVertexName);
@@ -85,18 +76,14 @@ function Cell({
 
   return (
     <button
-      className={styles.cell}
+      className={`${styles.cell} ${styles[cell.name]}`}
       data-col={cellCol}
       data-row={cellRow}
       onContextMenu={(e: MouseEvent<HTMLButtonElement>) => e.preventDefault()}
       onMouseDown={() => setNewVertexName(selectedVertexName)}
       onTouchStart={() => setNewVertexName(selectedVertexName)}
       type="button"
-    >
-      <p className={`${styles.cellText} ${styles[cell.name]}`}>
-        {cell.firstChar}
-      </p>
-    </button>
+    />
   );
 }
 
