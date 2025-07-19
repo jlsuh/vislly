@@ -194,7 +194,7 @@ function resetButtonStyles(vertices: Vertex[]): void {
   }
 }
 
-const ANIMATION_DELAY = 10;
+const ANIMATION_DELAY = 5;
 const INITIAL_ALGORITHM = 'bfs';
 
 function PathfindingGrid(): JSX.Element {
@@ -257,15 +257,35 @@ function PathfindingGrid(): JSX.Element {
     }
     setIsAnimationRunning(true);
     isAnimationRunningRef.current = true;
+    if (lastGenerator.current === null) {
+      const { strategy } = PATHFINDING_ALGORITHMS[selectedAlgorithmName];
+      const generator = strategy.generator(
+        grid,
+        terminalVertices.current.start,
+        terminalVertices.current.end,
+      );
+      lastGenerator.current = generator;
+    }
+    const initialStart = terminalVertices.current.start;
+    const initialEnd = terminalVertices.current.end;
     const intervalId = window.setInterval(() => {
-      if (lastGenerator.current === null) {
-        const { strategy } = PATHFINDING_ALGORITHMS[selectedAlgorithmName];
-        const generator = strategy.generator(
-          grid,
-          terminalVertices.current.start,
-          terminalVertices.current.end,
-        );
-        lastGenerator.current = generator;
+      if (
+        initialStart.row !== terminalVertices.current.start.row ||
+        initialStart.col !== terminalVertices.current.start.col
+      ) {
+        console.info('Start vertex has been moved, exiting animation');
+        reset();
+        window.clearInterval(intervalId);
+        return;
+      }
+      if (
+        initialEnd.row !== terminalVertices.current.end.row ||
+        initialEnd.col !== terminalVertices.current.end.col
+      ) {
+        console.info('End vertex has been moved, exiting animation');
+        reset();
+        window.clearInterval(intervalId);
+        return;
       }
       if (!isAnimationRunningRef.current) {
         window.clearInterval(intervalId);
@@ -273,6 +293,9 @@ function PathfindingGrid(): JSX.Element {
       }
       let it: IteratorResult<Vertex[], Vertex[]>;
       try {
+        if (lastGenerator.current === null) {
+          throw new Error('Generator not initialized');
+        }
         it = lastGenerator.current.next();
       } catch (error) {
         console.info('Error during Pathfinding:', error);
@@ -289,13 +312,13 @@ function PathfindingGrid(): JSX.Element {
         return;
       }
       if (!done) {
-        setButtonStyle(lastVisited, '#8A2BE2');
+        setButtonStyle(lastVisited, '#AFEEEE');
         lastVisitedVertices.current = value;
         return;
       }
       const pathWithoutTerminals = value.slice(1, value.length - 1);
       for (const vertex of pathWithoutTerminals) {
-        setButtonStyle(vertex, '#DC143C');
+        setButtonStyle(vertex, '#FEF250');
       }
       lastGenerator.current = null;
       isAnimationRunningRef.current = false;
@@ -383,7 +406,6 @@ function PathfindingGrid(): JSX.Element {
               lastVisitedVertices={lastVisitedVertices}
               reset={reset}
               selectedVertexName={selectedVertexName}
-              setGrid={setGrid}
               terminalVertices={terminalVertices}
             />
           )),

@@ -1,11 +1,4 @@
-import {
-  type Dispatch,
-  type JSX,
-  type MouseEvent,
-  type RefObject,
-  type SetStateAction,
-  useState,
-} from 'react';
+import { type JSX, type MouseEvent, type RefObject, useState } from 'react';
 import {
   EMPTY,
   INITIAL_COORDINATE,
@@ -38,7 +31,6 @@ function Cell({
   lastVisitedVertices,
   reset,
   selectedVertexName,
-  setGrid,
   terminalVertices,
 }: {
   grid: Vertex[][];
@@ -46,7 +38,6 @@ function Cell({
   lastVisitedVertices: RefObject<Vertex[]>;
   reset: () => void;
   selectedVertexName: VertexName;
-  setGrid: Dispatch<SetStateAction<Vertex[][]>>;
   terminalVertices: RefObject<Record<TerminalVertex, Vertex>>;
 }): JSX.Element {
   const [cell, setCell] = useState(gridCell);
@@ -89,7 +80,6 @@ function Cell({
       terminalVertices.current = newterminalVertices;
     }
     grid[cellRow][cellCol] = new Vertex(cellRow, cellCol, newVertexName);
-    setGrid(grid);
     setCell(grid[cellRow][cellCol].deepCopy());
   };
 
