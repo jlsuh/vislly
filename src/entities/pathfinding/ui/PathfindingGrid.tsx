@@ -223,9 +223,19 @@ function PathfindingGrid(): JSX.Element {
   useOnClickOutside([ref], clearBodyOverflow);
 
   useEffect(() => {
-    setCols(Math.floor(pxToRem(dimensions.boundedWidth) / CELL_DIM_SIZE));
-    setRows(Math.floor(pxToRem(dimensions.boundedHeight) / CELL_DIM_SIZE));
-  }, [dimensions.boundedHeight, dimensions.boundedWidth]);
+    const newCols = Math.floor(
+      pxToRem(dimensions.boundedWidth) / CELL_DIM_SIZE,
+    );
+    if (newCols !== cols) {
+      setCols(newCols);
+    }
+    const newRows = Math.floor(
+      pxToRem(dimensions.boundedHeight) / CELL_DIM_SIZE,
+    );
+    if (newRows !== rows) {
+      setRows(newRows);
+    }
+  }, [dimensions.boundedHeight, dimensions.boundedWidth, cols, rows]);
 
   useEffect(() => {
     setGrid((prevGrid) => composeNewGrid(prevGrid, rows, cols));
@@ -253,7 +263,7 @@ function PathfindingGrid(): JSX.Element {
     setIsAnimationRunning(false);
     lastGenerator.current = null;
   };
-  // TODO
+
   function animatePathfinding(
     initialStart: Vertex,
     initialEnd: Vertex,
@@ -396,19 +406,24 @@ function PathfindingGrid(): JSX.Element {
         ref={ref}
         style={CELL_SIZE_VAR}
       >
-        {grid.map((gridRow, cellRow) =>
-          gridRow.map((gridCell, cellCol) => (
-            <Cell
-              grid={grid}
-              gridCell={gridCell}
-              key={`cell-row-${cellRow}-col-${cellCol}-value-${gridCell.name}`}
-              lastVisitedVertices={lastVisitedVertices}
-              reset={reset}
-              selectedVertexName={selectedVertexName}
-              terminalVertices={terminalVertices}
-            />
-          )),
-        )}
+        {grid.map((gridRow, cellRow) => {
+          const rowKey = `row-${cellRow}`;
+          return (
+            <div key={rowKey} className={styles.row}>
+              {gridRow.map((gridCell, cellCol) => (
+                <Cell
+                  grid={grid}
+                  gridCell={gridCell}
+                  key={`cell-row-${cellRow}-col-${cellCol}-value-${gridCell.name}`}
+                  lastVisitedVertices={lastVisitedVertices}
+                  reset={reset}
+                  selectedVertexName={selectedVertexName}
+                  terminalVertices={terminalVertices}
+                />
+              ))}
+            </div>
+          );
+        })}
       </section>
     </>
   );
