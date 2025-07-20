@@ -222,17 +222,21 @@ function PathfindingGrid(): JSX.Element {
 
   useOnClickOutside([ref], clearBodyOverflow);
 
-  const stopAnimation = useCallback((): void => {
+  const pausePathfind = useCallback((): void => {
     isAnimationRunningRef.current = false;
     setIsAnimationRunning(false);
-    lastGenerator.current = null;
   }, []);
 
-  const reset = useCallback((): void => {
+  const stopPathfind = useCallback((): void => {
+    pausePathfind();
+    lastGenerator.current = null;
+  }, [pausePathfind]);
+
+  const resetPathfind = useCallback((): void => {
+    stopPathfind();
     resetButtonStyles(lastVisitedVertices.current);
     lastVisitedVertices.current = [];
-    stopAnimation();
-  }, [stopAnimation]);
+  }, [stopPathfind]);
 
   useEffect(() => {
     const newCols = Math.floor(
@@ -249,19 +253,16 @@ function PathfindingGrid(): JSX.Element {
     }
     setGrid((prevGrid) => composeNewGrid(prevGrid, rows, cols));
     handleOverflownTerminalCells(terminalVertices, rows, cols);
-    return () => reset();
-  }, [dimensions.boundedHeight, dimensions.boundedWidth, cols, rows, reset]);
+    return () => resetPathfind();
+  }, [
+    dimensions.boundedHeight,
+    dimensions.boundedWidth,
+    cols,
+    rows,
+    resetPathfind,
+  ]);
 
-  function animatePathfinding(intervalId: number): void {
-    if (lastGenerator.current === null) {
-      const { strategy } = PATHFINDING_ALGORITHMS[selectedAlgorithmName];
-      const generator = strategy.generator(
-        grid,
-        terminalVertices.current.start,
-        terminalVertices.current.end,
-      );
-      lastGenerator.current = generator;
-    }
+  function handlePathfindingFrame(intervalId: number): void {
     let it: IteratorResult<Vertex[], Vertex[]>;
     try {
       if (lastGenerator.current === null) {
@@ -270,7 +271,7 @@ function PathfindingGrid(): JSX.Element {
       it = lastGenerator.current.next();
     } catch (error) {
       console.info('Error during Pathfinding:', error);
-      stopAnimation();
+      stopPathfind();
       window.clearInterval(intervalId);
       return;
     }
@@ -288,7 +289,7 @@ function PathfindingGrid(): JSX.Element {
     for (const vertex of pathWithoutTerminals) {
       setButtonBackground(vertex, '#FEF250');
     }
-    stopAnimation();
+    stopPathfind();
     window.clearInterval(intervalId);
   }
 
@@ -310,13 +311,13 @@ function PathfindingGrid(): JSX.Element {
     const intervalId = window.setInterval(() => {
       if (!terminalVertices.current.start.positionEquals(initialStart)) {
         console.info('Start vertex has been moved, exiting animation');
-        reset();
+        resetPathfind();
         window.clearInterval(intervalId);
         return;
       }
       if (!terminalVertices.current.end.positionEquals(initialEnd)) {
         console.info('End vertex has been moved, exiting animation');
-        reset();
+        resetPathfind();
         window.clearInterval(intervalId);
         return;
       }
@@ -324,7 +325,16 @@ function PathfindingGrid(): JSX.Element {
         window.clearInterval(intervalId);
         return;
       }
-      animatePathfinding(intervalId);
+      if (lastGenerator.current === null) {
+        const { strategy } = PATHFINDING_ALGORITHMS[selectedAlgorithmName];
+        const generator = strategy.generator(
+          grid,
+          terminalVertices.current.start,
+          terminalVertices.current.end,
+        );
+        lastGenerator.current = generator;
+      }
+      handlePathfindingFrame(intervalId);
     }, ANIMATION_DELAY);
   };
 
@@ -364,11 +374,11 @@ function PathfindingGrid(): JSX.Element {
       </select>
       <button
         type="button"
-        onClick={isAnimationRunning ? stopAnimation : findPath}
+        onClick={isAnimationRunning ? pausePathfind : findPath}
       >
         {isAnimationRunning ? 'Stop' : 'Play'}
       </button>
-      <button onClick={reset} type="button">
+      <button onClick={resetPathfind} type="button">
         Reset
       </button>
       <section
@@ -377,10 +387,10 @@ function PathfindingGrid(): JSX.Element {
         onPointerMove={dispatchOnPointerMove(
           isHoldingClickRef,
           lastVisitedVertices,
-          reset,
+          resetPathfind,
         )}
         onTouchEnd={clearBodyOverflow}
-        onTouchMove={dispatchOnTouchMove(lastVisitedVertices, reset)}
+        onTouchMove={dispatchOnTouchMove(lastVisitedVertices, resetPathfind)}
         onTouchStart={hideBodyOverflow}
         ref={ref}
         style={CELL_SIZE_VAR}
@@ -395,7 +405,7 @@ function PathfindingGrid(): JSX.Element {
                   gridCell={gridCell}
                   key={`cell-row-${cellRow}-col-${cellCol}-value-${gridCell.name}`}
                   lastVisitedVertices={lastVisitedVertices}
-                  reset={reset}
+                  reset={resetPathfind}
                   selectedVertexName={selectedVertexName}
                   terminalVertices={terminalVertices}
                 />
