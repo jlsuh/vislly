@@ -9,7 +9,7 @@ import type {
   TouchEvent,
   TouchEventHandler,
 } from 'react';
-import { useEffect, useId, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import {
   type CssCustomProperty,
   composeCssCustomProperty,
@@ -222,6 +222,18 @@ function PathfindingGrid(): JSX.Element {
 
   useOnClickOutside([ref], clearBodyOverflow);
 
+  const stopAnimation = useCallback((): void => {
+    isAnimationRunningRef.current = false;
+    setIsAnimationRunning(false);
+    lastGenerator.current = null;
+  }, []);
+
+  const reset = useCallback((): void => {
+    resetButtonStyles(lastVisitedVertices.current);
+    lastVisitedVertices.current = [];
+    stopAnimation();
+  }, [stopAnimation]);
+
   useEffect(() => {
     const newCols = Math.floor(
       pxToRem(dimensions.boundedWidth) / CELL_DIM_SIZE,
@@ -235,56 +247,12 @@ function PathfindingGrid(): JSX.Element {
     if (newRows !== rows) {
       setRows(newRows);
     }
-  }, [dimensions.boundedHeight, dimensions.boundedWidth, cols, rows]);
-
-  useEffect(() => {
     setGrid((prevGrid) => composeNewGrid(prevGrid, rows, cols));
     handleOverflownTerminalCells(terminalVertices, rows, cols);
-    return () => {
-      isAnimationRunningRef.current = false;
-      setIsAnimationRunning(false);
-      lastGenerator.current = null;
-    };
-  }, [rows, cols]);
+    return () => reset();
+  }, [dimensions.boundedHeight, dimensions.boundedWidth, cols, rows, reset]);
 
-  useEffect(() => {
-    resetButtonStyles(grid.flat());
-  }, [grid]);
-
-  const stopAnimation = (): void => {
-    isAnimationRunningRef.current = false;
-    setIsAnimationRunning(false);
-  };
-
-  const reset = (): void => {
-    resetButtonStyles(lastVisitedVertices.current);
-    lastVisitedVertices.current = [];
-    isAnimationRunningRef.current = false;
-    setIsAnimationRunning(false);
-    lastGenerator.current = null;
-  };
-
-  function animatePathfinding(
-    initialStart: Vertex,
-    initialEnd: Vertex,
-    intervalId: number,
-  ): void {
-    if (!terminalVertices.current.start.positionEquals(initialStart)) {
-      console.info('Start vertex has been moved, exiting animation');
-      reset();
-      window.clearInterval(intervalId);
-      return;
-    }
-    if (!terminalVertices.current.end.positionEquals(initialEnd)) {
-      console.info('End vertex has been moved, exiting animation');
-      reset();
-      window.clearInterval(intervalId);
-      return;
-    }
-    if (!isAnimationRunningRef.current) {
-      window.clearInterval(intervalId);
-      return;
-    }
+  function animatePathfinding(intervalId: number): void {
     if (lastGenerator.current === null) {
       const { strategy } = PATHFINDING_ALGORITHMS[selectedAlgorithmName];
       const generator = strategy.generator(
@@ -302,9 +270,7 @@ function PathfindingGrid(): JSX.Element {
       it = lastGenerator.current.next();
     } catch (error) {
       console.info('Error during Pathfinding:', error);
-      lastGenerator.current = null;
-      isAnimationRunningRef.current = false;
-      setIsAnimationRunning(false);
+      stopAnimation();
       window.clearInterval(intervalId);
       return;
     }
@@ -322,9 +288,7 @@ function PathfindingGrid(): JSX.Element {
     for (const vertex of pathWithoutTerminals) {
       setButtonBackground(vertex, '#FEF250');
     }
-    lastGenerator.current = null;
-    isAnimationRunningRef.current = false;
-    setIsAnimationRunning(false);
+    stopAnimation();
     window.clearInterval(intervalId);
   }
 
@@ -343,10 +307,25 @@ function PathfindingGrid(): JSX.Element {
     }
     setIsAnimationRunning(true);
     isAnimationRunningRef.current = true;
-    const intervalId = window.setInterval(
-      () => animatePathfinding(initialStart, initialEnd, intervalId),
-      ANIMATION_DELAY,
-    );
+    const intervalId = window.setInterval(() => {
+      if (!terminalVertices.current.start.positionEquals(initialStart)) {
+        console.info('Start vertex has been moved, exiting animation');
+        reset();
+        window.clearInterval(intervalId);
+        return;
+      }
+      if (!terminalVertices.current.end.positionEquals(initialEnd)) {
+        console.info('End vertex has been moved, exiting animation');
+        reset();
+        window.clearInterval(intervalId);
+        return;
+      }
+      if (!isAnimationRunningRef.current) {
+        window.clearInterval(intervalId);
+        return;
+      }
+      animatePathfinding(intervalId);
+    }, ANIMATION_DELAY);
   };
 
   return (
