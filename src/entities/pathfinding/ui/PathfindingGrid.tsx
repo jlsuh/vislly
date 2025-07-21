@@ -174,21 +174,24 @@ function handleOverflownTerminalCells(
   terminalCells.current = newTerminalCells;
 }
 
-function setButtonBackground(vertex: Vertex, backgroundColor: string): void {
-  const { row, col } = vertex;
-  const element = getElementByCoordinates(row, col);
-  element.setAttribute('style', `background-color: ${backgroundColor};`);
+function setButtonBackground(
+  row: number,
+  col: number,
+  backgroundColor: string,
+): void {
+  getElementByCoordinates(row, col).setAttribute(
+    'style',
+    `background-color: ${backgroundColor};`,
+  );
 }
 
-function removeButtonBackground(vertex: Vertex): void {
-  const { row, col } = vertex;
-  const element = getElementByCoordinates(row, col);
-  element.removeAttribute('style');
+function removeButtonBackground(row: number, col: number): void {
+  getElementByCoordinates(row, col).removeAttribute('style');
 }
 
 function resetButtonStyles(vertices: Vertex[]): void {
   for (const vertex of vertices) {
-    removeButtonBackground(vertex);
+    removeButtonBackground(vertex.row, vertex.col);
   }
 }
 
@@ -308,13 +311,13 @@ function PathfindingGrid(): JSX.Element {
       throw new Error('Last visited vertex is undefined');
     }
     if (!done) {
-      setButtonBackground(lastVisited, '#AFEEEE');
+      setButtonBackground(lastVisited.row, lastVisited.col, '#AFEEEE');
       lastVisitedVertices.current = value;
       return;
     }
     const pathWithoutTerminals = value.slice(1, -1);
     for (const vertex of pathWithoutTerminals) {
-      setButtonBackground(vertex, '#FEF250');
+      setButtonBackground(vertex.row, vertex.col, '#FEF250');
     }
     stopPathfind();
     window.clearInterval(intervalId);
