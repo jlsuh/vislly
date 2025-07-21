@@ -192,6 +192,33 @@ function resetButtonStyles(vertices: Vertex[]): void {
   }
 }
 
+function hasChangedOriginalPosition(
+  initialVertices: Record<TerminalVertex, Vertex>,
+  currentTerminalVertices: RefObject<Record<TerminalVertex, Vertex>>,
+): boolean {
+  for (const terminalVertex of Object.values(currentTerminalVertices.current)) {
+    const name = terminalVertex.name;
+    assertIsTerminalVertex(name);
+    if (!terminalVertex.positionEquals(initialVertices[name])) {
+      console.info(`${name} vertex has changed position`);
+      return true;
+    }
+  }
+  return false;
+}
+
+function appearsOnGrid(
+  initialVertices: Record<TerminalVertex, Vertex>,
+): boolean {
+  for (const vertex of Object.values(initialVertices)) {
+    if (!vertex.appearsOnGrid()) {
+      console.info(`${vertex.name} vertex not found`);
+      return false;
+    }
+  }
+  return true;
+}
+
 const ANIMATION_DELAY = 5;
 const INITIAL_ALGORITHM = 'bfs';
 
@@ -293,14 +320,34 @@ function PathfindingGrid(): JSX.Element {
     window.clearInterval(intervalId);
   }
 
-  const findPath = (): void => {
-    const { start: initialStart, end: initialEnd } = terminalVertices.current;
-    if (!initialStart.appearsOnGrid()) {
-      console.info('Start vertex is not set on the grid');
+  function update(
+    initialVertices: Record<TerminalVertex, Vertex>,
+    intervalId: number,
+  ): void {
+    if (hasChangedOriginalPosition(initialVertices, terminalVertices)) {
+      resetPathfind();
+      window.clearInterval(intervalId);
       return;
     }
-    if (!initialEnd.appearsOnGrid()) {
-      console.info('End vertex is not set on the grid');
+    if (!isAnimationRunningRef.current) {
+      window.clearInterval(intervalId);
+      return;
+    }
+    if (lastGenerator.current === null) {
+      const { strategy } = PATHFINDING_ALGORITHMS[selectedAlgorithmName];
+      const generator = strategy.generator(
+        grid,
+        terminalVertices.current.start,
+        terminalVertices.current.end,
+      );
+      lastGenerator.current = generator;
+    }
+    handlePathfindingFrame(intervalId);
+  }
+
+  const findPath = (): void => {
+    const initialVertices = terminalVertices.current;
+    if (!appearsOnGrid(initialVertices)) {
       return;
     }
     if (lastGenerator.current === null && !isAnimationRunningRef.current) {
@@ -308,34 +355,10 @@ function PathfindingGrid(): JSX.Element {
     }
     setIsAnimationRunning(true);
     isAnimationRunningRef.current = true;
-    const intervalId = window.setInterval(() => {
-      if (!terminalVertices.current.start.positionEquals(initialStart)) {
-        console.info('Start vertex has been moved, exiting animation');
-        resetPathfind();
-        window.clearInterval(intervalId);
-        return;
-      }
-      if (!terminalVertices.current.end.positionEquals(initialEnd)) {
-        console.info('End vertex has been moved, exiting animation');
-        resetPathfind();
-        window.clearInterval(intervalId);
-        return;
-      }
-      if (!isAnimationRunningRef.current) {
-        window.clearInterval(intervalId);
-        return;
-      }
-      if (lastGenerator.current === null) {
-        const { strategy } = PATHFINDING_ALGORITHMS[selectedAlgorithmName];
-        const generator = strategy.generator(
-          grid,
-          terminalVertices.current.start,
-          terminalVertices.current.end,
-        );
-        lastGenerator.current = generator;
-      }
-      handlePathfindingFrame(intervalId);
-    }, ANIMATION_DELAY);
+    const intervalId = window.setInterval(
+      () => update(initialVertices, intervalId),
+      ANIMATION_DELAY,
+    );
   };
 
   return (
