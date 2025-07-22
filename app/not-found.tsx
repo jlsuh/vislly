@@ -1,12 +1,14 @@
-import Link from 'next/link';
 import type { JSX } from 'react';
 
 function NotFound(): JSX.Element {
   return (
-    <div>
+    <section>
       <h1>Not Found</h1>
-      <Link href="/">Return Home</Link>
-    </div>
+      <q>
+        The journey in search of what is missing sometimes leads us to
+        ourselves.
+      </q>
+    </section>
   );
 }
 
