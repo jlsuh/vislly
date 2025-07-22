@@ -40,7 +40,7 @@ import {
   WALL,
 } from '../model/vertex.ts';
 import Cell from './Cell.tsx';
-import { getElementByCoordinates } from './getElementByCoordinates.ts';
+import getElementByCoordinates from './getElementByCoordinates.ts';
 import styles from './pathfinding-grid.module.css';
 
 const RESIZE_DIMENSIONS: ResizeDimensions = {

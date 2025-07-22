@@ -8,4 +8,4 @@ function getElementByCoordinates(row: number, col: number): Element {
   return element;
 }
 
-export { getElementByCoordinates };
+export default getElementByCoordinates;

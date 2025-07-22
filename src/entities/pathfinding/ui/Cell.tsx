@@ -8,7 +8,7 @@ import {
   type VertexName,
 } from '../model/vertex.ts';
 import styles from './cell.module.css';
-import { getElementByCoordinates } from './getElementByCoordinates.ts';
+import getElementByCoordinates from './getElementByCoordinates.ts';
 
 function setButtonStyle(vertex: Vertex): void {
   const { row, col, name } = vertex;
