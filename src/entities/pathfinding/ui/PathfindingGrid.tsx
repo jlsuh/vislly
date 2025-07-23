@@ -15,6 +15,7 @@ import {
   composeCssCustomProperty,
   pxToRem,
 } from '@/shared/lib/css.ts';
+import { Rgba } from '@/shared/lib/rgba.ts';
 import useIsHoldingClickOnElement from '@/shared/lib/useIsHoldingClickOnElement.ts';
 import useOnClickOutside from '@/shared/lib/useOnClickOutside.ts';
 import {
@@ -224,6 +225,18 @@ function appearsOnGrid(
 
 const ANIMATION_DELAY = 5;
 const INITIAL_ALGORITHM = 'bfs';
+const VISITED: string = new Rgba(
+  0.686_274_509_803_921_6,
+  0.933_333_333_333_333_3,
+  0.933_333_333_333_333_3,
+  1,
+).toStyle();
+const PATH: string = new Rgba(
+  0.996_078_431_372_549,
+  0.949_019_607_843_137_2,
+  0.313_725_490_196_078_4,
+  1,
+).toStyle();
 
 function PathfindingGrid(): JSX.Element {
   const [cols, setCols] = useState(0);
@@ -311,13 +324,13 @@ function PathfindingGrid(): JSX.Element {
       throw new Error('Last visited vertex is undefined');
     }
     if (!done) {
-      setButtonBackground(lastVisited.row, lastVisited.col, '#AFEEEE');
+      setButtonBackground(lastVisited.row, lastVisited.col, VISITED);
       lastVisitedVertices.current = value;
       return;
     }
     const pathWithoutTerminals = value.slice(1, -1);
     for (const vertex of pathWithoutTerminals) {
-      setButtonBackground(vertex.row, vertex.col, '#FEF250');
+      setButtonBackground(vertex.row, vertex.col, PATH);
     }
     stopPathfind();
     window.clearInterval(intervalId);

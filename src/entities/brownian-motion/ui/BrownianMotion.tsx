@@ -2,6 +2,7 @@
 
 import { type JSX, useEffect, useId } from 'react';
 import { getRootFontSize } from '@/shared/lib/css.ts';
+import { Rgba } from '@/shared/lib/rgba.ts';
 import {
   type ResizeDimensions,
   useResizeDimensions,
@@ -10,7 +11,6 @@ import {
   type CoefficientOfRestitution,
   Particle,
   type ParticleSettings,
-  Rgba,
   Vector2,
 } from '../model/brownian-motion.ts';
 import styles from './brownian-motion.module.css';
@@ -57,7 +57,7 @@ function configureHistoricalCanvas(
   historicalContext.lineCap = 'round';
   historicalContext.lineJoin = 'round';
   historicalContext.lineWidth = 0.8;
-  historicalContext.strokeStyle = PURPLE.toStyle();
+  historicalContext.strokeStyle = PURPLE;
 }
 
 function resetCanvas(
@@ -150,24 +150,24 @@ const RESIZE_DIMENSIONS: ResizeDimensions = {
   width: 0,
 };
 
-const BLUE: Rgba = new Rgba(
+const BLUE: string = new Rgba(
   0.237_254_901_96,
   0.537_254_901_96,
   0.854_901_960_78,
   0.25,
-);
-const POLLEN: Rgba = new Rgba(
+).toStyle();
+const POLLEN: string = new Rgba(
   0.976_470_588_23,
   0.815_686_274_51,
   0.086_274_509_8,
   1,
-);
-const PURPLE: Rgba = new Rgba(
+).toStyle();
+const PURPLE: string = new Rgba(
   0.784_313_725_490_196_1,
   0.454_901_960_784_313_7,
   0.698_039_215_686_274_5,
   1,
-);
+).toStyle();
 
 const COR: CoefficientOfRestitution = 1;
 const DEFAULT_ROOT_FONT_SIZE = 16;
@@ -198,7 +198,7 @@ function BrownianMotion(): JSX.Element {
     configureHistoricalCanvas(historicalContext);
     const particles = [
       ...composeParticles(1, () => ({
-        fillColor: POLLEN.toStyle(),
+        fillColor: POLLEN,
         isTracked: true,
         r: currentPollenRadius,
         vix: 0,
@@ -207,7 +207,7 @@ function BrownianMotion(): JSX.Element {
         y: dimensions.boundedHeight / 2,
       })),
       ...composeParticles(NUMBER_OF_PARTICLES, () => ({
-        fillColor: BLUE.toStyle(),
+        fillColor: BLUE,
         isTracked: false,
         r: currentMoleculeRadius,
         vix: Math.random() * currentInitialSpeed * Math.cos(getRandomAngle()),
