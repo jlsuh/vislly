@@ -2,6 +2,20 @@ import type { ReadonlyDeep } from 'type-fest';
 import type { Vertex } from './vertex.ts';
 
 type PathfindingAlgorithm = 'bfs';
+type Step = { row: number; col: number };
+
+const OrthogonalCardinalDirections: ReadonlyDeep<Step[]> = [
+  { row: -1, col: 0 },
+  { row: 1, col: 0 },
+  { row: 0, col: 1 },
+  { row: 0, col: -1 },
+];
+const DiagonalCardinalDirections: ReadonlyDeep<Step[]> = [
+  { row: -1, col: -1 },
+  { row: 1, col: -1 },
+  { row: 1, col: 1 },
+  { row: -1, col: 1 },
+];
 
 abstract class PathfindingStrategy {
   private isWithinBounds(
@@ -13,14 +27,16 @@ abstract class PathfindingStrategy {
     return row >= 0 && row < gridRows && col >= 0 && col < gridCols;
   }
 
-  public getNeighbors(grid: Vertex[][], vertex: Vertex): Vertex[] {
+  public composeNeighbors(
+    grid: Vertex[][],
+    vertex: Vertex,
+    isDiagonalAllowed: boolean,
+  ): Vertex[] {
+    const directions: Step[] = [...OrthogonalCardinalDirections];
+    if (isDiagonalAllowed) {
+      directions.push(...DiagonalCardinalDirections);
+    }
     const neighbors: Vertex[] = [];
-    const directions = [
-      { row: -1, col: 0 },
-      { row: 0, col: -1 },
-      { row: 0, col: 1 },
-      { row: 1, col: 0 },
-    ];
     for (const dir of directions) {
       const dRow = vertex.row + dir.row;
       const dCol = vertex.col + dir.col;
@@ -56,6 +72,7 @@ abstract class PathfindingStrategy {
     grid: Vertex[][],
     start: Vertex,
     end: Vertex,
+    isDiagonalAllowed: boolean,
   ): Generator<Vertex[], Vertex[]>;
 }
 
@@ -64,6 +81,7 @@ class BfsStrategy extends PathfindingStrategy {
     grid: Vertex[][],
     start: Vertex,
     end: Vertex,
+    isDiagonalAllowed: boolean,
   ): Generator<Vertex[], Vertex[]> {
     const queue: Vertex[] = [start];
     const visited: Set<Vertex> = new Set([start]);
@@ -76,7 +94,12 @@ class BfsStrategy extends PathfindingStrategy {
         (() => {
           throw new Error('Queue is empty');
         })();
-      for (const neighbor of super.getNeighbors(grid, current)) {
+      const neighbors = super.composeNeighbors(
+        grid,
+        current,
+        isDiagonalAllowed,
+      );
+      for (const neighbor of neighbors) {
         if (visited.has(neighbor)) {
           continue;
         }

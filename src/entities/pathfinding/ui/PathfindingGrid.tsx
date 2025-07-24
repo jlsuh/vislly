@@ -242,6 +242,7 @@ function PathfindingGrid(): JSX.Element {
   const [cols, setCols] = useState(0);
   const [grid, setGrid] = useState<Vertex[][]>([]);
   const [isAnimationRunning, setIsAnimationRunning] = useState(false);
+  const [isDiagonalAllowed, setIsDiagonalAllowed] = useState(false);
   const [rows, setRows] = useState(0);
   const [selectedAlgorithmName, setSelectedAlgorithmName] =
     useState<PathfindingAlgorithm>(INITIAL_ALGORITHM);
@@ -257,6 +258,7 @@ function PathfindingGrid(): JSX.Element {
   });
 
   const algorithmSelectId = useId();
+  const isDiagonalAllowedInputId = useId();
   const vertexNameSelectId = useId();
 
   const { dimensions, ref } =
@@ -355,6 +357,7 @@ function PathfindingGrid(): JSX.Element {
         grid,
         terminalVertices.current.start,
         terminalVertices.current.end,
+        isDiagonalAllowed,
       );
       lastGenerator.current = generator;
     }
@@ -420,6 +423,19 @@ function PathfindingGrid(): JSX.Element {
       <button onClick={resetPathfind} type="button">
         Reset
       </button>
+      <div>
+        <input
+          id={isDiagonalAllowedInputId}
+          type="checkbox"
+          checked={isDiagonalAllowed}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setIsDiagonalAllowed(e.target.checked)
+          }
+        />
+        <label htmlFor={isDiagonalAllowedInputId}>
+          Allow diagonal movement
+        </label>
+      </div>
       <section
         aria-label="Pathfinding grid"
         className={styles.grid}
