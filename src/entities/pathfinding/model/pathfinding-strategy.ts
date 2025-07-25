@@ -1,5 +1,4 @@
 import type { ReadonlyDeep } from 'type-fest';
-import { Queue } from '@/shared/lib/queue.ts';
 import { START, type Vertex, WALL } from './vertex.ts';
 
 type PathfindingAlgorithm = 'bfs';
@@ -118,68 +117,4 @@ abstract class PathfindingStrategy {
   ): Generator<Vertex[], Vertex[]>;
 }
 
-class BfsStrategy extends PathfindingStrategy {
-  public *generator(
-    grid: Vertex[][],
-    start: Vertex,
-    end: Vertex,
-    isDiagonalAllowed: boolean,
-  ): Generator<Vertex[], Vertex[]> {
-    const queue: Queue<Vertex> = new Queue([start]);
-    const visited: Set<Vertex> = new Set([start]);
-    const previous: Map<Vertex, Vertex | null> = new Map(
-      grid.flatMap((row) => row.map((vertex) => [vertex, null])),
-    );
-    while (!queue.empty()) {
-      const current =
-        queue.dequeue() ??
-        (() => {
-          throw new Error('Queue is empty');
-        })();
-      const neighbors = super.composeNeighbors(
-        grid,
-        current,
-        isDiagonalAllowed,
-      );
-      for (const neighbor of neighbors) {
-        if (visited.has(neighbor)) {
-          continue;
-        }
-        previous.set(neighbor, current);
-        if (neighbor.name === end.name) {
-          return super.reconstructPath(previous, start, neighbor);
-        }
-        queue.enqueue(neighbor);
-        visited.add(neighbor);
-        yield [...visited];
-      }
-    }
-    throw new Error('BFS: No path found');
-  }
-}
-
-function assertIsPathfindingAlgorithm(
-  value: unknown,
-): asserts value is PathfindingAlgorithm {
-  if (
-    typeof value !== 'string' ||
-    !Object.keys(PATHFINDING_ALGORITHMS).includes(value)
-  ) {
-    throw new Error(`Invalid pathfinding algorithm: ${value}`);
-  }
-}
-
-const PATHFINDING_ALGORITHMS: ReadonlyDeep<
-  Record<
-    PathfindingAlgorithm,
-    { strategy: PathfindingStrategy; label: PathfindingAlgorithm }
-  >
-> = {
-  bfs: { strategy: new BfsStrategy(), label: 'bfs' },
-};
-
-export {
-  assertIsPathfindingAlgorithm,
-  PATHFINDING_ALGORITHMS,
-  type PathfindingAlgorithm,
-};
+export { PathfindingStrategy, type PathfindingAlgorithm };
