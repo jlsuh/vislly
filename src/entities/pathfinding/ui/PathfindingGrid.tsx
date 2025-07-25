@@ -26,7 +26,7 @@ import {
   assertIsPathfindingAlgorithm,
   PATHFINDING_ALGORITHMS,
   type PathfindingAlgorithm,
-} from '../model/pathfinding-algorithms.ts';
+} from '../model/pathfinding-strategy.ts';
 import {
   assertIsTerminalVertex,
   assertIsVertexName,
