@@ -28,37 +28,37 @@ abstract class PathfindingStrategy {
     return row >= 0 && row < gridRows && col >= 0 && col < gridCols;
   }
 
-  private composeOrthogonalizedDirections(diagonalStep: Step): Step[] {
-    const o1 = { row: diagonalStep.row, col: 0 };
-    const o2 = { row: 0, col: diagonalStep.col };
-    return [o1, o2];
+  private composeOrthogonalizedDirections({ row, col }: Step): Step[] {
+    return [
+      { row, col: 0 },
+      { row: 0, col },
+    ];
   }
 
-  private composeDiagonalDirectionsWithoutDiagonalWallJumps(
+  private shouldSkipDiagonalStep(
     grid: Vertex[][],
     vertex: Vertex,
-  ): Step[] {
-    const directions: Step[] = [];
-    for (const diagonalDirection of DiagonalCardinalDirections) {
-      const [o1, o2] = this.composeOrthogonalizedDirections(diagonalDirection);
-      const dRow1 = vertex.row + o1.row;
-      const dCol1 = vertex.col + o1.col;
-      if (!this.isWithinBounds(dRow1, dCol1, grid.length, grid[0].length)) {
-        continue;
-      }
-      const dRow2 = vertex.row + o2.row;
-      const dCol2 = vertex.col + o2.col;
-      if (!this.isWithinBounds(dRow2, dCol2, grid.length, grid[0].length)) {
-        continue;
-      }
-      if (
-        grid[dRow1][dCol1].name !== WALL &&
-        grid[dRow2][dCol2].name !== WALL
-      ) {
-        directions.push(diagonalDirection);
-      }
+    dir: Step,
+  ): boolean {
+    const [o1, o2] = this.composeOrthogonalizedDirections(dir);
+    const o1Row = vertex.row + o1.row;
+    const o1Col = vertex.col + o1.col;
+    if (!this.isWithinBounds(o1Row, o1Col, grid.length, grid[0].length)) {
+      return true;
     }
-    return directions;
+    const o2Row = vertex.row + o2.row;
+    const o2Col = vertex.col + o2.col;
+    if (!this.isWithinBounds(o2Row, o2Col, grid.length, grid[0].length)) {
+      return true;
+    }
+    if (grid[o1Row][o1Col].name === WALL && grid[o2Row][o2Col].name === WALL) {
+      return true;
+    }
+    return false;
+  }
+
+  private isDiagonalMovement(row: number, col: number): boolean {
+    return Math.abs(row) === 1 && Math.abs(col) === 1;
   }
 
   public composeNeighbors(
@@ -68,20 +68,26 @@ abstract class PathfindingStrategy {
   ): Vertex[] {
     const directions: Step[] = [...OrthogonalCardinalDirections];
     if (isDiagonalAllowed) {
-      directions.push(
-        ...this.composeDiagonalDirectionsWithoutDiagonalWallJumps(grid, vertex),
-      );
+      directions.push(...DiagonalCardinalDirections);
     }
     const neighbors: Vertex[] = [];
     for (const dir of directions) {
       const dRow = vertex.row + dir.row;
       const dCol = vertex.col + dir.col;
-      if (this.isWithinBounds(dRow, dCol, grid.length, grid[0].length)) {
-        const neighbor = grid[dRow][dCol];
-        if (neighbor.name !== WALL && neighbor.name !== START) {
-          neighbors.push(neighbor);
-        }
+      if (!this.isWithinBounds(dRow, dCol, grid.length, grid[0].length)) {
+        continue;
       }
+      const neighbor = grid[dRow][dCol];
+      if (neighbor.name === WALL || neighbor.name === START) {
+        continue;
+      }
+      if (
+        this.isDiagonalMovement(dir.row, dir.col) &&
+        this.shouldSkipDiagonalStep(grid, vertex, dir)
+      ) {
+        continue;
+      }
+      neighbors.push(neighbor);
     }
     return neighbors;
   }
