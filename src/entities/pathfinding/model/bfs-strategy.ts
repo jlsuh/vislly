@@ -11,7 +11,7 @@ class BfsStrategy extends PathfindingStrategy {
   ): Generator<Vertex[], Vertex[]> {
     const open: Queue<Vertex> = new Queue([start]);
     const closed: Set<Vertex> = new Set([start]);
-    const previous: Map<Vertex, Vertex | null> = new Map(
+    const parent: Map<Vertex, Vertex | null> = new Map(
       grid.flatMap((row) => row.map((vertex) => [vertex, null])),
     );
     while (!open.empty()) {
@@ -29,9 +29,9 @@ class BfsStrategy extends PathfindingStrategy {
         if (closed.has(neighbor)) {
           continue;
         }
-        previous.set(neighbor, current);
+        parent.set(neighbor, current);
         if (neighbor.name === end.name) {
-          return super.reconstructPath(previous, start, neighbor);
+          return super.reconstructPath(parent, start, neighbor);
         }
         open.enqueue(neighbor);
         closed.add(neighbor);
