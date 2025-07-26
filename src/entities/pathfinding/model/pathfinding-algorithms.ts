@@ -25,4 +25,10 @@ const PATHFINDING_ALGORITHMS: ReadonlyDeep<
   bfs: { strategy: new BfsStrategy(), label: 'bfs' },
 };
 
-export { assertIsPathfindingAlgorithm, PATHFINDING_ALGORITHMS };
+const INITIAL_ALGORITHM = 'bfs';
+
+export {
+  assertIsPathfindingAlgorithm,
+  INITIAL_ALGORITHM,
+  PATHFINDING_ALGORITHMS,
+};

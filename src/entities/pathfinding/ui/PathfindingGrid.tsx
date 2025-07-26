@@ -24,6 +24,7 @@ import {
 } from '@/shared/lib/useResizeDimensions.ts';
 import {
   assertIsPathfindingAlgorithm,
+  INITIAL_ALGORITHM,
   PATHFINDING_ALGORITHMS,
 } from '../model/pathfinding-algorithms.ts';
 import type { PathfindingAlgorithm } from '../model/pathfinding-strategy.ts';
@@ -224,7 +225,6 @@ function appearsOnGrid(
 }
 
 const ANIMATION_DELAY = 5;
-const INITIAL_ALGORITHM = 'bfs';
 const VISITED: string = new Rgba(
   0.686_274_509_803_921_6,
   0.933_333_333_333_333_3,
