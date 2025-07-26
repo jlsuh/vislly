@@ -1,4 +1,4 @@
-import type { ReadonlyDeep, StringSlice } from 'type-fest';
+import type { ReadonlyDeep } from 'type-fest';
 
 const EMPTY = 'empty';
 const END = 'end';
@@ -9,7 +9,6 @@ const INITIAL_COORDINATE = -1;
 
 type VertexName = typeof WALL | typeof EMPTY | typeof START | typeof END;
 type TerminalVertex = Extract<VertexName, typeof START | typeof END>;
-type VertexNameFirstChar = StringSlice<VertexName, 0, 1>;
 
 class Vertex {
   public readonly row: number;
@@ -33,10 +32,6 @@ class Vertex {
 
   public positionEquals(that: Vertex): boolean {
     return this.row === that.row && this.col === that.col;
-  }
-
-  public get firstChar(): VertexNameFirstChar {
-    return this.name.charAt(0) as VertexNameFirstChar;
   }
 }
 
