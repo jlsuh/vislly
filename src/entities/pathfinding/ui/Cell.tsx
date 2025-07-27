@@ -83,7 +83,9 @@ function Cell({
       onMouseDown={() => setNewVertexName(selectedVertexName)}
       onTouchStart={() => setNewVertexName(selectedVertexName)}
       type="button"
-    />
+    >
+      <div className={styles.cellStatus} />
+    </button>
   );
 }
 

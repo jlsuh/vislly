@@ -176,19 +176,29 @@ function handleOverflownTerminalCells(
   terminalCells.current = newTerminalCells;
 }
 
+function getAssociatedDiv(row: number, col: number): Element {
+  const element = getElementByCoordinates(row, col);
+  const associatedDiv = element.firstElementChild;
+  if (associatedDiv === null) {
+    throw new Error(
+      `Associated div not found for coordinates (${row}, ${col})`,
+    );
+  }
+  return associatedDiv;
+}
+
 function setButtonBackground(
   row: number,
   col: number,
   backgroundColor: string,
 ): void {
-  getElementByCoordinates(row, col).setAttribute(
-    'style',
-    `background-color: ${backgroundColor};`,
-  );
+  const associatedDiv = getAssociatedDiv(row, col);
+  associatedDiv.setAttribute('style', `background-color: ${backgroundColor};`);
 }
 
 function removeButtonBackground(row: number, col: number): void {
-  getElementByCoordinates(row, col).removeAttribute('style');
+  const associatedDiv = getAssociatedDiv(row, col);
+  associatedDiv.removeAttribute('style');
 }
 
 function resetButtonStyles(vertices: Vertex[]): void {
@@ -229,13 +239,13 @@ const VISITED: string = new Rgba(
   0.686_274_509_803_921_6,
   0.933_333_333_333_333_3,
   0.933_333_333_333_333_3,
-  1,
+  0.6,
 ).toStyle();
 const PATH: string = new Rgba(
   0.996_078_431_372_549,
   0.949_019_607_843_137_2,
   0.313_725_490_196_078_4,
-  1,
+  0.75,
 ).toStyle();
 
 function PathfindingGrid(): JSX.Element {

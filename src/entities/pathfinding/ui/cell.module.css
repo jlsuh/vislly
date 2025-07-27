@@ -22,11 +22,50 @@
     background-color: #ee4400;
   }
 
+  .gravel {
+    min-height: 100%;
+    background:
+      repeating-radial-gradient(#000 0 0.0001%, #999 0 0.0002%) 60% 60% / 3000px
+      3000px,
+      repeating-conic-gradient(#000 0 0.0001%, #999 0 0.0002%) 40% 40% / 3000px
+      3000px;
+    background-blend-mode: difference;
+  }
+
+  .grass {
+    background-color: #557d46;
+  }
+
+  .sand {
+    background-color: #c3af7d;
+  }
+
+  .snow {
+    background-color: #fffafa;
+  }
+
   .start {
     background-color: #00dd00;
   }
 
-  .wall {
+  .stone {
     background-color: #808080;
+  }
+
+  .wall {
+    background-color: #0c3547;
+  }
+
+  .water-deep {
+    background-color: #004196;
+  }
+
+  .water {
+    background-color: #006eff;
+  }
+
+  .cellStatus {
+    height: 100%;
+    width: 100%;
   }
 }

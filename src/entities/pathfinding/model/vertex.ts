@@ -2,24 +2,58 @@ import type { ReadonlyDeep } from 'type-fest';
 
 const EMPTY = 'empty';
 const END = 'end';
+const GRAVEL = 'gravel';
+const GRASS = 'grass';
+const SAND = 'sand';
+const SNOW = 'snow';
 const START = 'start';
+const STONE = 'stone';
 const WALL = 'wall';
+const WATER = 'water';
+const WATER_DEEP = 'water-deep';
 
 const INITIAL_COORDINATE = -1;
 
-type VertexName = typeof WALL | typeof EMPTY | typeof START | typeof END;
+const WEIGHTS: ReadonlyDeep<Record<VertexName, number>> = {
+  [EMPTY]: 1,
+  [END]: 1,
+  [GRASS]: 5,
+  [GRAVEL]: 50,
+  [SAND]: 7,
+  [SNOW]: 75,
+  [START]: 1,
+  [STONE]: 25,
+  [WALL]: Number.POSITIVE_INFINITY,
+  [WATER_DEEP]: 100,
+  [WATER]: 50,
+};
+
+type VertexName =
+  | typeof EMPTY
+  | typeof END
+  | typeof GRAVEL
+  | typeof GRASS
+  | typeof SAND
+  | typeof SNOW
+  | typeof START
+  | typeof STONE
+  | typeof WALL
+  | typeof WATER
+  | typeof WATER_DEEP;
 type TerminalVertex = Extract<VertexName, typeof START | typeof END>;
 
 class Vertex {
   public readonly row: number;
   public readonly col: number;
   public readonly name: VertexName;
+  public readonly weight: number;
 
   public constructor(row: number, col: number, name: VertexName) {
     assertIsVertexName(name);
-    this.name = name;
     this.row = row;
     this.col = col;
+    this.name = name;
+    this.weight = WEIGHTS[name];
   }
 
   public appearsOnGrid(): boolean {
@@ -36,7 +70,19 @@ class Vertex {
 }
 
 function isVertexName(value: unknown): value is VertexName {
-  return value === WALL || value === EMPTY || value === START || value === END;
+  return (
+    value === EMPTY ||
+    value === END ||
+    value === GRAVEL ||
+    value === GRASS ||
+    value === SAND ||
+    value === SNOW ||
+    value === START ||
+    value === STONE ||
+    value === WALL ||
+    value === WATER ||
+    value === WATER_DEEP
+  );
 }
 
 function assertIsVertexName(value: unknown): asserts value is VertexName {
@@ -57,7 +103,19 @@ function assertIsTerminalVertex(
   }
 }
 
-const VERTEX_NAMES: ReadonlyDeep<VertexName[]> = [WALL, EMPTY, START, END];
+const VERTEX_NAMES: ReadonlyDeep<VertexName[]> = [
+  EMPTY,
+  END,
+  GRASS,
+  GRAVEL,
+  SAND,
+  SNOW,
+  START,
+  STONE,
+  WALL,
+  WATER_DEEP,
+  WATER,
+];
 
 export {
   assertIsTerminalVertex,
