@@ -294,6 +294,7 @@ function PathfindingGrid(): JSX.Element {
   }, [stopPathfind]);
 
   useEffect(() => {
+    resetPathfind();
     const newCols = Math.floor(
       pxToRem(dimensions.boundedWidth) / CELL_DIM_SIZE,
     );
@@ -308,7 +309,6 @@ function PathfindingGrid(): JSX.Element {
     }
     setGrid((prevGrid) => composeNewGrid(prevGrid, rows, cols));
     handleOverflownTerminalCells(terminalVertices, rows, cols);
-    return () => resetPathfind();
   }, [
     dimensions.boundedHeight,
     dimensions.boundedWidth,
@@ -336,7 +336,14 @@ function PathfindingGrid(): JSX.Element {
       throw new Error('Last visited vertex is undefined');
     }
     if (!done) {
-      setButtonBackground(lastVisited.row, lastVisited.col, VISITED);
+      try {
+        setButtonBackground(lastVisited.row, lastVisited.col, VISITED);
+      } catch (_) {
+        console.info('Skipping setting background for', lastVisited);
+        stopPathfind();
+        window.clearInterval(intervalId);
+        return;
+      }
       lastVisitedVertices.current = value;
       return;
     }
