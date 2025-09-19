@@ -19,18 +19,18 @@
     "start": "next start"
   },
   "dependencies": {
-    "next": "15.4.4",
+    "next": "15.5.3",
     "react": "19.1.1",
     "react-dom": "19.1.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.0.6",
-    "@types/node": "24.1.0",
-    "@types/react": "19.1.8",
-    "@types/react-dom": "19.1.6",
-    "dependency-cruiser": "17.0.0",
-    "serve": "14.2.4",
-    "type-fest": "4.41.0",
-    "typescript": "5.8.3"
+    "@biomejs/biome": "2.2.4",
+    "@types/node": "24.5.2",
+    "@types/react": "19.1.13",
+    "@types/react-dom": "19.1.9",
+    "dependency-cruiser": "17.0.1",
+    "serve": "14.2.5",
+    "type-fest": "5.0.0",
+    "typescript": "5.9.2"
   }
 }
