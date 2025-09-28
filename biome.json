@@ -5,7 +5,13 @@
   "javascript": { "formatter": { "quoteStyle": "single" } },
   "linter": {
     "rules": {
-      "recommended": true
+      "recommended": true,
+      "complexity": {
+        "noUselessFragments": "off"
+      },
+      "suspicious": {
+        "noDuplicateProperties": "off"
+      }
     },
     "domains": {
       "next": "all",
