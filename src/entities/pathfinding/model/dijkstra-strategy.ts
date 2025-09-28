@@ -9,7 +9,7 @@ class DijkstraStrategy extends PathfindingStrategy {
     end: Vertex,
     isDiagonalAllowed: boolean,
   ): Generator<Vertex[], Vertex[]> {
-    const open = new PriorityQueue<Vertex>();
+    const open = new PriorityQueue<Vertex>([{ item: start, priority: 0 }]);
     const closed = new Set<Vertex>();
     const distances = new Map<Vertex, number>(
       grid.flatMap((row) => row.map((vertex) => [vertex, Infinity])),
@@ -18,7 +18,6 @@ class DijkstraStrategy extends PathfindingStrategy {
       grid.flatMap((row) => row.map((vertex) => [vertex, null])),
     );
     distances.set(start, 0);
-    open.enqueue(start, 0);
     while (!open.empty()) {
       const current =
         open.dequeue() ??

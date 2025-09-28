@@ -9,13 +9,11 @@ class BfsStrategy extends PathfindingStrategy {
     end: Vertex,
     isDiagonalAllowed: boolean,
   ): Generator<Vertex[], Vertex[]> {
-    const open: Queue<Vertex> = new Queue();
+    const open: Queue<Vertex> = new Queue([start]);
     const closed: Set<Vertex> = new Set([start]);
     const parent: Map<Vertex, Vertex | null> = new Map(
       grid.flatMap((row) => row.map((vertex) => [vertex, null])),
     );
-    open.enqueue(start);
-    closed.add(start);
     yield [...closed];
     while (!open.empty()) {
       const current =
