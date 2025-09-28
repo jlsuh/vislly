@@ -69,23 +69,11 @@ class Vertex {
   }
 }
 
-function isVertexName(value: unknown): value is VertexName {
-  return (
-    value === EMPTY ||
-    value === END ||
-    value === GRAVEL ||
-    value === GRASS ||
-    value === SAND ||
-    value === SNOW ||
-    value === START ||
-    value === STONE ||
-    value === WALL ||
-    value === WATER ||
-    value === WATER_DEEP
-  );
+function isVertexName(value: string): value is VertexName {
+  return WEIGHTS[value as VertexName] !== undefined;
 }
 
-function assertIsVertexName(value: unknown): asserts value is VertexName {
+function assertIsVertexName(value: string): asserts value is VertexName {
   if (!isVertexName(value)) {
     throw new Error(`Invalid vertex: ${value}`);
   }
