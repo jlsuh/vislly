@@ -2,6 +2,7 @@ import type { ReadonlyDeep } from 'type-fest';
 import { AStarStrategy } from './a-star-strategy.ts';
 import { BfsStrategy } from './bfs-strategy.ts';
 import { DijkstraStrategy } from './dijkstra-strategy.ts';
+import { GreedyBestFirstSearchStrategy } from './gbfs-strategy.ts';
 import type {
   PathfindingAlgorithm,
   PathfindingStrategy,
@@ -39,9 +40,14 @@ const PATHFINDING_ALGORITHMS: ReadonlyDeep<
     label: 'dijkstra',
     withHeuristics: false,
   },
+  gbfs: {
+    strategy: new GreedyBestFirstSearchStrategy(),
+    label: 'gbfs',
+    withHeuristics: true,
+  },
 };
 
-const INITIAL_ALGORITHM = 'bfs';
+const INITIAL_ALGORITHM: PathfindingAlgorithm = 'a-star';
 
 export {
   assertIsPathfindingAlgorithm,
