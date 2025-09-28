@@ -9,11 +9,14 @@ class BfsStrategy extends PathfindingStrategy {
     end: Vertex,
     isDiagonalAllowed: boolean,
   ): Generator<Vertex[], Vertex[]> {
-    const open: Queue<Vertex> = new Queue([start]);
+    const open: Queue<Vertex> = new Queue();
     const closed: Set<Vertex> = new Set([start]);
     const parent: Map<Vertex, Vertex | null> = new Map(
       grid.flatMap((row) => row.map((vertex) => [vertex, null])),
     );
+    open.enqueue(start);
+    closed.add(start);
+    yield [...closed];
     while (!open.empty()) {
       const current =
         open.dequeue() ??
@@ -30,12 +33,12 @@ class BfsStrategy extends PathfindingStrategy {
           continue;
         }
         parent.set(neighbor, current);
-        if (neighbor.name === end.name) {
-          return super.reconstructPath(parent, start, neighbor);
-        }
         open.enqueue(neighbor);
         closed.add(neighbor);
         yield [...closed];
+        if (neighbor.name === end.name) {
+          return super.reconstructPath(parent, start, neighbor);
+        }
       }
     }
     throw new Error('BFS: No path found');

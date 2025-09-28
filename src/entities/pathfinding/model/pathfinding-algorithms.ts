@@ -1,5 +1,6 @@
 import type { ReadonlyDeep } from 'type-fest';
 import { BfsStrategy } from './bfs-strategy.ts';
+import { DijkstraStrategy } from './dijkstra-strategy.ts';
 import type {
   PathfindingAlgorithm,
   PathfindingStrategy,
@@ -23,6 +24,7 @@ const PATHFINDING_ALGORITHMS: ReadonlyDeep<
   >
 > = {
   bfs: { strategy: new BfsStrategy(), label: 'bfs' },
+  dijkstra: { strategy: new DijkstraStrategy(), label: 'dijkstra' },
 };
 
 const INITIAL_ALGORITHM = 'bfs';

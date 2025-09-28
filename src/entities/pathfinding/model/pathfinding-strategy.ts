@@ -1,7 +1,7 @@
 import type { ReadonlyDeep } from 'type-fest';
 import { START, type Vertex, WALL } from './vertex.ts';
 
-type PathfindingAlgorithm = 'bfs';
+type PathfindingAlgorithm = 'bfs' | 'dijkstra';
 type Step = { row: number; col: number };
 
 const OrthogonalCardinalDirections: ReadonlyDeep<Step[]> = [
