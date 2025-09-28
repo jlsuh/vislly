@@ -23,6 +23,12 @@ import {
   useResizeDimensions,
 } from '@/shared/lib/useResizeDimensions.ts';
 import {
+  assertIsHeuristicsName,
+  type HeuristicsName,
+  HeuristicsNames,
+  INITIAL_HEURISTICS,
+} from '../model/heuristics.ts';
+import {
   assertIsPathfindingAlgorithm,
   INITIAL_ALGORITHM,
   PATHFINDING_ALGORITHMS,
@@ -257,6 +263,8 @@ function PathfindingGrid(): JSX.Element {
   const [rows, setRows] = useState(0);
   const [selectedAlgorithmName, setSelectedAlgorithmName] =
     useState<PathfindingAlgorithm>(INITIAL_ALGORITHM);
+  const [selectedHeuristicsName, setSelectedHeuristicsName] =
+    useState<HeuristicsName>(INITIAL_HEURISTICS);
   const [selectedVertexName, setSelectedVertexName] =
     useState<VertexName>(WALL);
 
@@ -269,6 +277,7 @@ function PathfindingGrid(): JSX.Element {
   });
 
   const algorithmSelectId = useId();
+  const heuristicsSelectId = useId();
   const isDiagonalAllowedInputId = useId();
   const vertexNameSelectId = useId();
 
@@ -376,6 +385,7 @@ function PathfindingGrid(): JSX.Element {
         terminalVertices.current.start,
         terminalVertices.current.end,
         isDiagonalAllowed,
+        selectedHeuristicsName,
       );
       lastGenerator.current = generator;
     }
@@ -465,6 +475,24 @@ function PathfindingGrid(): JSX.Element {
       <button onClick={randomizeGrid} type="button">
         Randomize
       </button>
+      {PATHFINDING_ALGORITHMS[selectedAlgorithmName].withHeuristics ? (
+        <select
+          id={heuristicsSelectId}
+          key={selectedHeuristicsName}
+          onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+            const { value } = e.target;
+            assertIsHeuristicsName(value);
+            setSelectedHeuristicsName(value);
+          }}
+          value={selectedHeuristicsName}
+        >
+          {Object.values(HeuristicsNames).map((heuristics) => (
+            <option key={heuristics} value={heuristics}>
+              {heuristics}
+            </option>
+          ))}
+        </select>
+      ) : null}
       <div>
         <input
           id={isDiagonalAllowedInputId}

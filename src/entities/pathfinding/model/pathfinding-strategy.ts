@@ -1,7 +1,8 @@
 import type { ReadonlyDeep } from 'type-fest';
+import type { HeuristicsName } from './heuristics.ts';
 import { START, type Vertex, WALL } from './vertex.ts';
 
-type PathfindingAlgorithm = 'bfs' | 'dijkstra';
+type PathfindingAlgorithm = 'a-star' | 'bfs' | 'dijkstra';
 type Step = { row: number; col: number };
 
 const OrthogonalCardinalDirections: ReadonlyDeep<Step[]> = [
@@ -114,6 +115,7 @@ abstract class PathfindingStrategy {
     start: Vertex,
     end: Vertex,
     isDiagonalAllowed: boolean,
+    heuristicsName?: HeuristicsName,
   ): Generator<Vertex[], Vertex[]>;
 }
 
