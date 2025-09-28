@@ -3,6 +3,32 @@ import { PathfindingStrategy } from './pathfinding-strategy';
 import type { Vertex } from './vertex';
 
 class DijkstraStrategy extends PathfindingStrategy {
+  private processNeighbor({
+    closed,
+    current,
+    distances,
+    neighbor,
+    open,
+    parent,
+  }: {
+    closed: Set<Vertex>;
+    current: Vertex;
+    distances: Map<Vertex, number>;
+    neighbor: Vertex;
+    open: PriorityQueue<Vertex>;
+    parent: Map<Vertex, Vertex | null>;
+  }): void {
+    if (closed.has(neighbor)) {
+      return;
+    }
+    const newDistance = (distances.get(current) ?? Infinity) + neighbor.weight;
+    if (newDistance < (distances.get(neighbor) ?? Infinity)) {
+      distances.set(neighbor, newDistance);
+      parent.set(neighbor, current);
+      open.enqueue(neighbor, newDistance);
+    }
+  }
+
   public *generator(
     grid: Vertex[][],
     start: Vertex,
@@ -35,16 +61,14 @@ class DijkstraStrategy extends PathfindingStrategy {
         isDiagonalAllowed,
       );
       for (const neighbor of neighbors) {
-        if (closed.has(neighbor)) {
-          continue;
-        }
-        const newDistance =
-          (distances.get(current) ?? Infinity) + neighbor.weight;
-        if (newDistance < (distances.get(neighbor) ?? Infinity)) {
-          distances.set(neighbor, newDistance);
-          parent.set(neighbor, current);
-          open.enqueue(neighbor, newDistance);
-        }
+        this.processNeighbor({
+          closed,
+          current,
+          distances,
+          neighbor,
+          open,
+          parent,
+        });
       }
     }
     throw new Error('Dijkstra: No path found');
