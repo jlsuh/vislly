@@ -29,12 +29,17 @@ class DijkstraStrategy extends PathfindingStrategy {
     }
   }
 
-  public *generator(
-    grid: Vertex[][],
-    start: Vertex,
-    end: Vertex,
-    isDiagonalAllowed: boolean,
-  ): Generator<Vertex[], Vertex[]> {
+  public *generator({
+    end,
+    grid,
+    isDiagonalAllowed,
+    start,
+  }: {
+    end: Vertex;
+    grid: Vertex[][];
+    isDiagonalAllowed: boolean;
+    start: Vertex;
+  }): Generator<Vertex[], Vertex[]> {
     const open = new PriorityQueue<Vertex>([{ item: start, priority: 0 }]);
     const closed = new Set<Vertex>();
     const distances = new Map<Vertex, number>(

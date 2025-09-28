@@ -380,13 +380,13 @@ function PathfindingGrid(): JSX.Element {
     }
     if (lastGenerator.current === null) {
       const { strategy } = PATHFINDING_ALGORITHMS[selectedAlgorithmName];
-      const generator = strategy.generator(
+      const generator = strategy.generator({
+        end: terminalVertices.current.end,
         grid,
-        terminalVertices.current.start,
-        terminalVertices.current.end,
+        heuristicsName: selectedHeuristicsName,
         isDiagonalAllowed,
-        selectedHeuristicsName,
-      );
+        start: terminalVertices.current.start,
+      });
       lastGenerator.current = generator;
     }
     handlePathfindingFrame(intervalId);

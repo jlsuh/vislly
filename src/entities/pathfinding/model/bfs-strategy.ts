@@ -3,12 +3,17 @@ import { PathfindingStrategy } from './pathfinding-strategy.ts';
 import type { Vertex } from './vertex.ts';
 
 class BfsStrategy extends PathfindingStrategy {
-  public *generator(
-    grid: Vertex[][],
-    start: Vertex,
-    end: Vertex,
-    isDiagonalAllowed: boolean,
-  ): Generator<Vertex[], Vertex[]> {
+  public *generator({
+    end,
+    grid,
+    isDiagonalAllowed,
+    start,
+  }: {
+    end: Vertex;
+    grid: Vertex[][];
+    isDiagonalAllowed: boolean;
+    start: Vertex;
+  }): Generator<Vertex[], Vertex[]> {
     const open: Queue<Vertex> = new Queue([start]);
     const closed: Set<Vertex> = new Set([start]);
     const parent: Map<Vertex, Vertex | null> = new Map(

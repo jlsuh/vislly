@@ -110,13 +110,19 @@ abstract class PathfindingStrategy {
     return path;
   }
 
-  public abstract generator(
-    grid: Vertex[][],
-    start: Vertex,
-    end: Vertex,
-    isDiagonalAllowed: boolean,
-    heuristicsName?: HeuristicsName,
-  ): Generator<Vertex[], Vertex[]>;
+  public abstract generator({
+    end,
+    grid,
+    heuristicsName,
+    isDiagonalAllowed,
+    start,
+  }: {
+    end: Vertex;
+    grid: Vertex[][];
+    heuristicsName?: HeuristicsName;
+    isDiagonalAllowed: boolean;
+    start: Vertex;
+  }): Generator<Vertex[], Vertex[]>;
 }
 
 export { PathfindingStrategy, type PathfindingAlgorithm };
