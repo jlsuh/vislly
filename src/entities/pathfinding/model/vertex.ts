@@ -91,6 +91,18 @@ function assertIsTerminalVertex(
   }
 }
 
+const NON_TERMINAL_VERTEX_NAMES: ReadonlyDeep<VertexName[]> = [
+  EMPTY,
+  GRASS,
+  GRAVEL,
+  SAND,
+  SNOW,
+  STONE,
+  WALL,
+  WATER_DEEP,
+  WATER,
+];
+
 const VERTEX_NAMES: ReadonlyDeep<VertexName[]> = [
   EMPTY,
   END,
@@ -112,6 +124,7 @@ export {
   END,
   INITIAL_COORDINATE,
   isTerminalVertex,
+  NON_TERMINAL_VERTEX_NAMES,
   START,
   Vertex,
   VERTEX_NAMES,

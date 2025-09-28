@@ -34,6 +34,7 @@ import {
   EMPTY,
   END,
   INITIAL_COORDINATE,
+  NON_TERMINAL_VERTEX_NAMES,
   START,
   type TerminalVertex,
   VERTEX_NAMES,
@@ -397,6 +398,27 @@ function PathfindingGrid(): JSX.Element {
     );
   };
 
+  const randomizeGrid = (): void => {
+    resetPathfind();
+    terminalVertices.current = {
+      start: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, START),
+      end: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, END),
+    };
+    const newGrid: Vertex[][] = [];
+    for (let row = 0; row < rows; row += 1) {
+      const newRow: Vertex[] = [];
+      for (let col = 0; col < cols; col += 1) {
+        const randomName =
+          NON_TERMINAL_VERTEX_NAMES[
+            Math.floor(Math.random() * NON_TERMINAL_VERTEX_NAMES.length)
+          ];
+        newRow.push(new Vertex(row, col, randomName));
+      }
+      newGrid.push(newRow);
+    }
+    setGrid(newGrid);
+  };
+
   return (
     <>
       <select
@@ -439,6 +461,9 @@ function PathfindingGrid(): JSX.Element {
       </button>
       <button onClick={resetPathfind} type="button">
         Reset
+      </button>
+      <button onClick={randomizeGrid} type="button">
+        Randomize
       </button>
       <div>
         <input
