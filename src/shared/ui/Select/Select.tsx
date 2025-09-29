@@ -1,25 +1,25 @@
 'use client';
 
-import { type JSX, useId } from 'react';
+import { type ChangeEvent, type JSX, useId } from 'react';
 import styles from './select.module.css';
 
 export type Option = {
-  value: string;
   label: string;
+  value: string;
 };
 
 type SelectProps = {
+  handleOnSelectChange: (e: ChangeEvent<HTMLSelectElement>) => void;
   label: string;
   options: Option[];
   value: string | null;
-  onChange: (value: string) => void;
 };
 
 export default function Select({
+  handleOnSelectChange,
   label,
   options,
   value,
-  onChange,
 }: SelectProps): JSX.Element {
   const selectId = useId();
   return (
@@ -28,17 +28,17 @@ export default function Select({
         {label}
       </label>
       <select
-        id={selectId}
-        className={styles.select}
         aria-label={label}
+        className={styles.select}
+        id={selectId}
+        onChange={handleOnSelectChange}
         value={value ?? ''}
-        onChange={(e) => onChange(e.target.value)}
       >
         {options.map((option) => (
           <option
+            className={styles.option}
             key={option.value}
             value={option.value}
-            className={styles.option}
           >
             {option.label}
           </option>
