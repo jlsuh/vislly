@@ -1,42 +1,40 @@
-@layer components {
-  .brand {
-    align-items: center;
-    display: flex;
-    gap: 0.25rem;
-    text-decoration: none;
-    user-select: none;
-  }
+.brand {
+  align-items: center;
+  display: flex;
+  gap: 0.25rem;
+  text-decoration: none;
+  user-select: none;
+}
 
-  .brandPath_fill_colorOnSurface {
-    fill: var(--color-on-surface);
-  }
+.brandPath_fill_colorOnSurface {
+  fill: var(--color-on-surface);
+}
 
-  .brandPath_fill_colorOutline {
-    fill: light-dark(var(--color-outline), var(--color-on-primary-container));
-  }
+.brandPath_fill_colorOutline {
+  fill: light-dark(var(--color-outline), var(--color-on-primary-container));
+}
 
-  .brandPath_stroke_colorOnSurface {
-    stroke: var(--color-on-surface);
-  }
+.brandPath_stroke_colorOnSurface {
+  stroke: var(--color-on-surface);
+}
 
-  .brandEye {
-    border-radius: 100%;
-    height: 2.5rem;
+.brandEye {
+  border-radius: 100%;
+  height: 2.5rem;
+  width: 2.5rem;
+  @container headerContainer (width >= 18rem) {
+    height: auto;
     width: 2.5rem;
-    @container headerContainer (width >= 18rem) {
-      height: auto;
-      width: 2.5rem;
-    }
   }
+}
 
-  .brandTitle {
-    display: none;
-    fill: var(--color-on-surface);
-    user-select: none;
-    @container headerContainer (width >= 18rem) {
-      display: inline-flex;
-      height: 2.5rem;
-      width: 5rem;
-    }
+.brandTitle {
+  display: none;
+  fill: var(--color-on-surface);
+  user-select: none;
+  @container headerContainer (width >= 18rem) {
+    display: inline-flex;
+    height: 2.5rem;
+    width: 5rem;
   }
 }

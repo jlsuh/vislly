@@ -1,35 +1,33 @@
-@layer components {
-  .header {
-    background-color: var(--color-surface-container-low);
-    overflow: hidden;
-    position: -webkit-sticky;
-    position: sticky;
-    top: 0;
-    width: 100%;
-    z-index: 2;
-  }
+.header {
+  background-color: var(--color-surface-container-low);
+  overflow: hidden;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 2;
+}
 
-  .headerContainer {
-    container: headerContainer / inline-size;
-    flex-direction: row;
-    height: fit-content;
-    justify-content: space-between;
-    padding: 0.75rem 1.25rem;
-  }
+.headerContainer {
+  container: headerContainer / inline-size;
+  flex-direction: row;
+  height: fit-content;
+  justify-content: space-between;
+  padding: 0.75rem 1.25rem;
+}
 
-  .headerContainer,
-  .leftContainer,
-  .rightContainer {
-    display: flex;
-  }
+.headerContainer,
+.leftContainer,
+.rightContainer {
+  display: flex;
+}
 
-  .leftContainer {
-    gap: 0.5rem;
-  }
+.leftContainer {
+  gap: 0.5rem;
+}
 
-  .leftContainer,
-  .rightContainer {
-    align-items: center;
-    justify-content: center;
-  }
+.leftContainer,
+.rightContainer {
+  align-items: center;
+  justify-content: center;
 }

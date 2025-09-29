@@ -1,71 +1,69 @@
-@layer components {
-  .cell {
-    background-color: lightgray;
-    border-color: var(--color-outline);
-    border-style: solid;
-    border-width: 0 0.0625rem 0.0625rem 0;
-    cursor: pointer;
-    height: var(--cell-size);
-    padding: 0;
-    user-select: none;
-    width: var(--cell-size);
-    &:first-child {
-      border-left-width: 0.0625rem;
-    }
+.cell {
+  background-color: lightgray;
+  border-color: var(--color-outline);
+  border-style: solid;
+  border-width: 0 0.0625rem 0.0625rem 0;
+  cursor: pointer;
+  height: var(--cell-size);
+  padding: 0;
+  user-select: none;
+  width: var(--cell-size);
+  &:first-child {
+    border-left-width: 0.0625rem;
   }
+}
 
-  .empty {
-    background-color: #d3d3d3;
-  }
+.empty {
+  background-color: #d3d3d3;
+}
 
-  .end {
-    background-color: #ee4400;
-  }
+.end {
+  background-color: #ee4400;
+}
 
-  .gravel {
-    min-height: 100%;
-    background:
-      repeating-radial-gradient(#000 0 0.0001%, #999 0 0.0002%) 60% 60% / 3000px
-      3000px,
-      repeating-conic-gradient(#000 0 0.0001%, #999 0 0.0002%) 40% 40% / 3000px
-      3000px;
-    background-blend-mode: difference;
-  }
+.gravel {
+  min-height: 100%;
+  background:
+    repeating-radial-gradient(#000 0 0.0001%, #999 0 0.0002%) 60% 60% / 3000px
+    3000px,
+    repeating-conic-gradient(#000 0 0.0001%, #999 0 0.0002%) 40% 40% / 3000px
+    3000px;
+  background-blend-mode: difference;
+}
 
-  .grass {
-    background-color: #557d46;
-  }
+.grass {
+  background-color: #557d46;
+}
 
-  .sand {
-    background-color: #c3af7d;
-  }
+.sand {
+  background-color: #c3af7d;
+}
 
-  .snow {
-    background-color: #fffafa;
-  }
+.snow {
+  background-color: #fffafa;
+}
 
-  .start {
-    background-color: #00dd00;
-  }
+.start {
+  background-color: #00dd00;
+}
 
-  .stone {
-    background-color: #808080;
-  }
+.stone {
+  background-color: #808080;
+}
 
-  .wall {
-    background-color: #0c3547;
-  }
+.wall {
+  background-color: #0c3547;
+}
 
-  .water-deep {
-    background-color: #004196;
-  }
+.water-deep {
+  background-color: #004196;
+}
 
-  .water {
-    background-color: #006eff;
-  }
+.water {
+  background-color: #006eff;
+}
 
-  .cellStatus {
-    height: 100%;
-    width: 100%;
-  }
+.cellStatus {
+  height: 100%;
+  width: 100%;
 }

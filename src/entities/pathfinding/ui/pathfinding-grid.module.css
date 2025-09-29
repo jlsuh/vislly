@@ -1,19 +1,17 @@
-@layer components {
-  .grid {
-    height: 40rem;
-    justify-content: center;
-    max-height: 70vh;
-    user-select: none;
-  }
+.grid {
+  height: 40rem;
+  justify-content: center;
+  max-height: 70vh;
+  user-select: none;
+}
 
-  .row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, var(--cell-size));
-    justify-content: center;
-    max-height: calc(var(--cell-size));
-    overflow: hidden;
-    &:first-child > * {
-      border-top-width: 0.0625rem;
-    }
+.row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, var(--cell-size));
+  justify-content: center;
+  max-height: calc(var(--cell-size));
+  overflow: hidden;
+  &:first-child > * {
+    border-top-width: 0.0625rem;
   }
 }

@@ -1,20 +1,18 @@
-@layer components {
-  .content {
-    flex-direction: column;
-    flex: 1;
-    margin: 0 auto;
-    max-width: 60rem;
-    padding: 0 1.25rem;
-  }
+.content {
+  flex-direction: column;
+  flex: 1;
+  margin: 0 auto;
+  max-width: 60rem;
+  padding: 0 1.25rem;
+}
 
-  .content,
+.content,
+.main {
+  display: flex;
+}
+
+@media (width >= 68rem) {
   .main {
-    display: flex;
-  }
-
-  @media (width >= 68rem) {
-    .main {
-      gap: 1rem;
-    }
+    gap: 1rem;
   }
 }

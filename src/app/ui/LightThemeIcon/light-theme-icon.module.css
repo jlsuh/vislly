@@ -1,6 +1,4 @@
-@layer components {
-  .lightThemeIcon {
-    height: 1rem;
-    width: 1rem;
-  }
+.lightThemeIcon {
+  height: 1rem;
+  width: 1rem;
 }

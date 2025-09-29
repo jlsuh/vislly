@@ -1,24 +1,22 @@
-@layer components {
-  .iconButtonContainer {
-    display: flex;
-    align-items: center;
-    border-radius: 100%;
-    color: var(--color-on-surface);
-    cursor: pointer;
-    height: 3rem;
-    justify-content: center;
+.iconButtonContainer {
+  display: flex;
+  align-items: center;
+  border-radius: 100%;
+  color: var(--color-on-surface);
+  cursor: pointer;
+  height: 3rem;
+  justify-content: center;
+  transition: transform 0.2s;
+  width: 3rem;
+  &:active {
+    transform: matrix(0.95, 0, 0, 0.95, 0, 0);
     transition: transform 0.2s;
-    width: 3rem;
-    &:active {
-      transform: matrix(0.95, 0, 0, 0.95, 0, 0);
-      transition: transform 0.2s;
-    }
-    &:hover {
-      background-color: var(--color-surface-container-high);
-    }
   }
+  &:hover {
+    background-color: var(--color-surface-container-high);
+  }
+}
 
-  .iconButtonInput {
-    display: none;
-  }
+.iconButtonInput {
+  display: none;
 }

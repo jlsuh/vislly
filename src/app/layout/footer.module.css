@@ -1,18 +1,16 @@
-@layer components {
-  .copyrightNotice {
-    font-size: 0.875rem;
-  }
+.copyrightNotice {
+  font-size: 0.875rem;
+}
 
+.footerContainer {
+  color: var(--color-on-surface-variant);
+  display: flex;
+  justify-content: center;
+  padding: 6rem 1rem 2rem;
+}
+
+@media (width >= 68rem) {
   .footerContainer {
-    color: var(--color-on-surface-variant);
-    display: flex;
-    justify-content: center;
-    padding: 6rem 1rem 2rem;
-  }
-
-  @media (width >= 68rem) {
-    .footerContainer {
-      margin: 0 auto;
-    }
+    margin: 0 auto;
   }
 }
