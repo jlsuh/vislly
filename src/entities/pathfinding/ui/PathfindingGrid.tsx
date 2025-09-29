@@ -516,22 +516,7 @@ function PathfindingGrid(): JSX.Element {
           }))}
           value={selectedAlgorithmName}
         />
-        {PATHFINDING_ALGORITHMS[selectedAlgorithmName].withHeuristics ? (
-          <Select
-            handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
-              const { value } = e.target;
-              assertIsHeuristicsName(value);
-              setSelectedHeuristicsName(value);
-            }}
-            label="Heuristics"
-            options={Object.values(HeuristicsNames).map((heuristics) => ({
-              value: heuristics,
-              label: heuristics,
-            }))}
-            value={selectedHeuristicsName}
-          />
-        ) : null}
-        <div>
+        <div className={styles.checkboxContainer}>
           <input
             id={isDiagonalAllowedInputId}
             type="checkbox"
@@ -556,6 +541,21 @@ function PathfindingGrid(): JSX.Element {
         <button onClick={randomizeGrid} type="button">
           Randomize
         </button>
+        {PATHFINDING_ALGORITHMS[selectedAlgorithmName].withHeuristics ? (
+          <Select
+            handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
+              const { value } = e.target;
+              assertIsHeuristicsName(value);
+              setSelectedHeuristicsName(value);
+            }}
+            label="Heuristics"
+            options={Object.values(HeuristicsNames).map((heuristics) => ({
+              value: heuristics,
+              label: heuristics,
+            }))}
+            value={selectedHeuristicsName}
+          />
+        ) : null}
       </section>
     </div>
   );
