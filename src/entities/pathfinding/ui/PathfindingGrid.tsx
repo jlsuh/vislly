@@ -455,73 +455,7 @@ function PathfindingGrid(): JSX.Element {
   };
 
   return (
-    <>
-      <Select
-        handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
-          const { value } = e.target;
-          assertIsVertexName(value);
-          setSelectedVertexName(value);
-        }}
-        label="Vertex type"
-        options={VERTEX_NAMES.map((vertexName) => ({
-          value: vertexName,
-          label: vertexName,
-        }))}
-        value={selectedVertexName}
-      />
-      <Select
-        handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
-          const { value } = e.target;
-          assertIsPathfindingAlgorithm(value);
-          setSelectedAlgorithmName(value);
-        }}
-        label="Pathfinding algorithm"
-        options={Object.values(PATHFINDING_ALGORITHMS).map(({ label }) => ({
-          value: label,
-          label,
-        }))}
-        value={selectedAlgorithmName}
-      />
-      {PATHFINDING_ALGORITHMS[selectedAlgorithmName].withHeuristics ? (
-        <Select
-          handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
-            const { value } = e.target;
-            assertIsHeuristicsName(value);
-            setSelectedHeuristicsName(value);
-          }}
-          label="Heuristics"
-          options={Object.values(HeuristicsNames).map((heuristics) => ({
-            value: heuristics,
-            label: heuristics,
-          }))}
-          value={selectedHeuristicsName}
-        />
-      ) : null}
-      <div>
-        <input
-          id={isDiagonalAllowedInputId}
-          type="checkbox"
-          checked={isDiagonalAllowed}
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            setIsDiagonalAllowed(e.target.checked)
-          }
-        />
-        <label htmlFor={isDiagonalAllowedInputId}>
-          Allow diagonal movement
-        </label>
-      </div>
-      <button
-        type="button"
-        onClick={isAnimationRunning ? pausePathfind : findPath}
-      >
-        {isAnimationRunning ? 'Stop' : 'Play'}
-      </button>
-      <button onClick={resetPathfind} type="button">
-        Reset
-      </button>
-      <button onClick={randomizeGrid} type="button">
-        Randomize
-      </button>
+    <div className={styles.pathfindingContainer}>
       <section
         aria-label="Pathfinding grid"
         className={styles.grid}
@@ -555,7 +489,75 @@ function PathfindingGrid(): JSX.Element {
           );
         })}
       </section>
-    </>
+      <section className={styles.pathfindingControlsContainer}>
+        <Select
+          handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
+            const { value } = e.target;
+            assertIsVertexName(value);
+            setSelectedVertexName(value);
+          }}
+          label="Vertex type"
+          options={VERTEX_NAMES.map((vertexName) => ({
+            value: vertexName,
+            label: vertexName,
+          }))}
+          value={selectedVertexName}
+        />
+        <Select
+          handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
+            const { value } = e.target;
+            assertIsPathfindingAlgorithm(value);
+            setSelectedAlgorithmName(value);
+          }}
+          label="Pathfinding algorithm"
+          options={Object.values(PATHFINDING_ALGORITHMS).map(({ label }) => ({
+            value: label,
+            label,
+          }))}
+          value={selectedAlgorithmName}
+        />
+        {PATHFINDING_ALGORITHMS[selectedAlgorithmName].withHeuristics ? (
+          <Select
+            handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
+              const { value } = e.target;
+              assertIsHeuristicsName(value);
+              setSelectedHeuristicsName(value);
+            }}
+            label="Heuristics"
+            options={Object.values(HeuristicsNames).map((heuristics) => ({
+              value: heuristics,
+              label: heuristics,
+            }))}
+            value={selectedHeuristicsName}
+          />
+        ) : null}
+        <div>
+          <input
+            id={isDiagonalAllowedInputId}
+            type="checkbox"
+            checked={isDiagonalAllowed}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setIsDiagonalAllowed(e.target.checked)
+            }
+          />
+          <label htmlFor={isDiagonalAllowedInputId}>
+            Allow diagonal movement
+          </label>
+        </div>
+        <button
+          type="button"
+          onClick={isAnimationRunning ? pausePathfind : findPath}
+        >
+          {isAnimationRunning ? 'Stop' : 'Play'}
+        </button>
+        <button onClick={resetPathfind} type="button">
+          Reset
+        </button>
+        <button onClick={randomizeGrid} type="button">
+          Randomize
+        </button>
+      </section>
+    </div>
   );
 }
 

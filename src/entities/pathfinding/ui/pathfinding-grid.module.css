@@ -1,8 +1,23 @@
 .grid {
+  flex: 1;
   height: 40rem;
   justify-content: center;
   max-height: 70vh;
   user-select: none;
+}
+
+.pathfindingContainer {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+.pathfindingControlsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 14rem;
+  width: 100%;
 }
 
 .row {
