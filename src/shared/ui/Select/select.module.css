@@ -14,41 +14,40 @@
 
 .option {
   padding: 0.325rem 0 0.325rem 1rem;
-  &::checkmark {
-    display: none;
-  }
-  &:not(:last-child) {
-    border-bottom: 0.0625rem solid var(--color-outline);
-  }
 }
 
 .select {
-  align-items: center;
-  display: flex;
-  padding: 2rem 1rem 0.5rem 1rem;
+  appearance: none;
+  background-color: transparent;
+  border: none;
+  color: var(--color-on-surface);
+  height: auto;
+  min-width: 3.75rem;
+  padding: 2rem 2rem 0.5rem 1rem;
+  white-space: normal;
   width: 100%;
-  &,
-  &::picker(select) {
-    appearance: base-select;
-    background-color: var(--color-surface);
-    border-radius: 0.5rem;
-    border: 0.0625rem solid var(--color-outline);
-    color: var(--color-on-surface);
-  }
-  &::picker-icon {
+  word-break: break-word;
+}
+
+.selectContainer {
+  background-color: var(--color-surface);
+  border-radius: 0.5rem;
+  border: 0.0625rem solid var(--color-outline);
+  position: relative;
+  width: 100%;
+  &::after {
     background-color: currentColor;
     content: "";
     height: 1rem;
     mask-image: url("/vislly/images/carat-down.svg");
+    mask-repeat: no-repeat;
+    mask-size: contain;
     min-width: 1rem;
+    pointer-events: none;
+    position: absolute;
+    right: 1rem;
+    top: 72.5%;
+    transform: translateY(-50%);
     transition: transform 0.15s ease-in-out;
   }
-  &:open::picker-icon {
-    transform: rotate(180deg);
-  }
-}
-
-.selectContainer {
-  position: relative;
-  width: 100%;
 }
