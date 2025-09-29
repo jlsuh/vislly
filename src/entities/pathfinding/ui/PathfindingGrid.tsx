@@ -22,6 +22,7 @@ import {
   type ResizeDimensions,
   useResizeDimensions,
 } from '@/shared/lib/useResizeDimensions.ts';
+import Select from '@/shared/ui/Select/Select.tsx';
 import {
   assertIsHeuristicsName,
   type HeuristicsName,
@@ -293,10 +294,7 @@ function PathfindingGrid(): JSX.Element {
     end: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, END),
   });
 
-  const algorithmSelectId = useId();
-  const heuristicsSelectId = useId();
   const isDiagonalAllowedInputId = useId();
-  const vertexNameSelectId = useId();
 
   const { dimensions, ref } =
     useResizeDimensions<HTMLElement>(RESIZE_DIMENSIONS);
@@ -458,67 +456,46 @@ function PathfindingGrid(): JSX.Element {
 
   return (
     <>
-      <select
-        id={vertexNameSelectId}
-        key={selectedVertexName}
-        onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+      <Select
+        handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
           const { value } = e.target;
           assertIsVertexName(value);
           setSelectedVertexName(value);
         }}
+        label="Vertex type"
+        options={VERTEX_NAMES.map((vertexName) => ({
+          value: vertexName,
+          label: vertexName,
+        }))}
         value={selectedVertexName}
-      >
-        {VERTEX_NAMES.map((vertexName) => (
-          <option key={vertexName} value={vertexName}>
-            {vertexName}
-          </option>
-        ))}
-      </select>
-      <select
-        id={algorithmSelectId}
-        key={selectedAlgorithmName}
-        onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+      />
+      <Select
+        handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
           const { value } = e.target;
           assertIsPathfindingAlgorithm(value);
           setSelectedAlgorithmName(value);
         }}
+        label="Pathfinding algorithm"
+        options={Object.values(PATHFINDING_ALGORITHMS).map(({ label }) => ({
+          value: label,
+          label,
+        }))}
         value={selectedAlgorithmName}
-      >
-        {Object.values(PATHFINDING_ALGORITHMS).map(({ label }) => (
-          <option key={label} value={label}>
-            {label}
-          </option>
-        ))}
-      </select>
-      <button
-        type="button"
-        onClick={isAnimationRunning ? pausePathfind : findPath}
-      >
-        {isAnimationRunning ? 'Stop' : 'Play'}
-      </button>
-      <button onClick={resetPathfind} type="button">
-        Reset
-      </button>
-      <button onClick={randomizeGrid} type="button">
-        Randomize
-      </button>
+      />
       {PATHFINDING_ALGORITHMS[selectedAlgorithmName].withHeuristics ? (
-        <select
-          id={heuristicsSelectId}
-          key={selectedHeuristicsName}
-          onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+        <Select
+          handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
             const { value } = e.target;
             assertIsHeuristicsName(value);
             setSelectedHeuristicsName(value);
           }}
+          label="Heuristics"
+          options={Object.values(HeuristicsNames).map((heuristics) => ({
+            value: heuristics,
+            label: heuristics,
+          }))}
           value={selectedHeuristicsName}
-        >
-          {Object.values(HeuristicsNames).map((heuristics) => (
-            <option key={heuristics} value={heuristics}>
-              {heuristics}
-            </option>
-          ))}
-        </select>
+        />
       ) : null}
       <div>
         <input
@@ -533,6 +510,18 @@ function PathfindingGrid(): JSX.Element {
           Allow diagonal movement
         </label>
       </div>
+      <button
+        type="button"
+        onClick={isAnimationRunning ? pausePathfind : findPath}
+      >
+        {isAnimationRunning ? 'Stop' : 'Play'}
+      </button>
+      <button onClick={resetPathfind} type="button">
+        Reset
+      </button>
+      <button onClick={randomizeGrid} type="button">
+        Randomize
+      </button>
       <section
         aria-label="Pathfinding grid"
         className={styles.grid}
