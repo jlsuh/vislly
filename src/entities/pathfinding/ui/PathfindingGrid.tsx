@@ -241,6 +241,23 @@ function appearsOnGrid(
   return true;
 }
 
+function randomInitialVertexPosition(
+  maxRows: number,
+  maxCols: number,
+  name: VertexName,
+  vertexToSkip?: Vertex,
+): Vertex {
+  let row: number;
+  let col: number;
+  let vertex: Vertex;
+  do {
+    row = Math.floor(Math.random() * maxRows);
+    col = Math.floor(Math.random() * maxCols);
+    vertex = new Vertex(row, col, name);
+  } while (vertexToSkip !== undefined && vertex.positionEquals(vertexToSkip));
+  return vertex;
+}
+
 const ANIMATION_DELAY = 5;
 const VISITED: string = new Rgba(
   0.686_274_509_803_921_6,
@@ -410,10 +427,6 @@ function PathfindingGrid(): JSX.Element {
 
   const randomizeGrid = (): void => {
     resetPathfind();
-    terminalVertices.current = {
-      start: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, START),
-      end: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, END),
-    };
     const newGrid: Vertex[][] = [];
     for (let row = 0; row < rows; row += 1) {
       const newRow: Vertex[] = [];
@@ -426,6 +439,20 @@ function PathfindingGrid(): JSX.Element {
       }
       newGrid.push(newRow);
     }
+    const startVertexPosition = randomInitialVertexPosition(rows, cols, START);
+    const endVertexPosition = randomInitialVertexPosition(
+      rows,
+      cols,
+      END,
+      startVertexPosition,
+    );
+    terminalVertices.current = {
+      start: startVertexPosition,
+      end: endVertexPosition,
+    };
+    newGrid[startVertexPosition.row][startVertexPosition.col] =
+      startVertexPosition;
+    newGrid[endVertexPosition.row][endVertexPosition.col] = endVertexPosition;
     setGrid(newGrid);
   };
 
