@@ -1,6 +1,6 @@
 import type { JSX } from 'react';
 
-export default function PlayIcon(): JSX.Element {
+export default function PauseIcon(): JSX.Element {
   return (
     <svg
       aria-hidden="true"
@@ -9,7 +9,7 @@ export default function PlayIcon(): JSX.Element {
       viewBox="0 0 24 24"
       width="24"
     >
-      <path d="M8 5v14l11-7z"></path>
+      <path d="M6 19h4V5H6zm8-14v14h4V5z"></path>
     </svg>
   );
 }
