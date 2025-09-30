@@ -18,7 +18,7 @@ function Button({
 }: ButtonProps): JSX.Element {
   return (
     <button
-      className={`elevation-1 ${styles.playButton} ${fullWidth && styles.fullWidth}`}
+      className={`${styles.playButton} elevation-1 ${fullWidth ? styles.fullWidth : ''}`}
       onClick={handleOnClickButton}
       type="button"
     >
