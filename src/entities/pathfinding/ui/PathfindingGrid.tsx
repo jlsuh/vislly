@@ -490,6 +490,31 @@ function PathfindingGrid(): JSX.Element {
         })}
       </section>
       <section className={styles.pathfindingControlsContainer}>
+        <button
+          type="button"
+          onClick={isAnimationRunning ? pausePathfind : findPath}
+        >
+          {isAnimationRunning ? 'Stop' : 'Play'}
+        </button>
+        <button onClick={resetPathfind} type="button">
+          Reset
+        </button>
+        <button onClick={randomizeGrid} type="button">
+          Randomize
+        </button>
+        <div className={styles.checkboxContainer}>
+          <input
+            id={isDiagonalAllowedInputId}
+            type="checkbox"
+            checked={isDiagonalAllowed}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setIsDiagonalAllowed(e.target.checked)
+            }
+          />
+          <label htmlFor={isDiagonalAllowedInputId}>
+            Allow diagonal movement
+          </label>
+        </div>
         <Select
           handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
             const { value } = e.target;
@@ -516,31 +541,6 @@ function PathfindingGrid(): JSX.Element {
           }))}
           value={selectedAlgorithmName}
         />
-        <div className={styles.checkboxContainer}>
-          <input
-            id={isDiagonalAllowedInputId}
-            type="checkbox"
-            checked={isDiagonalAllowed}
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setIsDiagonalAllowed(e.target.checked)
-            }
-          />
-          <label htmlFor={isDiagonalAllowedInputId}>
-            Allow diagonal movement
-          </label>
-        </div>
-        <button
-          type="button"
-          onClick={isAnimationRunning ? pausePathfind : findPath}
-        >
-          {isAnimationRunning ? 'Stop' : 'Play'}
-        </button>
-        <button onClick={resetPathfind} type="button">
-          Reset
-        </button>
-        <button onClick={randomizeGrid} type="button">
-          Randomize
-        </button>
         {PATHFINDING_ALGORITHMS[selectedAlgorithmName].withHeuristics ? (
           <Select
             handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
