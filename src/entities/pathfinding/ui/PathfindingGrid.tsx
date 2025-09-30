@@ -22,6 +22,11 @@ import {
   type ResizeDimensions,
   useResizeDimensions,
 } from '@/shared/lib/useResizeDimensions.ts';
+import Button from '@/shared/ui/Button/Button.tsx';
+import ClearPathIcon from '@/shared/ui/ClearPathIcon/ClearPathIcon.tsx';
+import DiceFiveIcon from '@/shared/ui/DiceFiveIcon/DiceFiveIcon.tsx';
+import PauseIcon from '@/shared/ui/PauseIcon/PauseIcon.tsx';
+import PlayIcon from '@/shared/ui/PlayIcon/PlayIcon.tsx';
 import Select from '@/shared/ui/Select/Select.tsx';
 import {
   assertIsHeuristicsName,
@@ -490,18 +495,24 @@ function PathfindingGrid(): JSX.Element {
         })}
       </section>
       <section className={styles.pathfindingControlsContainer}>
-        <button
-          type="button"
-          onClick={isAnimationRunning ? pausePathfind : findPath}
-        >
-          {isAnimationRunning ? 'Stop' : 'Play'}
-        </button>
-        <button onClick={resetPathfind} type="button">
-          Reset
-        </button>
-        <button onClick={randomizeGrid} type="button">
-          Randomize
-        </button>
+        <Button
+          fullWidth
+          handleOnClickButton={isAnimationRunning ? pausePathfind : findPath}
+          icon={isAnimationRunning ? <PauseIcon /> : <PlayIcon />}
+          label={isAnimationRunning ? 'Pause' : 'Play'}
+        />
+        <Button
+          fullWidth
+          handleOnClickButton={resetPathfind}
+          icon={<ClearPathIcon />}
+          label="Clear Pathfind"
+        />
+        <Button
+          fullWidth
+          handleOnClickButton={randomizeGrid}
+          icon={<DiceFiveIcon />}
+          label="Randomize Grid"
+        />
         <div className={styles.checkboxContainer}>
           <input
             id={isDiagonalAllowedInputId}
