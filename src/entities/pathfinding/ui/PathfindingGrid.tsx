@@ -9,7 +9,7 @@ import type {
   TouchEvent,
   TouchEventHandler,
 } from 'react';
-import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   type CssCustomProperty,
   composeCssCustomProperty,
@@ -23,6 +23,7 @@ import {
   useResizeDimensions,
 } from '@/shared/lib/useResizeDimensions.ts';
 import Button from '@/shared/ui/Button/Button.tsx';
+import Checkbox from '@/shared/ui/Checkbox/Checkbox.tsx';
 import ClearPathIcon from '@/shared/ui/ClearPathIcon/ClearPathIcon.tsx';
 import DiceFiveIcon from '@/shared/ui/DiceFiveIcon/DiceFiveIcon.tsx';
 import PauseIcon from '@/shared/ui/PauseIcon/PauseIcon.tsx';
@@ -282,7 +283,7 @@ function PathfindingGrid(): JSX.Element {
   const [cols, setCols] = useState(0);
   const [grid, setGrid] = useState<Vertex[][]>([]);
   const [isAnimationRunning, setIsAnimationRunning] = useState(false);
-  const [isDiagonalAllowed, setIsDiagonalAllowed] = useState(false);
+  const [isDiagonalAllowed, setIsDiagonalAllowed] = useState(true);
   const [rows, setRows] = useState(0);
   const [selectedAlgorithmName, setSelectedAlgorithmName] =
     useState<PathfindingAlgorithm>(INITIAL_ALGORITHM);
@@ -298,8 +299,6 @@ function PathfindingGrid(): JSX.Element {
     start: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, START),
     end: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, END),
   });
-
-  const isDiagonalAllowedInputId = useId();
 
   const { dimensions, ref } =
     useResizeDimensions<HTMLElement>(RESIZE_DIMENSIONS);
@@ -513,19 +512,14 @@ function PathfindingGrid(): JSX.Element {
           icon={<DiceFiveIcon />}
           label="Randomize Grid"
         />
-        <div className={styles.checkboxContainer}>
-          <input
-            id={isDiagonalAllowedInputId}
-            type="checkbox"
-            checked={isDiagonalAllowed}
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setIsDiagonalAllowed(e.target.checked)
-            }
-          />
-          <label htmlFor={isDiagonalAllowedInputId}>
-            Allow diagonal movement
-          </label>
-        </div>
+        <Checkbox
+          checked={isDiagonalAllowed}
+          disabled={false}
+          label="Allow diagonal traversal"
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setIsDiagonalAllowed(e.target.checked)
+          }
+        />
         <Select
           handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
             const { value } = e.target;
@@ -552,21 +546,22 @@ function PathfindingGrid(): JSX.Element {
           }))}
           value={selectedAlgorithmName}
         />
-        {PATHFINDING_ALGORITHMS[selectedAlgorithmName].withHeuristics ? (
-          <Select
-            handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
-              const { value } = e.target;
-              assertIsHeuristicsName(value);
-              setSelectedHeuristicsName(value);
-            }}
-            label="Heuristics"
-            options={Object.values(HeuristicsNames).map((heuristics) => ({
-              value: heuristics,
-              label: heuristics,
-            }))}
-            value={selectedHeuristicsName}
-          />
-        ) : null}
+        <Select
+          disabled={
+            !PATHFINDING_ALGORITHMS[selectedAlgorithmName].withHeuristics
+          }
+          handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
+            const { value } = e.target;
+            assertIsHeuristicsName(value);
+            setSelectedHeuristicsName(value);
+          }}
+          label="Heuristics"
+          options={Object.values(HeuristicsNames).map((heuristics) => ({
+            value: heuristics,
+            label: heuristics,
+          }))}
+          value={selectedHeuristicsName}
+        />
       </section>
     </div>
   );
