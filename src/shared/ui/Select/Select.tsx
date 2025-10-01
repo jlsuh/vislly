@@ -9,6 +9,7 @@ export type Option = {
 };
 
 type SelectProps = {
+  disabled?: boolean;
   handleOnSelectChange: (e: ChangeEvent<HTMLSelectElement>) => void;
   label: string;
   options: Option[];
@@ -16,6 +17,7 @@ type SelectProps = {
 };
 
 export default function Select({
+  disabled,
   handleOnSelectChange,
   label,
   options,
@@ -30,6 +32,7 @@ export default function Select({
       <select
         aria-label={label}
         className={styles.select}
+        disabled={disabled}
         id={selectId}
         onChange={handleOnSelectChange}
         value={value ?? ''}

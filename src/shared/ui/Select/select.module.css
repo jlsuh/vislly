@@ -27,6 +27,9 @@
   white-space: normal;
   width: 100%;
   word-break: break-word;
+  &:disabled {
+    cursor: not-allowed;
+  }
 }
 
 .selectContainer {
@@ -34,6 +37,10 @@
   border-radius: 0.5rem;
   border: 0.0625rem solid var(--color-outline);
   position: relative;
+  transition:
+    background-color 150ms ease-out,
+    border-color 150ms ease-out,
+    color 150ms ease-out;
   width: 100%;
   &::after {
     background-color: currentColor;
@@ -49,5 +56,11 @@
     top: 72.5%;
     transform: translateY(-50%);
     transition: transform 0.15s ease-in-out;
+  }
+  &:has(.select:disabled) {
+    background-color: var(--color-surface-variant);
+    border-color: var(--color-surface-variant);
+    color: var(--color-on-surface-variant);
+    cursor: not-allowed;
   }
 }
