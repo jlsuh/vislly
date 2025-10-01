@@ -24,10 +24,10 @@
 .gravel {
   min-height: 100%;
   background:
-    repeating-radial-gradient(#000 0 0.0001%, #999 0 0.0002%) 60% 60% / 3000px
-    3000px,
-    repeating-conic-gradient(#000 0 0.0001%, #999 0 0.0002%) 40% 40% / 3000px
-    3000px;
+    repeating-radial-gradient(#000 0 0.0001%, #999 0 0.0002%) 60% 60% / 187.5rem
+    187.5rem,
+    repeating-conic-gradient(#000 0 0.0001%, #999 0 0.0002%) 40% 40% / 187.5rem
+    187.5rem;
   background-blend-mode: difference;
 }
 
