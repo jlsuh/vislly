@@ -494,24 +494,50 @@ function PathfindingGrid(): JSX.Element {
         })}
       </section>
       <section className={styles.pathfindingControlsContainer}>
-        <Button
-          fullWidth
-          handleOnClickButton={isAnimationRunning ? pausePathfind : findPath}
-          icon={isAnimationRunning ? <PauseIcon /> : <PlayIcon />}
-          label={isAnimationRunning ? 'Pause' : 'Play'}
-        />
-        <Button
-          fullWidth
-          handleOnClickButton={resetPathfind}
-          icon={<ClearPathIcon />}
-          label="Clear Pathfind"
-        />
-        <Button
-          fullWidth
-          handleOnClickButton={randomizeGrid}
-          icon={<DiceFiveIcon />}
-          label="Randomize Grid"
-        />
+        <div className={styles.pathfindingSelectsContainer}>
+          <Select
+            handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
+              const { value } = e.target;
+              assertIsVertexName(value);
+              setSelectedVertexName(value);
+            }}
+            label="Vertex type"
+            options={VERTEX_NAMES.map((vertexName) => ({
+              value: vertexName,
+              label: vertexName,
+            }))}
+            value={selectedVertexName}
+          />
+          <Select
+            handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
+              const { value } = e.target;
+              assertIsPathfindingAlgorithm(value);
+              setSelectedAlgorithmName(value);
+            }}
+            label="Pathfinding algorithm"
+            options={Object.values(PATHFINDING_ALGORITHMS).map(({ label }) => ({
+              value: label,
+              label,
+            }))}
+            value={selectedAlgorithmName}
+          />
+          <Select
+            disabled={
+              !PATHFINDING_ALGORITHMS[selectedAlgorithmName].withHeuristics
+            }
+            handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
+              const { value } = e.target;
+              assertIsHeuristicsName(value);
+              setSelectedHeuristicsName(value);
+            }}
+            label="Heuristics"
+            options={Object.values(HeuristicsNames).map((heuristics) => ({
+              value: heuristics,
+              label: heuristics,
+            }))}
+            value={selectedHeuristicsName}
+          />
+        </div>
         <Checkbox
           checked={isDiagonalAllowed}
           disabled={false}
@@ -520,48 +546,26 @@ function PathfindingGrid(): JSX.Element {
             setIsDiagonalAllowed(e.target.checked)
           }
         />
-        <Select
-          handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
-            const { value } = e.target;
-            assertIsVertexName(value);
-            setSelectedVertexName(value);
-          }}
-          label="Vertex type"
-          options={VERTEX_NAMES.map((vertexName) => ({
-            value: vertexName,
-            label: vertexName,
-          }))}
-          value={selectedVertexName}
-        />
-        <Select
-          handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
-            const { value } = e.target;
-            assertIsPathfindingAlgorithm(value);
-            setSelectedAlgorithmName(value);
-          }}
-          label="Pathfinding algorithm"
-          options={Object.values(PATHFINDING_ALGORITHMS).map(({ label }) => ({
-            value: label,
-            label,
-          }))}
-          value={selectedAlgorithmName}
-        />
-        <Select
-          disabled={
-            !PATHFINDING_ALGORITHMS[selectedAlgorithmName].withHeuristics
-          }
-          handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
-            const { value } = e.target;
-            assertIsHeuristicsName(value);
-            setSelectedHeuristicsName(value);
-          }}
-          label="Heuristics"
-          options={Object.values(HeuristicsNames).map((heuristics) => ({
-            value: heuristics,
-            label: heuristics,
-          }))}
-          value={selectedHeuristicsName}
-        />
+        <div className={styles.pathfindingButtonsContainer}>
+          <Button
+            fullWidth
+            handleOnClickButton={isAnimationRunning ? pausePathfind : findPath}
+            icon={isAnimationRunning ? <PauseIcon /> : <PlayIcon />}
+            label={isAnimationRunning ? 'Pause' : 'Play'}
+          />
+          <Button
+            fullWidth
+            handleOnClickButton={resetPathfind}
+            icon={<ClearPathIcon />}
+            label="Clear Pathfind"
+          />
+          <Button
+            fullWidth
+            handleOnClickButton={randomizeGrid}
+            icon={<DiceFiveIcon />}
+            label="Randomize Grid"
+          />
+        </div>
       </section>
     </div>
   );
