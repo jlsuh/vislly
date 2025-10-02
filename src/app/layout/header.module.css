@@ -8,7 +8,7 @@
   z-index: 2;
   animation: elevate-on-scroll linear forwards;
   animation-timeline: scroll(root);
-  animation-range: 0 0.25rem;
+  animation-range: 0 0.5rem;
 }
 
 @keyframes elevate-on-scroll {
