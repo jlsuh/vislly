@@ -1,7 +1,7 @@
 .checkboxContainer {
   display: flex;
-  justify-content: center;
   gap: 0.325rem;
+  justify-content: center;
 }
 
 .grid {
@@ -21,14 +21,15 @@
 }
 
 .pathfindingControlsContainer {
+  background-color: var(--color-surface-container);
   border-radius: 0.5rem;
   border: 0.125rem solid var(--color-outline);
-  background-color: var(--color-surface-container);
   display: flex;
   flex-direction: column;
   height: fit-content;
+  min-width: 100%;
   padding: 1rem;
-  width: 100%;
+  width: fit-content;
 }
 
 .pathfindingButtonsContainer,
@@ -62,6 +63,7 @@
   }
   .pathfindingControlsContainer {
     max-width: 16rem;
+    min-width: unset;
   }
   .pathfindingControlsContainer,
   .pathfindingButtonsContainer,
