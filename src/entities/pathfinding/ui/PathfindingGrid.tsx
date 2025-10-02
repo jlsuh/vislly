@@ -26,6 +26,7 @@ import Button from '@/shared/ui/Button/Button.tsx';
 import Checkbox from '@/shared/ui/Checkbox/Checkbox.tsx';
 import ClearPathIcon from '@/shared/ui/ClearPathIcon/ClearPathIcon.tsx';
 import DiceFiveIcon from '@/shared/ui/DiceFiveIcon/DiceFiveIcon.tsx';
+import { Divider } from '@/shared/ui/Divider/Divider.tsx';
 import PauseIcon from '@/shared/ui/PauseIcon/PauseIcon.tsx';
 import PlayIcon from '@/shared/ui/PlayIcon/PlayIcon.tsx';
 import Select from '@/shared/ui/Select/Select.tsx';
@@ -538,14 +539,18 @@ function PathfindingGrid(): JSX.Element {
             value={selectedHeuristicsName}
           />
         </div>
-        <Checkbox
-          checked={isDiagonalAllowed}
-          disabled={false}
-          label="Allow diagonal traversal"
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            setIsDiagonalAllowed(e.target.checked)
-          }
-        />
+        <Divider />
+        <div className={styles.checkboxContainer}>
+          <Checkbox
+            checked={isDiagonalAllowed}
+            disabled={false}
+            label="Allow diagonal traversal"
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setIsDiagonalAllowed(e.target.checked)
+            }
+          />
+        </div>
+        <Divider />
         <div className={styles.pathfindingButtonsContainer}>
           <Button
             fullWidth
