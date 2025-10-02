@@ -33,7 +33,7 @@
 }
 
 .selectContainer {
-  background-color: var(--color-surface);
+  background-color: var(--color-surface-container-high);
   border-radius: 0.5rem;
   border: 0.0625rem solid var(--color-outline);
   position: relative;
