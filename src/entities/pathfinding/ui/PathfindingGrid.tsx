@@ -48,13 +48,13 @@ import {
   EMPTY,
   END,
   INITIAL_COORDINATE,
+  INITIAL_VERTEX_NAME,
   NON_TERMINAL_VERTEX_NAMES,
   START,
   type TerminalVertex,
   VERTEX_NAMES,
   Vertex,
   type VertexName,
-  WALL,
 } from '../model/vertex.ts';
 import Cell from './Cell.tsx';
 import getElementByCoordinates from './getElementByCoordinates.ts';
@@ -291,7 +291,7 @@ function PathfindingGrid(): JSX.Element {
   const [selectedHeuristicsName, setSelectedHeuristicsName] =
     useState<HeuristicsName>(INITIAL_HEURISTICS);
   const [selectedVertexName, setSelectedVertexName] =
-    useState<VertexName>(WALL);
+    useState<VertexName>(INITIAL_VERTEX_NAME);
 
   const isAnimationRunningRef = useRef(false);
   const lastGenerator = useRef<Iterator<Vertex[], Vertex[]>>(null);
