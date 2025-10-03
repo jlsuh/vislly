@@ -1,18 +1,18 @@
-import { type JSX, useId } from 'react';
+import { type ChangeEvent, type JSX, useId } from 'react';
 import styles from './checkbox.module.css';
 
 interface CheckboxProps {
   checked: boolean;
   disabled: boolean;
+  handleOnChangeCheckbox: (e: ChangeEvent<HTMLInputElement>) => void;
   label: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export default function Checkbox({
   checked,
   disabled,
+  handleOnChangeCheckbox,
   label,
-  onChange,
 }: CheckboxProps): JSX.Element {
   const checkboxId = useId();
   return (
@@ -24,7 +24,7 @@ export default function Checkbox({
           className={styles.input}
           disabled={disabled}
           id={checkboxId}
-          onChange={onChange}
+          onChange={handleOnChangeCheckbox}
           type="checkbox"
         />
         <span className={styles.icon}></span>
