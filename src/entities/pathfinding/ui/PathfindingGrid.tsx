@@ -544,10 +544,10 @@ function PathfindingGrid(): JSX.Element {
           <Checkbox
             checked={isDiagonalAllowed}
             disabled={false}
-            label="Allow diagonal traversal"
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            handleOnChangeCheckbox={(e: ChangeEvent<HTMLInputElement>) =>
               setIsDiagonalAllowed(e.target.checked)
             }
+            label="Allow diagonal traversal"
           />
         </div>
         <Divider />
