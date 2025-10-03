@@ -15,15 +15,15 @@ const WATER_DEEP = 'water-deep';
 const INITIAL_COORDINATE = -1;
 
 const WEIGHTS: ReadonlyDeep<Record<VertexName, number>> = {
-  [EMPTY]: 1,
+  [START]: 1,
   [END]: 1,
+  [WALL]: Number.POSITIVE_INFINITY,
+  [EMPTY]: 1,
   [GRASS]: 5,
   [GRAVEL]: 50,
   [SAND]: 7,
   [SNOW]: 75,
-  [START]: 1,
   [STONE]: 25,
-  [WALL]: Number.POSITIVE_INFINITY,
   [WATER_DEEP]: 100,
   [WATER]: 50,
 };
@@ -92,30 +92,32 @@ function assertIsTerminalVertex(
 }
 
 const NON_TERMINAL_VERTEX_NAMES: ReadonlyDeep<VertexName[]> = [
+  WALL,
   EMPTY,
   GRASS,
   GRAVEL,
   SAND,
   SNOW,
   STONE,
-  WALL,
   WATER_DEEP,
   WATER,
 ];
 
 const VERTEX_NAMES: ReadonlyDeep<VertexName[]> = [
-  EMPTY,
+  START,
   END,
+  WALL,
+  EMPTY,
   GRASS,
   GRAVEL,
   SAND,
   SNOW,
-  START,
   STONE,
-  WALL,
   WATER_DEEP,
   WATER,
 ];
+
+const INITIAL_VERTEX_NAME: VertexName = START;
 
 export {
   assertIsTerminalVertex,
@@ -123,6 +125,7 @@ export {
   EMPTY,
   END,
   INITIAL_COORDINATE,
+  INITIAL_VERTEX_NAME,
   isTerminalVertex,
   NON_TERMINAL_VERTEX_NAMES,
   START,
