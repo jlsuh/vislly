@@ -23,26 +23,35 @@ const PATHFINDING_ALGORITHMS: ReadonlyDeep<
   Record<
     PathfindingAlgorithm,
     {
+      key: PathfindingAlgorithm;
       strategy: PathfindingStrategy;
-      label: PathfindingAlgorithm;
+      label: string;
       withHeuristics: boolean;
     }
   >
 > = {
   'a-star': {
+    key: 'a-star',
     strategy: new AStarStrategy(),
-    label: 'a-star',
+    label: 'A*',
     withHeuristics: true,
   },
-  bfs: { strategy: new BfsStrategy(), label: 'bfs', withHeuristics: false },
+  bfs: {
+    key: 'bfs',
+    strategy: new BfsStrategy(),
+    label: 'Breadth-First Search',
+    withHeuristics: false,
+  },
   dijkstra: {
+    key: 'dijkstra',
     strategy: new DijkstraStrategy(),
-    label: 'dijkstra',
+    label: 'Dijkstra',
     withHeuristics: false,
   },
   gbfs: {
+    key: 'gbfs',
     strategy: new GreedyBestFirstSearchStrategy(),
-    label: 'gbfs',
+    label: 'Greedy Best-First Search',
     withHeuristics: true,
   },
 };

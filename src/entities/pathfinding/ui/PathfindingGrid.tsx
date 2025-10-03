@@ -516,9 +516,9 @@ function PathfindingGrid(): JSX.Element {
               setSelectedAlgorithmName(value);
             }}
             label="Pathfinding algorithm"
-            options={Object.values(PATHFINDING_ALGORITHMS).map(({ label }) => ({
-              value: label,
-              label,
+            options={Object.values(PATHFINDING_ALGORITHMS).map(({ key }) => ({
+              value: key,
+              label: PATHFINDING_ALGORITHMS[key].label,
             }))}
             value={selectedAlgorithmName}
           />
