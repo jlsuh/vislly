@@ -1,4 +1,5 @@
 import type { JSX } from 'react';
+import ThemeProvider from '../providers/ThemeProvider.tsx';
 import BrandLogo from '../ui/BrandLogo/BrandLogo.tsx';
 import GithubIconButton from '../ui/GithubIconButton/GithubIconButton.tsx';
 import ThemeSelect from '../ui/ThemeSelect/ThemeSelect.tsx';
@@ -12,7 +13,9 @@ function Header(): JSX.Element {
           <BrandLogo />
         </div>
         <div className={styles.rightContainer}>
-          <ThemeSelect />
+          <ThemeProvider>
+            <ThemeSelect />
+          </ThemeProvider>
           <GithubIconButton href="https://github.com/jlsuh/vislly" />
         </div>
       </div>
