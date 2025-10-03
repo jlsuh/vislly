@@ -1,7 +1,7 @@
 import type { JSX } from 'react';
 import type { ReadonlyDeep } from 'type-fest';
-import DarkThemeIcon from '../ui/DarkThemeIcon/DarkThemeIcon.tsx';
-import LightThemeIcon from '../ui/LightThemeIcon/LightThemeIcon.tsx';
+import DarkThemeIcon from '@/shared/ui/DarkThemeIcon/DarkThemeIcon.tsx';
+import LightThemeIcon from '@/shared/ui/LightThemeIcon/LightThemeIcon.tsx';
 
 const ONLY_DARK = 'dark';
 const ONLY_LIGHT = 'light';

@@ -1,9 +1,9 @@
 'use client';
 
 import { type JSX, use } from 'react';
-import { Theme } from '../../config/theme.ts';
-import ThemeContext from '../../providers/ThemeContext.tsx';
-import IconButton from '../IconButton/IconButton.tsx';
+import IconButton from '@/shared/ui/IconButton/IconButton.tsx';
+import { Theme } from './../../config/theme.ts';
+import ThemeContext from './../../providers/ThemeContext.tsx';
 
 function ThemeSelect(): JSX.Element {
   const { toggleTheme, currentThemeValue } = use(ThemeContext);
