@@ -1,24 +1,18 @@
 'use client';
 
-import type { JSX } from 'react';
-import Button from '@/shared/ui/Button/Button.tsx';
-import PauseIcon from '@/shared/ui/PauseIcon/PauseIcon.tsx';
-import PlayIcon from '@/shared/ui/PlayIcon/PlayIcon.tsx';
+import { type JSX, useState } from 'react';
+import Checkbox from '@/shared/ui/Checkbox/Checkbox.tsx';
 
 export default function Playground(): JSX.Element {
+  const [checked, setChecked] = useState(false);
+
   return (
     <>
-      <Button
-        fullWidth
-        handleOnClickButton={() => console.log('clicked')}
-        icon={<PlayIcon />}
-        label="Play"
-      />
-      <Button
-        fullWidth
-        handleOnClickButton={() => console.log('clicked')}
-        icon={<PauseIcon />}
-        label="Play"
+      <Checkbox
+        checked={checked}
+        disabled={false}
+        handleOnChangeCheckbox={() => setChecked(!checked)}
+        label="Checkbox"
       />
     </>
   );
