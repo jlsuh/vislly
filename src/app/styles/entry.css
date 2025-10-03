@@ -5,6 +5,11 @@
 @layer reset {
   * {
     line-height: calc(1em + 0.5rem);
+    &:focus-visible {
+      border-radius: 0.25rem;
+      outline-offset: 0.125rem;
+      outline: 0.125rem solid var(--color-primary);
+    }
   }
 
   body {
