@@ -1,7 +1,7 @@
 import type { JSX } from 'react';
+import BrandLogo from '@/shared/ui/BrandLogo/BrandLogo.tsx';
+import GithubIconButton from '@/shared/ui/GithubIconButton/GithubIconButton.tsx';
 import ThemeProvider from '../providers/ThemeProvider.tsx';
-import BrandLogo from '../ui/BrandLogo/BrandLogo.tsx';
-import GithubIconButton from '../ui/GithubIconButton/GithubIconButton.tsx';
 import ThemeSelect from '../ui/ThemeSelect/ThemeSelect.tsx';
 import styles from './header.module.css';
 
