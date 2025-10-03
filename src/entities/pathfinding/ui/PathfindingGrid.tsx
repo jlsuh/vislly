@@ -16,6 +16,7 @@ import {
   pxToRem,
 } from '@/shared/lib/css.ts';
 import { Rgba } from '@/shared/lib/rgba.ts';
+import { capitalizeFirstLetter } from '@/shared/lib/strings.ts';
 import useIsHoldingClickOnElement from '@/shared/lib/useIsHoldingClickOnElement.ts';
 import useOnClickOutside from '@/shared/lib/useOnClickOutside.ts';
 import {
@@ -505,7 +506,7 @@ function PathfindingGrid(): JSX.Element {
             label="Vertex type"
             options={VERTEX_NAMES.map((vertexName) => ({
               value: vertexName,
-              label: vertexName,
+              label: capitalizeFirstLetter(vertexName),
             }))}
             value={selectedVertexName}
           />
@@ -534,7 +535,7 @@ function PathfindingGrid(): JSX.Element {
             label="Heuristics"
             options={Object.values(HeuristicsNames).map((heuristics) => ({
               value: heuristics,
-              label: heuristics,
+              label: capitalizeFirstLetter(heuristics),
             }))}
             value={selectedHeuristicsName}
           />
