@@ -22,13 +22,13 @@
 }
 
 .gravel {
-  min-height: 100%;
+  background-blend-mode: difference;
   background:
     repeating-radial-gradient(#000 0 0.0001%, #999 0 0.0002%) 60% 60% / 187.5rem
     187.5rem,
     repeating-conic-gradient(#000 0 0.0001%, #999 0 0.0002%) 40% 40% / 187.5rem
     187.5rem;
-  background-blend-mode: difference;
+  min-height: 100%;
 }
 
 .grass {
@@ -63,7 +63,7 @@
   background-color: #006eff;
 }
 
-.cellStatus {
+.cellTraversalStatus {
   height: 100%;
   width: 100%;
 }

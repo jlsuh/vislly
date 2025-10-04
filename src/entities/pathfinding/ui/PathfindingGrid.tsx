@@ -1,7 +1,6 @@
 'use client';
 
 import type {
-  ChangeEvent,
   JSX,
   PointerEvent,
   PointerEventHandler,
@@ -9,56 +8,27 @@ import type {
   TouchEvent,
   TouchEventHandler,
 } from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { use, useEffect } from 'react';
 import {
   type CssCustomProperty,
   composeCssCustomProperty,
   pxToRem,
 } from '@/shared/lib/css.ts';
-import { Rgba } from '@/shared/lib/rgba.ts';
-import { capitalizeFirstLetter } from '@/shared/lib/strings.ts';
 import useIsHoldingClickOnElement from '@/shared/lib/useIsHoldingClickOnElement.ts';
 import useOnClickOutside from '@/shared/lib/useOnClickOutside.ts';
 import {
   type ResizeDimensions,
   useResizeDimensions,
 } from '@/shared/lib/useResizeDimensions.ts';
-import Button from '@/shared/ui/Button/Button.tsx';
-import Checkbox from '@/shared/ui/Checkbox/Checkbox.tsx';
-import ClearPathIcon from '@/shared/ui/ClearPathIcon/ClearPathIcon.tsx';
-import DiceFiveIcon from '@/shared/ui/DiceFiveIcon/DiceFiveIcon.tsx';
-import { Divider } from '@/shared/ui/Divider/Divider.tsx';
-import PauseIcon from '@/shared/ui/PauseIcon/PauseIcon.tsx';
-import PlayIcon from '@/shared/ui/PlayIcon/PlayIcon.tsx';
-import Select from '@/shared/ui/Select/Select.tsx';
-import {
-  assertIsHeuristicsName,
-  type HeuristicsName,
-  HeuristicsNames,
-  INITIAL_HEURISTICS,
-} from '../model/heuristics.ts';
-import {
-  assertIsPathfindingAlgorithm,
-  INITIAL_ALGORITHM,
-  PATHFINDING_ALGORITHMS,
-} from '../model/pathfinding-algorithms.ts';
-import type { PathfindingAlgorithm } from '../model/pathfinding-strategy.ts';
 import {
   assertIsTerminalVertex,
-  assertIsVertexName,
   EMPTY,
-  END,
   INITIAL_COORDINATE,
-  INITIAL_VERTEX_NAME,
-  NON_TERMINAL_VERTEX_NAMES,
-  START,
   type TerminalVertex,
-  VERTEX_NAMES,
   Vertex,
-  type VertexName,
 } from '../model/vertex.ts';
 import Cell from './Cell.tsx';
-import getElementByCoordinates from './getElementByCoordinates.ts';
+import PathfindingContext from './PathfindingContext.tsx';
 import styles from './pathfinding-grid.module.css';
 
 const RESIZE_DIMENSIONS: ResizeDimensions = {
@@ -192,137 +162,24 @@ function handleOverflownTerminalCells(
   terminalCells.current = newTerminalCells;
 }
 
-function getAssociatedDiv(row: number, col: number): Element {
-  const element = getElementByCoordinates(row, col);
-  const associatedDiv = element.firstElementChild;
-  if (associatedDiv === null) {
-    throw new Error(
-      `Associated div not found for coordinates (${row}, ${col})`,
-    );
-  }
-  return associatedDiv;
-}
-
-function setButtonBackground(
-  row: number,
-  col: number,
-  backgroundColor: string,
-): void {
-  const associatedDiv = getAssociatedDiv(row, col);
-  associatedDiv.setAttribute('style', `background-color: ${backgroundColor};`);
-}
-
-function removeButtonBackground(row: number, col: number): void {
-  const associatedDiv = getAssociatedDiv(row, col);
-  associatedDiv.removeAttribute('style');
-}
-
-function resetButtonStyles(vertices: Vertex[]): void {
-  for (const vertex of vertices) {
-    removeButtonBackground(vertex.row, vertex.col);
-  }
-}
-
-function hasChangedOriginalPosition(
-  initialVertices: Record<TerminalVertex, Vertex>,
-  currentTerminalVertices: RefObject<Record<TerminalVertex, Vertex>>,
-): boolean {
-  for (const terminalVertex of Object.values(currentTerminalVertices.current)) {
-    const name = terminalVertex.name;
-    assertIsTerminalVertex(name);
-    if (!terminalVertex.positionEquals(initialVertices[name])) {
-      console.info(`${name} vertex has changed position`);
-      return true;
-    }
-  }
-  return false;
-}
-
-function appearsOnGrid(
-  initialVertices: Record<TerminalVertex, Vertex>,
-): boolean {
-  for (const vertex of Object.values(initialVertices)) {
-    if (!vertex.appearsOnGrid()) {
-      console.info(`${vertex.name} vertex not found`);
-      return false;
-    }
-  }
-  return true;
-}
-
-function randomInitialVertexPosition(
-  maxRows: number,
-  maxCols: number,
-  name: VertexName,
-  vertexToSkip?: Vertex,
-): Vertex {
-  let row: number;
-  let col: number;
-  let vertex: Vertex;
-  do {
-    row = Math.floor(Math.random() * maxRows);
-    col = Math.floor(Math.random() * maxCols);
-    vertex = new Vertex(row, col, name);
-  } while (vertexToSkip !== undefined && vertex.positionEquals(vertexToSkip));
-  return vertex;
-}
-
-const ANIMATION_DELAY = 5;
-const VISITED: string = new Rgba(
-  0.686_274_509_803_921_6,
-  0.933_333_333_333_333_3,
-  0.933_333_333_333_333_3,
-  0.6,
-).toStyle();
-const PATH: string = new Rgba(
-  0.996_078_431_372_549,
-  0.949_019_607_843_137_2,
-  0.313_725_490_196_078_4,
-  0.75,
-).toStyle();
-
 function PathfindingGrid(): JSX.Element {
-  const [cols, setCols] = useState(0);
-  const [grid, setGrid] = useState<Vertex[][]>([]);
-  const [isAnimationRunning, setIsAnimationRunning] = useState(false);
-  const [isDiagonalAllowed, setIsDiagonalAllowed] = useState(true);
-  const [rows, setRows] = useState(0);
-  const [selectedAlgorithmName, setSelectedAlgorithmName] =
-    useState<PathfindingAlgorithm>(INITIAL_ALGORITHM);
-  const [selectedHeuristicsName, setSelectedHeuristicsName] =
-    useState<HeuristicsName>(INITIAL_HEURISTICS);
-  const [selectedVertexName, setSelectedVertexName] =
-    useState<VertexName>(INITIAL_VERTEX_NAME);
-
-  const isAnimationRunningRef = useRef(false);
-  const lastGenerator = useRef<Iterator<Vertex[], Vertex[]>>(null);
-  const lastVisitedVertices = useRef<Vertex[]>([]);
-  const terminalVertices = useRef<Record<TerminalVertex, Vertex>>({
-    start: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, START),
-    end: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, END),
-  });
-
   const { dimensions, ref } =
     useResizeDimensions<HTMLElement>(RESIZE_DIMENSIONS);
   const { isHoldingClickRef } = useIsHoldingClickOnElement(ref);
 
   useOnClickOutside([ref], clearBodyOverflow);
 
-  const pausePathfind = useCallback((): void => {
-    isAnimationRunningRef.current = false;
-    setIsAnimationRunning(false);
-  }, []);
-
-  const stopPathfind = useCallback((): void => {
-    pausePathfind();
-    lastGenerator.current = null;
-  }, [pausePathfind]);
-
-  const resetPathfind = useCallback((): void => {
-    stopPathfind();
-    resetButtonStyles(lastVisitedVertices.current);
-    lastVisitedVertices.current = [];
-  }, [stopPathfind]);
+  const {
+    cols,
+    grid,
+    lastVisitedVertices,
+    rows,
+    terminalVertices,
+    resetPathfind,
+    setCols,
+    setGrid,
+    setRows,
+  } = use(PathfindingContext);
 
   useEffect(() => {
     resetPathfind();
@@ -341,239 +198,49 @@ function PathfindingGrid(): JSX.Element {
     setGrid((prevGrid) => composeNewGrid(prevGrid, rows, cols));
     handleOverflownTerminalCells(terminalVertices, rows, cols);
   }, [
+    cols,
     dimensions.boundedHeight,
     dimensions.boundedWidth,
-    cols,
     rows,
+    terminalVertices,
     resetPathfind,
+    setCols,
+    setGrid,
+    setRows,
   ]);
 
-  function handlePathfindingFrame(intervalId: number): void {
-    let it: IteratorResult<Vertex[], Vertex[]>;
-    try {
-      if (lastGenerator.current === null) {
-        throw new Error('Generator not initialized');
-      }
-      it = lastGenerator.current.next();
-    } catch (error) {
-      console.info('Error during Pathfinding:', error);
-      stopPathfind();
-      window.clearInterval(intervalId);
-      return;
-    }
-    const { done, value } = it;
-    const lastVisited = value.at(-1);
-    if (lastVisited === undefined) {
-      throw new Error('Last visited vertex is undefined');
-    }
-    if (!done) {
-      try {
-        setButtonBackground(lastVisited.row, lastVisited.col, VISITED);
-      } catch (_) {
-        console.info('Skipping setting background for', lastVisited);
-        stopPathfind();
-        window.clearInterval(intervalId);
-        return;
-      }
-      lastVisitedVertices.current = value;
-      return;
-    }
-    const pathWithoutTerminals = value.slice(1, -1);
-    for (const vertex of pathWithoutTerminals) {
-      setButtonBackground(vertex.row, vertex.col, PATH);
-    }
-    stopPathfind();
-    window.clearInterval(intervalId);
-  }
-
-  function update(
-    initialVertices: Record<TerminalVertex, Vertex>,
-    intervalId: number,
-  ): void {
-    if (hasChangedOriginalPosition(initialVertices, terminalVertices)) {
-      resetPathfind();
-      window.clearInterval(intervalId);
-      return;
-    }
-    if (!isAnimationRunningRef.current) {
-      window.clearInterval(intervalId);
-      return;
-    }
-    if (lastGenerator.current === null) {
-      const { strategy } = PATHFINDING_ALGORITHMS[selectedAlgorithmName];
-      const generator = strategy.generator({
-        end: terminalVertices.current.end,
-        grid,
-        heuristicsName: selectedHeuristicsName,
-        isDiagonalAllowed,
-        start: terminalVertices.current.start,
-      });
-      lastGenerator.current = generator;
-    }
-    handlePathfindingFrame(intervalId);
-  }
-
-  const findPath = (): void => {
-    const initialVertices = terminalVertices.current;
-    if (!appearsOnGrid(initialVertices)) {
-      return;
-    }
-    if (lastGenerator.current === null && !isAnimationRunningRef.current) {
-      resetButtonStyles(lastVisitedVertices.current);
-    }
-    setIsAnimationRunning(true);
-    isAnimationRunningRef.current = true;
-    const intervalId = window.setInterval(
-      () => update(initialVertices, intervalId),
-      ANIMATION_DELAY,
-    );
-  };
-
-  const randomizeGrid = (): void => {
-    resetPathfind();
-    const newGrid: Vertex[][] = [];
-    for (let row = 0; row < rows; row += 1) {
-      const newRow: Vertex[] = [];
-      for (let col = 0; col < cols; col += 1) {
-        const randomName =
-          NON_TERMINAL_VERTEX_NAMES[
-            Math.floor(Math.random() * NON_TERMINAL_VERTEX_NAMES.length)
-          ];
-        newRow.push(new Vertex(row, col, randomName));
-      }
-      newGrid.push(newRow);
-    }
-    const startVertexPosition = randomInitialVertexPosition(rows, cols, START);
-    const endVertexPosition = randomInitialVertexPosition(
-      rows,
-      cols,
-      END,
-      startVertexPosition,
-    );
-    terminalVertices.current = {
-      start: startVertexPosition,
-      end: endVertexPosition,
-    };
-    newGrid[startVertexPosition.row][startVertexPosition.col] =
-      startVertexPosition;
-    newGrid[endVertexPosition.row][endVertexPosition.col] = endVertexPosition;
-    setGrid(newGrid);
-  };
-
   return (
-    <div className={styles.pathfindingContainer}>
-      <section
-        aria-label="Pathfinding grid"
-        className={styles.grid}
-        onPointerMove={dispatchOnPointerMove(
-          isHoldingClickRef,
-          lastVisitedVertices,
-          resetPathfind,
-        )}
-        onTouchEnd={clearBodyOverflow}
-        onTouchMove={dispatchOnTouchMove(lastVisitedVertices, resetPathfind)}
-        onTouchStart={hideBodyOverflow}
-        ref={ref}
-        style={CELL_SIZE_VAR}
-      >
-        {grid.map((gridRow, cellRow) => {
-          const rowKey = `row-${cellRow}`;
-          return (
-            <div key={rowKey} className={styles.row}>
-              {gridRow.map((gridCell, cellCol) => (
-                <Cell
-                  grid={grid}
-                  gridCell={gridCell}
-                  key={`cell-row-${cellRow}-col-${cellCol}-value-${gridCell.name}`}
-                  lastVisitedVertices={lastVisitedVertices}
-                  reset={resetPathfind}
-                  selectedVertexName={selectedVertexName}
-                  terminalVertices={terminalVertices}
-                />
-              ))}
-            </div>
-          );
-        })}
-      </section>
-      <section className={styles.pathfindingControlsContainer}>
-        <div className={styles.pathfindingSelectsContainer}>
-          <Select
-            handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
-              const { value } = e.target;
-              assertIsVertexName(value);
-              setSelectedVertexName(value);
-            }}
-            label="Vertex type"
-            options={VERTEX_NAMES.map((vertexName) => ({
-              value: vertexName,
-              label: capitalizeFirstLetter(vertexName),
-            }))}
-            value={selectedVertexName}
-          />
-          <Select
-            handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
-              const { value } = e.target;
-              assertIsPathfindingAlgorithm(value);
-              setSelectedAlgorithmName(value);
-            }}
-            label="Pathfinding algorithm"
-            options={Object.values(PATHFINDING_ALGORITHMS).map(({ key }) => ({
-              value: key,
-              label: PATHFINDING_ALGORITHMS[key].label,
-            }))}
-            value={selectedAlgorithmName}
-          />
-          <Select
-            disabled={
-              !PATHFINDING_ALGORITHMS[selectedAlgorithmName].withHeuristics
-            }
-            handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
-              const { value } = e.target;
-              assertIsHeuristicsName(value);
-              setSelectedHeuristicsName(value);
-            }}
-            label="Heuristics"
-            options={Object.values(HeuristicsNames).map((heuristics) => ({
-              value: heuristics,
-              label: capitalizeFirstLetter(heuristics),
-            }))}
-            value={selectedHeuristicsName}
-          />
-        </div>
-        <Divider />
-        <div className={styles.checkboxContainer}>
-          <Checkbox
-            checked={isDiagonalAllowed}
-            disabled={false}
-            handleOnChangeCheckbox={(e: ChangeEvent<HTMLInputElement>) =>
-              setIsDiagonalAllowed(e.target.checked)
-            }
-            label="Allow diagonal traversal"
-          />
-        </div>
-        <Divider />
-        <div className={styles.pathfindingButtonsContainer}>
-          <Button
-            fullWidth
-            handleOnClickButton={isAnimationRunning ? pausePathfind : findPath}
-            icon={isAnimationRunning ? <PauseIcon /> : <PlayIcon />}
-            label={isAnimationRunning ? 'Pause' : 'Play'}
-          />
-          <Button
-            fullWidth
-            handleOnClickButton={resetPathfind}
-            icon={<ClearPathIcon />}
-            label="Clear Pathfind"
-          />
-          <Button
-            fullWidth
-            handleOnClickButton={randomizeGrid}
-            icon={<DiceFiveIcon />}
-            label="Randomize Grid"
-          />
-        </div>
-      </section>
-    </div>
+    <section
+      aria-label="Pathfinding grid"
+      className={styles.grid}
+      onPointerMove={dispatchOnPointerMove(
+        isHoldingClickRef,
+        lastVisitedVertices,
+        resetPathfind,
+      )}
+      onTouchEnd={clearBodyOverflow}
+      onTouchMove={dispatchOnTouchMove(lastVisitedVertices, resetPathfind)}
+      onTouchStart={hideBodyOverflow}
+      ref={ref}
+      style={CELL_SIZE_VAR}
+    >
+      {grid.map((gridRow, cellRow) => {
+        const rowKey = `row-${cellRow}`;
+        return (
+          <div key={rowKey} className={styles.row}>
+            {gridRow.map((gridCell, cellCol) => (
+              <Cell
+                grid={grid}
+                gridCell={gridCell}
+                key={`cell-row-${cellRow}-col-${cellCol}-value-${gridCell.name}`}
+                lastVisitedVertices={lastVisitedVertices}
+                terminalVertices={terminalVertices}
+              />
+            ))}
+          </div>
+        );
+      })}
+    </section>
   );
 }
 

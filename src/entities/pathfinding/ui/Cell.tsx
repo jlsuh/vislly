@@ -1,4 +1,13 @@
-import { type JSX, type MouseEvent, type RefObject, useState } from 'react';
+'use client';
+
+import {
+  type JSX,
+  type MouseEvent,
+  type RefObject,
+  use,
+  useState,
+} from 'react';
+import { getElementByCoordinates } from '@/shared/lib/dom.ts';
 import {
   EMPTY,
   INITIAL_COORDINATE,
@@ -8,7 +17,7 @@ import {
   type VertexName,
 } from '../model/vertex.ts';
 import styles from './cell.module.css';
-import getElementByCoordinates from './getElementByCoordinates.ts';
+import PathfindingContext from './PathfindingContext.tsx';
 
 function setButtonStyle(vertex: Vertex): void {
   const { row, col, name } = vertex;
@@ -20,23 +29,21 @@ function Cell({
   grid,
   gridCell,
   lastVisitedVertices,
-  reset,
-  selectedVertexName,
   terminalVertices,
 }: {
   grid: Vertex[][];
   gridCell: Vertex;
   lastVisitedVertices: RefObject<Vertex[]>;
-  reset: () => void;
-  selectedVertexName: VertexName;
   terminalVertices: RefObject<Record<TerminalVertex, Vertex>>;
 }): JSX.Element {
   const [cell, setCell] = useState(gridCell);
   const { row: cellRow, col: cellCol } = gridCell;
 
+  const { selectedVertexName, resetPathfind } = use(PathfindingContext);
+
   const setNewVertexName = (newVertexName: VertexName): void => {
     if (lastVisitedVertices.current.length > 0) {
-      reset();
+      resetPathfind();
     }
     const targetVertexName = grid[cellRow][cellCol].name;
     if (isTerminalVertex(targetVertexName)) {
@@ -84,7 +91,7 @@ function Cell({
       onTouchStart={() => setNewVertexName(selectedVertexName)}
       type="button"
     >
-      <div className={styles.cellStatus} />
+      <div className={styles.cellTraversalStatus} />
     </button>
   );
 }

@@ -1,0 +1,43 @@
+.checkboxContainer {
+  display: flex;
+  gap: 0.325rem;
+  justify-content: center;
+}
+
+.pathfindingControlsContainer {
+  background-color: var(--color-surface-container);
+  border-radius: 0.5rem;
+  border: 0.125rem solid var(--color-outline);
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+  min-width: 100%;
+  padding: 1rem;
+  width: fit-content;
+}
+
+.pathfindingButtonsContainer,
+.pathfindingSelectsContainer {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(1, 1fr);
+}
+
+@media (width >= 48rem) and (width < 64rem) {
+  .pathfindingButtonsContainer,
+  .pathfindingSelectsContainer {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (width >= 64rem) {
+  .pathfindingControlsContainer {
+    max-width: 16rem;
+    min-width: fit-content;
+  }
+  .pathfindingButtonsContainer,
+  .pathfindingControlsContainer,
+  .pathfindingSelectsContainer {
+    flex-direction: column;
+  }
+}

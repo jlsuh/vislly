@@ -1,9 +1,3 @@
-.checkboxContainer {
-  display: flex;
-  gap: 0.325rem;
-  justify-content: center;
-}
-
 .grid {
   flex: 1;
   height: 40rem;
@@ -11,32 +5,6 @@
   max-height: 70vh;
   min-height: 40rem;
   user-select: none;
-}
-
-.pathfindingContainer {
-  display: flex;
-  flex-direction: column-reverse;
-  gap: 0.725rem;
-  width: 100%;
-}
-
-.pathfindingControlsContainer {
-  background-color: var(--color-surface-container);
-  border-radius: 0.5rem;
-  border: 0.125rem solid var(--color-outline);
-  display: flex;
-  flex-direction: column;
-  height: fit-content;
-  min-width: 100%;
-  padding: 1rem;
-  width: fit-content;
-}
-
-.pathfindingButtonsContainer,
-.pathfindingSelectsContainer {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(1, 1fr);
 }
 
 .row {
@@ -47,27 +15,5 @@
   overflow: hidden;
   &:first-child > * {
     border-top-width: 0.0625rem;
-  }
-}
-
-@media (width >= 48rem) and (width < 64rem) {
-  .pathfindingButtonsContainer,
-  .pathfindingSelectsContainer {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (width >= 64rem) {
-  .pathfindingContainer {
-    flex-direction: unset;
-  }
-  .pathfindingControlsContainer {
-    max-width: 16rem;
-    min-width: fit-content;
-  }
-  .pathfindingControlsContainer,
-  .pathfindingButtonsContainer,
-  .pathfindingSelectsContainer {
-    flex-direction: column;
   }
 }
