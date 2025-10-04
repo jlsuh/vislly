@@ -1,0 +1,12 @@
+.pathfindingContainer {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.725rem;
+  width: 100%;
+}
+
+@media (width >= 64rem) {
+  .pathfindingContainer {
+    flex-direction: unset;
+  }
+}
