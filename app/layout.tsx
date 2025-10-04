@@ -1,4 +1,5 @@
 import App from '@/app/layout/App.tsx';
+import ThemeProvider from '@/app/providers/ThemeProvider.tsx';
 import '@/app/styles/entry.css';
 import type { Metadata } from 'next';
 import type { JSX, PropsWithChildren } from 'react';
@@ -13,7 +14,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <App>{children}</App>
+        <ThemeProvider>
+          <App>{children}</App>
+        </ThemeProvider>
       </body>
     </html>
   );
