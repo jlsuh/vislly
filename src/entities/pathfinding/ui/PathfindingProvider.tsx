@@ -298,9 +298,7 @@ function PathfindingProvider({
         cols,
         grid,
         isAnimationRunning,
-        isAnimationRunningRef,
         isDiagonalAllowed,
-        lastGenerator,
         lastVisitedVertices,
         rows,
         selectedAlgorithmName,
@@ -312,14 +310,12 @@ function PathfindingProvider({
         resetPathfind,
         setCols,
         setGrid,
-        setIsAnimationRunning,
         setIsDiagonalAllowed,
         setRandomizedGrid,
         setRows,
         setSelectedAlgorithmName,
         setSelectedHeuristicsName,
         setSelectedVertexName,
-        stopPathfind,
       }}
     >
       {children}

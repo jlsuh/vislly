@@ -230,11 +230,8 @@ function PathfindingGrid(): JSX.Element {
           <div key={rowKey} className={styles.row}>
             {gridRow.map((gridCell, cellCol) => (
               <Cell
-                grid={grid}
                 gridCell={gridCell}
                 key={`cell-row-${cellRow}-col-${cellCol}-value-${gridCell.name}`}
-                lastVisitedVertices={lastVisitedVertices}
-                terminalVertices={terminalVertices}
               />
             ))}
           </div>
