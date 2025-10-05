@@ -26,9 +26,7 @@ type PathfindingContextType = {
   cols: number;
   grid: Vertex[][];
   isAnimationRunning: boolean;
-  isAnimationRunningRef: RefObject<boolean>;
   isDiagonalAllowed: boolean;
-  lastGenerator: RefObject<Iterator<Vertex[], Vertex[], never> | null>;
   lastVisitedVertices: RefObject<Vertex[]>;
   rows: number;
   selectedAlgorithmName: PathfindingAlgorithm;
@@ -40,14 +38,12 @@ type PathfindingContextType = {
   resetPathfind: () => void;
   setCols: Dispatch<SetStateAction<number>>;
   setGrid: Dispatch<SetStateAction<Vertex[][]>>;
-  setIsAnimationRunning: Dispatch<SetStateAction<boolean>>;
   setIsDiagonalAllowed: Dispatch<SetStateAction<boolean>>;
   setRandomizedGrid: () => void;
   setRows: Dispatch<SetStateAction<number>>;
   setSelectedAlgorithmName: Dispatch<SetStateAction<PathfindingAlgorithm>>;
   setSelectedHeuristicsName: Dispatch<SetStateAction<HeuristicsName>>;
   setSelectedVertexName: Dispatch<SetStateAction<VertexName>>;
-  stopPathfind: () => void;
 };
 
 const PathfindingContext: Context<PathfindingContextType> =
@@ -55,9 +51,7 @@ const PathfindingContext: Context<PathfindingContextType> =
     cols: 0,
     grid: [],
     isAnimationRunning: false,
-    isAnimationRunningRef: { current: false },
     isDiagonalAllowed: true,
-    lastGenerator: { current: null },
     lastVisitedVertices: { current: [] },
     rows: 0,
     selectedAlgorithmName: INITIAL_ALGORITHM,
@@ -74,14 +68,12 @@ const PathfindingContext: Context<PathfindingContextType> =
     resetPathfind: () => {},
     setCols: () => {},
     setGrid: () => {},
-    setIsAnimationRunning: () => {},
     setIsDiagonalAllowed: () => {},
     setRandomizedGrid: () => {},
     setRows: () => {},
     setSelectedAlgorithmName: () => {},
     setSelectedHeuristicsName: () => {},
     setSelectedVertexName: () => {},
-    stopPathfind: () => {},
   });
 
 export default PathfindingContext;
