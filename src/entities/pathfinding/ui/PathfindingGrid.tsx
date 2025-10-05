@@ -195,8 +195,8 @@ function PathfindingGrid(): JSX.Element {
     if (newRows !== rows) {
       setRows(newRows);
     }
-    setGrid((prevGrid) => composeNewGrid(prevGrid, rows, cols));
-    handleOverflownTerminalCells(terminalVertices, rows, cols);
+    setGrid((prevGrid) => composeNewGrid(prevGrid, newRows, newCols));
+    handleOverflownTerminalCells(terminalVertices, newRows, newCols);
   }, [
     cols,
     dimensions.boundedHeight,
