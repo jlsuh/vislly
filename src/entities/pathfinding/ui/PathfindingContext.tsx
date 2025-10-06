@@ -33,6 +33,7 @@ type PathfindingContextType = {
   selectedHeuristicsName: string;
   selectedVertexName: VertexName;
   terminalVertices: RefObject<Record<TerminalVertex, Vertex>>;
+  composeSimplexGrid: () => void;
   findPath: () => void;
   pausePathfind: () => void;
   resetPathfind: () => void;
@@ -63,6 +64,7 @@ const PathfindingContext: Context<PathfindingContextType> =
         end: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, END),
       },
     },
+    composeSimplexGrid: () => {},
     findPath: () => {},
     pausePathfind: () => {},
     resetPathfind: () => {},

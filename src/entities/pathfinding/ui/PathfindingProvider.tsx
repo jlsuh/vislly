@@ -14,6 +14,7 @@ import {
   type HeuristicsName,
   INITIAL_HEURISTICS,
 } from '../model/heuristics.ts';
+import { PerlinNoise } from '../model/PerlinNoise.ts';
 import {
   INITIAL_ALGORITHM,
   PATHFINDING_ALGORITHMS,
@@ -106,6 +107,15 @@ function removeButtonBackground(row: number, col: number): void {
 function resetButtonStyles(vertices: Vertex[]): void {
   for (const vertex of vertices) {
     removeButtonBackground(vertex.row, vertex.col);
+  }
+}
+
+function composeNoiseScale(cols: number, rows: number): number {
+  const ratio = cols / rows;
+  if (ratio <= 1) {
+    return 3 * ratio;
+  } else {
+    return 4 - rows / cols;
   }
 }
 
@@ -292,6 +302,24 @@ function PathfindingProvider({
     );
   };
 
+  const composeSimplexGrid = () => {
+    const perlin = new PerlinNoise();
+    const noiseScale = composeNoiseScale(cols, rows);
+    const seed = Date.now();
+    const seedX = ((Math.sin(seed) * 10000) % 1000) / 100;
+    const seedY = ((Math.sin(seed * 7) * 10000) % 1000) / 100;
+    for (let row = 0; row < rows; row += 1) {
+      for (let col = 0; col < cols; col += 1) {
+        const nx = col / cols;
+        const ny = row / rows;
+        const sampleX = nx * noiseScale + seedX;
+        const sampleY = ny * noiseScale + seedY;
+        const v = perlin.get(sampleX, sampleY) * 360;
+        setButtonBackground(row, col, `hsl(${v}, 50%, 50%)`);
+      }
+    }
+  };
+
   return (
     <PathfindingContext
       value={{
@@ -305,6 +333,7 @@ function PathfindingProvider({
         selectedHeuristicsName,
         selectedVertexName,
         terminalVertices,
+        composeSimplexGrid,
         findPath,
         pausePathfind,
         resetPathfind,
