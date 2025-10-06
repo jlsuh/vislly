@@ -2,6 +2,7 @@
 
 import { type JSX, useEffect, useId } from 'react';
 import { getRootFontSize } from '@/shared/lib/css.ts';
+import { getRandomAngle } from '@/shared/lib/random.ts';
 import { Rgba } from '@/shared/lib/rgba.ts';
 import {
   type ResizeDimensions,
@@ -14,10 +15,6 @@ import {
   Vector2,
 } from '../model/brownian-motion.ts';
 import styles from './brownian-motion.module.css';
-
-function getRandomAngle(): number {
-  return Math.random() * 2 * Math.PI;
-}
 
 function getRandomBetween(min: number, max: number): number {
   return Math.random() * (max - min) + min;
