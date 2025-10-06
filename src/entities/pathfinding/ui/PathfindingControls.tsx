@@ -24,19 +24,20 @@ import styles from './pathfinding-controls.module.css';
 
 export default function PathfindingControls(): JSX.Element {
   const {
-    selectedVertexName,
     isAnimationRunning,
-    selectedHeuristicsName,
-    selectedAlgorithmName,
     isDiagonalAllowed,
-    setSelectedVertexName,
-    setRandomizedGrid,
-    resetPathfind,
-    pausePathfind,
-    setSelectedAlgorithmName,
-    setIsDiagonalAllowed,
-    setSelectedHeuristicsName,
+    selectedAlgorithmName,
+    selectedHeuristicsName,
+    selectedVertexName,
+    composeSimplexGrid,
     findPath,
+    pausePathfind,
+    resetPathfind,
+    setIsDiagonalAllowed,
+    setRandomizedGrid,
+    setSelectedAlgorithmName,
+    setSelectedHeuristicsName,
+    setSelectedVertexName,
   } = use(PathfindingContext);
 
   return (
@@ -115,6 +116,12 @@ export default function PathfindingControls(): JSX.Element {
           handleOnClickButton={setRandomizedGrid}
           icon={<DiceFiveIcon />}
           label="Randomize Grid"
+        />
+        <Button
+          fullWidth
+          handleOnClickButton={composeSimplexGrid}
+          icon={<></>}
+          label="Generate Simplex Grid"
         />
       </div>
     </section>
