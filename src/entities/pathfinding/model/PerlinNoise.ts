@@ -1,22 +1,22 @@
 import { getRandomAngle } from '@/shared/lib/random.ts';
+import { Vector2 } from '@/shared/lib/vector2.ts';
 
-type CoordinateKey = `${number},${number}`;
+type IntersectionCoordinate = `${number},${number}`;
 
 class PerlinNoise {
-  private gradients: Record<CoordinateKey, { x: number; y: number }> = {};
-  private memory: Record<CoordinateKey, number> = {};
+  private gradients: Record<IntersectionCoordinate, Vector2> = {};
 
-  public dotProductGrid(x: number, y: number, vx: number, vy: number): number {
-    let gVector: { x: number; y: number };
-    const dVector = { x: x - vx, y: y - vy };
-    if (this.gradients[`${vx},${vy}`]) {
-      gVector = this.gradients[`${vx},${vy}`];
+  private dotGrid(x: number, y: number, ix: number, iy: number): number {
+    const d = new Vector2(x - ix, y - iy);
+    let g: Vector2;
+    if (this.gradients[`${ix},${iy}`]) {
+      g = this.gradients[`${ix},${iy}`];
     } else {
       const theta = getRandomAngle();
-      gVector = { x: Math.cos(theta), y: Math.sin(theta) };
-      this.gradients[`${vx},${vy}`] = gVector;
+      g = new Vector2(Math.cos(theta), Math.sin(theta));
+      this.gradients[`${ix},${iy}`] = g;
     }
-    return dVector.x * gVector.x + dVector.y * gVector.y;
+    return d.dot(g);
   }
 
   private perlinQuinticSmoothstep(x: number) {
@@ -28,20 +28,16 @@ class PerlinNoise {
   }
 
   public get(x: number, y: number): number {
-    if (this.memory[`${x},${y}`] !== undefined) {
-      return this.memory[`${x},${y}`];
-    }
-    const xf = Math.floor(x);
-    const yf = Math.floor(y);
-    const tl = this.dotProductGrid(x, y, xf, yf);
-    const tr = this.dotProductGrid(x, y, xf + 1, yf);
-    const bl = this.dotProductGrid(x, y, xf, yf + 1);
-    const br = this.dotProductGrid(x, y, xf + 1, yf + 1);
-    const xt = this.interp(x - xf, tl, tr);
-    const xb = this.interp(x - xf, bl, br);
-    const v = this.interp(y - yf, xt, xb);
-    this.memory[`${x},${y}`] = v;
-    return v;
+    const x0 = Math.floor(x);
+    const y0 = Math.floor(y);
+    const tl = this.dotGrid(x, y, x0, y0);
+    const tr = this.dotGrid(x, y, x0 + 1, y0);
+    const bl = this.dotGrid(x, y, x0, y0 + 1);
+    const br = this.dotGrid(x, y, x0 + 1, y0 + 1);
+    const xt = this.interp(x - x0, tl, tr);
+    const xb = this.interp(x - x0, bl, br);
+    const intensity = this.interp(y - y0, xt, xb);
+    return intensity;
   }
 }
 
