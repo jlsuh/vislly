@@ -314,8 +314,9 @@ function PathfindingProvider({
         const ny = row / rows;
         const sampleX = nx * noiseScale + seedX;
         const sampleY = ny * noiseScale + seedY;
-        const v = perlin.get(sampleX, sampleY) * 360;
-        setButtonBackground(row, col, `hsl(${v}, 50%, 50%)`);
+        const intensity = perlin.get(sampleX, sampleY);
+        const value = intensity * 360;
+        setButtonBackground(row, col, `hsl(${value}, 50%, 50%)`);
       }
     }
   };
