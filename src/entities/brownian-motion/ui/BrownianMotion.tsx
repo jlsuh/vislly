@@ -8,11 +8,11 @@ import {
   type ResizeDimensions,
   useResizeDimensions,
 } from '@/shared/lib/useResizeDimensions.ts';
+import { Vector2 } from '@/shared/lib/vector2.ts';
 import {
   type CoefficientOfRestitution,
   Particle,
   type ParticleSettings,
-  Vector2,
 } from '../model/brownian-motion.ts';
 import styles from './brownian-motion.module.css';
 
