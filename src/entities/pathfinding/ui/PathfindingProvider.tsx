@@ -27,13 +27,20 @@ import type { PathfindingAlgorithm } from '../model/pathfinding-strategy.ts';
 import {
   assertIsTerminalVertex,
   END,
+  GRASS,
+  GRAVEL,
   INITIAL_COORDINATE,
   INITIAL_VERTEX_NAME,
   NON_TERMINAL_VERTEX_NAMES,
+  SAND,
+  SNOW,
   START,
+  STONE,
   type TerminalVertex,
   Vertex,
   type VertexName,
+  WATER,
+  WATER_DEEP,
 } from '../model/vertex.ts';
 import PathfindingContext from './PathfindingContext.tsx';
 
@@ -120,6 +127,24 @@ function composeNoiseScale(cols: number, rows: number): number {
     return 3 * ratio;
   } else {
     return 4 - rows / cols;
+  }
+}
+
+function mapIntensityToVertexName(intensity: number): VertexName {
+  if (intensity < 0.07) {
+    return WATER_DEEP;
+  } else if (intensity < 0.2) {
+    return WATER;
+  } else if (intensity < 0.36) {
+    return SAND;
+  } else if (intensity < 0.64) {
+    return GRASS;
+  } else if (intensity < 0.8) {
+    return STONE;
+  } else if (intensity < 0.93) {
+    return GRAVEL;
+  } else {
+    return SNOW;
   }
 }
 
@@ -326,15 +351,38 @@ function PathfindingProvider({
         if (intensity > maxIntensity) maxIntensity = intensity;
       }
     }
+    resetPathfind();
+    const newGrid: Vertex[][] = [];
     for (let row = 0; row < rows; row += 1) {
+      const newRow: Vertex[] = [];
       for (let col = 0; col < cols; col += 1) {
         const intensity = noiseValues[`${row},${col}`];
         const normalizedIntensity =
           (intensity - minIntensity) / (maxIntensity - minIntensity);
-        const value = normalizedIntensity * 360;
-        setButtonBackground(row, col, `hsl(${value}, 50%, 50%)`);
+        const vertexName = mapIntensityToVertexName(normalizedIntensity);
+        newRow.push(new Vertex(row, col, vertexName));
       }
+      newGrid.push(newRow);
     }
+    const startVertexPosition = composeRandomInitialVertexPosition(
+      rows,
+      cols,
+      START,
+    );
+    const endVertexPosition = composeRandomInitialVertexPosition(
+      rows,
+      cols,
+      END,
+      startVertexPosition,
+    );
+    newGrid[startVertexPosition.row][startVertexPosition.col] =
+      startVertexPosition;
+    newGrid[endVertexPosition.row][endVertexPosition.col] = endVertexPosition;
+    terminalVertices.current = {
+      start: startVertexPosition,
+      end: endVertexPosition,
+    };
+    setGrid(newGrid);
   };
 
   return (
