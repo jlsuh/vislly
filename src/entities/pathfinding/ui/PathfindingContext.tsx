@@ -33,8 +33,8 @@ type PathfindingContextType = {
   selectedHeuristicsName: string;
   selectedVertexName: VertexName;
   terminalVertices: RefObject<Record<TerminalVertex, Vertex>>;
-  composeSimplexGrid: () => void;
   findPath: () => void;
+  generatePerlinGrid: () => void;
   pausePathfind: () => void;
   resetPathfind: () => void;
   setCols: Dispatch<SetStateAction<number>>;
@@ -64,8 +64,8 @@ const PathfindingContext: Context<PathfindingContextType> =
         end: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, END),
       },
     },
-    composeSimplexGrid: () => {},
     findPath: () => {},
+    generatePerlinGrid: () => {},
     pausePathfind: () => {},
     resetPathfind: () => {},
     setCols: () => {},
