@@ -5,6 +5,7 @@ function GithubIcon(): JSX.Element {
   return (
     <svg
       className={styles.githubIcon}
+      focusable="false"
       height="96"
       viewBox="0 0 98 96"
       width="98"

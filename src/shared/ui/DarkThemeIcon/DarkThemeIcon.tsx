@@ -8,6 +8,7 @@ function DarkThemeIcon(): JSX.Element {
       <svg
         className={styles.darkThemeIcon}
         fill="none"
+        focusable="false"
         height="14"
         viewBox="0 0 14 14"
         width="14"

@@ -9,6 +9,7 @@ function BrandLogo(): JSX.Element {
         aria-hidden="true"
         className={styles.brandEye}
         fill="none"
+        focusable="false"
         height="160"
         viewBox="0 0 160 160"
         width="160"

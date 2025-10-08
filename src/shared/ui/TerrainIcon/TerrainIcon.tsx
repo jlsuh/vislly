@@ -4,8 +4,8 @@ export default function TerrainIcon(): JSX.Element {
   return (
     <svg
       aria-hidden="true"
-      focusable="false"
       fill="currentColor"
+      focusable="false"
       height="24"
       viewBox="0 0 24 24"
       width="24"
