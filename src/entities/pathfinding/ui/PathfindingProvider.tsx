@@ -16,14 +16,14 @@ import {
   INITIAL_HEURISTICS,
 } from '../model/heuristics.ts';
 import {
-  type IntersectionCoordinate,
-  PerlinNoise,
-} from '../model/PerlinNoise.ts';
-import {
   INITIAL_ALGORITHM,
   PATHFINDING_ALGORITHMS,
 } from '../model/pathfinding-algorithms.ts';
 import type { PathfindingAlgorithm } from '../model/pathfinding-strategy.ts';
+import {
+  type IntersectionCoordinate,
+  PerlinNoise,
+} from '../model/perlin-noise.ts';
 import {
   assertIsTerminalVertex,
   END,
