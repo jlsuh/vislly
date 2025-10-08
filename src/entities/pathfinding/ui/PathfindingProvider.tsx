@@ -9,12 +9,16 @@ import {
   useState,
 } from 'react';
 import { getElementByCoordinates } from '@/shared/lib/dom.ts';
+import { xoshiro128ss } from '@/shared/lib/random.ts';
 import { Rgba } from '@/shared/lib/rgba.ts';
 import {
   type HeuristicsName,
   INITIAL_HEURISTICS,
 } from '../model/heuristics.ts';
-import { PerlinNoise } from '../model/PerlinNoise.ts';
+import {
+  type IntersectionCoordinate,
+  PerlinNoise,
+} from '../model/PerlinNoise.ts';
 import {
   INITIAL_ALGORITHM,
   PATHFINDING_ALGORITHMS,
@@ -305,17 +309,29 @@ function PathfindingProvider({
   const composeSimplexGrid = () => {
     const perlin = new PerlinNoise();
     const noiseScale = composeNoiseScale(cols, rows);
-    const seed = Date.now();
-    const seedX = ((Math.sin(seed) * 10000) % 1000) / 100;
-    const seedY = ((Math.sin(seed * 7) * 10000) % 1000) / 100;
+    const seedX = xoshiro128ss()();
+    const seedY = xoshiro128ss()();
+    const noiseValues: Record<IntersectionCoordinate, number> = {};
+    let minIntensity = Infinity;
+    let maxIntensity = -Infinity;
     for (let row = 0; row < rows; row += 1) {
       for (let col = 0; col < cols; col += 1) {
-        const nx = col / cols;
-        const ny = row / rows;
-        const sampleX = nx * noiseScale + seedX;
-        const sampleY = ny * noiseScale + seedY;
-        const intensity = perlin.get(sampleX, sampleY);
-        const value = intensity * 360;
+        const normalizedX = col / cols;
+        const normalizedY = row / rows;
+        const x = normalizedX * noiseScale + seedX;
+        const y = normalizedY * noiseScale + seedY;
+        const intensity = perlin.get(x, y);
+        noiseValues[`${row},${col}`] = intensity;
+        if (intensity < minIntensity) minIntensity = intensity;
+        if (intensity > maxIntensity) maxIntensity = intensity;
+      }
+    }
+    for (let row = 0; row < rows; row += 1) {
+      for (let col = 0; col < cols; col += 1) {
+        const intensity = noiseValues[`${row},${col}`];
+        const normalizedIntensity =
+          (intensity - minIntensity) / (maxIntensity - minIntensity);
+        const value = normalizedIntensity * 360;
         setButtonBackground(row, col, `hsl(${value}, 50%, 50%)`);
       }
     }
