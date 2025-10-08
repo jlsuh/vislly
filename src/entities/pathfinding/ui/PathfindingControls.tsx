@@ -29,8 +29,8 @@ export default function PathfindingControls(): JSX.Element {
     selectedAlgorithmName,
     selectedHeuristicsName,
     selectedVertexName,
-    composeSimplexGrid,
     findPath,
+    generatePerlinGrid,
     pausePathfind,
     resetPathfind,
     setIsDiagonalAllowed,
@@ -119,9 +119,9 @@ export default function PathfindingControls(): JSX.Element {
         />
         <Button
           fullWidth
-          handleOnClickButton={composeSimplexGrid}
+          handleOnClickButton={generatePerlinGrid}
           icon={<></>}
-          label="Generate Simplex Grid"
+          label="Generate Perlin Noise"
         />
       </div>
     </section>

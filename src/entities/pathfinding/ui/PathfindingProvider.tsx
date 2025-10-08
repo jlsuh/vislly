@@ -306,7 +306,7 @@ function PathfindingProvider({
     );
   };
 
-  const composeSimplexGrid = () => {
+  const generatePerlinGrid = () => {
     const perlin = new PerlinNoise();
     const noiseScale = composeNoiseScale(cols, rows);
     const seedX = xoshiro128ss()();
@@ -350,8 +350,8 @@ function PathfindingProvider({
         selectedHeuristicsName,
         selectedVertexName,
         terminalVertices,
-        composeSimplexGrid,
         findPath,
+        generatePerlinGrid,
         pausePathfind,
         resetPathfind,
         setCols,
