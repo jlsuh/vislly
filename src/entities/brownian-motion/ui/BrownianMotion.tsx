@@ -2,7 +2,7 @@
 
 import { type JSX, useEffect, useId } from 'react';
 import { getRootFontSize } from '@/shared/lib/css.ts';
-import { getRandomAngle } from '@/shared/lib/random.ts';
+import { generateRandomAngle } from '@/shared/lib/random.ts';
 import { Rgba } from '@/shared/lib/rgba.ts';
 import {
   type ResizeDimensions,
@@ -207,8 +207,10 @@ function BrownianMotion(): JSX.Element {
         fillColor: BLUE,
         isTracked: false,
         r: currentMoleculeRadius,
-        vix: Math.random() * currentInitialSpeed * Math.cos(getRandomAngle()),
-        viy: Math.random() * currentInitialSpeed * Math.sin(getRandomAngle()),
+        vix:
+          Math.random() * currentInitialSpeed * Math.cos(generateRandomAngle()),
+        viy:
+          Math.random() * currentInitialSpeed * Math.sin(generateRandomAngle()),
         x: getRandomBetween(
           currentMoleculeDiameter,
           dimensions.boundedWidth - currentMoleculeDiameter,
