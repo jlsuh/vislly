@@ -10,6 +10,7 @@ import { Divider } from '@/shared/ui/Divider/Divider.tsx';
 import PauseIcon from '@/shared/ui/PauseIcon/PauseIcon.tsx';
 import PlayIcon from '@/shared/ui/PlayIcon/PlayIcon.tsx';
 import Select from '@/shared/ui/Select/Select.tsx';
+import TerrainIcon from '@/shared/ui/TerrainIcon/TerrainIcon.tsx';
 import {
   assertIsHeuristicsName,
   HeuristicsNames,
@@ -120,7 +121,7 @@ export default function PathfindingControls(): JSX.Element {
         <Button
           fullWidth
           handleOnClickButton={generatePerlinGrid}
-          icon={<></>}
+          icon={<TerrainIcon />}
           label="Generate Perlin Noise"
         />
       </div>
