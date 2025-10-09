@@ -130,6 +130,54 @@ function composeNoiseScale(cols: number, rows: number): number {
   }
 }
 
+function composePerlinNoise(
+  cols: number,
+  rows: number,
+): {
+  values: Record<IntersectionCoordinate, number>;
+  min: number;
+  max: number;
+} {
+  const perlin = new PerlinNoise();
+  const noiseScale = composeNoiseScale(cols, rows);
+  const seedX = xoshiro128ss()();
+  const seedY = xoshiro128ss()();
+  const values: Record<IntersectionCoordinate, number> = {};
+  let min = Number.POSITIVE_INFINITY;
+  let max = Number.NEGATIVE_INFINITY;
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      const normalizedX = col / cols;
+      const normalizedY = row / rows;
+      const x = normalizedX * noiseScale + seedX;
+      const y = normalizedY * noiseScale + seedY;
+      const intensity = perlin.get(x, y);
+      values[`${row},${col}`] = intensity;
+      if (intensity < min) min = intensity;
+      if (intensity > max) max = intensity;
+    }
+  }
+  return { values, min, max };
+}
+
+function composePerlinNoiseGrid(cols: number, rows: number): Vertex[][] {
+  const { values, min, max } = composePerlinNoise(cols, rows);
+  const perlinNoiseGrid: Vertex[][] = [];
+  for (let row = 0; row < rows; row += 1) {
+    const newRow: Vertex[] = [];
+    for (let col = 0; col < cols; col += 1) {
+      const intensity = values[`${row},${col}`];
+      const numerator = intensity - min;
+      const denominator = max - min || 1;
+      const normalizedIntensity = numerator / denominator;
+      const vertexName = mapIntensityToVertexName(normalizedIntensity);
+      newRow.push(new Vertex(row, col, vertexName));
+    }
+    perlinNoiseGrid.push(newRow);
+  }
+  return perlinNoiseGrid;
+}
+
 function mapIntensityToVertexName(intensity: number): VertexName {
   if (intensity < 0.1) {
     return WATER_DEEP;
@@ -332,38 +380,7 @@ function PathfindingProvider({
   };
 
   const generatePerlinGrid = () => {
-    const perlin = new PerlinNoise();
-    const noiseScale = composeNoiseScale(cols, rows);
-    const seedX = xoshiro128ss()();
-    const seedY = xoshiro128ss()();
-    const noiseValues: Record<IntersectionCoordinate, number> = {};
-    let minIntensity = Number.POSITIVE_INFINITY;
-    let maxIntensity = Number.NEGATIVE_INFINITY;
-    for (let row = 0; row < rows; row += 1) {
-      for (let col = 0; col < cols; col += 1) {
-        const normalizedX = col / cols;
-        const normalizedY = row / rows;
-        const x = normalizedX * noiseScale + seedX;
-        const y = normalizedY * noiseScale + seedY;
-        const intensity = perlin.get(x, y);
-        noiseValues[`${row},${col}`] = intensity;
-        if (intensity < minIntensity) minIntensity = intensity;
-        if (intensity > maxIntensity) maxIntensity = intensity;
-      }
-    }
-    const newGrid: Vertex[][] = [];
-    for (let row = 0; row < rows; row += 1) {
-      const newRow: Vertex[] = [];
-      for (let col = 0; col < cols; col += 1) {
-        const intensity = noiseValues[`${row},${col}`];
-        const numerator = intensity - minIntensity;
-        const denominator = maxIntensity - minIntensity || 1;
-        const normalizedIntensity = numerator / denominator;
-        const vertexName = mapIntensityToVertexName(normalizedIntensity);
-        newRow.push(new Vertex(row, col, vertexName));
-      }
-      newGrid.push(newRow);
-    }
+    const perlinNoiseGrid = composePerlinNoiseGrid(cols, rows);
     const startVertexPosition = composeRandomInitialVertexPosition(
       rows,
       cols,
@@ -375,15 +392,16 @@ function PathfindingProvider({
       END,
       startVertexPosition,
     );
-    newGrid[startVertexPosition.row][startVertexPosition.col] =
+    perlinNoiseGrid[startVertexPosition.row][startVertexPosition.col] =
       startVertexPosition;
-    newGrid[endVertexPosition.row][endVertexPosition.col] = endVertexPosition;
+    perlinNoiseGrid[endVertexPosition.row][endVertexPosition.col] =
+      endVertexPosition;
     terminalVertices.current = {
       start: startVertexPosition,
       end: endVertexPosition,
     };
     resetPathfind();
-    setGrid(newGrid);
+    setGrid(perlinNoiseGrid);
   };
 
   return (
