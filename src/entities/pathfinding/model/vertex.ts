@@ -8,8 +8,8 @@ const GRASS = 'grass';
 const SAND = 'sand';
 const STONE = 'stone';
 const GRAVEL = 'gravel';
-const WATER = 'water';
 const SNOW = 'snow';
+const WATER = 'water';
 const WATER_DEEP = 'water-deep';
 
 const INITIAL_COORDINATE = -1;
@@ -19,13 +19,13 @@ const WEIGHTS: ReadonlyDeep<Record<VertexName, number>> = {
   [END]: 1,
   [WALL]: Number.POSITIVE_INFINITY,
   [EMPTY]: 1,
-  [GRASS]: 5,
-  [SAND]: 7,
-  [STONE]: 25,
-  [GRAVEL]: 50,
-  [WATER]: 50,
-  [SNOW]: 75,
-  [WATER_DEEP]: 100,
+  [GRASS]: 2,
+  [GRAVEL]: 4,
+  [SAND]: 8,
+  [STONE]: 16,
+  [SNOW]: 32,
+  [WATER]: 64,
+  [WATER_DEEP]: 128,
 };
 
 type VertexName =
@@ -34,11 +34,11 @@ type VertexName =
   | typeof WALL
   | typeof EMPTY
   | typeof GRASS
+  | typeof GRAVEL
   | typeof SAND
   | typeof STONE
-  | typeof GRAVEL
-  | typeof WATER
   | typeof SNOW
+  | typeof WATER
   | typeof WATER_DEEP;
 type TerminalVertex = Extract<VertexName, typeof START | typeof END>;
 
@@ -95,11 +95,11 @@ const NON_TERMINAL_VERTEX_NAMES: ReadonlyDeep<VertexName[]> = [
   WALL,
   EMPTY,
   GRASS,
+  GRAVEL,
   SAND,
   STONE,
-  GRAVEL,
-  WATER,
   SNOW,
+  WATER,
   WATER_DEEP,
 ];
 
@@ -109,11 +109,11 @@ const VERTEX_NAMES: ReadonlyDeep<VertexName[]> = [
   WALL,
   EMPTY,
   GRASS,
+  GRAVEL,
   SAND,
   STONE,
-  GRAVEL,
-  WATER,
   SNOW,
+  WATER,
   WATER_DEEP,
 ];
 

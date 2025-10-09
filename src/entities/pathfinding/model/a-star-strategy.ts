@@ -26,8 +26,9 @@ class AStarStrategy extends PathfindingStrategy {
     if (closed.has(neighbor)) {
       return;
     }
-    const tentativeGScore = (gScore.get(current) ?? Infinity) + neighbor.weight;
-    if (tentativeGScore < (gScore.get(neighbor) ?? Infinity)) {
+    const tentativeGScore =
+      (gScore.get(current) ?? Number.POSITIVE_INFINITY) + neighbor.weight;
+    if (tentativeGScore < (gScore.get(neighbor) ?? Number.POSITIVE_INFINITY)) {
       gScore.set(neighbor, tentativeGScore);
       const fScore =
         tentativeGScore + Heuristics[heuristicsName](neighbor, end);
@@ -52,7 +53,9 @@ class AStarStrategy extends PathfindingStrategy {
     const open = new PriorityQueue<Vertex>();
     const closed = new Set<Vertex>();
     const gScore = new Map<Vertex, number>(
-      grid.flatMap((row) => row.map((vertex) => [vertex, Infinity])),
+      grid.flatMap((row) =>
+        row.map((vertex) => [vertex, Number.POSITIVE_INFINITY]),
+      ),
     );
     const parent = new Map<Vertex, Vertex | null>(
       grid.flatMap((row) => row.map((vertex) => [vertex, null])),
