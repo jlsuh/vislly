@@ -22,10 +22,6 @@ import {
 import type { PathfindingAlgorithm } from '../model/pathfinding-strategy.ts';
 import { PerlinNoise } from '../model/perlin-noise.ts';
 import {
-  type IntersectionCoordinate,
-  PerlinNoise,
-} from '../model/perlin-noise.ts';
-import {
   assertIsTerminalVertex,
   END,
   GRASS,
