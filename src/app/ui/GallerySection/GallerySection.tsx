@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import type { JSX } from 'react';
-import brownianMotionImage from '@/../public/images/brownian-motion.jpg';
-import wip from '@/../public/images/wip.jpg';
+import brownianMotionImage from '@/../public/images/brownian-motion.webp';
+import pathfinding from '@/../public/images/pathfinding.webp';
 import PrefetchOnHoverLink from '@/shared/ui/PrefetchOnHoverLink/PrefetchOnHoverLink.tsx';
 import styles from './gallery-section.module.css';
 
@@ -29,7 +29,7 @@ function GallerySection(): JSX.Element {
             className={styles.figureImage}
             placeholder="blur"
             priority={true}
-            src={wip}
+            src={pathfinding}
           />
           <figcaption className={styles.figureCaption}>Pathfinding</figcaption>
         </figure>
