@@ -131,17 +131,17 @@ function composeNoiseScale(cols: number, rows: number): number {
 }
 
 function mapIntensityToVertexName(intensity: number): VertexName {
-  if (intensity < 0.07) {
+  if (intensity < 0.1) {
     return WATER_DEEP;
-  } else if (intensity < 0.2) {
+  } else if (intensity < 0.25) {
     return WATER;
-  } else if (intensity < 0.36) {
+  } else if (intensity < 0.4) {
     return SAND;
-  } else if (intensity < 0.64) {
+  } else if (intensity < 0.7) {
     return GRASS;
-  } else if (intensity < 0.8) {
+  } else if (intensity < 0.85) {
     return STONE;
-  } else if (intensity < 0.93) {
+  } else if (intensity < 0.95) {
     return GRAVEL;
   } else {
     return SNOW;
@@ -337,8 +337,8 @@ function PathfindingProvider({
     const seedX = xoshiro128ss()();
     const seedY = xoshiro128ss()();
     const noiseValues: Record<IntersectionCoordinate, number> = {};
-    let minIntensity = Infinity;
-    let maxIntensity = -Infinity;
+    let minIntensity = Number.POSITIVE_INFINITY;
+    let maxIntensity = Number.NEGATIVE_INFINITY;
     for (let row = 0; row < rows; row += 1) {
       for (let col = 0; col < cols; col += 1) {
         const normalizedX = col / cols;
@@ -351,14 +351,14 @@ function PathfindingProvider({
         if (intensity > maxIntensity) maxIntensity = intensity;
       }
     }
-    resetPathfind();
     const newGrid: Vertex[][] = [];
     for (let row = 0; row < rows; row += 1) {
       const newRow: Vertex[] = [];
       for (let col = 0; col < cols; col += 1) {
         const intensity = noiseValues[`${row},${col}`];
-        const normalizedIntensity =
-          (intensity - minIntensity) / (maxIntensity - minIntensity);
+        const numerator = intensity - minIntensity;
+        const denominator = maxIntensity - minIntensity || 1;
+        const normalizedIntensity = numerator / denominator;
         const vertexName = mapIntensityToVertexName(normalizedIntensity);
         newRow.push(new Vertex(row, col, vertexName));
       }
@@ -382,6 +382,7 @@ function PathfindingProvider({
       start: startVertexPosition,
       end: endVertexPosition,
     };
+    resetPathfind();
     setGrid(newGrid);
   };
 

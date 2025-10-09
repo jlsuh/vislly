@@ -21,8 +21,9 @@ class DijkstraStrategy extends PathfindingStrategy {
     if (closed.has(neighbor)) {
       return;
     }
-    const newDistance = (distances.get(current) ?? Infinity) + neighbor.weight;
-    if (newDistance < (distances.get(neighbor) ?? Infinity)) {
+    const newDistance =
+      (distances.get(current) ?? Number.POSITIVE_INFINITY) + neighbor.weight;
+    if (newDistance < (distances.get(neighbor) ?? Number.POSITIVE_INFINITY)) {
       distances.set(neighbor, newDistance);
       parent.set(neighbor, current);
       open.enqueue(neighbor, newDistance);
@@ -43,7 +44,9 @@ class DijkstraStrategy extends PathfindingStrategy {
     const open = new PriorityQueue<Vertex>([{ item: start, priority: 0 }]);
     const closed = new Set<Vertex>();
     const distances = new Map<Vertex, number>(
-      grid.flatMap((row) => row.map((vertex) => [vertex, Infinity])),
+      grid.flatMap((row) =>
+        row.map((vertex) => [vertex, Number.POSITIVE_INFINITY]),
+      ),
     );
     const parent = new Map<Vertex, Vertex | null>(
       grid.flatMap((row) => row.map((vertex) => [vertex, null])),
