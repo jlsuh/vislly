@@ -30,8 +30,8 @@ export default function PathfindingControls(): JSX.Element {
     selectedAlgorithmName,
     selectedHeuristicsName,
     selectedVertexName,
+    composePerlinGrid,
     findPath,
-    generatePerlinGrid,
     pausePathfind,
     resetPathfind,
     setIsDiagonalAllowed,
@@ -120,7 +120,7 @@ export default function PathfindingControls(): JSX.Element {
         />
         <Button
           fullWidth
-          handleOnClickButton={generatePerlinGrid}
+          handleOnClickButton={composePerlinGrid}
           icon={<TerrainIcon />}
           label="Generate Perlin Noise"
         />
