@@ -1,16 +1,16 @@
-function generateRandomAngle(): number {
+function composeRandomAngle(): number {
   return Math.random() * 2 * Math.PI;
 }
 
-function generateSeed() {
+function composeSeed() {
   return (Math.random() * 2 ** 32) >>> 0;
 }
 
 function xoshiro128ss(
-  a: number = generateSeed(),
-  b: number = generateSeed(),
-  c: number = generateSeed(),
-  d: number = generateSeed(),
+  a: number = composeSeed(),
+  b: number = composeSeed(),
+  c: number = composeSeed(),
+  d: number = composeSeed(),
 ) {
   return (): number => {
     let t = b << 9,
@@ -26,4 +26,4 @@ function xoshiro128ss(
   };
 }
 
-export { generateRandomAngle, xoshiro128ss };
+export { composeRandomAngle, xoshiro128ss };

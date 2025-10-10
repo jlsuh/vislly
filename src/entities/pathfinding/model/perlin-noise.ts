@@ -1,4 +1,4 @@
-import { generateRandomAngle } from '@/shared/lib/random.ts';
+import { composeRandomAngle } from '@/shared/lib/random.ts';
 import { Vector2 } from '@/shared/lib/vector2.ts';
 
 type IntersectionCoordinate = `${number},${number}`;
@@ -13,7 +13,7 @@ class PerlinNoise {
     if (this.gradients[`${ix},${iy}`] !== undefined) {
       g = this.gradients[`${ix},${iy}`];
     } else {
-      const theta = generateRandomAngle();
+      const theta = composeRandomAngle();
       g = new Vector2(Math.cos(theta), Math.sin(theta));
       this.gradients[`${ix},${iy}`] = g;
     }

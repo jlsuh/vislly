@@ -44,8 +44,6 @@ import {
 } from '../model/vertex.ts';
 import PathfindingContext from './PathfindingContext.tsx';
 
-type PathfindingProviderProps = PropsWithChildren;
-
 function composeRandomInitialVertexPosition(
   maxRows: number,
   maxCols: number,
@@ -209,6 +207,8 @@ const VISITED: string = new Rgba(
   0.933_333_333_333_333_3,
   0.6,
 ).toStyle();
+
+type PathfindingProviderProps = PropsWithChildren;
 
 function PathfindingProvider({
   children,
@@ -379,7 +379,7 @@ function PathfindingProvider({
     );
   };
 
-  const generatePerlinGrid = () => {
+  const composePerlinGrid = () => {
     const perlinNoiseGrid = composePerlinNoiseGrid(cols, rows);
     const startVertexPosition = composeRandomInitialVertexPosition(
       rows,
@@ -417,8 +417,8 @@ function PathfindingProvider({
         selectedHeuristicsName,
         selectedVertexName,
         terminalVertices,
+        composePerlinGrid,
         findPath,
-        generatePerlinGrid,
         pausePathfind,
         resetPathfind,
         setCols,
