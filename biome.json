@@ -10,7 +10,11 @@
         "useKeyWithClickEvents": "off"
       },
       "complexity": {
-        "noUselessFragments": "off"
+        "noExcessiveCognitiveComplexity": "error",
+        "noForEach": "error",
+        "noUselessFragments": "off",
+        "noUselessStringConcat": "error",
+        "useSimplifiedLogicExpression": "error"
       },
       "suspicious": {
         "noDuplicateProperties": "off"
