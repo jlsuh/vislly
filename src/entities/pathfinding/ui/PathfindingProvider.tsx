@@ -20,10 +20,7 @@ import {
   PATHFINDING_ALGORITHMS,
 } from '../model/pathfinding-algorithms.ts';
 import type { PathfindingAlgorithm } from '../model/pathfinding-strategy.ts';
-import {
-  type IntersectionCoordinate,
-  PerlinNoise,
-} from '../model/perlin-noise.ts';
+import { PerlinNoise } from '../model/perlin-noise.ts';
 import {
   assertIsTerminalVertex,
   END,
@@ -132,7 +129,7 @@ function composePerlinNoise(
   cols: number,
   rows: number,
 ): {
-  values: Record<IntersectionCoordinate, number>;
+  values: Record<`${number},${number}`, number>;
   min: number;
   max: number;
 } {
@@ -140,7 +137,7 @@ function composePerlinNoise(
   const noiseScale = composeNoiseScale(cols, rows);
   const seedX = xoshiro128ss()();
   const seedY = xoshiro128ss()();
-  const values: Record<IntersectionCoordinate, number> = {};
+  const values: Record<`${number},${number}`, number> = {};
   let min = Number.POSITIVE_INFINITY;
   let max = Number.NEGATIVE_INFINITY;
   for (let row = 0; row < rows; row += 1) {
