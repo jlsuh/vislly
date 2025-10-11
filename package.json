@@ -15,8 +15,10 @@
     "depc:open": "open ./dependency-graph.html || start ./dependency-graph.html",
     "depc:report": "depcruise . -I \"^src|^app\"",
     "dev": "next dev --turbopack",
+    "o:r": "bun outdated -r",
     "serve": "bun run build && serve ./out",
-    "start": "next start"
+    "start": "next start",
+    "u:i": "bun update -i"
   },
   "dependencies": {
     "next": "15.5.4",
@@ -25,7 +27,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.5",
-    "@types/node": "24.7.0",
+    "@types/node": "24.7.1",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.1",
     "dependency-cruiser": "17.0.2",
