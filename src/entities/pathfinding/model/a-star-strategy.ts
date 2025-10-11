@@ -71,13 +71,17 @@ class AStarStrategy extends PathfindingStrategy {
       closed.add(current);
       yield [...closed];
       if (current.positionEquals(end)) {
-        return super.reconstructPath(parent, start, current);
+        return super.reconstructPath({
+          end,
+          previous: parent,
+          start,
+        });
       }
-      const neighbors = super.composeNeighbors(
+      const neighbors = super.composeNeighbors({
         grid,
-        current,
         isDiagonalAllowed,
-      );
+        vertex: current,
+      });
       for (const neighbor of neighbors) {
         this.processNeighbor({
           current,

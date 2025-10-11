@@ -26,11 +26,11 @@ class BfsStrategy extends PathfindingStrategy {
         (() => {
           throw new Error('Queue is empty');
         })();
-      const neighbors = super.composeNeighbors(
+      const neighbors = super.composeNeighbors({
         grid,
-        current,
         isDiagonalAllowed,
-      );
+        vertex: current,
+      });
       for (const neighbor of neighbors) {
         if (closed.has(neighbor)) {
           continue;
@@ -40,7 +40,11 @@ class BfsStrategy extends PathfindingStrategy {
         closed.add(neighbor);
         yield [...closed];
         if (neighbor.name === end.name) {
-          return super.reconstructPath(parent, start, neighbor);
+          return super.reconstructPath({
+            end: neighbor,
+            previous: parent,
+            start,
+          });
         }
       }
     }
