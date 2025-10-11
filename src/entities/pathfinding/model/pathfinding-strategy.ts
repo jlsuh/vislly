@@ -19,12 +19,17 @@ const DiagonalCardinalDirections: ReadonlyDeep<Step[]> = [
 ];
 
 abstract class PathfindingStrategy {
-  private isWithinBounds(
-    row: number,
-    col: number,
-    gridRows: number,
-    gridCols: number,
-  ): boolean {
+  private isWithinBounds({
+    col,
+    gridCols,
+    gridRows,
+    row,
+  }: {
+    col: number;
+    gridCols: number;
+    gridRows: number;
+    row: number;
+  }): boolean {
     return row >= 0 && row < gridRows && col >= 0 && col < gridCols;
   }
 
@@ -35,20 +40,38 @@ abstract class PathfindingStrategy {
     ];
   }
 
-  private shouldSkipDiagonalStep(
-    grid: Vertex[][],
-    vertex: Vertex,
-    dir: Step,
-  ): boolean {
+  private shouldSkipDiagonalStep({
+    dir,
+    grid,
+    vertex,
+  }: {
+    dir: Step;
+    grid: Vertex[][];
+    vertex: Vertex;
+  }): boolean {
     const [o1, o2] = this.composeOrthogonalizedDirections(dir);
     const o1Row = vertex.row + o1.row;
     const o1Col = vertex.col + o1.col;
-    if (!this.isWithinBounds(o1Row, o1Col, grid.length, grid[0].length)) {
+    if (
+      !this.isWithinBounds({
+        col: o1Col,
+        gridCols: grid[0].length,
+        gridRows: grid.length,
+        row: o1Row,
+      })
+    ) {
       return true;
     }
     const o2Row = vertex.row + o2.row;
     const o2Col = vertex.col + o2.col;
-    if (!this.isWithinBounds(o2Row, o2Col, grid.length, grid[0].length)) {
+    if (
+      !this.isWithinBounds({
+        col: o2Col,
+        gridCols: grid[0].length,
+        gridRows: grid.length,
+        row: o2Row,
+      })
+    ) {
       return true;
     }
     if (grid[o1Row][o1Col].name === WALL && grid[o2Row][o2Col].name === WALL) {
@@ -57,15 +80,25 @@ abstract class PathfindingStrategy {
     return false;
   }
 
-  private isDiagonalMovement(row: number, col: number): boolean {
+  private isDiagonalMovement({
+    col,
+    row,
+  }: {
+    col: number;
+    row: number;
+  }): boolean {
     return Math.abs(row) === 1 && Math.abs(col) === 1;
   }
 
-  public composeNeighbors(
-    grid: Vertex[][],
-    vertex: Vertex,
-    isDiagonalAllowed: boolean,
-  ): Vertex[] {
+  public composeNeighbors({
+    grid,
+    isDiagonalAllowed,
+    vertex,
+  }: {
+    grid: Vertex[][];
+    isDiagonalAllowed: boolean;
+    vertex: Vertex;
+  }): Vertex[] {
     const directions: Step[] = [...OrthogonalCardinalDirections];
     if (isDiagonalAllowed) {
       directions.push(...DiagonalCardinalDirections);
@@ -74,7 +107,14 @@ abstract class PathfindingStrategy {
     for (const dir of directions) {
       const dRow = vertex.row + dir.row;
       const dCol = vertex.col + dir.col;
-      if (!this.isWithinBounds(dRow, dCol, grid.length, grid[0].length)) {
+      if (
+        !this.isWithinBounds({
+          col: dCol,
+          gridCols: grid[0].length,
+          gridRows: grid.length,
+          row: dRow,
+        })
+      ) {
         continue;
       }
       const neighbor = grid[dRow][dCol];
@@ -82,8 +122,15 @@ abstract class PathfindingStrategy {
         continue;
       }
       if (
-        this.isDiagonalMovement(dir.row, dir.col) &&
-        this.shouldSkipDiagonalStep(grid, vertex, dir)
+        this.isDiagonalMovement({
+          col: dir.col,
+          row: dir.row,
+        }) &&
+        this.shouldSkipDiagonalStep({
+          dir,
+          grid,
+          vertex,
+        })
       ) {
         continue;
       }
@@ -92,11 +139,15 @@ abstract class PathfindingStrategy {
     return neighbors;
   }
 
-  public reconstructPath(
-    previous: Map<Vertex, Vertex | null>,
-    start: Vertex,
-    end: Vertex,
-  ): Vertex[] {
+  public reconstructPath({
+    end,
+    previous,
+    start,
+  }: {
+    end: Vertex;
+    previous: Map<Vertex, Vertex | null>;
+    start: Vertex;
+  }): Vertex[] {
     const path: Vertex[] = [];
     let current: Vertex | null = end;
     while (current !== start) {
