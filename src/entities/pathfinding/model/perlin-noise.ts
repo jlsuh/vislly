@@ -1,24 +1,20 @@
 import { composeRandomAngle } from '@/shared/lib/random.ts';
 import { Vector2 } from '@/shared/lib/vector2.ts';
 
-type IntersectionCoordinate = `${number},${number}`;
-
 class PerlinNoise {
-  private gradients: Record<IntersectionCoordinate, Vector2> = {};
+  private gradients: Record<`${number},${number}`, Vector2> = {};
   private smoothingFunction = this.perlinQuinticSmoothstep;
 
   private dotGrid(x: number, y: number, ix: number, iy: number): number {
     const d = new Vector2(x - ix, y - iy);
-    let g = this.gradients[`${ix},${iy}`];
     if (this.gradients[`${ix},${iy}`] === undefined) {
       const theta = composeRandomAngle();
       this.gradients[`${ix},${iy}`] = new Vector2(
         Math.cos(theta),
         Math.sin(theta),
       );
-      g = this.gradients[`${ix},${iy}`];
     }
-    return d.dot(g);
+    return d.dot(this.gradients[`${ix},${iy}`]);
   }
 
   private interpolate(smoothingFunction: (x: number) => number) {
@@ -57,4 +53,4 @@ class PerlinNoise {
   }
 }
 
-export { PerlinNoise, type IntersectionCoordinate };
+export { PerlinNoise };
