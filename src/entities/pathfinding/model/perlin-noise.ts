@@ -9,13 +9,14 @@ class PerlinNoise {
 
   private dotGrid(x: number, y: number, ix: number, iy: number): number {
     const d = new Vector2(x - ix, y - iy);
-    let g: Vector2;
-    if (this.gradients[`${ix},${iy}`] !== undefined) {
-      g = this.gradients[`${ix},${iy}`];
-    } else {
+    let g = this.gradients[`${ix},${iy}`];
+    if (this.gradients[`${ix},${iy}`] === undefined) {
       const theta = composeRandomAngle();
-      g = new Vector2(Math.cos(theta), Math.sin(theta));
-      this.gradients[`${ix},${iy}`] = g;
+      this.gradients[`${ix},${iy}`] = new Vector2(
+        Math.cos(theta),
+        Math.sin(theta),
+      );
+      g = this.gradients[`${ix},${iy}`];
     }
     return d.dot(g);
   }
@@ -33,13 +34,25 @@ class PerlinNoise {
   public get(x: number, y: number): number {
     const x0 = Math.floor(x);
     const y0 = Math.floor(y);
-    const tl = this.dotGrid(x, y, x0, y0);
-    const tr = this.dotGrid(x, y, x0 + 1, y0);
-    const bl = this.dotGrid(x, y, x0, y0 + 1);
-    const br = this.dotGrid(x, y, x0 + 1, y0 + 1);
-    const xt = this.interpolate(this.smoothingFunction)(x - x0, tl, tr);
-    const xb = this.interpolate(this.smoothingFunction)(x - x0, bl, br);
-    const intensity = this.interpolate(this.smoothingFunction)(y - y0, xt, xb);
+    const topLeft = this.dotGrid(x, y, x0, y0);
+    const topRight = this.dotGrid(x, y, x0 + 1, y0);
+    const bottomLeft = this.dotGrid(x, y, x0, y0 + 1);
+    const bottomRight = this.dotGrid(x, y, x0 + 1, y0 + 1);
+    const xTop = this.interpolate(this.smoothingFunction)(
+      x - x0,
+      topLeft,
+      topRight,
+    );
+    const xBottom = this.interpolate(this.smoothingFunction)(
+      x - x0,
+      bottomLeft,
+      bottomRight,
+    );
+    const intensity = this.interpolate(this.smoothingFunction)(
+      y - y0,
+      xTop,
+      xBottom,
+    );
     return intensity;
   }
 }
