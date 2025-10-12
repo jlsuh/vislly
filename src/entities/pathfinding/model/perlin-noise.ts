@@ -8,10 +8,10 @@ class PerlinNoise {
   private dotGrid(x: number, y: number, ix: number, iy: number): number {
     const d = new Vector2(x - ix, y - iy);
     if (this.gradients[`${ix},${iy}`] === undefined) {
-      const theta = composeRandomAngle();
+      const θ = composeRandomAngle();
       this.gradients[`${ix},${iy}`] = new Vector2(
-        Math.cos(theta),
-        Math.sin(theta),
+        Math.cos(θ),
+        Math.sin(θ),
       );
     }
     return d.dot(this.gradients[`${ix},${iy}`]);
