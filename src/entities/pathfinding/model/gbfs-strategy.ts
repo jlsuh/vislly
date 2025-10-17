@@ -21,13 +21,12 @@ class GreedyBestFirstSearchStrategy extends PathfindingStrategy {
     open: PriorityQueue<Vertex>;
     parent: Map<Vertex, Vertex | null>;
   }): void {
-    if (closed.has(neighbor)) {
+    if (closed.has(neighbor) || parent.get(neighbor) !== null) {
       return;
     }
     const priority = Heuristics[heuristicsName](neighbor, end);
     open.enqueue(neighbor, priority);
     parent.set(neighbor, current);
-    closed.add(neighbor);
   }
 
   public *generator({
@@ -46,20 +45,24 @@ class GreedyBestFirstSearchStrategy extends PathfindingStrategy {
     const open = new PriorityQueue<Vertex>([
       { item: start, priority: Heuristics[heuristicsName](start, end) },
     ]);
-    const closed = new Set<Vertex>([start]);
+    const closed = new Set<Vertex>();
     const parent = new Map<Vertex, Vertex | null>(
       grid.flatMap((row) => row.map((vertex) => [vertex, null])),
     );
-    yield [...closed];
     while (!open.empty()) {
       const current =
         open.dequeue() ??
         (() => {
           throw new Error('PriorityQueue is empty');
         })();
+      if (closed.has(current)) {
+        continue;
+      }
+      closed.add(current);
+      yield [...closed];
       if (current.positionEquals(end)) {
         return super.reconstructPath({
-          end: current,
+          end,
           previous: parent,
           start,
         });
@@ -79,7 +82,6 @@ class GreedyBestFirstSearchStrategy extends PathfindingStrategy {
           open,
           parent,
         });
-        yield [...closed];
       }
     }
     throw new Error('Greedy Best-First Search: No path found');
