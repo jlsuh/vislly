@@ -50,13 +50,13 @@ class GreedyBestFirstSearchStrategy extends PathfindingStrategy {
     const parent = new Map<Vertex, Vertex | null>(
       grid.flatMap((row) => row.map((vertex) => [vertex, null])),
     );
+    yield [...closed];
     while (!open.empty()) {
       const current =
         open.dequeue() ??
         (() => {
           throw new Error('PriorityQueue is empty');
         })();
-      yield [...closed];
       if (current.positionEquals(end)) {
         return super.reconstructPath({
           end: current,
@@ -80,6 +80,7 @@ class GreedyBestFirstSearchStrategy extends PathfindingStrategy {
           parent,
         });
       }
+      yield [...closed];
     }
     throw new Error('Greedy Best-First Search: No path found');
   }
