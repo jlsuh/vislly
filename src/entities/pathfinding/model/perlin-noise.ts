@@ -9,10 +9,7 @@ class PerlinNoise {
     const d = new Vector2(x - ix, y - iy);
     if (this.gradients[`${ix},${iy}`] === undefined) {
       const θ = composeRandomAngle();
-      this.gradients[`${ix},${iy}`] = new Vector2(
-        Math.cos(θ),
-        Math.sin(θ),
-      );
+      this.gradients[`${ix},${iy}`] = new Vector2(Math.cos(θ), Math.sin(θ));
     }
     return d.dot(this.gradients[`${ix},${iy}`]);
   }
