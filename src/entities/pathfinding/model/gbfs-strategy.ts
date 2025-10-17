@@ -79,8 +79,8 @@ class GreedyBestFirstSearchStrategy extends PathfindingStrategy {
           open,
           parent,
         });
+        yield [...closed];
       }
-      yield [...closed];
     }
     throw new Error('Greedy Best-First Search: No path found');
   }
