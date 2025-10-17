@@ -348,17 +348,14 @@ function PathfindingProvider({
     }
     if (lastGenerator.current === null) {
       const { strategy } = PATHFINDING_ALGORITHMS[selectedAlgorithmName];
+      const { row: endY, col: endX } = terminalVertices.current.end;
+      const { row: startY, col: startX } = terminalVertices.current.start;
       const generator = strategy.generator({
-        end: grid[terminalVertices.current.end.row][
-          terminalVertices.current.end.col
-        ],
+        end: grid[endY][endX],
         grid,
         heuristicsName: selectedHeuristicsName,
         isDiagonalAllowed,
-        start:
-          grid[terminalVertices.current.start.row][
-            terminalVertices.current.start.col
-          ],
+        start: grid[startY][startX],
       });
       lastGenerator.current = generator;
     }
