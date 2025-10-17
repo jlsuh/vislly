@@ -150,13 +150,13 @@ abstract class PathfindingStrategy {
   }): Vertex[] {
     const path: Vertex[] = [];
     let current: Vertex | null = end;
-    while (current !== start) {
+    do {
+      path.unshift(current);
+      current = previous.get(current) ?? null;
       if (current === null) {
         throw new Error('Current vertex is null, path reconstruction failed');
       }
-      path.unshift(current);
-      current = previous.get(current) ?? null;
-    }
+    } while (!current.positionEquals(start));
     path.unshift(start);
     return path;
   }
