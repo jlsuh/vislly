@@ -16,7 +16,7 @@ class BfsStrategy extends PathfindingStrategy {
   }): Generator<Vertex[], Vertex[]> {
     const open: Queue<Vertex> = new Queue([start]);
     const closed: Set<Vertex> = new Set([start]);
-    const parent: Map<Vertex, Vertex | null> = new Map(
+    const parent = new Map<Vertex, Vertex | null>(
       grid.flatMap((row) => row.map((vertex) => [vertex, null])),
     );
     yield [...closed];

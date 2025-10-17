@@ -349,11 +349,16 @@ function PathfindingProvider({
     if (lastGenerator.current === null) {
       const { strategy } = PATHFINDING_ALGORITHMS[selectedAlgorithmName];
       const generator = strategy.generator({
-        end: terminalVertices.current.end,
+        end: grid[terminalVertices.current.end.row][
+          terminalVertices.current.end.col
+        ],
         grid,
         heuristicsName: selectedHeuristicsName,
         isDiagonalAllowed,
-        start: terminalVertices.current.start,
+        start:
+          grid[terminalVertices.current.start.row][
+            terminalVertices.current.start.col
+          ],
       });
       lastGenerator.current = generator;
     }
