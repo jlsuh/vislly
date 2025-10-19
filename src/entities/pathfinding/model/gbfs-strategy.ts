@@ -21,7 +21,7 @@ class GreedyBestFirstSearchStrategy extends PathfindingStrategy {
     open: PriorityQueue<Vertex>;
     parent: Map<Vertex, Vertex | null>;
   }): void {
-    if (closed.has(neighbor) || parent.get(neighbor) !== null) {
+    if (closed.has(neighbor)) {
       return;
     }
     const priority = Heuristics[heuristicsName](neighbor, end);
@@ -42,13 +42,12 @@ class GreedyBestFirstSearchStrategy extends PathfindingStrategy {
     isDiagonalAllowed: boolean;
     start: Vertex;
   }): Generator<Vertex[], Vertex[]> {
-    const open = new PriorityQueue<Vertex>([
-      { item: start, priority: Heuristics[heuristicsName](start, end) },
-    ]);
+    const open = new PriorityQueue<Vertex>();
     const closed = new Set<Vertex>();
     const parent = new Map<Vertex, Vertex | null>(
       grid.flatMap((row) => row.map((vertex) => [vertex, null])),
     );
+    open.enqueue(start, Heuristics[heuristicsName](start, end));
     while (!open.empty()) {
       const current =
         open.dequeue() ??
