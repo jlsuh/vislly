@@ -28,6 +28,7 @@ function Cell({ gridCell }: { gridCell: Vertex }): JSX.Element {
     selectedVertexName,
     terminalVertices,
     resetPathfind,
+    setGrid,
   } = use(PathfindingContext);
 
   const setNewVertexName = (newVertexName: VertexName): void => {
@@ -67,6 +68,7 @@ function Cell({ gridCell }: { gridCell: Vertex }): JSX.Element {
       terminalVertices.current = newterminalVertices;
     }
     grid[cellRow][cellCol] = new Vertex(cellRow, cellCol, newVertexName);
+    setGrid([...grid]);
     setCell(grid[cellRow][cellCol].deepCopy());
   };
 
