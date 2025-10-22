@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   output: 'export',
+  reactCompiler: true,
   reactProductionProfiling: true,
   trailingSlash: true,
 };
