@@ -246,7 +246,7 @@ function PathfindingProvider({
     lastVisitedVertices.current = [];
   }, [stopPathfind]);
 
-  const composeRandomizedGrid = (): {
+  const composeRandomizedGrid = useCallback((): {
     newGrid: Vertex[][];
     startVertexPosition: Vertex;
     endVertexPosition: Vertex;
@@ -282,7 +282,7 @@ function PathfindingProvider({
       startVertexPosition,
       endVertexPosition,
     };
-  };
+  }, [cols, rows]);
 
   const setRandomizedGrid = (): void => {
     resetPathfind();
