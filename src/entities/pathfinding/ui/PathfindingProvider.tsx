@@ -11,6 +11,7 @@ import {
 import { getElementByCoordinates } from '@/shared/lib/dom.ts';
 import { xoshiro128ss } from '@/shared/lib/random.ts';
 import { Rgba } from '@/shared/lib/rgba.ts';
+import { composeNewGrid } from '../lib/pathfinding.ts';
 import {
   type HeuristicsName,
   INITIAL_HEURISTICS,
@@ -403,6 +404,15 @@ function PathfindingProvider({
     setGrid(perlinNoiseGrid);
   };
 
+  const resetGrid = (): void => {
+    resetPathfind();
+    setGrid(composeNewGrid([], rows, cols));
+    terminalVertices.current = {
+      start: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, START),
+      end: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, END),
+    };
+  };
+
   return (
     <PathfindingContext
       value={{
@@ -419,6 +429,7 @@ function PathfindingProvider({
         composePerlinGrid,
         findPath,
         pausePathfind,
+        resetGrid,
         resetPathfind,
         setCols,
         setGrid,

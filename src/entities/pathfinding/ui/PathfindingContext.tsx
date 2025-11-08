@@ -36,6 +36,7 @@ type PathfindingContextType = {
   composePerlinGrid: () => void;
   findPath: () => void;
   pausePathfind: () => void;
+  resetGrid: () => void;
   resetPathfind: () => void;
   setCols: Dispatch<SetStateAction<number>>;
   setGrid: Dispatch<SetStateAction<Vertex[][]>>;
@@ -67,6 +68,7 @@ const PathfindingContext: Context<PathfindingContextType> =
     composePerlinGrid: () => {},
     findPath: () => {},
     pausePathfind: () => {},
+    resetGrid: () => {},
     resetPathfind: () => {},
     setCols: () => {},
     setGrid: () => {},

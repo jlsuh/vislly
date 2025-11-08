@@ -20,9 +20,9 @@ import {
   type ResizeDimensions,
   useResizeDimensions,
 } from '@/shared/lib/useResizeDimensions.ts';
+import { composeNewGrid } from './../lib/pathfinding.ts';
 import {
   assertIsTerminalVertex,
-  EMPTY,
   INITIAL_COORDINATE,
   type TerminalVertex,
   Vertex,
@@ -109,35 +109,6 @@ const hideBodyOverflow = (): void => {
 const clearBodyOverflow = (): void => {
   document.body.style.overflow = '';
 };
-
-function composeNewRow(
-  prevGrid: Vertex[][],
-  row: number,
-  cols: number,
-): Vertex[] {
-  const newRow: Vertex[] = [];
-  for (let col = 0; col < cols; col += 1) {
-    const prevVertex: Vertex | undefined = prevGrid[row]?.[col];
-    if (prevVertex === undefined) {
-      newRow.push(new Vertex(row, col, EMPTY));
-    } else {
-      newRow.push(prevVertex);
-    }
-  }
-  return newRow;
-}
-
-function composeNewGrid(
-  prevGrid: Vertex[][],
-  rows: number,
-  cols: number,
-): Vertex[][] {
-  const newGrid: Vertex[][] = [];
-  for (let row = 0; row < rows; row += 1) {
-    newGrid.push(composeNewRow(prevGrid, row, cols));
-  }
-  return newGrid;
-}
 
 function handleOverflownTerminalCells(
   terminalCells: RefObject<Record<TerminalVertex, Vertex>>,

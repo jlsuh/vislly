@@ -9,6 +9,7 @@ import DiceFiveIcon from '@/shared/ui/DiceFiveIcon/DiceFiveIcon.tsx';
 import { Divider } from '@/shared/ui/Divider/Divider.tsx';
 import PauseIcon from '@/shared/ui/PauseIcon/PauseIcon.tsx';
 import PlayIcon from '@/shared/ui/PlayIcon/PlayIcon.tsx';
+import ResetIcon from '@/shared/ui/ResetIcon/ResetIcon.tsx';
 import Select from '@/shared/ui/Select/Select.tsx';
 import TerrainIcon from '@/shared/ui/TerrainIcon/TerrainIcon.tsx';
 import {
@@ -33,6 +34,7 @@ export default function PathfindingControls(): JSX.Element {
     composePerlinGrid,
     findPath,
     pausePathfind,
+    resetGrid,
     resetPathfind,
     setIsDiagonalAllowed,
     setRandomizedGrid,
@@ -105,6 +107,12 @@ export default function PathfindingControls(): JSX.Element {
           handleOnClickButton={isAnimationRunning ? pausePathfind : findPath}
           icon={isAnimationRunning ? <PauseIcon /> : <PlayIcon />}
           label={isAnimationRunning ? 'Pause' : 'Play'}
+        />
+        <Button
+          fullWidth
+          handleOnClickButton={resetGrid}
+          icon={<ResetIcon />}
+          label="Reset Grid"
         />
         <Button
           fullWidth
