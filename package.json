@@ -27,13 +27,13 @@
     "react-dom": "19.2.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.3.2",
-    "@types/node": "24.9.2",
+    "@biomejs/biome": "2.3.4",
+    "@types/node": "24.10.0",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
     "dependency-cruiser": "17.2.0",
     "serve": "14.2.5",
-    "type-fest": "5.1.0",
+    "type-fest": "5.2.0",
     "typescript": "5.9.3"
   }
 }
