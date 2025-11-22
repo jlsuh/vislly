@@ -4,10 +4,9 @@ import { BfsStrategy } from './bfs-strategy.ts';
 import { DfsStrategy } from './dfs-strategy.ts';
 import { DijkstraStrategy } from './dijkstra-strategy.ts';
 import { GreedyBestFirstSearchStrategy } from './gbfs-strategy.ts';
-import type {
-  PathfindingAlgorithm,
-  PathfindingStrategy,
-} from './pathfinding-strategy.ts';
+import type { PathfindingStrategy } from './pathfinding-strategy.ts';
+
+type PathfindingAlgorithm = 'a-star' | 'bfs' | 'dfs' | 'dijkstra' | 'gbfs';
 
 function assertIsPathfindingAlgorithm(
   value: unknown,
@@ -69,4 +68,5 @@ export {
   assertIsPathfindingAlgorithm,
   INITIAL_ALGORITHM,
   PATHFINDING_ALGORITHMS,
+  type PathfindingAlgorithm,
 };

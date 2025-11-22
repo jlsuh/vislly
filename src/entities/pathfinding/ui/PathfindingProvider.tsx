@@ -19,8 +19,8 @@ import {
 import {
   INITIAL_ALGORITHM,
   PATHFINDING_ALGORITHMS,
+  type PathfindingAlgorithm,
 } from '../model/pathfinding-algorithms.ts';
-import type { PathfindingAlgorithm } from '../model/pathfinding-strategy.ts';
 import { PerlinNoise } from '../model/perlin-noise.ts';
 import {
   assertIsTerminalVertex,

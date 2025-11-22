@@ -11,8 +11,10 @@ import {
   type HeuristicsName,
   INITIAL_HEURISTICS,
 } from '../model/heuristics.ts';
-import { INITIAL_ALGORITHM } from '../model/pathfinding-algorithms.ts';
-import type { PathfindingAlgorithm } from '../model/pathfinding-strategy.ts';
+import {
+  INITIAL_ALGORITHM,
+  type PathfindingAlgorithm,
+} from '../model/pathfinding-algorithms.ts';
 import {
   END,
   INITIAL_COORDINATE,

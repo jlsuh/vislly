@@ -2,7 +2,6 @@ import type { ReadonlyDeep } from 'type-fest';
 import type { HeuristicsName } from './heuristics.ts';
 import { START, type Vertex, WALL } from './vertex.ts';
 
-type PathfindingAlgorithm = 'a-star' | 'bfs' | 'dfs' | 'dijkstra' | 'gbfs';
 type Step = { row: number; col: number };
 
 const OrthogonalCardinalDirections: ReadonlyDeep<Step[]> = [
@@ -176,4 +175,4 @@ abstract class PathfindingStrategy {
   }): Generator<Vertex[], Vertex[]>;
 }
 
-export { PathfindingStrategy, type PathfindingAlgorithm };
+export { PathfindingStrategy };
