@@ -23,5 +23,6 @@
   },
   "[github-actions-workflow]": {
     "editor.defaultFormatter": "bluebrown.yamlfmt"
-  }
+  },
+  "typescript.experimental.useTsgo": true
 }
