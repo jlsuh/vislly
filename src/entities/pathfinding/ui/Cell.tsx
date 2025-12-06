@@ -1,7 +1,6 @@
 'use client';
 
 import { type JSX, type MouseEvent, use, useState } from 'react';
-import { getElementByCoordinates } from '@/shared/lib/dom.ts';
 import {
   EMPTY,
   INITIAL_COORDINATE,
@@ -11,12 +10,6 @@ import {
 } from '../model/vertex.ts';
 import styles from './cell.module.css';
 import PathfindingContext from './PathfindingContext.tsx';
-
-function setButtonStyle(vertex: Vertex): void {
-  const { row, col, name } = vertex;
-  const element = getElementByCoordinates(row, col);
-  element.className = `${styles.cell} ${styles[name]}`;
-}
 
 function Cell({ gridCell }: { gridCell: Vertex }): JSX.Element {
   const [cell, setCell] = useState(gridCell);
@@ -29,22 +22,25 @@ function Cell({ gridCell }: { gridCell: Vertex }): JSX.Element {
     terminalVertices,
     resetPathfind,
     setGrid,
+    setTerminalVertices,
   } = use(PathfindingContext);
 
   const setNewVertexName = (newVertexName: VertexName): void => {
     if (lastVisitedVertices.current.length > 0) {
       resetPathfind();
     }
-    const targetVertexName = grid[cellRow][cellCol].name;
+    const nextGrid = grid.map((row) => [...row]);
+    const nextTerminalVertices = { ...terminalVertices.current };
+    const targetVertexName = nextGrid[cellRow][cellCol].name;
     if (isTerminalVertex(targetVertexName)) {
-      terminalVertices.current[targetVertexName] = new Vertex(
+      nextTerminalVertices[targetVertexName] = new Vertex(
         INITIAL_COORDINATE,
         INITIAL_COORDINATE,
         targetVertexName,
       );
     }
     if (isTerminalVertex(newVertexName)) {
-      const terminalVertex = terminalVertices.current[newVertexName];
+      const terminalVertex = nextTerminalVertices[newVertexName];
       if (terminalVertex.appearsOnGrid()) {
         const { row: terminalVertexRow, col: terminalVertexCol } =
           terminalVertex;
@@ -53,23 +49,18 @@ function Cell({ gridCell }: { gridCell: Vertex }): JSX.Element {
           terminalVertexCol,
           EMPTY,
         );
-        grid[terminalVertexRow][terminalVertexCol] = newEmptyVertex;
-        setButtonStyle(newEmptyVertex);
+        nextGrid[terminalVertexRow][terminalVertexCol] = newEmptyVertex;
       }
-      const newterminalVertices = {
-        ...terminalVertices.current,
-      };
-      newterminalVertices[newVertexName] = new Vertex(
+      nextTerminalVertices[newVertexName] = new Vertex(
         cellRow,
         cellCol,
         newVertexName,
       );
-      setButtonStyle(newterminalVertices[newVertexName]);
-      terminalVertices.current = newterminalVertices;
     }
-    grid[cellRow][cellCol] = new Vertex(cellRow, cellCol, newVertexName);
-    setGrid([...grid]);
-    setCell(grid[cellRow][cellCol].deepCopy());
+    nextGrid[cellRow][cellCol] = new Vertex(cellRow, cellCol, newVertexName);
+    setTerminalVertices(nextTerminalVertices);
+    setGrid(nextGrid);
+    setCell(nextGrid[cellRow][cellCol].deepCopy());
   };
 
   return (

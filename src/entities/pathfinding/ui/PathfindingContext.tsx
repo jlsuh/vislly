@@ -48,6 +48,7 @@ type PathfindingContextType = {
   setSelectedAlgorithmName: Dispatch<SetStateAction<PathfindingAlgorithm>>;
   setSelectedHeuristicsName: Dispatch<SetStateAction<HeuristicsName>>;
   setSelectedVertexName: Dispatch<SetStateAction<VertexName>>;
+  setTerminalVertices: (newVertices: Record<TerminalVertex, Vertex>) => void;
 };
 
 const PathfindingContext: Context<PathfindingContextType> =
@@ -80,6 +81,7 @@ const PathfindingContext: Context<PathfindingContextType> =
     setSelectedAlgorithmName: () => {},
     setSelectedHeuristicsName: () => {},
     setSelectedVertexName: () => {},
+    setTerminalVertices: () => {},
   });
 
 export default PathfindingContext;

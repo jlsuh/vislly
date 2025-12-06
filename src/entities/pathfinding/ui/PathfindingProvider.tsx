@@ -4,7 +4,6 @@ import {
   type JSX,
   type PropsWithChildren,
   type RefObject,
-  useCallback,
   useRef,
   useState,
 } from 'react';
@@ -231,23 +230,27 @@ function PathfindingProvider({
     end: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, END),
   });
 
-  const pausePathfind = useCallback((): void => {
+  const setTerminalVertices = (newVertices: Record<TerminalVertex, Vertex>) => {
+    terminalVertices.current = newVertices;
+  };
+
+  const pausePathfind = (): void => {
     isAnimationRunningRef.current = false;
     setIsAnimationRunning(false);
-  }, []);
+  };
 
-  const stopPathfind = useCallback((): void => {
+  const stopPathfind = (): void => {
     pausePathfind();
     lastGenerator.current = null;
-  }, [pausePathfind]);
+  };
 
-  const resetPathfind = useCallback((): void => {
+  const resetPathfind = (): void => {
     stopPathfind();
     resetButtonStyles(lastVisitedVertices.current);
     lastVisitedVertices.current = [];
-  }, [stopPathfind]);
+  };
 
-  const composeRandomizedGrid = useCallback((): {
+  const composeRandomizedGrid = (): {
     newGrid: Vertex[][];
     startVertexPosition: Vertex;
     endVertexPosition: Vertex;
@@ -283,7 +286,7 @@ function PathfindingProvider({
       startVertexPosition,
       endVertexPosition,
     };
-  }, [cols, rows]);
+  };
 
   const setRandomizedGrid = (): void => {
     resetPathfind();
@@ -300,7 +303,8 @@ function PathfindingProvider({
     let it: IteratorResult<Vertex[], Vertex[]>;
     try {
       if (lastGenerator.current === null) {
-        throw new Error('Generator not initialized');
+        console.error('Generator not initialized');
+        return;
       }
       it = lastGenerator.current.next();
     } catch (error) {
@@ -439,6 +443,7 @@ function PathfindingProvider({
         setSelectedAlgorithmName,
         setSelectedHeuristicsName,
         setSelectedVertexName,
+        setTerminalVertices,
       }}
     >
       {children}
