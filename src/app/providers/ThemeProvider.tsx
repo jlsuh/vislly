@@ -10,8 +10,6 @@ import useSystemAppearance from '@/shared/lib/useSystemAppearance';
 import { THEME_VALUES, Theme, type ThemeValue } from '../config/theme.ts';
 import ThemeContext from './ThemeContext.tsx';
 
-type ThemeProviderProps = PropsWithChildren;
-
 const DATA_THEME = 'data-theme';
 const STORAGE = 'storage';
 const THEME_KEY = 'theme';
@@ -50,7 +48,7 @@ const applyTheme = (newThemeValue: string): void => {
   window.dispatchEvent(new Event(STORAGE));
 };
 
-function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
+function ThemeProvider({ children }: PropsWithChildren): JSX.Element {
   const { prefersDarkColorScheme } = useSystemAppearance();
 
   const currentThemeValue = useSyncExternalStore(

@@ -1,11 +1,7 @@
 import type { JSX, PropsWithChildren } from 'react';
 import styles from './theme-icon-container.module.css';
 
-type ThemeIconContainerProps = PropsWithChildren;
-
-function ThemeIconContainer({
-  children,
-}: ThemeIconContainerProps): JSX.Element {
+function ThemeIconContainer({ children }: PropsWithChildren): JSX.Element {
   return <span className={styles.themeIconContainer}>{children}</span>;
 }
 

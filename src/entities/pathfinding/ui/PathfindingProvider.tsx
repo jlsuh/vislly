@@ -205,11 +205,7 @@ const VISITED: string = new Rgba(
   0.6,
 ).toStyle();
 
-type PathfindingProviderProps = PropsWithChildren;
-
-function PathfindingProvider({
-  children,
-}: PathfindingProviderProps): JSX.Element {
+function PathfindingProvider({ children }: PropsWithChildren): JSX.Element {
   const [cols, setCols] = useState(0);
   const [grid, setGrid] = useState<Vertex[][]>([]);
   const [isAnimationRunning, setIsAnimationRunning] = useState(false);
