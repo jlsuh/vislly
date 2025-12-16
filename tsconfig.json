@@ -32,6 +32,9 @@
   "include": [
     ".next/dev/types/**/*.ts",
     ".next/types/**/*.ts",
+    "**/*.mts",
+    "**/*.ts",
+    "**/*.tsx",
     "/out/vislly/dev/types/**/*.ts",
     "/out/vislly/types/**/*.ts",
     "next-env.d.ts"
