@@ -185,7 +185,6 @@ module.exports = {
           '^src/shared',
           '^node_modules',
           '^public',
-
           '[.](css|scss|sass|less|json|png|jpg|svg)$',
         ],
       },
