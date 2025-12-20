@@ -120,9 +120,8 @@ function composeNoiseScale(cols: number, rows: number): number {
   const ratio = cols / rows;
   if (ratio <= 1) {
     return 3 * ratio;
-  } else {
-    return 4 - rows / cols;
   }
+  return 4 - rows / cols;
 }
 
 function composePerlinNoise(
@@ -174,21 +173,25 @@ function composePerlinNoiseGrid(cols: number, rows: number): Vertex[][] {
 }
 
 function mapIntensityToVertexName(intensity: number): VertexName {
-  if (intensity < 0.1) {
+  if (intensity < 0.2) {
     return WATER_DEEP;
-  } else if (intensity < 0.25) {
-    return WATER;
-  } else if (intensity < 0.4) {
-    return SAND;
-  } else if (intensity < 0.7) {
-    return GRASS;
-  } else if (intensity < 0.85) {
-    return STONE;
-  } else if (intensity < 0.95) {
-    return GRAVEL;
-  } else {
-    return SNOW;
   }
+  if (intensity < 0.45) {
+    return WATER;
+  }
+  if (intensity < 0.6) {
+    return SAND;
+  }
+  if (intensity < 0.8) {
+    return GRASS;
+  }
+  if (intensity < 0.9) {
+    return STONE;
+  }
+  if (intensity < 0.95) {
+    return GRAVEL;
+  }
+  return SNOW;
 }
 
 const ANIMATION_DELAY = 5;

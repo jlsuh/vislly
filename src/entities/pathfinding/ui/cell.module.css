@@ -1,6 +1,6 @@
 .cell {
   background-color: lightgray;
-  border-color: var(--color-outline);
+  border-color: var(--color-outline-dark);
   border-style: solid;
   border-width: 0 0.0625rem 0.0625rem 0;
   cursor: pointer;
