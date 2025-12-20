@@ -8,7 +8,6 @@ import {
   useState,
 } from 'react';
 import { getElementByCoordinates } from '@/shared/lib/dom.ts';
-import { xoshiro128ss } from '@/shared/lib/random.ts';
 import { Rgba } from '@/shared/lib/rgba.ts';
 import { composeNewGrid } from '../lib/pathfinding.ts';
 import {
@@ -20,7 +19,7 @@ import {
   PATHFINDING_ALGORITHMS,
   type PathfindingAlgorithm,
 } from '../model/pathfinding-algorithms.ts';
-import { PerlinNoise } from '../model/perlin-noise.ts';
+import { composePerlinNoise } from '../model/perlin-noise.ts';
 import {
   assertIsTerminalVertex,
   END,
@@ -114,44 +113,6 @@ function resetButtonStyles(vertices: Vertex[]): void {
   for (const vertex of vertices) {
     removeButtonBackground(vertex.row, vertex.col);
   }
-}
-
-function composeNoiseScale(cols: number, rows: number): number {
-  const ratio = cols / rows;
-  if (ratio <= 1) {
-    return 3 * ratio;
-  }
-  return 4 - rows / cols;
-}
-
-function composePerlinNoise(
-  cols: number,
-  rows: number,
-): {
-  values: Record<`${number},${number}`, number>;
-  min: number;
-  max: number;
-} {
-  const perlin = new PerlinNoise();
-  const noiseScale = composeNoiseScale(cols, rows);
-  const seedX = xoshiro128ss()();
-  const seedY = xoshiro128ss()();
-  const values: Record<`${number},${number}`, number> = {};
-  let min = Number.POSITIVE_INFINITY;
-  let max = Number.NEGATIVE_INFINITY;
-  for (let row = 0; row < rows; row += 1) {
-    for (let col = 0; col < cols; col += 1) {
-      const normalizedX = col / cols;
-      const normalizedY = row / rows;
-      const x = normalizedX * noiseScale + seedX;
-      const y = normalizedY * noiseScale + seedY;
-      const intensity = perlin.get(x, y);
-      values[`${row},${col}`] = intensity;
-      if (intensity < min) min = intensity;
-      if (intensity > max) max = intensity;
-    }
-  }
-  return { values, min, max };
 }
 
 function composePerlinNoiseGrid(cols: number, rows: number): Vertex[][] {

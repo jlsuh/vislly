@@ -1,4 +1,4 @@
-import { composeRandomAngle } from '@/shared/lib/random.ts';
+import { composeRandomAngle, xoshiro128ss } from '@/shared/lib/random.ts';
 import { Vector2 } from '@/shared/lib/vector2.ts';
 
 class PerlinNoise {
@@ -50,4 +50,42 @@ class PerlinNoise {
   }
 }
 
-export { PerlinNoise };
+function composeNoiseScale(cols: number, rows: number): number {
+  const ratio = cols / rows;
+  if (ratio <= 1) {
+    return 3 * ratio;
+  }
+  return 4 - rows / cols;
+}
+
+function composePerlinNoise(
+  cols: number,
+  rows: number,
+): {
+  values: Record<`${number},${number}`, number>;
+  min: number;
+  max: number;
+} {
+  const perlin = new PerlinNoise();
+  const noiseScale = composeNoiseScale(cols, rows);
+  const seedX = xoshiro128ss()();
+  const seedY = xoshiro128ss()();
+  const values: Record<`${number},${number}`, number> = {};
+  let min = Number.POSITIVE_INFINITY;
+  let max = Number.NEGATIVE_INFINITY;
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      const normalizedX = col / cols;
+      const normalizedY = row / rows;
+      const x = normalizedX * noiseScale + seedX;
+      const y = normalizedY * noiseScale + seedY;
+      const intensity = perlin.get(x, y);
+      values[`${row},${col}`] = intensity;
+      if (intensity < min) min = intensity;
+      if (intensity > max) max = intensity;
+    }
+  }
+  return { values, min, max };
+}
+
+export { composePerlinNoise, PerlinNoise };
