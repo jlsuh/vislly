@@ -199,12 +199,10 @@ function PathfindingGrid(): JSX.Element {
         const rowKey = `row-${cellRow}`;
         return (
           <div key={rowKey} className={styles.row}>
-            {gridRow.map((gridCell, cellCol) => (
-              <Cell
-                gridCell={gridCell}
-                key={`cell-row-${cellRow}-col-${cellCol}-value-${gridCell.name}`}
-              />
-            ))}
+            {gridRow.map((gridCell, cellCol) => {
+              const key = `cell-row-${cellRow}-col-${cellCol}`;
+              return <Cell gridCell={gridCell} key={key} />;
+            })}
           </div>
         );
       })}

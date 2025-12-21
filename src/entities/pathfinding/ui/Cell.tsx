@@ -1,6 +1,6 @@
 'use client';
 
-import { type JSX, type MouseEvent, use, useState } from 'react';
+import { type JSX, type MouseEvent, use } from 'react';
 import {
   EMPTY,
   INITIAL_COORDINATE,
@@ -12,7 +12,6 @@ import styles from './cell.module.css';
 import PathfindingContext from './PathfindingContext.tsx';
 
 function Cell({ gridCell }: { gridCell: Vertex }): JSX.Element {
-  const [cell, setCell] = useState(gridCell);
   const { row: cellRow, col: cellCol } = gridCell;
 
   const {
@@ -60,12 +59,11 @@ function Cell({ gridCell }: { gridCell: Vertex }): JSX.Element {
     nextGrid[cellRow][cellCol] = new Vertex(cellRow, cellCol, newVertexName);
     setTerminalVertices(nextTerminalVertices);
     setGrid(nextGrid);
-    setCell(nextGrid[cellRow][cellCol].deepCopy());
   };
 
   return (
     <button
-      className={`${styles.cell} ${styles[cell.name]}`}
+      className={`${styles.cell} ${styles[gridCell.name]}`}
       data-col={cellCol}
       data-row={cellRow}
       onContextMenu={(e: MouseEvent<HTMLButtonElement>) => e.preventDefault()}
