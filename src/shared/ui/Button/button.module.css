@@ -23,11 +23,11 @@
   transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   &:active {
-    transform: matrix(0.95, 0, 0, 0.95, 0, 0);
-    transition: transform 0.2s;
-  }
-  &:hover {
     filter: brightness(75%);
+    transform: matrix(0.95, 0, 0, 0.95, 0, 0);
+    transition:
+      transform 0.2s,
+      filter 0.2s;
   }
   & svg {
     color: var(--color-inverse-on-surface);
