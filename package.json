@@ -14,6 +14,7 @@
     "depc:metrics": "depcruise . -I \"^src|^app\" --metrics -T metrics",
     "depc:open": "open ./dependency-graph.html || start ./dependency-graph.html",
     "depc:report": "depcruise . -I \"^src|^app\"",
+    "deploy": "rm -rf ./out/ ./.next/ && bun run build && bunx gh-pages -d out/vislly -b pages -r https://codeberg.org/jlsuh/vislly.git",
     "dev": "next dev --turbopack",
     "o:r": "bun outdated -r",
     "serve": "bun run build && serve ./out",
