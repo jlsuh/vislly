@@ -1,13 +1,13 @@
 import Link from 'next/link';
 import type { JSX } from 'react';
-import GithubIcon from '../GithubIcon/GithubIcon.tsx';
+import CodebergIcon from '../CodebergIcon/CodebergIcon.tsx';
 import IconButton from '../IconButton/IconButton.tsx';
 
-type GithubIconButtonProps = {
+type CodebergButtonProps = {
   href: string;
 };
 
-function GithubIconButton({ href }: GithubIconButtonProps): JSX.Element {
+function CodebergButton({ href }: CodebergButtonProps): JSX.Element {
   return (
     <Link
       href={href}
@@ -16,10 +16,10 @@ function GithubIconButton({ href }: GithubIconButtonProps): JSX.Element {
       target="_blank"
     >
       <IconButton isCheckboxControlled={false}>
-        <GithubIcon />
+        <CodebergIcon />
       </IconButton>
     </Link>
   );
 }
 
-export default GithubIconButton;
+export default CodebergButton;
