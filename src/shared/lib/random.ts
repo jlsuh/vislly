@@ -2,6 +2,14 @@ function composeRandomAngle(): number {
   return Math.random() * 2 * Math.PI;
 }
 
+function composeRandomBetween(min: number, max: number): number {
+  return Math.random() * (max - min) + min;
+}
+
+function composeRandomFlooredIntegerBetween(min: number, max: number): number {
+  return Math.floor(composeRandomBetween(min, max));
+}
+
 function composeSeed() {
   return (Math.random() * 2 ** 32) >>> 0;
 }

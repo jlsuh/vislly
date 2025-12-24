@@ -2,7 +2,10 @@
 
 import { type JSX, useEffect, useId } from 'react';
 import { getRootFontSize } from '@/shared/lib/css.ts';
-import { composeRandomAngle } from '@/shared/lib/random.ts';
+import {
+  composeRandomAngle,
+  composeRandomBetween,
+} from '@/shared/lib/random.ts';
 import { Rgba } from '@/shared/lib/rgba.ts';
 import {
   type ResizeDimensions,
@@ -15,10 +18,6 @@ import {
   type ParticleSettings,
 } from '../model/brownian-motion.ts';
 import styles from './brownian-motion.module.css';
-
-function getRandomBetween(min: number, max: number): number {
-  return Math.random() * (max - min) + min;
-}
 
 function getCanvasCtxByRef(
   canvas: HTMLCanvasElement,
@@ -211,11 +210,11 @@ function BrownianMotion(): JSX.Element {
           Math.random() * currentInitialSpeed * Math.cos(composeRandomAngle()),
         viy:
           Math.random() * currentInitialSpeed * Math.sin(composeRandomAngle()),
-        x: getRandomBetween(
+        x: composeRandomBetween(
           currentMoleculeDiameter,
           dimensions.boundedWidth - currentMoleculeDiameter,
         ),
-        y: getRandomBetween(
+        y: composeRandomBetween(
           currentMoleculeDiameter,
           dimensions.boundedHeight - currentMoleculeDiameter,
         ),

@@ -8,6 +8,7 @@ import {
   useState,
 } from 'react';
 import { getElementByCoordinates } from '@/shared/lib/dom.ts';
+import { composeRandomFlooredIntegerBetween } from '@/shared/lib/random.ts';
 import { Rgba } from '@/shared/lib/rgba.ts';
 import { composeNewGrid } from '../lib/pathfinding.ts';
 import {
@@ -50,8 +51,8 @@ function composeRandomInitialVertexPosition(
   let col: number;
   let vertex: Vertex;
   do {
-    row = Math.floor(Math.random() * maxRows);
-    col = Math.floor(Math.random() * maxCols);
+    row = composeRandomFlooredIntegerBetween(0, maxRows);
+    col = composeRandomFlooredIntegerBetween(0, maxCols);
     vertex = new Vertex(row, col, name);
   } while (vertexToSkip !== undefined && vertex.positionEquals(vertexToSkip));
   return vertex;
