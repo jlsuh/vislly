@@ -1,6 +1,7 @@
 'use client';
 
 import { type JSX, useEffect, useId } from 'react';
+import { getCanvasCtxByRef } from '@/shared/lib/canvas.ts';
 import { getRootFontSize } from '@/shared/lib/css.ts';
 import {
   composeRandomAngle,
@@ -18,12 +19,6 @@ import {
   type ParticleSettings,
 } from '../model/brownian-motion.ts';
 import styles from './brownian-motion.module.css';
-
-function getCanvasCtxByRef(
-  canvas: HTMLCanvasElement,
-): CanvasRenderingContext2D {
-  return canvas.getContext('2d') as CanvasRenderingContext2D;
-}
 
 function drawParticle(
   p: Particle,
