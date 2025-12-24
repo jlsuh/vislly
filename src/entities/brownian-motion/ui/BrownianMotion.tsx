@@ -1,6 +1,6 @@
 'use client';
 
-import { type JSX, useEffect, useId } from 'react';
+import { type JSX, useEffect, useRef } from 'react';
 import { getCanvasCtxByRef } from '@/shared/lib/canvas.ts';
 import { getRootFontSize } from '@/shared/lib/css.ts';
 import {
@@ -171,20 +171,19 @@ function BrownianMotion(): JSX.Element {
     INITIAL_RESIZE_DIMENSIONS,
   );
 
-  const particlesCanvasId = useId();
-  const historicalCanvasId = useId();
+  const particlesCanvasRef = useRef<HTMLCanvasElement>(null);
+  const historicalCanvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
+    if (!(historicalCanvasRef.current && particlesCanvasRef.current)) {
+      return;
+    }
     const currentMoleculeRadius = scaleMagnitudeByRem(MOLECULE_RADIUS);
     const currentMoleculeDiameter = scaleMagnitudeByRem(MOLECULE_DIAMETER);
     const currentPollenRadius = scaleMagnitudeByRem(POLLEN_RADIUS);
     const currentInitialSpeed = scaleMagnitudeByRem(INITIAL_SPEED);
-    const historicalContext = getCanvasCtxByRef(
-      document.getElementById(historicalCanvasId) as HTMLCanvasElement,
-    );
-    const particlesContext = getCanvasCtxByRef(
-      document.getElementById(particlesCanvasId) as HTMLCanvasElement,
-    );
+    const historicalContext = getCanvasCtxByRef(historicalCanvasRef.current);
+    const particlesContext = getCanvasCtxByRef(particlesCanvasRef.current);
     configureHistoricalCanvas(historicalContext);
     const particles = [
       ...composeParticles(1, () => ({
@@ -225,25 +224,20 @@ function BrownianMotion(): JSX.Element {
       }),
     );
     return () => window.clearInterval(intervalId);
-  }, [
-    dimensions.boundedHeight,
-    dimensions.boundedWidth,
-    particlesCanvasId,
-    historicalCanvasId,
-  ]);
+  }, [dimensions.boundedHeight, dimensions.boundedWidth]);
 
   return (
     <div className={styles.brownianMotionContainer} ref={resizeRef}>
       <canvas
         className={styles.particlesCanvas}
         height={dimensions.boundedHeight}
-        id={particlesCanvasId}
+        ref={particlesCanvasRef}
         width={dimensions.boundedWidth}
       />
       <canvas
         className={styles.historicalCanvas}
         height={dimensions.boundedHeight}
-        id={historicalCanvasId}
+        ref={historicalCanvasRef}
         width={dimensions.boundedWidth}
       />
     </div>
