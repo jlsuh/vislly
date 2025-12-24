@@ -1,10 +1,6 @@
 import { type RefObject, useEffect, useRef, useState } from 'react';
 
 interface InitialResizeDimensions {
-  marginBottom: number;
-  marginLeft: number;
-  marginRight: number;
-  marginTop: number;
   /**
    * Will be set to the current height of the ref element if set to 0.
    * Otherwise, height will be fixed to the provided height.
@@ -27,12 +23,11 @@ interface BoundedResizeDimensions extends InitialResizeDimensions {
 function composeResizeDimensions(
   dimensions: InitialResizeDimensions,
 ): BoundedResizeDimensions {
-  const { height, width, marginTop, marginRight, marginBottom, marginLeft } =
-    dimensions;
+  const { height, width } = dimensions;
   return {
     ...dimensions,
-    boundedHeight: Math.max(height - marginTop - marginBottom, 0),
-    boundedWidth: Math.max(width - marginLeft - marginRight, 0),
+    boundedHeight: Math.max(height, 0),
+    boundedWidth: Math.max(width, 0),
   };
 }
 

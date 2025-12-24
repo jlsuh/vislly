@@ -32,10 +32,6 @@ import PathfindingContext from './PathfindingContext.tsx';
 import styles from './pathfinding-grid.module.css';
 
 const INITIAL_RESIZE_DIMENSIONS: InitialResizeDimensions = {
-  marginBottom: 0,
-  marginLeft: 0,
-  marginRight: 0,
-  marginTop: 0,
   height: 0,
   width: 0,
 };
