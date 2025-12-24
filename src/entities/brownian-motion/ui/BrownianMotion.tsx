@@ -8,7 +8,7 @@ import {
 } from '@/shared/lib/random.ts';
 import { Rgba } from '@/shared/lib/rgba.ts';
 import {
-  type ResizeDimensions,
+  type InitialResizeDimensions,
   useResizeDimensions,
 } from '@/shared/lib/useResizeDimensions.ts';
 import { Vector2 } from '@/shared/lib/vector2.ts';
@@ -135,9 +135,7 @@ function scaleMagnitudeByRem(magnitudeBase: number): number {
   return scaleFactor * magnitudeBase;
 }
 
-const RESIZE_DIMENSIONS: ResizeDimensions = {
-  boundedHeight: 0,
-  boundedWidth: 0,
+const INITIAL_RESIZE_DIMENSIONS: InitialResizeDimensions = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
@@ -174,8 +172,9 @@ const NUMBER_OF_PARTICLES = 500;
 const POLLEN_RADIUS = 35;
 
 function BrownianMotion(): JSX.Element {
-  const { dimensions, ref } =
-    useResizeDimensions<HTMLDivElement>(RESIZE_DIMENSIONS);
+  const { dimensions, ref } = useResizeDimensions<HTMLDivElement>(
+    INITIAL_RESIZE_DIMENSIONS,
+  );
 
   const particlesCanvasId = useId();
   const historicalCanvasId = useId();

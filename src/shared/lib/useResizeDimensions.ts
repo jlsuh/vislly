@@ -1,8 +1,6 @@
 import { type RefObject, useEffect, useRef, useState } from 'react';
 
-type ResizeDimensions = {
-  boundedHeight: number;
-  boundedWidth: number;
+interface InitialResizeDimensions {
   marginBottom: number;
   marginLeft: number;
   marginRight: number;
@@ -19,11 +17,16 @@ type ResizeDimensions = {
    * @see {@link useResizeDimensions}
    */
   width: number;
-};
+}
+
+interface BoundedResizeDimensions extends InitialResizeDimensions {
+  boundedHeight: number;
+  boundedWidth: number;
+}
 
 function composeResizeDimensions(
-  dimensions: ResizeDimensions,
-): ResizeDimensions {
+  dimensions: InitialResizeDimensions,
+): BoundedResizeDimensions {
   const { height, width, marginTop, marginRight, marginBottom, marginLeft } =
     dimensions;
   return {
@@ -34,9 +37,9 @@ function composeResizeDimensions(
 }
 
 function useResizeDimensions<T = Element>(
-  initialDimensions: ResizeDimensions,
+  initialDimensions: InitialResizeDimensions,
 ): {
-  dimensions: ResizeDimensions;
+  dimensions: BoundedResizeDimensions;
   ref: RefObject<T | null>;
 } {
   const [currentHeight, setCurrentHeight] = useState(0);
@@ -69,4 +72,4 @@ function useResizeDimensions<T = Element>(
   return { dimensions, ref };
 }
 
-export { useResizeDimensions, type ResizeDimensions };
+export { useResizeDimensions, type InitialResizeDimensions };

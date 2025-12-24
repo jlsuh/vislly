@@ -17,7 +17,7 @@ import {
 import useIsHoldingClickOnElement from '@/shared/lib/useIsHoldingClickOnElement.ts';
 import useOnClickOutside from '@/shared/lib/useOnClickOutside.ts';
 import {
-  type ResizeDimensions,
+  type InitialResizeDimensions,
   useResizeDimensions,
 } from '@/shared/lib/useResizeDimensions.ts';
 import { composeNewGrid } from './../lib/pathfinding.ts';
@@ -31,9 +31,7 @@ import Cell from './Cell.tsx';
 import PathfindingContext from './PathfindingContext.tsx';
 import styles from './pathfinding-grid.module.css';
 
-const RESIZE_DIMENSIONS: ResizeDimensions = {
-  boundedHeight: 0,
-  boundedWidth: 0,
+const INITIAL_RESIZE_DIMENSIONS: InitialResizeDimensions = {
   marginBottom: 0,
   marginLeft: 0,
   marginRight: 0,
@@ -134,8 +132,9 @@ function handleOverflownTerminalCells(
 }
 
 function PathfindingGrid(): JSX.Element {
-  const { dimensions, ref } =
-    useResizeDimensions<HTMLElement>(RESIZE_DIMENSIONS);
+  const { dimensions, ref } = useResizeDimensions<HTMLElement>(
+    INITIAL_RESIZE_DIMENSIONS,
+  );
   const { isHoldingClickRef } = useIsHoldingClickOnElement(ref);
 
   useOnClickOutside([ref], clearBodyOverflow);
