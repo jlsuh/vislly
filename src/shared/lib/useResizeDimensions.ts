@@ -40,14 +40,14 @@ function useResizeDimensions<T = Element>(
   initialDimensions: InitialResizeDimensions,
 ): {
   dimensions: BoundedResizeDimensions;
-  ref: RefObject<T | null>;
+  resizeRef: RefObject<T | null>;
 } {
   const [currentHeight, setCurrentHeight] = useState(0);
   const [currentWidth, setCurrentWidth] = useState(0);
-  const ref = useRef(null);
+  const resizeRef = useRef(null);
 
   useEffect(() => {
-    const element = ref.current ?? new Element();
+    const element = resizeRef.current ?? new Element();
     const resizeObserver = new ResizeObserver((entries) => {
       const { contentRect } = entries[0];
       if (currentHeight !== contentRect.height) {
@@ -69,7 +69,7 @@ function useResizeDimensions<T = Element>(
     height: initialResizeDimensions.height || currentHeight,
   });
 
-  return { dimensions, ref };
+  return { dimensions, resizeRef };
 }
 
 export { useResizeDimensions, type InitialResizeDimensions };

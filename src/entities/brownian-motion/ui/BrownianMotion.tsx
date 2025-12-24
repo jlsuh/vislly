@@ -167,7 +167,7 @@ const NUMBER_OF_PARTICLES = 500;
 const POLLEN_RADIUS = 35;
 
 function BrownianMotion(): JSX.Element {
-  const { dimensions, ref } = useResizeDimensions<HTMLDivElement>(
+  const { dimensions, resizeRef } = useResizeDimensions<HTMLDivElement>(
     INITIAL_RESIZE_DIMENSIONS,
   );
 
@@ -233,7 +233,7 @@ function BrownianMotion(): JSX.Element {
   ]);
 
   return (
-    <div className={styles.brownianMotionContainer} ref={ref}>
+    <div className={styles.brownianMotionContainer} ref={resizeRef}>
       <canvas
         className={styles.particlesCanvas}
         height={dimensions.boundedHeight}

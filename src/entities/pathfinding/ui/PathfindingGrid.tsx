@@ -132,12 +132,12 @@ function handleOverflownTerminalCells(
 }
 
 function PathfindingGrid(): JSX.Element {
-  const { dimensions, ref } = useResizeDimensions<HTMLElement>(
+  const { dimensions, resizeRef } = useResizeDimensions<HTMLElement>(
     INITIAL_RESIZE_DIMENSIONS,
   );
-  const { isHoldingClickRef } = useIsHoldingClickOnElement(ref);
+  const { isHoldingClickRef } = useIsHoldingClickOnElement(resizeRef);
 
-  useOnClickOutside([ref], clearBodyOverflow);
+  useOnClickOutside([resizeRef], clearBodyOverflow);
 
   const {
     cols,
@@ -191,7 +191,7 @@ function PathfindingGrid(): JSX.Element {
       onTouchEnd={clearBodyOverflow}
       onTouchMove={dispatchOnTouchMove(lastVisitedVertices, resetPathfind)}
       onTouchStart={hideBodyOverflow}
-      ref={ref}
+      ref={resizeRef}
       style={CELL_SIZE_VAR}
     >
       {grid.map((gridRow, cellRow) => {
