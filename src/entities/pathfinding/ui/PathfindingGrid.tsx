@@ -17,7 +17,7 @@ import {
 import useIsHoldingClickOnElement from '@/shared/lib/useIsHoldingClickOnElement.ts';
 import useOnClickOutside from '@/shared/lib/useOnClickOutside.ts';
 import {
-  type InitialResizeDimensions,
+  type ResizeDimensions,
   useResizeDimensions,
 } from '@/shared/lib/useResizeDimensions.ts';
 import { composeNewGrid } from './../lib/pathfinding.ts';
@@ -31,7 +31,7 @@ import Cell from './Cell.tsx';
 import PathfindingContext from './PathfindingContext.tsx';
 import styles from './pathfinding-grid.module.css';
 
-const INITIAL_RESIZE_DIMENSIONS: InitialResizeDimensions = {
+const INITIAL_RESIZE_DIMENSIONS: ResizeDimensions = {
   height: 0,
   width: 0,
 };
@@ -149,15 +149,11 @@ function PathfindingGrid(): JSX.Element {
 
   useEffect(() => {
     resetPathfind();
-    const newCols = Math.floor(
-      pxToRem(dimensions.boundedWidth) / CELL_DIM_SIZE,
-    );
+    const newCols = Math.floor(pxToRem(dimensions.width) / CELL_DIM_SIZE);
     if (newCols !== cols) {
       setCols(newCols);
     }
-    const newRows = Math.floor(
-      pxToRem(dimensions.boundedHeight) / CELL_DIM_SIZE,
-    );
+    const newRows = Math.floor(pxToRem(dimensions.height) / CELL_DIM_SIZE);
     if (newRows !== rows) {
       setRows(newRows);
     }
@@ -165,8 +161,8 @@ function PathfindingGrid(): JSX.Element {
     handleOverflownTerminalCells(terminalVertices, newRows, newCols);
   }, [
     cols,
-    dimensions.boundedHeight,
-    dimensions.boundedWidth,
+    dimensions.height,
+    dimensions.width,
     rows,
     terminalVertices,
     resetPathfind,

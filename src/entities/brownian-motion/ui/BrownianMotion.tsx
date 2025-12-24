@@ -9,7 +9,7 @@ import {
 } from '@/shared/lib/random.ts';
 import { Rgba } from '@/shared/lib/rgba.ts';
 import {
-  type InitialResizeDimensions,
+  type ResizeDimensions,
   useResizeDimensions,
 } from '@/shared/lib/useResizeDimensions.ts';
 import { Vector2 } from '@/shared/lib/vector2.ts';
@@ -130,7 +130,7 @@ function scaleMagnitudeByRem(magnitudeBase: number): number {
   return scaleFactor * magnitudeBase;
 }
 
-const INITIAL_RESIZE_DIMENSIONS: InitialResizeDimensions = {
+const INITIAL_RESIZE_DIMENSIONS: ResizeDimensions = {
   height: 0,
   width: 0,
 };
@@ -174,7 +174,7 @@ function BrownianMotion(): JSX.Element {
     if (!(historicalCanvasRef.current && particlesCanvasRef.current)) {
       return;
     }
-    if (dimensions.boundedHeight === 0 || dimensions.boundedWidth === 0) {
+    if (dimensions.height === 0 || dimensions.width === 0) {
       return;
     }
     const currentMoleculeRadius = scaleMagnitudeByRem(MOLECULE_RADIUS);
@@ -191,8 +191,8 @@ function BrownianMotion(): JSX.Element {
         r: currentPollenRadius,
         vix: 0,
         viy: 0,
-        x: dimensions.boundedWidth / 2,
-        y: dimensions.boundedHeight / 2,
+        x: dimensions.width / 2,
+        y: dimensions.height / 2,
       })),
       ...composeParticles(NUMBER_OF_PARTICLES, () => ({
         fillColor: BLUE,
@@ -204,11 +204,11 @@ function BrownianMotion(): JSX.Element {
           Math.random() * currentInitialSpeed * Math.sin(composeRandomAngle()),
         x: composeRandomBetween(
           currentMoleculeDiameter,
-          dimensions.boundedWidth - currentMoleculeDiameter,
+          dimensions.width - currentMoleculeDiameter,
         ),
         y: composeRandomBetween(
           currentMoleculeDiameter,
-          dimensions.boundedHeight - currentMoleculeDiameter,
+          dimensions.height - currentMoleculeDiameter,
         ),
       })),
     ];
@@ -216,28 +216,28 @@ function BrownianMotion(): JSX.Element {
       update({
         cor: COR,
         particles,
-        height: dimensions.boundedHeight,
-        width: dimensions.boundedWidth,
+        height: dimensions.height,
+        width: dimensions.width,
         historicalContext,
         particlesContext,
       }),
     );
     return () => window.clearInterval(intervalId);
-  }, [dimensions.boundedHeight, dimensions.boundedWidth]);
+  }, [dimensions.height, dimensions.width]);
 
   return (
     <div className={styles.brownianMotionContainer} ref={resizeRef}>
       <canvas
         className={styles.particlesCanvas}
-        height={dimensions.boundedHeight}
+        height={dimensions.height}
         ref={particlesCanvasRef}
-        width={dimensions.boundedWidth}
+        width={dimensions.width}
       />
       <canvas
         className={styles.historicalCanvas}
-        height={dimensions.boundedHeight}
+        height={dimensions.height}
         ref={historicalCanvasRef}
-        width={dimensions.boundedWidth}
+        width={dimensions.width}
       />
     </div>
   );

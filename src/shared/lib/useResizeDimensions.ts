@@ -1,6 +1,6 @@
 import { type RefObject, useEffect, useRef, useState } from 'react';
 
-interface InitialResizeDimensions {
+interface ResizeDimensions {
   /**
    * Will be set to the current height of the ref element if set to 0.
    * Otherwise, height will be fixed to the provided height.
@@ -15,26 +15,20 @@ interface InitialResizeDimensions {
   width: number;
 }
 
-interface BoundedResizeDimensions extends InitialResizeDimensions {
-  boundedHeight: number;
-  boundedWidth: number;
-}
-
-function composeResizeDimensions(
-  dimensions: InitialResizeDimensions,
-): BoundedResizeDimensions {
-  const { height, width } = dimensions;
+function composeResizeDimensions({
+  height,
+  width,
+}: ResizeDimensions): ResizeDimensions {
   return {
-    ...dimensions,
-    boundedHeight: Math.max(height, 0),
-    boundedWidth: Math.max(width, 0),
+    height: Math.max(height, 0),
+    width: Math.max(width, 0),
   };
 }
 
 function useResizeDimensions<T extends HTMLElement>(
-  initialDimensions: InitialResizeDimensions,
+  initialDimensions: ResizeDimensions,
 ): {
-  dimensions: BoundedResizeDimensions;
+  dimensions: ResizeDimensions;
   resizeRef: RefObject<T | null>;
 } {
   const [currentHeight, setCurrentHeight] = useState(initialDimensions.height);
@@ -66,7 +60,6 @@ function useResizeDimensions<T extends HTMLElement>(
   }, []);
 
   const dimensions = composeResizeDimensions({
-    ...initialDimensions,
     width: initialDimensions.width || currentWidth,
     height: initialDimensions.height || currentHeight,
   });
@@ -74,4 +67,4 @@ function useResizeDimensions<T extends HTMLElement>(
   return { dimensions, resizeRef };
 }
 
-export { useResizeDimensions, type InitialResizeDimensions };
+export { useResizeDimensions, type ResizeDimensions };
