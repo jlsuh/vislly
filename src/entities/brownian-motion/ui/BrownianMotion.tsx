@@ -178,6 +178,9 @@ function BrownianMotion(): JSX.Element {
     if (!(historicalCanvasRef.current && particlesCanvasRef.current)) {
       return;
     }
+    if (dimensions.boundedHeight === 0 || dimensions.boundedWidth === 0) {
+      return;
+    }
     const currentMoleculeRadius = scaleMagnitudeByRem(MOLECULE_RADIUS);
     const currentMoleculeDiameter = scaleMagnitudeByRem(MOLECULE_DIAMETER);
     const currentPollenRadius = scaleMagnitudeByRem(POLLEN_RADIUS);
