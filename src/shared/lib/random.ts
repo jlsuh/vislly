@@ -14,6 +14,9 @@ function composeSeed() {
   return (Math.random() * 2 ** 32) >>> 0;
 }
 
+/**
+ * @see {@link https://vigna.di.unimi.it/ftp/papers/ScrambledLinear.pdf | Scrambled Linear Pseudorandom Number Generators}
+ */
 function xoshiro128ss(
   a: number = composeSeed(),
   b: number = composeSeed(),
@@ -34,4 +37,9 @@ function xoshiro128ss(
   };
 }
 
-export { composeRandomAngle, xoshiro128ss };
+export {
+  composeRandomAngle,
+  composeRandomBetween,
+  composeRandomFlooredIntegerBetween,
+  xoshiro128ss,
+};
