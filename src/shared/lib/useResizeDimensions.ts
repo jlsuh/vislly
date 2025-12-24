@@ -36,37 +36,44 @@ function composeResizeDimensions(
   };
 }
 
-function useResizeDimensions<T = Element>(
+function useResizeDimensions<T extends HTMLElement>(
   initialDimensions: InitialResizeDimensions,
 ): {
   dimensions: BoundedResizeDimensions;
   resizeRef: RefObject<T | null>;
 } {
-  const [currentHeight, setCurrentHeight] = useState(0);
-  const [currentWidth, setCurrentWidth] = useState(0);
-  const resizeRef = useRef(null);
+  const [currentHeight, setCurrentHeight] = useState(initialDimensions.height);
+  const [currentWidth, setCurrentWidth] = useState(initialDimensions.width);
+  const resizeRef = useRef<T>(null);
 
   useEffect(() => {
-    const element = resizeRef.current ?? new Element();
+    const element = resizeRef.current;
+    if (!element) return;
     const resizeObserver = new ResizeObserver((entries) => {
-      const { contentRect } = entries[0];
-      if (currentHeight !== contentRect.height) {
-        setCurrentHeight(contentRect.height);
-      }
-      if (currentWidth !== contentRect.width) {
-        setCurrentWidth(contentRect.width);
-      }
+      window.requestAnimationFrame(() => {
+        if (!Array.isArray(entries)) {
+          return;
+        }
+        if (!entries.length) {
+          return;
+        }
+        const { contentRect } = entries[0];
+        setCurrentHeight((prev) =>
+          prev !== contentRect.height ? contentRect.height : prev,
+        );
+        setCurrentWidth((prev) =>
+          prev !== contentRect.width ? contentRect.width : prev,
+        );
+      });
     });
     resizeObserver.observe(element);
-    return () => resizeObserver.unobserve(element);
-  }, [currentHeight, currentWidth]);
-
-  const initialResizeDimensions = composeResizeDimensions(initialDimensions);
+    return () => resizeObserver.disconnect();
+  }, []);
 
   const dimensions = composeResizeDimensions({
-    ...initialResizeDimensions,
-    width: initialResizeDimensions.width || currentWidth,
-    height: initialResizeDimensions.height || currentHeight,
+    ...initialDimensions,
+    width: initialDimensions.width || currentWidth,
+    height: initialDimensions.height || currentHeight,
   });
 
   return { dimensions, resizeRef };
