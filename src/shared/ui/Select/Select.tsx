@@ -1,5 +1,3 @@
-'use client';
-
 import { type ChangeEvent, type JSX, useId } from 'react';
 import styles from './select.module.css';
 
