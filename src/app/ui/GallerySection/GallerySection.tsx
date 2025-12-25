@@ -9,17 +9,17 @@ import styles from './gallery-section.module.css';
 function GallerySection(): JSX.Element {
   return (
     <section className={styles.gallerySection}>
-      <PrefetchOnHoverLink href="/brownian-motion">
+      <PrefetchOnHoverLink href="/sorting-algorithms">
         <figure className={styles.figure}>
           <Image
-            alt="Brownian Motion"
+            alt="Sorting Algorithms"
             className={styles.figureImage}
             placeholder="blur"
             priority={true}
-            src={brownianMotion}
+            src={wip}
           />
           <figcaption className={styles.figureCaption}>
-            Brownian Motion
+            Sorting Algorithms
           </figcaption>
         </figure>
       </PrefetchOnHoverLink>
@@ -35,17 +35,17 @@ function GallerySection(): JSX.Element {
           <figcaption className={styles.figureCaption}>Pathfinding</figcaption>
         </figure>
       </PrefetchOnHoverLink>
-      <PrefetchOnHoverLink href="/sorting-algorithms">
+      <PrefetchOnHoverLink href="/brownian-motion">
         <figure className={styles.figure}>
           <Image
-            alt="Sorting Algorithms"
+            alt="Brownian Motion"
             className={styles.figureImage}
             placeholder="blur"
             priority={true}
-            src={wip}
+            src={brownianMotion}
           />
           <figcaption className={styles.figureCaption}>
-            Sorting Algorithms
+            Brownian Motion
           </figcaption>
         </figure>
       </PrefetchOnHoverLink>
