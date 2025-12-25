@@ -1,5 +1,6 @@
 .sortingAlgorithmsArticle {
   max-width: 90rem;
+  overflow-anchor: none;
   padding: 0 4rem;
   width: 100%;
 }
