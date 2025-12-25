@@ -28,7 +28,7 @@ function composeFisherYatesIntegerRangeShuffle(start: number, end: number) {
 }
 
 function SortingAlgorithms(): JSX.Element {
-  const [count, setCount] = useState(50);
+  const [rangeEnd, setRangeEnd] = useState(50);
   const { dimensions, resizeRef } = useResizeDimensions<HTMLDivElement>(
     INITIAL_RESIZE_DIMENSIONS,
   );
@@ -36,7 +36,7 @@ function SortingAlgorithms(): JSX.Element {
   const countRangeInputId = useId();
 
   const handleOnChangeCountRageInput = (e: ChangeEvent<HTMLInputElement>) => {
-    setCount(Number(e.target.value));
+    setRangeEnd(Number(e.target.value));
   };
 
   useEffect(() => {
@@ -56,29 +56,29 @@ function SortingAlgorithms(): JSX.Element {
     ctx.translate(0, canvasRef.current.height);
     ctx.scale(1, -1);
 
-    const randomArray = composeFisherYatesIntegerRangeShuffle(1, count);
-    const physicalBarWidth = canvasRef.current.width / count;
+    const randomArray = composeFisherYatesIntegerRangeShuffle(1, rangeEnd);
+    const physicalBarWidth = canvasRef.current.width / rangeEnd;
     const shouldShowGap = physicalBarWidth > dpr * GAP_THRESHOLD_RATIO;
     const physicalGap = shouldShowGap ? dpr : 0;
     ctx.fillStyle = '#ffffff';
     ctx.beginPath();
     for (let i = 0; i < randomArray.length; i += 1) {
       const xi = i * physicalBarWidth;
-      const yf =
-        (randomArray[i] * canvasRef.current.height) / randomArray.length;
       const xf = shouldShowGap
         ? Math.max(0, physicalBarWidth - physicalGap)
         : physicalBarWidth + 0.5;
-      ctx.rect(xi, 0, xf, yf);
+      const yi = 0;
+      const yf = (randomArray[i] * canvasRef.current.height) / rangeEnd;
+      ctx.rect(xi, yi, xf, yf);
     }
     ctx.fill();
-  }, [dimensions.height, dimensions.width, count]);
+  }, [dimensions.height, dimensions.width, rangeEnd]);
 
   return (
     <>
       <div className={styles.controls}>
         <label htmlFor={countRangeInputId}>
-          Item Count: <strong>{count}</strong>
+          Item Count: <strong>{rangeEnd}</strong>
         </label>
         <input
           id={countRangeInputId}
@@ -86,7 +86,7 @@ function SortingAlgorithms(): JSX.Element {
           min="50"
           max="1000"
           step="50"
-          value={count}
+          value={rangeEnd}
           onChange={handleOnChangeCountRageInput}
         />
       </div>
