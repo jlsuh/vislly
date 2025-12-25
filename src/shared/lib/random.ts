@@ -37,9 +37,23 @@ function xoshiro128ss(
   };
 }
 
+function fisherYatesShuffle<T>(values: T[]): T[] {
+  let currentIndex = values.length;
+  while (currentIndex !== 0) {
+    const randomIndex = composeRandomFlooredIntegerBetween(0, currentIndex);
+    currentIndex--;
+    [values[currentIndex], values[randomIndex]] = [
+      values[randomIndex],
+      values[currentIndex],
+    ];
+  }
+  return values;
+}
+
 export {
   composeRandomAngle,
   composeRandomBetween,
   composeRandomFlooredIntegerBetween,
+  fisherYatesShuffle,
   xoshiro128ss,
 };
