@@ -9,17 +9,17 @@ import styles from './gallery-section.module.css';
 function GallerySection(): JSX.Element {
   return (
     <section className={styles.gallerySection}>
-      <PrefetchOnHoverLink href="/sorting-algorithms">
+      <PrefetchOnHoverLink href="/the-sound-of-sorting">
         <figure className={styles.figure}>
           <Image
-            alt="Sorting Algorithms"
+            alt="The Sound of Sorting"
             className={styles.figureImage}
             placeholder="blur"
             priority={true}
             src={wip}
           />
           <figcaption className={styles.figureCaption}>
-            Sorting Algorithms
+            The Sound of Sorting
           </figcaption>
         </figure>
       </PrefetchOnHoverLink>

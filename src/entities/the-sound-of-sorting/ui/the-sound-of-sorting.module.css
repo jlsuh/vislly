@@ -58,7 +58,7 @@
   font-size: 0.9rem;
 }
 
-.sortingAlgorithmsContainer {
+.container {
   --border-width: 0.125rem;
   border-radius: 0.5rem;
   border: var(--border-width) solid var(--color-outline-variant);
@@ -69,7 +69,7 @@
   background-color: #000;
 }
 
-.sortingAlgorithmsCanvas {
+.canvas {
   height: 100%;
   left: 0;
   position: absolute;

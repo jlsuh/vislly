@@ -17,7 +17,7 @@ import {
   type ResizeDimensions,
   useResizeDimensions,
 } from '@/shared/lib/useResizeDimensions.ts';
-import styles from './sorting-algorithms.module.css';
+import styles from './the-sound-of-sorting.module.css';
 
 const BASE_STEPS_PER_FRAME = 203;
 const INITIAL_RESIZE_DIMENSIONS: ResizeDimensions = {
@@ -105,7 +105,7 @@ function draw(
   }
 }
 
-function SortingAlgorithms(): JSX.Element {
+function TheSoundOfSorting(): JSX.Element {
   const [isSorted, setIsSorted] = useState(false);
   const [isSorting, setIsSorting] = useState(false);
   const [rangeEnd, setRangeEnd] = useState(100);
@@ -301,12 +301,12 @@ function SortingAlgorithms(): JSX.Element {
           </label>
           <input
             id={countRangeInputId}
-            type="range"
-            min="100"
             max="1000"
-            step="100"
-            value={rangeEnd}
+            min="100"
             onChange={handleOnChangeRangeEnd}
+            step="100"
+            type="range"
+            value={rangeEnd}
           />
         </div>
         <div className={styles.controlRow}>
@@ -315,29 +315,29 @@ function SortingAlgorithms(): JSX.Element {
           </label>
           <input
             id={speedRangeInputId}
-            type="range"
-            min="0"
             max="100"
-            step="10"
-            value={speed}
+            min="0"
             onChange={handleOnChangeSpeed}
+            step="10"
+            type="range"
+            value={speed}
           />
         </div>
         <div className={styles.buttonGroup}>
-          <button onClick={handleReset} className={styles.button} type="button">
+          <button className={styles.button} onClick={handleReset} type="button">
             Reset
           </button>
           <button
-            onClick={handleStep}
             className={styles.button}
             disabled={isSorted || isSorting}
+            onClick={handleStep}
             type="button"
           >
             Step
           </button>
           <button
-            onClick={primaryActionHandler}
             className={styles.button}
+            onClick={primaryActionHandler}
             type="button"
           >
             {primaryActionLabel}
@@ -352,9 +352,9 @@ function SortingAlgorithms(): JSX.Element {
           </span>
         </div>
       </div>
-      <div className={styles.sortingAlgorithmsContainer} ref={resizeRef}>
+      <div className={styles.container} ref={resizeRef}>
         <canvas
-          className={styles.sortingAlgorithmsCanvas}
+          className={styles.canvas}
           height={0}
           ref={canvasRef}
           width={0}
@@ -364,4 +364,4 @@ function SortingAlgorithms(): JSX.Element {
   );
 }
 
-export default SortingAlgorithms;
+export default TheSoundOfSorting;
