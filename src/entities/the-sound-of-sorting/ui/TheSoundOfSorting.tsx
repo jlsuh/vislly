@@ -17,6 +17,7 @@ import {
   type ResizeDimensions,
   useResizeDimensions,
 } from '@/shared/lib/useResizeDimensions.ts';
+import Select, { type Option } from '@/shared/ui/Select/Select.tsx';
 import styles from './the-sound-of-sorting.module.css';
 
 const BASE_STEPS_PER_FRAME = 203;
@@ -26,14 +27,23 @@ const INITIAL_RESIZE_DIMENSIONS: ResizeDimensions = {
 };
 const GAP_THRESHOLD_RATIO = 2.5;
 
+const ALGORITHM_OPTIONS: Option[] = [
+  { label: 'Bubble Sort', value: 'bubble' },
+  { label: 'Selection Sort', value: 'selection' },
+];
+
 type SortOperationType = 'compare' | 'swap';
 
-interface SortYield {
-  type: SortOperationType;
+interface HighlightGroup {
+  color: string;
   indices: number[];
+}
+
+interface SortYield {
   accessCount: number;
   compareCount: number;
-  fillStyle: string;
+  highlights: HighlightGroup[];
+  type: SortOperationType;
 }
 
 function* bubbleSortGenerator(
@@ -44,26 +54,52 @@ function* bubbleSortGenerator(
     swapped = false;
     for (let j = 0; j < arr.length - i - 1; j += 1) {
       yield {
-        type: 'compare',
-        indices: [j, j + 1],
-        compareCount: 1,
         accessCount: 2,
-        fillStyle: '#ff0000',
+        compareCount: 1,
+        highlights: [{ indices: [j, j + 1], color: '#ff0000' }],
+        type: 'compare',
       };
       if (arr[j] > arr[j + 1]) {
         [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
         yield {
-          type: 'swap',
-          indices: [j, j + 1],
-          compareCount: 0,
           accessCount: 2,
-          fillStyle: '#ff0000',
+          compareCount: 0,
+          highlights: [{ indices: [j, j + 1], color: '#ff0000' }],
+          type: 'swap',
         };
         swapped = true;
       }
     }
     if (!swapped) {
       break;
+    }
+  }
+}
+
+function* selectionSortGenerator(
+  arr: number[],
+): Generator<SortYield, void, unknown> {
+  for (let i = 0; i < arr.length - 1; i += 1) {
+    let minIdx = i;
+    for (let j = i + 1; j < arr.length; j += 1) {
+      const highlights: HighlightGroup[] = [
+        { indices: [minIdx, j], color: '#ff0000' },
+      ];
+      if (i > 0) {
+        highlights.push({ indices: [i - 1], color: '#00ff00' });
+      }
+      yield {
+        accessCount: 2,
+        compareCount: 1,
+        highlights,
+        type: 'compare',
+      };
+      if (arr[j] < arr[minIdx]) {
+        minIdx = j;
+      }
+    }
+    if (minIdx !== i) {
+      [arr[i], arr[minIdx]] = [arr[minIdx], arr[i]];
     }
   }
 }
@@ -111,6 +147,7 @@ function draw({
 }
 
 function TheSoundOfSorting(): JSX.Element {
+  const [algorithm, setAlgorithm] = useState<string>('bubble');
   const [isSorted, setIsSorted] = useState(false);
   const [isSorting, setIsSorting] = useState(false);
   const [rangeEnd, setRangeEnd] = useState(100);
@@ -151,13 +188,17 @@ function TheSoundOfSorting(): JSX.Element {
         );
       }
       arrayRef.current = [...initialArrayRef.current];
-      sortingGeneratorRef.current = bubbleSortGenerator(arrayRef.current);
+      if (algorithm === 'selection') {
+        sortingGeneratorRef.current = selectionSortGenerator(arrayRef.current);
+      } else {
+        sortingGeneratorRef.current = bubbleSortGenerator(arrayRef.current);
+      }
       statsRef.current = { comparisons: 0, accesses: 0 };
       setStats({ comparisons: 0, accesses: 0 });
       activeHighlightsRef.current.clear();
       draw({ activeHighlightsRef, arrayRef, canvasRef, rangeEnd });
     },
-    [rangeEnd],
+    [rangeEnd, algorithm],
   );
 
   const processStep = (shouldDraw: boolean): SortYield | null => {
@@ -176,8 +217,10 @@ function TheSoundOfSorting(): JSX.Element {
     statsRef.current.comparisons += value.compareCount;
     statsRef.current.accesses += value.accessCount;
     activeHighlightsRef.current.clear();
-    for (const index of value.indices) {
-      activeHighlightsRef.current.set(index, value.fillStyle);
+    for (const group of value.highlights) {
+      for (const index of group.indices) {
+        activeHighlightsRef.current.set(index, group.color);
+      }
     }
     if (shouldDraw) {
       draw({ activeHighlightsRef, arrayRef, canvasRef, rangeEnd });
@@ -277,6 +320,10 @@ function TheSoundOfSorting(): JSX.Element {
     setRangeEnd(Number(e.target.value));
   };
 
+  const handleOnChangeAlgorithm = (e: ChangeEvent<HTMLSelectElement>) => {
+    setAlgorithm(e.target.value);
+  };
+
   useEffect(() => {
     if (canvasRef.current === null) {
       return;
@@ -299,6 +346,15 @@ function TheSoundOfSorting(): JSX.Element {
   return (
     <>
       <div className={styles.controls}>
+        <div className={styles.controlRow}>
+          <Select
+            label="Algorithm"
+            options={ALGORITHM_OPTIONS}
+            value={algorithm}
+            handleOnSelectChange={handleOnChangeAlgorithm}
+            disabled={isSorting}
+          />
+        </div>
         <div className={styles.controlRow}>
           <label htmlFor={countRangeInputId}>
             Items: <strong>{rangeEnd}</strong>
