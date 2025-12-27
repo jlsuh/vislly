@@ -17,7 +17,14 @@ import {
   type ResizeDimensions,
   useResizeDimensions,
 } from '@/shared/lib/useResizeDimensions.ts';
-import Select, { type Option } from '@/shared/ui/Select/Select.tsx';
+import Select from '@/shared/ui/Select/Select.tsx';
+import {
+  assertIsSortingAlgorithm,
+  INITIAL_SORTING_ALGORITHM,
+  SORTING_ALGORITHMS,
+  type SortingAlgorithm,
+} from '../model/sorting-algorithms.ts';
+import type { SortingStrategyYield } from '../model/sorting-strategy.ts';
 import styles from './the-sound-of-sorting.module.css';
 
 const BASE_STEPS_PER_FRAME = 203;
@@ -26,77 +33,6 @@ const INITIAL_RESIZE_DIMENSIONS: ResizeDimensions = {
   width: 0,
 };
 const GAP_THRESHOLD_RATIO = 2.5;
-
-const ALGORITHM_OPTIONS: Option[] = [
-  { label: 'Bubble Sort', value: 'bubble' },
-  { label: 'Selection Sort', value: 'selection' },
-];
-
-type SortOperationType = 'compare' | 'swap';
-
-interface HighlightGroup {
-  color: string;
-  indices: number[];
-}
-
-interface SortYield {
-  accessCount: number;
-  compareCount: number;
-  highlights: HighlightGroup[];
-  type: SortOperationType;
-}
-
-function* bubbleSortGenerator(
-  arr: number[],
-): Generator<SortYield, void, unknown> {
-  for (let i = 0; i < arr.length; i += 1) {
-    for (let j = 0; j < arr.length - i - 1; j += 1) {
-      yield {
-        accessCount: 2,
-        compareCount: 1,
-        highlights: [{ indices: [j, j + 1], color: '#ff0000' }],
-        type: 'compare',
-      };
-      if (arr[j] > arr[j + 1]) {
-        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
-        yield {
-          accessCount: 2,
-          compareCount: 0,
-          highlights: [{ indices: [j, j + 1], color: '#ff0000' }],
-          type: 'swap',
-        };
-      }
-    }
-  }
-}
-
-function* selectionSortGenerator(
-  arr: number[],
-): Generator<SortYield, void, unknown> {
-  for (let i = 0; i < arr.length - 1; i += 1) {
-    let minIdx = i;
-    for (let j = i + 1; j < arr.length; j += 1) {
-      const highlights: HighlightGroup[] = [
-        { indices: [minIdx, j], color: '#ff0000' },
-      ];
-      if (i > 0) {
-        highlights.push({ indices: [i - 1], color: '#00ff00' });
-      }
-      yield {
-        accessCount: 2,
-        compareCount: 1,
-        highlights,
-        type: 'compare',
-      };
-      if (arr[j] < arr[minIdx]) {
-        minIdx = j;
-      }
-    }
-    if (minIdx !== i) {
-      [arr[i], arr[minIdx]] = [arr[minIdx], arr[i]];
-    }
-  }
-}
 
 function composeFisherYatesIntegerRangeShuffle(start: number, end: number) {
   return fisherYatesShuffle(integerRange(start, end));
@@ -141,7 +77,9 @@ function draw({
 }
 
 function TheSoundOfSorting(): JSX.Element {
-  const [algorithm, setAlgorithm] = useState<string>('bubble');
+  const [sortingAlgorithm, setSortingAlgorithm] = useState<SortingAlgorithm>(
+    INITIAL_SORTING_ALGORITHM,
+  );
   const [isSorted, setIsSorted] = useState(false);
   const [isSorting, setIsSorting] = useState(false);
   const [rangeEnd, setRangeEnd] = useState(100);
@@ -149,13 +87,13 @@ function TheSoundOfSorting(): JSX.Element {
   const [stats, setStats] = useState({ comparisons: 0, accesses: 0 });
 
   const activeHighlightsRef = useRef<Map<number, string>>(new Map());
-  const algorithmRef = useRef(algorithm);
+  const sortingAlgorithmRef = useRef(sortingAlgorithm);
   const animationFrameIdRef = useRef<number | null>(null);
   const arrayRef = useRef<number[]>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const initialArrayRef = useRef<number[]>([]);
   const sortingGeneratorRef = useRef<Generator<
-    SortYield,
+    SortingStrategyYield,
     void,
     unknown
   > | null>(null);
@@ -183,11 +121,9 @@ function TheSoundOfSorting(): JSX.Element {
         );
       }
       arrayRef.current = [...initialArrayRef.current];
-      if (algorithmRef.current === 'selection') {
-        sortingGeneratorRef.current = selectionSortGenerator(arrayRef.current);
-      } else {
-        sortingGeneratorRef.current = bubbleSortGenerator(arrayRef.current);
-      }
+      sortingGeneratorRef.current = SORTING_ALGORITHMS[
+        sortingAlgorithmRef.current
+      ].strategy.generator({ array: arrayRef.current });
       statsRef.current = { comparisons: 0, accesses: 0 };
       setStats({ comparisons: 0, accesses: 0 });
       activeHighlightsRef.current.clear();
@@ -196,7 +132,7 @@ function TheSoundOfSorting(): JSX.Element {
     [rangeEnd],
   );
 
-  const processStep = (shouldDraw: boolean): SortYield | null => {
+  const processStep = (shouldDraw: boolean): SortingStrategyYield | null => {
     if (sortingGeneratorRef.current === null) {
       return null;
     }
@@ -317,8 +253,9 @@ function TheSoundOfSorting(): JSX.Element {
 
   const handleOnChangeAlgorithm = (e: ChangeEvent<HTMLSelectElement>) => {
     const newAlgorithm = e.target.value;
-    setAlgorithm(newAlgorithm);
-    algorithmRef.current = newAlgorithm;
+    assertIsSortingAlgorithm(newAlgorithm);
+    setSortingAlgorithm(newAlgorithm);
+    sortingAlgorithmRef.current = newAlgorithm;
     reset(false);
   };
 
@@ -346,11 +283,13 @@ function TheSoundOfSorting(): JSX.Element {
       <div className={styles.controls}>
         <div className={styles.controlRow}>
           <Select
-            label="Algorithm"
-            options={ALGORITHM_OPTIONS}
-            value={algorithm}
-            handleOnSelectChange={handleOnChangeAlgorithm}
             disabled={isSorting}
+            handleOnSelectChange={handleOnChangeAlgorithm}
+            label="Algorithm"
+            options={Object.values(SORTING_ALGORITHMS).map(
+              ({ key, label }) => ({ value: key, label }),
+            )}
+            value={sortingAlgorithm}
           />
         </div>
         <div className={styles.controlRow}>
