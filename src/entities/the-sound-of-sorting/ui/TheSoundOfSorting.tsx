@@ -195,6 +195,11 @@ function TheSoundOfSorting(): JSX.Element {
     reset(false);
   };
 
+  const handleSort = () => {
+    setIsSorting(true);
+    executeSortingLoop();
+  };
+
   const handleSortAgain = () => {
     handleReset();
     handleSort();
@@ -206,11 +211,6 @@ function TheSoundOfSorting(): JSX.Element {
     }
     setIsSorting(false);
     setStats({ ...statsRef.current });
-  };
-
-  const handleSort = () => {
-    setIsSorting(true);
-    executeSortingLoop();
   };
 
   const composePrimaryAction = () => {
@@ -248,7 +248,7 @@ function TheSoundOfSorting(): JSX.Element {
     assertIsSortingAlgorithm(newAlgorithm);
     setSortingAlgorithm(newAlgorithm);
     sortingAlgorithmRef.current = newAlgorithm;
-    reset(false);
+    handleReset();
   };
 
   useEffect(() => {
