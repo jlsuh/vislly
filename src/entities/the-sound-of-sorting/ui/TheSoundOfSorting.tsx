@@ -49,9 +49,7 @@ interface SortYield {
 function* bubbleSortGenerator(
   arr: number[],
 ): Generator<SortYield, void, unknown> {
-  let swapped: boolean;
   for (let i = 0; i < arr.length; i += 1) {
-    swapped = false;
     for (let j = 0; j < arr.length - i - 1; j += 1) {
       yield {
         accessCount: 2,
@@ -67,11 +65,7 @@ function* bubbleSortGenerator(
           highlights: [{ indices: [j, j + 1], color: '#ff0000' }],
           type: 'swap',
         };
-        swapped = true;
       }
-    }
-    if (!swapped) {
-      break;
     }
   }
 }
