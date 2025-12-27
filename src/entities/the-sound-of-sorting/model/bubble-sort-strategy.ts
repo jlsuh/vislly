@@ -1,9 +1,9 @@
-import type {
+import {
   SortingStrategy,
-  SortingStrategyYield,
+  type SortingStrategyYield,
 } from './sorting-strategy.ts';
 
-class BubbleSortStrategy implements SortingStrategy {
+class BubbleSortStrategy extends SortingStrategy {
   public *generator({
     array,
   }: {
@@ -18,7 +18,7 @@ class BubbleSortStrategy implements SortingStrategy {
           type: 'compare',
         };
         if (array[j] > array[j + 1]) {
-          [array[j], array[j + 1]] = [array[j + 1], array[j]];
+          super.swap(array, j, j + 1);
           yield {
             accessCount: 2,
             compareCount: 0,

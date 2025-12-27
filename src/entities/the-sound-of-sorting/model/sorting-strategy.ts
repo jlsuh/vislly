@@ -13,6 +13,10 @@ interface SortingStrategyYield {
 }
 
 abstract class SortingStrategy {
+  public swap(array: number[], i: number, j: number): void {
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+
   public abstract generator({
     array,
   }: {

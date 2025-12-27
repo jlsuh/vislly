@@ -1,10 +1,10 @@
-import type {
-  HighlightGroup,
+import {
+  type HighlightGroup,
   SortingStrategy,
-  SortingStrategyYield,
+  type SortingStrategyYield,
 } from './sorting-strategy.ts';
 
-class SelectionSortStrategy implements SortingStrategy {
+class SelectionSortStrategy extends SortingStrategy {
   public *generator({
     array,
   }: {
@@ -30,7 +30,7 @@ class SelectionSortStrategy implements SortingStrategy {
         }
       }
       if (minIdx !== i) {
-        [array[i], array[minIdx]] = [array[minIdx], array[i]];
+        super.swap(array, i, minIdx);
       }
     }
   }
