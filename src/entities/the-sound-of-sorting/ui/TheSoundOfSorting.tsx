@@ -21,17 +21,14 @@ import {
   assertIsSortingAlgorithm,
   INITIAL_SORTING_ALGORITHM,
   SORTING_ALGORITHMS,
-  type SortingAlgorithm,
 } from '../model/sorting-algorithms.ts';
 import type { SortingStrategyYield } from '../model/sorting-strategy.ts';
 import styles from './the-sound-of-sorting.module.css';
 
 const BASE_STEPS_PER_FRAME = 203;
-const INITIAL_RESIZE_DIMENSIONS: ResizeDimensions = {
-  height: 0,
-  width: 0,
-};
 const GAP_THRESHOLD_RATIO = 2.5;
+const INITIAL_RANGE_END = 100;
+const INITIAL_RESIZE_DIMENSIONS: ResizeDimensions = { height: 0, width: 0 };
 
 function draw({
   activeHighlightsRef,
@@ -72,21 +69,21 @@ function draw({
 }
 
 function TheSoundOfSorting(): JSX.Element {
-  const [sortingAlgorithm, setSortingAlgorithm] = useState<SortingAlgorithm>(
-    INITIAL_SORTING_ALGORITHM,
-  );
   const [isSorted, setIsSorted] = useState(false);
   const [isSorting, setIsSorting] = useState(false);
-  const [rangeEnd, setRangeEnd] = useState(100);
+  const [rangeEnd, setRangeEnd] = useState(INITIAL_RANGE_END);
+  const [sortingAlgorithm, setSortingAlgorithm] = useState(
+    INITIAL_SORTING_ALGORITHM,
+  );
   const [speed, setSpeed] = useState(0);
   const [stats, setStats] = useState({ comparisons: 0, accesses: 0 });
 
   const activeHighlightsRef = useRef<Map<number, string>>(new Map());
-  const sortingAlgorithmRef = useRef(sortingAlgorithm);
-  const animationFrameIdRef = useRef<number | null>(null);
+  const animationFrameIdRef = useRef<number>(null);
   const arrayRef = useRef<number[]>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const initialArrayRef = useRef<number[]>([]);
+  const sortingAlgorithmRef = useRef(sortingAlgorithm);
   const sortingGeneratorRef =
     useRef<Generator<SortingStrategyYield, void, unknown>>(null);
   const speedRef = useRef(speed);
