@@ -155,6 +155,7 @@ function TheSoundOfSorting(): JSX.Element {
   const [stats, setStats] = useState({ comparisons: 0, accesses: 0 });
 
   const activeHighlightsRef = useRef<Map<number, string>>(new Map());
+  const algorithmRef = useRef(algorithm);
   const animationFrameIdRef = useRef<number | null>(null);
   const arrayRef = useRef<number[]>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -188,7 +189,7 @@ function TheSoundOfSorting(): JSX.Element {
         );
       }
       arrayRef.current = [...initialArrayRef.current];
-      if (algorithm === 'selection') {
+      if (algorithmRef.current === 'selection') {
         sortingGeneratorRef.current = selectionSortGenerator(arrayRef.current);
       } else {
         sortingGeneratorRef.current = bubbleSortGenerator(arrayRef.current);
@@ -198,7 +199,7 @@ function TheSoundOfSorting(): JSX.Element {
       activeHighlightsRef.current.clear();
       draw({ activeHighlightsRef, arrayRef, canvasRef, rangeEnd });
     },
-    [rangeEnd, algorithm],
+    [rangeEnd],
   );
 
   const processStep = (shouldDraw: boolean): SortYield | null => {
@@ -321,7 +322,10 @@ function TheSoundOfSorting(): JSX.Element {
   };
 
   const handleOnChangeAlgorithm = (e: ChangeEvent<HTMLSelectElement>) => {
-    setAlgorithm(e.target.value);
+    const newAlgorithm = e.target.value;
+    setAlgorithm(newAlgorithm);
+    algorithmRef.current = newAlgorithm;
+    reset(false);
   };
 
   useEffect(() => {
