@@ -72,12 +72,17 @@ function composeFisherYatesIntegerRangeShuffle(start: number, end: number) {
   return fisherYatesShuffle(integerRange(start, end));
 }
 
-function draw(
-  canvasRef: RefObject<HTMLCanvasElement | null>,
-  arrayRef: RefObject<number[]>,
-  activeHighlightsRef: RefObject<Map<number, string>>,
-  rangeEnd: number,
-) {
+function draw({
+  activeHighlightsRef,
+  arrayRef,
+  canvasRef,
+  rangeEnd,
+}: {
+  activeHighlightsRef: RefObject<Map<number, string>>;
+  arrayRef: RefObject<number[]>;
+  canvasRef: RefObject<HTMLCanvasElement | null>;
+  rangeEnd: number;
+}) {
   if (!canvasRef.current || arrayRef.current.length === 0) {
     return;
   }
@@ -150,7 +155,7 @@ function TheSoundOfSorting(): JSX.Element {
       statsRef.current = { comparisons: 0, accesses: 0 };
       setStats({ comparisons: 0, accesses: 0 });
       activeHighlightsRef.current.clear();
-      draw(canvasRef, arrayRef, activeHighlightsRef, rangeEnd);
+      draw({ activeHighlightsRef, arrayRef, canvasRef, rangeEnd });
     },
     [rangeEnd],
   );
@@ -164,7 +169,7 @@ function TheSoundOfSorting(): JSX.Element {
       setIsSorting(false);
       setIsSorted(true);
       activeHighlightsRef.current.clear();
-      draw(canvasRef, arrayRef, activeHighlightsRef, rangeEnd);
+      draw({ activeHighlightsRef, arrayRef, canvasRef, rangeEnd });
       setStats({ ...statsRef.current });
       return null;
     }
@@ -175,43 +180,58 @@ function TheSoundOfSorting(): JSX.Element {
       activeHighlightsRef.current.set(index, value.fillStyle);
     }
     if (shouldDraw) {
-      draw(canvasRef, arrayRef, activeHighlightsRef, rangeEnd);
+      draw({ activeHighlightsRef, arrayRef, canvasRef, rangeEnd });
     }
     return value;
   };
 
+  const executeBatch = (steps: number): boolean => {
+    for (let i = 0; i < steps; i += 1) {
+      if (processStep(false) === null) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   const executeSortingLoop = () => {
-    const executeBatch = (steps: number): boolean => {
-      for (let i = 0; i < steps; i += 1) {
-        if (processStep(false) === null) {
-          return true;
-        }
-      }
-      return false;
-    };
     let previousTime = performance.now();
-    let accumulator = 0;
+    let pendingExecutionTimeMs = 0;
     const loop = (currentTime: number) => {
-      const elapsedTime = currentTime - previousTime;
+      const Δt = currentTime - previousTime;
       previousTime = currentTime;
-      if (speedRef.current > 0) {
-        accumulator = Math.min(accumulator + elapsedTime, 500);
-      } else {
-        accumulator = 0;
-      }
-      const calculatedSteps =
+      pendingExecutionTimeMs =
+        speedRef.current > 0 ? pendingExecutionTimeMs + Δt : 0;
+      const immediatelyRunableSteps =
         speedRef.current === 0
           ? BASE_STEPS_PER_FRAME
-          : Math.floor(accumulator / speedRef.current);
-      if (executeBatch(calculatedSteps)) {
+          : Math.floor(pendingExecutionTimeMs / speedRef.current);
+      if (executeBatch(immediatelyRunableSteps)) {
         return;
       }
-      accumulator -= calculatedSteps * speedRef.current;
+      pendingExecutionTimeMs -= immediatelyRunableSteps * speedRef.current;
       setStats({ ...statsRef.current });
-      draw(canvasRef, arrayRef, activeHighlightsRef, rangeEnd);
+      draw({ activeHighlightsRef, arrayRef, canvasRef, rangeEnd });
       animationFrameIdRef.current = requestAnimationFrame(loop);
     };
     animationFrameIdRef.current = requestAnimationFrame(loop);
+  };
+
+  const handleStep = () => {
+    setIsSorting(false);
+    const result = processStep(true);
+    if (result !== null) {
+      setStats({ ...statsRef.current });
+    }
+  };
+
+  const handleReset = () => {
+    reset(false);
+  };
+
+  const handleSortAgain = () => {
+    handleReset();
+    handleSort();
   };
 
   const handlePause = () => {
@@ -225,32 +245,6 @@ function TheSoundOfSorting(): JSX.Element {
   const handleSort = () => {
     setIsSorting(true);
     executeSortingLoop();
-  };
-
-  const handleReset = () => {
-    reset(false);
-  };
-
-  const handleSortAgain = () => {
-    handleReset();
-    handleSort();
-  };
-
-  const handleStep = () => {
-    setIsSorting(false);
-    const result = processStep(true);
-    if (result !== null) {
-      setStats({ ...statsRef.current });
-    }
-  };
-
-  const handleOnChangeSpeed = (e: ChangeEvent<HTMLInputElement>) => {
-    speedRef.current = Number(e.target.value);
-    setSpeed(speedRef.current);
-  };
-
-  const handleOnChangeRangeEnd = (e: ChangeEvent<HTMLInputElement>) => {
-    setRangeEnd(Number(e.target.value));
   };
 
   const composePrimaryAction = () => {
@@ -271,7 +265,17 @@ function TheSoundOfSorting(): JSX.Element {
       primaryActionHandler: handleSort,
     };
   };
+
   const { primaryActionLabel, primaryActionHandler } = composePrimaryAction();
+
+  const handleOnChangeSpeed = (e: ChangeEvent<HTMLInputElement>) => {
+    speedRef.current = Number(e.target.value);
+    setSpeed(speedRef.current);
+  };
+
+  const handleOnChangeRangeEnd = (e: ChangeEvent<HTMLInputElement>) => {
+    setRangeEnd(Number(e.target.value));
+  };
 
   useEffect(() => {
     if (!canvasRef.current) {
@@ -284,7 +288,7 @@ function TheSoundOfSorting(): JSX.Element {
     canvasRef.current.width = dimensions.width * dpr;
     canvasRef.current.height = dimensions.height * dpr;
     if (arrayRef.current.length > 0) {
-      draw(canvasRef, arrayRef, activeHighlightsRef, rangeEnd);
+      draw({ activeHighlightsRef, arrayRef, canvasRef, rangeEnd });
     }
   }, [dimensions.width, dimensions.height, rangeEnd]);
 
