@@ -10,9 +10,8 @@ import {
   useRef,
   useState,
 } from 'react';
-import { integerRange } from '@/shared/lib/arrays.ts';
 import { getCanvasCtxByRef } from '@/shared/lib/canvas.ts';
-import { fisherYatesShuffle } from '@/shared/lib/random.ts';
+import { composeFisherYatesIntegerRangeShuffle } from '@/shared/lib/random.ts';
 import {
   type ResizeDimensions,
   useResizeDimensions,
@@ -33,10 +32,6 @@ const INITIAL_RESIZE_DIMENSIONS: ResizeDimensions = {
   width: 0,
 };
 const GAP_THRESHOLD_RATIO = 2.5;
-
-function composeFisherYatesIntegerRangeShuffle(start: number, end: number) {
-  return fisherYatesShuffle(integerRange(start, end));
-}
 
 function draw({
   activeHighlightsRef,

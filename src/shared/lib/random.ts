@@ -1,3 +1,5 @@
+import { integerRange } from './arrays.ts';
+
 function composeRandomAngle(): number {
   return Math.random() * 2 * Math.PI;
 }
@@ -37,6 +39,9 @@ function xoshiro128ss(
   };
 }
 
+/**
+ * @see {@link https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle | Fisher-Yates shuffle}
+ */
 function fisherYatesShuffle<T>(values: T[]): T[] {
   let currentIndex = values.length;
   while (currentIndex !== 0) {
@@ -50,7 +55,15 @@ function fisherYatesShuffle<T>(values: T[]): T[] {
   return values;
 }
 
+function composeFisherYatesIntegerRangeShuffle(
+  start: number,
+  end: number,
+): number[] {
+  return fisherYatesShuffle(integerRange(start, end));
+}
+
 export {
+  composeFisherYatesIntegerRangeShuffle,
   composeRandomAngle,
   composeRandomBetween,
   composeRandomFlooredIntegerBetween,
