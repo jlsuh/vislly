@@ -184,7 +184,7 @@ function PathfindingProvider({ children }: PropsWithChildren): JSX.Element {
     useState<HeuristicsName>(INITIAL_HEURISTICS);
 
   const isAnimationRunningRef = useRef(false);
-  const lastGenerator = useRef<Iterator<Vertex[], Vertex[], never>>(null);
+  const lastGenerator = useRef<Generator<Vertex[], Vertex[], unknown>>(null);
   const lastVisitedVertices = useRef<Vertex[]>([]);
   const terminalVertices = useRef<Record<TerminalVertex, Vertex>>({
     start: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, START),

@@ -31,7 +31,7 @@ class DfsStrategy extends PathfindingStrategy {
     grid: Vertex[][];
     isDiagonalAllowed: boolean;
     start: Vertex;
-  }): Generator<Vertex[], Vertex[]> {
+  }): Generator<Vertex[], Vertex[], unknown> {
     const open: Vertex[] = [start];
     const closed: Set<Vertex> = new Set<Vertex>();
     const parent = new Map<Vertex, Vertex | null>(

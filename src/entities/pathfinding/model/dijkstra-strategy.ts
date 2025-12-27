@@ -40,7 +40,7 @@ class DijkstraStrategy extends PathfindingStrategy {
     grid: Vertex[][];
     isDiagonalAllowed: boolean;
     start: Vertex;
-  }): Generator<Vertex[], Vertex[]> {
+  }): Generator<Vertex[], Vertex[], unknown> {
     const open = new PriorityQueue<Vertex>([{ item: start, priority: 0 }]);
     const closed = new Set<Vertex>();
     const distances = new Map<Vertex, number>(

@@ -92,11 +92,8 @@ function TheSoundOfSorting(): JSX.Element {
   const arrayRef = useRef<number[]>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const initialArrayRef = useRef<number[]>([]);
-  const sortingGeneratorRef = useRef<Generator<
-    SortingStrategyYield,
-    void,
-    unknown
-  > | null>(null);
+  const sortingGeneratorRef =
+    useRef<Generator<SortingStrategyYield, void, unknown>>(null);
   const speedRef = useRef(speed);
   const statsRef = useRef({ comparisons: 0, accesses: 0 });
 
@@ -136,7 +133,7 @@ function TheSoundOfSorting(): JSX.Element {
     if (sortingGeneratorRef.current === null) {
       return null;
     }
-    const { value, done } = sortingGeneratorRef.current.next();
+    const { done, value } = sortingGeneratorRef.current.next();
     if (done) {
       setIsSorting(false);
       setIsSorted(true);

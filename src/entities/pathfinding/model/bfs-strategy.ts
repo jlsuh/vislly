@@ -13,7 +13,7 @@ class BfsStrategy extends PathfindingStrategy {
     grid: Vertex[][];
     isDiagonalAllowed: boolean;
     start: Vertex;
-  }): Generator<Vertex[], Vertex[]> {
+  }): Generator<Vertex[], Vertex[], unknown> {
     const open: Queue<Vertex> = new Queue([start]);
     const closed: Set<Vertex> = new Set([start]);
     const parent = new Map<Vertex, Vertex | null>(

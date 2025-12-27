@@ -49,7 +49,7 @@ class AStarStrategy extends PathfindingStrategy {
     heuristicsName: HeuristicsName;
     isDiagonalAllowed: boolean;
     start: Vertex;
-  }): Generator<Vertex[], Vertex[]> {
+  }): Generator<Vertex[], Vertex[], unknown> {
     const open = new PriorityQueue<Vertex>();
     const closed = new Set<Vertex>();
     const gScore = new Map<Vertex, number>(

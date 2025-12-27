@@ -172,7 +172,7 @@ abstract class PathfindingStrategy {
     heuristicsName?: HeuristicsName;
     isDiagonalAllowed: boolean;
     start: Vertex;
-  }): Generator<Vertex[], Vertex[]>;
+  }): Generator<Vertex[], Vertex[], unknown>;
 }
 
 export { PathfindingStrategy };
