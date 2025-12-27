@@ -29,6 +29,7 @@ const BASE_STEPS_PER_FRAME = 203;
 const GAP_THRESHOLD_RATIO = 2.5;
 const INITIAL_RANGE_END = 100;
 const INITIAL_RESIZE_DIMENSIONS: ResizeDimensions = { height: 0, width: 0 };
+const INITIAL_STATS = { comparisons: 0, accesses: 0 };
 
 function draw({
   activeHighlightsRef,
@@ -76,7 +77,7 @@ function TheSoundOfSorting(): JSX.Element {
     INITIAL_SORTING_ALGORITHM,
   );
   const [speed, setSpeed] = useState(0);
-  const [stats, setStats] = useState({ comparisons: 0, accesses: 0 });
+  const [stats, setStats] = useState({ ...INITIAL_STATS });
 
   const activeHighlightsRef = useRef<Map<number, string>>(new Map());
   const animationFrameIdRef = useRef<number>(null);
@@ -87,7 +88,7 @@ function TheSoundOfSorting(): JSX.Element {
   const sortingGeneratorRef =
     useRef<Generator<SortingStrategyYield, void, unknown>>(null);
   const speedRef = useRef(speed);
-  const statsRef = useRef({ comparisons: 0, accesses: 0 });
+  const statsRef = useRef({ ...INITIAL_STATS });
 
   const countRangeInputId = useId();
   const speedRangeInputId = useId();
@@ -113,8 +114,8 @@ function TheSoundOfSorting(): JSX.Element {
       sortingGeneratorRef.current = SORTING_ALGORITHMS[
         sortingAlgorithmRef.current
       ].strategy.generator({ array: arrayRef.current });
-      statsRef.current = { comparisons: 0, accesses: 0 };
-      setStats({ comparisons: 0, accesses: 0 });
+      statsRef.current = { ...INITIAL_STATS };
+      setStats({ ...INITIAL_STATS });
       activeHighlightsRef.current.clear();
       draw({ activeHighlightsRef, arrayRef, canvasRef, rangeEnd });
     },
@@ -188,9 +189,13 @@ function TheSoundOfSorting(): JSX.Element {
     }
   };
 
-  const handleReset = () => {
+  const handleResetWithSameValues = () => {
     reset(false);
   };
+
+  const handleResetWithNewValues = useCallback(() => {
+    reset(true);
+  }, [reset]);
 
   const handleSort = () => {
     setIsSorting(true);
@@ -198,7 +203,7 @@ function TheSoundOfSorting(): JSX.Element {
   };
 
   const handleSortAgain = () => {
-    handleReset();
+    handleResetWithSameValues();
     handleSort();
   };
 
@@ -245,7 +250,7 @@ function TheSoundOfSorting(): JSX.Element {
     assertIsSortingAlgorithm(newAlgorithm);
     setSortingAlgorithm(newAlgorithm);
     sortingAlgorithmRef.current = newAlgorithm;
-    handleReset();
+    handleResetWithSameValues();
   };
 
   useEffect(() => {
@@ -264,8 +269,8 @@ function TheSoundOfSorting(): JSX.Element {
   }, [dimensions.width, dimensions.height, rangeEnd]);
 
   useEffect(() => {
-    reset(true);
-  }, [reset]);
+    handleResetWithNewValues();
+  }, [handleResetWithNewValues]);
 
   return (
     <>
@@ -310,7 +315,18 @@ function TheSoundOfSorting(): JSX.Element {
           />
         </div>
         <div className={styles.buttonGroup}>
-          <button className={styles.button} onClick={handleReset} type="button">
+          <button
+            className={styles.button}
+            onClick={handleResetWithNewValues}
+            type="button"
+          >
+            Shuffle
+          </button>
+          <button
+            className={styles.button}
+            onClick={handleResetWithSameValues}
+            type="button"
+          >
             Reset
           </button>
           <button
