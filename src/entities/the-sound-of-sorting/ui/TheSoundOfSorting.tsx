@@ -83,7 +83,7 @@ function draw({
   canvasRef: RefObject<HTMLCanvasElement | null>;
   rangeEnd: number;
 }) {
-  if (!canvasRef.current || arrayRef.current.length === 0) {
+  if (canvasRef.current === null || arrayRef.current.length === 0) {
     return;
   }
   const ctx = getCanvasCtxByRef(canvasRef.current);
@@ -161,7 +161,7 @@ function TheSoundOfSorting(): JSX.Element {
   );
 
   const processStep = (shouldDraw: boolean): SortYield | null => {
-    if (!sortingGeneratorRef.current) {
+    if (sortingGeneratorRef.current === null) {
       return null;
     }
     const { value, done } = sortingGeneratorRef.current.next();
@@ -185,8 +185,8 @@ function TheSoundOfSorting(): JSX.Element {
     return value;
   };
 
-  const executeBatch = (steps: number): boolean => {
-    for (let i = 0; i < steps; i += 1) {
+  const executeBatch = (batchedSteps: number): boolean => {
+    for (let i = 0; i < batchedSteps; i += 1) {
       if (processStep(false) === null) {
         return true;
       }
@@ -202,14 +202,14 @@ function TheSoundOfSorting(): JSX.Element {
       previousTime = currentTime;
       pendingExecutionTimeMs =
         speedRef.current > 0 ? pendingExecutionTimeMs + Δt : 0;
-      const immediatelyRunableSteps =
+      const batchedSteps =
         speedRef.current === 0
           ? BASE_STEPS_PER_FRAME
           : Math.floor(pendingExecutionTimeMs / speedRef.current);
-      if (executeBatch(immediatelyRunableSteps)) {
+      if (executeBatch(batchedSteps)) {
         return;
       }
-      pendingExecutionTimeMs -= immediatelyRunableSteps * speedRef.current;
+      pendingExecutionTimeMs -= batchedSteps * speedRef.current;
       setStats({ ...statsRef.current });
       draw({ activeHighlightsRef, arrayRef, canvasRef, rangeEnd });
       animationFrameIdRef.current = requestAnimationFrame(loop);
@@ -278,7 +278,7 @@ function TheSoundOfSorting(): JSX.Element {
   };
 
   useEffect(() => {
-    if (!canvasRef.current) {
+    if (canvasRef.current === null) {
       return;
     }
     if (dimensions.width === 0 || dimensions.height === 0) {
