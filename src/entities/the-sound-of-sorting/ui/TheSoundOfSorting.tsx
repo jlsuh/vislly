@@ -1,26 +1,24 @@
 'use client';
 
 import {
-  type ChangeEvent,
   type JSX,
   type RefObject,
   useCallback,
   useEffect,
-  useId,
   useRef,
   useState,
 } from 'react';
+import { TheSoundOfSortingControls } from '@/entities/the-sound-of-sorting/ui/TheSoundOfSortingControls.tsx';
 import { getCanvasCtxByRef } from '@/shared/lib/canvas.ts';
 import { composeFisherYatesIntegerRangeShuffle } from '@/shared/lib/random.ts';
 import {
   type ResizeDimensions,
   useResizeDimensions,
 } from '@/shared/lib/useResizeDimensions.ts';
-import Select from '@/shared/ui/Select/Select.tsx';
 import {
-  assertIsSortingAlgorithm,
   INITIAL_SORTING_ALGORITHM,
   SORTING_ALGORITHMS,
+  type SortingAlgorithm,
 } from '../model/sorting-algorithms.ts';
 import type { SortingStrategyYield } from '../model/sorting-strategy.ts';
 import styles from './the-sound-of-sorting.module.css';
@@ -90,18 +88,19 @@ function TheSoundOfSorting(): JSX.Element {
   const speedRef = useRef(speed);
   const statsRef = useRef({ ...INITIAL_STATS });
 
-  const countRangeInputId = useId();
-  const speedRangeInputId = useId();
-
   const { dimensions, resizeRef } = useResizeDimensions<HTMLDivElement>(
     INITIAL_RESIZE_DIMENSIONS,
   );
 
+  const cancelAnimationFrameIfAny = useCallback(() => {
+    if (animationFrameIdRef.current !== null) {
+      cancelAnimationFrame(animationFrameIdRef.current);
+    }
+  }, []);
+
   const reset = useCallback(
     (shouldGenerateNewValues: boolean) => {
-      if (animationFrameIdRef.current !== null) {
-        cancelAnimationFrame(animationFrameIdRef.current);
-      }
+      cancelAnimationFrameIfAny();
       setIsSorting(false);
       setIsSorted(false);
       if (shouldGenerateNewValues || initialArrayRef.current.length === 0) {
@@ -119,12 +118,12 @@ function TheSoundOfSorting(): JSX.Element {
       activeHighlightsRef.current.clear();
       draw({ activeHighlightsRef, arrayRef, canvasRef, rangeEnd });
     },
-    [rangeEnd],
+    [rangeEnd, cancelAnimationFrameIfAny],
   );
 
-  const processStep = (shouldDraw: boolean): SortingStrategyYield | null => {
+  const processStep = (shouldDraw: boolean): boolean => {
     if (sortingGeneratorRef.current === null) {
-      return null;
+      throw new Error('Sorting generator ref is null');
     }
     const { done, value } = sortingGeneratorRef.current.next();
     if (done) {
@@ -132,8 +131,8 @@ function TheSoundOfSorting(): JSX.Element {
       setIsSorted(true);
       activeHighlightsRef.current.clear();
       draw({ activeHighlightsRef, arrayRef, canvasRef, rangeEnd });
-      setStats({ ...statsRef.current });
-      return null;
+      setNewStats();
+      return true;
     }
     statsRef.current.comparisons += value.compareCount;
     statsRef.current.accesses += value.accessCount;
@@ -145,15 +144,6 @@ function TheSoundOfSorting(): JSX.Element {
     }
     if (shouldDraw) {
       draw({ activeHighlightsRef, arrayRef, canvasRef, rangeEnd });
-    }
-    return value;
-  };
-
-  const executeBatch = (batchedSteps: number): boolean => {
-    for (let i = 0; i < batchedSteps; i += 1) {
-      if (processStep(false) === null) {
-        return true;
-      }
     }
     return false;
   };
@@ -170,11 +160,14 @@ function TheSoundOfSorting(): JSX.Element {
         speedRef.current === 0
           ? BASE_STEPS_PER_FRAME
           : Math.floor(pendingExecutionTimeMs / speedRef.current);
-      if (executeBatch(batchedSteps)) {
-        return;
+      for (let i = 0; i < batchedSteps; i += 1) {
+        const isGeneratorDone = processStep(false);
+        if (isGeneratorDone) {
+          return;
+        }
       }
       pendingExecutionTimeMs -= batchedSteps * speedRef.current;
-      setStats({ ...statsRef.current });
+      setNewStats();
       draw({ activeHighlightsRef, arrayRef, canvasRef, rangeEnd });
       animationFrameIdRef.current = requestAnimationFrame(loop);
     };
@@ -183,74 +176,28 @@ function TheSoundOfSorting(): JSX.Element {
 
   const handleStep = () => {
     setIsSorting(false);
-    const result = processStep(true);
-    if (result !== null) {
-      setStats({ ...statsRef.current });
+    const isGeneratorDone = processStep(true);
+    if (!isGeneratorDone) {
+      setNewStats();
     }
-  };
-
-  const handleResetWithSameValues = () => {
-    reset(false);
   };
 
   const handleResetWithNewValues = useCallback(() => {
     reset(true);
   }, [reset]);
 
-  const handleSort = () => {
-    setIsSorting(true);
-    executeSortingLoop();
+  const setNewSortingAlgorithm = (newAlgorithm: SortingAlgorithm) => {
+    sortingAlgorithmRef.current = newAlgorithm;
+    setSortingAlgorithm(sortingAlgorithmRef.current);
   };
 
-  const handleSortAgain = () => {
-    handleResetWithSameValues();
-    handleSort();
-  };
-
-  const handlePause = () => {
-    if (animationFrameIdRef.current !== null) {
-      cancelAnimationFrame(animationFrameIdRef.current);
-    }
-    setIsSorting(false);
-    setStats({ ...statsRef.current });
-  };
-
-  const composePrimaryAction = () => {
-    if (isSorted) {
-      return {
-        primaryActionLabel: 'Sort Again',
-        primaryActionHandler: handleSortAgain,
-      };
-    }
-    if (isSorting) {
-      return {
-        primaryActionLabel: 'Pause',
-        primaryActionHandler: handlePause,
-      };
-    }
-    return {
-      primaryActionLabel: 'Sort',
-      primaryActionHandler: handleSort,
-    };
-  };
-
-  const { primaryActionLabel, primaryActionHandler } = composePrimaryAction();
-
-  const handleOnChangeSpeed = (e: ChangeEvent<HTMLInputElement>) => {
-    speedRef.current = +e.target.value;
+  const setNewSpeed = (newSpeed: number) => {
+    speedRef.current = newSpeed;
     setSpeed(speedRef.current);
   };
 
-  const handleOnChangeRangeEnd = (e: ChangeEvent<HTMLInputElement>) => {
-    setRangeEnd(+e.target.value);
-  };
-
-  const handleOnChangeAlgorithm = (e: ChangeEvent<HTMLSelectElement>) => {
-    const newAlgorithm = e.target.value;
-    assertIsSortingAlgorithm(newAlgorithm);
-    setSortingAlgorithm(newAlgorithm);
-    sortingAlgorithmRef.current = newAlgorithm;
-    handleResetWithSameValues();
+  const setNewStats = () => {
+    setStats({ ...statsRef.current });
   };
 
   useEffect(() => {
@@ -274,86 +221,24 @@ function TheSoundOfSorting(): JSX.Element {
 
   return (
     <>
-      <div className={styles.controls}>
-        <div className={styles.controlRow}>
-          <Select
-            disabled={isSorting}
-            handleOnSelectChange={handleOnChangeAlgorithm}
-            label="Algorithm"
-            options={Object.values(SORTING_ALGORITHMS).map(
-              ({ key, label }) => ({ value: key, label }),
-            )}
-            value={sortingAlgorithm}
-          />
-        </div>
-        <div className={styles.controlRow}>
-          <label htmlFor={countRangeInputId}>
-            Items: <strong>{rangeEnd}</strong>
-          </label>
-          <input
-            id={countRangeInputId}
-            max="1000"
-            min="100"
-            onChange={handleOnChangeRangeEnd}
-            step="100"
-            type="range"
-            value={rangeEnd}
-          />
-        </div>
-        <div className={styles.controlRow}>
-          <label htmlFor={speedRangeInputId}>
-            Speed delay: <strong>{speed}ms</strong>
-          </label>
-          <input
-            id={speedRangeInputId}
-            max="100"
-            min="0"
-            onChange={handleOnChangeSpeed}
-            step="10"
-            type="range"
-            value={speed}
-          />
-        </div>
-        <div className={styles.buttonGroup}>
-          <button
-            className={styles.button}
-            onClick={handleResetWithNewValues}
-            type="button"
-          >
-            Shuffle
-          </button>
-          <button
-            className={styles.button}
-            onClick={handleResetWithSameValues}
-            type="button"
-          >
-            Reset
-          </button>
-          <button
-            className={styles.button}
-            disabled={isSorted || isSorting}
-            onClick={handleStep}
-            type="button"
-          >
-            Step
-          </button>
-          <button
-            className={styles.button}
-            onClick={primaryActionHandler}
-            type="button"
-          >
-            {primaryActionLabel}
-          </button>
-        </div>
-        <div className={styles.stats}>
-          <span>
-            Comparisons: <strong>{stats.comparisons}</strong>
-          </span>
-          <span>
-            Accesses: <strong>{stats.accesses}</strong>
-          </span>
-        </div>
-      </div>
+      <TheSoundOfSortingControls
+        isSorted={isSorted}
+        isSorting={isSorting}
+        rangeEnd={rangeEnd}
+        sortingAlgorithm={sortingAlgorithm}
+        speed={speed}
+        stats={stats}
+        cancelAnimationFrameIfAny={cancelAnimationFrameIfAny}
+        executeSortingLoop={executeSortingLoop}
+        handleResetWithNewValues={handleResetWithNewValues}
+        handleStep={handleStep}
+        reset={reset}
+        setIsSorting={setIsSorting}
+        setNewSortingAlgorithm={setNewSortingAlgorithm}
+        setNewSpeed={setNewSpeed}
+        setNewStats={setNewStats}
+        setRangeEnd={setRangeEnd}
+      />
       <div className={styles.container} ref={resizeRef}>
         <canvas
           className={styles.canvas}
