@@ -8,7 +8,6 @@ import {
   useRef,
   useState,
 } from 'react';
-import { TheSoundOfSortingControls } from '@/entities/the-sound-of-sorting/ui/TheSoundOfSortingControls.tsx';
 import { getCanvasCtxByRef } from '@/shared/lib/canvas.ts';
 import { composeFisherYatesIntegerRangeShuffle } from '@/shared/lib/random.ts';
 import {
@@ -20,14 +19,17 @@ import {
   SORTING_ALGORITHMS,
   type SortingAlgorithm,
 } from '../model/sorting-algorithms.ts';
+import type { SortingStats } from '../model/sorting-stats.ts';
 import type { SortingStrategyYield } from '../model/sorting-strategy.ts';
+import TheSoundOfSortingControls from './TheSoundOfSortingControls.tsx';
+import TheSoundOfSortingStats from './TheSoundOfSortingStats.tsx';
 import styles from './the-sound-of-sorting.module.css';
 
 const BASE_STEPS_PER_FRAME = 203;
 const GAP_THRESHOLD_RATIO = 2.5;
 const INITIAL_RANGE_END = 100;
 const INITIAL_RESIZE_DIMENSIONS: ResizeDimensions = { height: 0, width: 0 };
-const INITIAL_STATS = { comparisons: 0, accesses: 0 };
+const INITIAL_STATS: SortingStats = { accesses: 0, comparisons: 0 };
 
 function draw({
   activeHighlightsRef,
@@ -220,14 +222,28 @@ function TheSoundOfSorting(): JSX.Element {
   }, [handleResetWithNewValues]);
 
   return (
-    <>
+    <div className={styles.theSoundOfSortingContainer}>
+      <div className={styles.canvasContainer}>
+        <TheSoundOfSortingStats
+          algorithm={sortingAlgorithm}
+          speed={speed}
+          stats={stats}
+        />
+        <div className={styles.canvasWrapper} ref={resizeRef}>
+          <canvas
+            className={styles.canvas}
+            height={0}
+            ref={canvasRef}
+            width={0}
+          />
+        </div>
+      </div>
       <TheSoundOfSortingControls
         isSorted={isSorted}
         isSorting={isSorting}
         rangeEnd={rangeEnd}
         sortingAlgorithm={sortingAlgorithm}
         speed={speed}
-        stats={stats}
         cancelAnimationFrameIfAny={cancelAnimationFrameIfAny}
         executeSortingLoop={executeSortingLoop}
         handleResetWithNewValues={handleResetWithNewValues}
@@ -239,15 +255,7 @@ function TheSoundOfSorting(): JSX.Element {
         setNewStats={setNewStats}
         setRangeEnd={setRangeEnd}
       />
-      <div className={styles.container} ref={resizeRef}>
-        <canvas
-          className={styles.canvas}
-          height={0}
-          ref={canvasRef}
-          width={0}
-        />
-      </div>
-    </>
+    </div>
   );
 }
 

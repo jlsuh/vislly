@@ -1,18 +1,37 @@
-.container {
+.canvasContainer {
   --border-width: 0.125rem;
+  background-color: var(--color-surface-container-lowest-dark);
   border-radius: 0.5rem;
   border: var(--border-width) solid var(--color-outline-variant);
+  display: flex;
+  flex-direction: column;
   max-width: inherit;
   min-height: calc(40rem + var(--border-width) * 2);
+  overflow: hidden;
+  width: 100%;
+}
+
+.canvasWrapper {
+  flex: 1;
   position: relative;
   width: 100%;
-  background-color: #000;
 }
 
 .canvas {
   height: 100%;
-  left: 0;
   position: absolute;
-  top: 0;
   width: 100%;
+}
+
+.theSoundOfSortingContainer {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.725rem;
+  width: 100%;
+}
+
+@media (width >= 56rem) {
+  .theSoundOfSortingContainer {
+    flex-direction: row;
+  }
 }

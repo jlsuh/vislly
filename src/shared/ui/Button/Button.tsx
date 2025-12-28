@@ -2,6 +2,7 @@ import type { JSX } from 'react';
 import styles from './button.module.css';
 
 interface ButtonProps {
+  disabled?: boolean;
   fullWidth?: boolean;
   handleOnClickButton: () => void;
   icon: JSX.Element;
@@ -9,6 +10,7 @@ interface ButtonProps {
 }
 
 function Button({
+  disabled = false,
   fullWidth = false,
   handleOnClickButton,
   icon,
@@ -17,6 +19,7 @@ function Button({
   return (
     <button
       className={`${styles.playButton} elevation-1 ${fullWidth ? styles.fullWidth : ''}`}
+      disabled={disabled}
       onClick={handleOnClickButton}
       type="button"
     >

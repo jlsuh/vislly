@@ -1,7 +1,14 @@
 'use client';
 
 import { type ChangeEvent, type JSX, useId } from 'react';
+import Button from '@/shared/ui/Button/Button.tsx';
+import { Divider } from '@/shared/ui/Divider/Divider.tsx';
+import PauseIcon from '@/shared/ui/PauseIcon/PauseIcon.tsx';
+import ResetIcon from '@/shared/ui/ResetIcon/ResetIcon.tsx';
 import Select from '@/shared/ui/Select/Select.tsx';
+import ShuffleIcon from '@/shared/ui/ShuffleIcon/ShuffleIcon.tsx';
+import SortIcon from '@/shared/ui/SortIcon/SortIcon.tsx';
+import StepIcon from '@/shared/ui/StepIcon/StepIcon.tsx';
 import {
   assertIsSortingAlgorithm,
   SORTING_ALGORITHMS,
@@ -15,7 +22,6 @@ type TheSoundOfSortingControlsProps = {
   rangeEnd: number;
   sortingAlgorithm: string;
   speed: number;
-  stats: { comparisons: number; accesses: number };
   cancelAnimationFrameIfAny: () => void;
   executeSortingLoop: () => void;
   handleResetWithNewValues: () => void;
@@ -28,13 +34,12 @@ type TheSoundOfSortingControlsProps = {
   setRangeEnd: (newRangeEnd: number) => void;
 };
 
-export function TheSoundOfSortingControls({
+function TheSoundOfSortingControls({
   isSorted,
   isSorting,
   rangeEnd,
   sortingAlgorithm,
   speed,
-  stats,
   cancelAnimationFrameIfAny,
   executeSortingLoop,
   handleResetWithNewValues,
@@ -87,27 +92,30 @@ export function TheSoundOfSortingControls({
   const composePrimaryAction = () => {
     if (isSorted) {
       return {
-        primaryActionLabel: 'Sort Again',
-        primaryActionHandler: handleSortAgain,
+        label: 'Sort Again',
+        icon: <SortIcon />,
+        handler: handleSortAgain,
       };
     }
     if (isSorting) {
       return {
-        primaryActionLabel: 'Pause',
-        primaryActionHandler: handlePause,
+        label: 'Pause',
+        icon: <PauseIcon />,
+        handler: handlePause,
       };
     }
     return {
-      primaryActionLabel: 'Sort',
-      primaryActionHandler: handleSort,
+      label: 'Sort',
+      icon: <SortIcon />,
+      handler: handleSort,
     };
   };
 
-  const { primaryActionLabel, primaryActionHandler } = composePrimaryAction();
+  const primaryAction = composePrimaryAction();
 
   return (
-    <div className={styles.controls}>
-      <div className={styles.controlRow}>
+    <section className={styles.controlsContainer}>
+      <div className={styles.inputsContainer}>
         <Select
           disabled={isSorting}
           handleOnSelectChange={handleOnChangeAlgorithm}
@@ -118,74 +126,68 @@ export function TheSoundOfSortingControls({
           }))}
           value={sortingAlgorithm}
         />
+        <div className={styles.rangeWrapper}>
+          <label className={styles.rangeLabel} htmlFor={countRangeInputId}>
+            Items: <strong>{rangeEnd}</strong>
+          </label>
+          <input
+            className={styles.rangeInput}
+            id={countRangeInputId}
+            max="1000"
+            min="100"
+            onChange={handleOnChangeRangeEnd}
+            step="100"
+            type="range"
+            value={rangeEnd}
+            disabled={isSorting}
+          />
+        </div>
+        <div className={styles.rangeWrapper}>
+          <label className={styles.rangeLabel} htmlFor={speedRangeInputId}>
+            Speed: <strong>{speed}ms</strong>
+          </label>
+          <input
+            className={styles.rangeInput}
+            id={speedRangeInputId}
+            max="100"
+            min="0"
+            onChange={handleOnChangeSpeed}
+            step="10"
+            type="range"
+            value={speed}
+          />
+        </div>
       </div>
-      <div className={styles.controlRow}>
-        <label htmlFor={countRangeInputId}>
-          Items: <strong>{rangeEnd}</strong>
-        </label>
-        <input
-          id={countRangeInputId}
-          max="1000"
-          min="100"
-          onChange={handleOnChangeRangeEnd}
-          step="100"
-          type="range"
-          value={rangeEnd}
+      <Divider />
+      <div className={styles.buttonsContainer}>
+        <Button
+          fullWidth
+          handleOnClickButton={primaryAction.handler}
+          icon={primaryAction.icon}
+          label={primaryAction.label}
         />
-      </div>
-      <div className={styles.controlRow}>
-        <label htmlFor={speedRangeInputId}>
-          Speed delay: <strong>{speed}ms</strong>
-        </label>
-        <input
-          id={speedRangeInputId}
-          max="100"
-          min="0"
-          onChange={handleOnChangeSpeed}
-          step="10"
-          type="range"
-          value={speed}
-        />
-      </div>
-      <div className={styles.buttonGroup}>
-        <button
-          className={styles.button}
-          onClick={handleResetWithNewValues}
-          type="button"
-        >
-          Shuffle
-        </button>
-        <button
-          className={styles.button}
-          onClick={handleResetWithSameValues}
-          type="button"
-        >
-          Reset
-        </button>
-        <button
-          className={styles.button}
+        <Button
           disabled={isSorted || isSorting}
-          onClick={handleStep}
-          type="button"
-        >
-          Step
-        </button>
-        <button
-          className={styles.button}
-          onClick={primaryActionHandler}
-          type="button"
-        >
-          {primaryActionLabel}
-        </button>
+          fullWidth
+          handleOnClickButton={handleStep}
+          icon={<StepIcon />}
+          label="Step"
+        />
+        <Button
+          fullWidth
+          handleOnClickButton={handleResetWithSameValues}
+          icon={<ResetIcon />}
+          label="Reset"
+        />
+        <Button
+          fullWidth
+          handleOnClickButton={handleResetWithNewValues}
+          icon={<ShuffleIcon />}
+          label="Shuffle"
+        />
       </div>
-      <div className={styles.stats}>
-        <span>
-          Comparisons: <strong>{stats.comparisons}</strong>
-        </span>
-        <span>
-          Accesses: <strong>{stats.accesses}</strong>
-        </span>
-      </div>
-    </div>
+    </section>
   );
 }
+
+export default TheSoundOfSortingControls;

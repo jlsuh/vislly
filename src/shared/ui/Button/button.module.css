@@ -29,6 +29,12 @@
       transform 0.2s,
       filter 0.2s;
   }
+  &:disabled {
+    cursor: not-allowed;
+    filter: none;
+    opacity: 0.5;
+    transform: none;
+  }
   & svg {
     color: var(--color-inverse-on-surface);
     height: 1.25rem;

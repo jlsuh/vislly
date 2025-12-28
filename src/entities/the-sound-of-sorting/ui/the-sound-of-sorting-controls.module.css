@@ -1,59 +1,83 @@
-.controls {
+.controlsContainer {
+  background-color: var(--color-surface-container);
+  border-radius: 0.5rem;
+  border: 0.125rem solid var(--color-outline);
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  height: fit-content;
+  min-width: 100%;
   padding: 1rem;
-  background-color: var(--color-surface-variant);
-  border-radius: 0.5rem;
-  border: 1px solid var(--color-outline-variant);
+  width: fit-content;
 }
 
-.controlRow {
-  display: flex;
-  align-items: center;
+.inputsContainer,
+.buttonsContainer {
+  display: grid;
   gap: 1rem;
+  grid-template-columns: repeat(1, 1fr);
 }
 
-.controlRow label {
-  min-width: 120px;
-}
-
-.controlRow input {
-  flex-grow: 1;
-  cursor: pointer;
-}
-
-.buttonGroup {
+.rangeWrapper {
+  background-color: var(--color-surface-container-high);
+  border-radius: 0.5rem;
+  border: 0.0625rem solid var(--color-outline);
   display: flex;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-
-.button {
+  flex-direction: column;
   padding: 0.5rem 1rem;
-  border-radius: 0.25rem;
-  border: 1px solid var(--color-outline);
-  background: var(--color-surface);
-  cursor: pointer;
+  position: relative;
+  transition:
+    background-color 150ms ease-out,
+    border-color 150ms ease-out;
+}
+
+.rangeLabel {
+  color: var(--color-secondary);
+  font-size: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.rangeLabel strong {
+  color: var(--color-on-surface);
   font-weight: 600;
-  transition: background-color 0.2s;
+  margin-left: 0.25rem;
 }
 
-.button:hover:not(:disabled) {
-  background-color: #f0f0f0;
-  color: #000;
+.rangeInput {
+  accent-color: var(--color-primary);
+  background: transparent;
+  cursor: pointer;
+  width: 100%;
 }
 
-.button:disabled {
-  opacity: 0.5;
+.rangeInput:disabled {
   cursor: not-allowed;
+  opacity: 0.6;
 }
 
-.stats {
-  display: flex;
-  gap: 2rem;
-  margin-top: 0.5rem;
-  font-family: monospace;
-  font-size: 0.9rem;
+@media (width >= 40rem) and (width < 56rem) {
+  .inputsContainer {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .buttonsContainer {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (width >= 56rem) {
+  .controlsContainer {
+    max-width: 18rem;
+    min-width: fit-content;
+  }
+
+  .inputsContainer,
+  .buttonsContainer,
+  .controlsContainer {
+    flex-direction: column;
+  }
+
+  .inputsContainer,
+  .buttonsContainer {
+    grid-template-columns: 1fr;
+  }
 }
