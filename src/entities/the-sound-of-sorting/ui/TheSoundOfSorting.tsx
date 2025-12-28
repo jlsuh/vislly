@@ -42,8 +42,8 @@ function draw({
   canvasRef: RefObject<HTMLCanvasElement | null>;
   rangeEnd: number;
 }) {
-  if (canvasRef.current === null || arrayRef.current.length === 0) {
-    return;
+  if (canvasRef.current === null) {
+    throw new Error('Canvas ref is null');
   }
   const ctx = getCanvasCtxByRef(canvasRef.current);
   const { width, height } = canvasRef.current;
@@ -99,7 +99,7 @@ function TheSoundOfSorting(): JSX.Element {
 
   const reset = useCallback(
     (shouldGenerateNewValues: boolean) => {
-      if (animationFrameIdRef.current) {
+      if (animationFrameIdRef.current !== null) {
         cancelAnimationFrame(animationFrameIdRef.current);
       }
       setIsSorting(false);
@@ -208,7 +208,7 @@ function TheSoundOfSorting(): JSX.Element {
   };
 
   const handlePause = () => {
-    if (animationFrameIdRef.current) {
+    if (animationFrameIdRef.current !== null) {
       cancelAnimationFrame(animationFrameIdRef.current);
     }
     setIsSorting(false);
@@ -237,12 +237,12 @@ function TheSoundOfSorting(): JSX.Element {
   const { primaryActionLabel, primaryActionHandler } = composePrimaryAction();
 
   const handleOnChangeSpeed = (e: ChangeEvent<HTMLInputElement>) => {
-    speedRef.current = Number(e.target.value);
+    speedRef.current = +e.target.value;
     setSpeed(speedRef.current);
   };
 
   const handleOnChangeRangeEnd = (e: ChangeEvent<HTMLInputElement>) => {
-    setRangeEnd(Number(e.target.value));
+    setRangeEnd(+e.target.value);
   };
 
   const handleOnChangeAlgorithm = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -255,7 +255,7 @@ function TheSoundOfSorting(): JSX.Element {
 
   useEffect(() => {
     if (canvasRef.current === null) {
-      return;
+      throw new Error('Canvas ref is null');
     }
     if (dimensions.width === 0 || dimensions.height === 0) {
       return;
