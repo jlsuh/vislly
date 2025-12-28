@@ -31,6 +31,15 @@ class SelectionSortStrategy extends SortingStrategy {
       }
       if (minIdx !== i) {
         super.swap(array, i, minIdx);
+        yield {
+          accessCount: 0,
+          compareCount: 0,
+          highlights: [
+            { indices: [minIdx, i], color: '#ff0000' },
+            { indices: [i - 1], color: '#00ff00' },
+          ],
+          type: 'swap',
+        };
       }
     }
   }
