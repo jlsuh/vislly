@@ -1,10 +1,18 @@
 .figure {
   align-items: center;
+  background-color: var(--color-surface-container-high);
   border-radius: 0.5rem;
+  box-shadow: var(--elevation-level-1);
   display: flex;
   flex-direction: column;
   margin: 0;
+  overflow: hidden;
   text-align: center;
+}
+
+.figure:hover {
+  background-color: var(--color-surface-container-highest);
+  box-shadow: var(--elevation-level-2);
 }
 
 .figureCaption {
@@ -14,7 +22,7 @@
 }
 
 .figureImage {
-  border-radius: 0.5rem;
+  border-radius: 0.5rem 0.5rem 0 0;
   height: auto;
   max-width: 100%;
   width: 12.5rem;
