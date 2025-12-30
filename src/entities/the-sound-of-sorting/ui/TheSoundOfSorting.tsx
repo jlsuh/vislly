@@ -14,33 +14,77 @@ import {
   type ResizeDimensions,
   useResizeDimensions,
 } from '@/shared/lib/useResizeDimensions.ts';
+import useTheSoundOfSortingAudio from '../lib/useTheSoundOfSortingAudio.ts';
 import {
   INITIAL_SORTING_ALGORITHM,
   SORTING_ALGORITHMS,
   type SortingAlgorithm,
 } from '../model/sorting-algorithms.ts';
 import type { SortingStats } from '../model/sorting-stats.ts';
-import type { SortingStrategyYield } from '../model/sorting-strategy.ts';
+import type {
+  HighlightGroup,
+  SortingStrategyYield,
+  SortOperationType,
+} from '../model/sorting-strategy.ts';
 import TheSoundOfSortingControls from './TheSoundOfSortingControls.tsx';
 import TheSoundOfSortingStats from './TheSoundOfSortingStats.tsx';
 import styles from './the-sound-of-sorting.module.css';
 
-const BASE_STEPS_PER_FRAME = 203;
+const BASE_STEPS_PER_FRAME = 73;
 const GAP_THRESHOLD_RATIO = 2.5;
 const INITIAL_RANGE_END = 100;
 const INITIAL_RESIZE_DIMENSIONS: ResizeDimensions = { height: 0, width: 0 };
 const INITIAL_STATS: SortingStats = { accesses: 0, comparisons: 0 };
 
+function composePendingExecutionTimeMs({
+  currentSpeed,
+  pendingExecutionTimeMs,
+  Δt,
+}: {
+  currentSpeed: number;
+  pendingExecutionTimeMs: number;
+  Δt: number;
+}): number {
+  if (currentSpeed === 0) {
+    return 0;
+  }
+  return pendingExecutionTimeMs + Δt;
+}
+
+function composeBatchedStepsPerFrame({
+  currentSpeed,
+  pendingExecutionTimeMs,
+}: {
+  currentSpeed: number;
+  pendingExecutionTimeMs: number;
+}): number {
+  if (currentSpeed === 0) {
+    return BASE_STEPS_PER_FRAME;
+  }
+  return Math.floor(pendingExecutionTimeMs / currentSpeed);
+}
+
+function composeBatchedAudioStepsPerFrame({
+  currentSpeed,
+}: {
+  currentSpeed: number;
+}): number {
+  if (currentSpeed === 0) {
+    return 15;
+  }
+  return 1;
+}
+
 function draw({
   activeHighlightsRef,
   arrayRef,
   canvasRef,
-  rangeEnd,
+  maxRange,
 }: {
   activeHighlightsRef: RefObject<Map<number, string>>;
   arrayRef: RefObject<number[]>;
   canvasRef: RefObject<HTMLCanvasElement | null>;
-  rangeEnd: number;
+  maxRange: number;
 }) {
   if (canvasRef.current === null) {
     throw new Error('Canvas ref is null');
@@ -61,7 +105,7 @@ function draw({
       ? Math.max(0, physicalBarWidth - physicalGap)
       : physicalBarWidth + 0.5;
     const yi = 0;
-    const yf = (arrayRef.current[i] * height) / rangeEnd;
+    const yf = (arrayRef.current[i] * height) / maxRange;
     ctx.fillStyle = activeHighlightsRef.current.get(i) || '#ffffff';
     ctx.beginPath();
     ctx.rect(xi, yi, xf, yf);
@@ -72,12 +116,13 @@ function draw({
 function TheSoundOfSorting(): JSX.Element {
   const [isSorted, setIsSorted] = useState(false);
   const [isSorting, setIsSorting] = useState(false);
-  const [rangeEnd, setRangeEnd] = useState(INITIAL_RANGE_END);
+  const [maxRange, setMaxRange] = useState(INITIAL_RANGE_END);
   const [sortingAlgorithm, setSortingAlgorithm] = useState(
     INITIAL_SORTING_ALGORITHM,
   );
   const [speed, setSpeed] = useState(0);
   const [stats, setStats] = useState({ ...INITIAL_STATS });
+  const [isMuted, setIsMuted] = useState(false);
 
   const activeHighlightsRef = useRef<Map<number, string>>(new Map());
   const animationFrameIdRef = useRef<number>(null);
@@ -89,10 +134,13 @@ function TheSoundOfSorting(): JSX.Element {
     useRef<Generator<SortingStrategyYield, void, unknown>>(null);
   const speedRef = useRef(speed);
   const statsRef = useRef({ ...INITIAL_STATS });
+  const isMutedRef = useRef(isMuted);
 
   const { dimensions, resizeRef } = useResizeDimensions<HTMLDivElement>(
     INITIAL_RESIZE_DIMENSIONS,
   );
+
+  const { initAudio, playTone } = useTheSoundOfSortingAudio();
 
   const cancelAnimationFrameIfAny = useCallback(() => {
     if (animationFrameIdRef.current !== null) {
@@ -108,7 +156,7 @@ function TheSoundOfSorting(): JSX.Element {
       if (shouldGenerateNewValues || initialArrayRef.current.length === 0) {
         initialArrayRef.current = composeFisherYatesIntegerRangeShuffle(
           1,
-          rangeEnd,
+          maxRange,
         );
       }
       arrayRef.current = [...initialArrayRef.current];
@@ -118,12 +166,43 @@ function TheSoundOfSorting(): JSX.Element {
       statsRef.current = { ...INITIAL_STATS };
       setStats({ ...INITIAL_STATS });
       activeHighlightsRef.current.clear();
-      draw({ activeHighlightsRef, arrayRef, canvasRef, rangeEnd });
+      draw({ activeHighlightsRef, arrayRef, canvasRef, maxRange });
     },
-    [rangeEnd, cancelAnimationFrameIfAny],
+    [maxRange, cancelAnimationFrameIfAny],
   );
 
-  const processStep = (shouldDraw: boolean): boolean => {
+  function applySortStepEffects({
+    highlightGroups,
+    shouldPlaySound,
+    toneDurationMs,
+    type,
+  }: {
+    highlightGroups: HighlightGroup[];
+    shouldPlaySound: boolean;
+    toneDurationMs: number;
+    type: SortOperationType;
+  }): void {
+    const isAudioEnabled =
+      !isMutedRef.current && type === 'compare' && shouldPlaySound;
+    for (const group of highlightGroups) {
+      for (const index of group.indices) {
+        activeHighlightsRef.current.set(index, group.color);
+        if (isAudioEnabled) {
+          playTone({
+            maxRange,
+            toneDurationMs,
+            value: arrayRef.current[index],
+          });
+        }
+      }
+    }
+  }
+
+  const processStep = (
+    shouldDraw: boolean,
+    shouldPlaySound: boolean,
+    toneDurationMs: number,
+  ): boolean => {
     if (sortingGeneratorRef.current === null) {
       throw new Error('Sorting generator ref is null');
     }
@@ -132,53 +211,63 @@ function TheSoundOfSorting(): JSX.Element {
       setIsSorting(false);
       setIsSorted(true);
       activeHighlightsRef.current.clear();
-      draw({ activeHighlightsRef, arrayRef, canvasRef, rangeEnd });
+      draw({ activeHighlightsRef, arrayRef, canvasRef, maxRange });
       setNewStats();
       return true;
     }
     statsRef.current.comparisons += value.compareCount;
     statsRef.current.accesses += value.accessCount;
     activeHighlightsRef.current.clear();
-    for (const group of value.highlights) {
-      for (const index of group.indices) {
-        activeHighlightsRef.current.set(index, group.color);
-      }
-    }
+    applySortStepEffects({
+      highlightGroups: value.highlights,
+      shouldPlaySound,
+      toneDurationMs,
+      type: value.type,
+    });
     if (shouldDraw) {
-      draw({ activeHighlightsRef, arrayRef, canvasRef, rangeEnd });
+      draw({ activeHighlightsRef, arrayRef, canvasRef, maxRange });
     }
     return false;
   };
 
   const executeSortingLoop = () => {
+    initAudio();
     let previousTime = performance.now();
     let pendingExecutionTimeMs = 0;
     const loop = (currentTime: number) => {
       const Δt = currentTime - previousTime;
       previousTime = currentTime;
-      pendingExecutionTimeMs =
-        speedRef.current > 0 ? pendingExecutionTimeMs + Δt : 0;
-      const batchedSteps =
-        speedRef.current === 0
-          ? BASE_STEPS_PER_FRAME
-          : Math.floor(pendingExecutionTimeMs / speedRef.current);
+      pendingExecutionTimeMs = composePendingExecutionTimeMs({
+        currentSpeed: speedRef.current,
+        pendingExecutionTimeMs,
+        Δt,
+      });
+      const batchedSteps = composeBatchedStepsPerFrame({
+        currentSpeed: speedRef.current,
+        pendingExecutionTimeMs,
+      });
+      const batchedAudioStep = composeBatchedAudioStepsPerFrame({
+        currentSpeed: speedRef.current,
+      });
       for (let i = 0; i < batchedSteps; i += 1) {
-        const isGeneratorDone = processStep(false);
+        const shouldPlaySound = i % batchedAudioStep === 0;
+        const isGeneratorDone = processStep(false, shouldPlaySound, 20);
         if (isGeneratorDone) {
           return;
         }
       }
       pendingExecutionTimeMs -= batchedSteps * speedRef.current;
       setNewStats();
-      draw({ activeHighlightsRef, arrayRef, canvasRef, rangeEnd });
+      draw({ activeHighlightsRef, arrayRef, canvasRef, maxRange });
       animationFrameIdRef.current = requestAnimationFrame(loop);
     };
     animationFrameIdRef.current = requestAnimationFrame(loop);
   };
 
   const handleStep = () => {
+    initAudio();
     setIsSorting(false);
-    const isGeneratorDone = processStep(true);
+    const isGeneratorDone = processStep(true, true, 100);
     if (!isGeneratorDone) {
       setNewStats();
     }
@@ -202,6 +291,11 @@ function TheSoundOfSorting(): JSX.Element {
     setStats({ ...statsRef.current });
   };
 
+  const toggleMute = () => {
+    isMutedRef.current = !isMuted;
+    setIsMuted(isMutedRef.current);
+  };
+
   useEffect(() => {
     if (canvasRef.current === null) {
       throw new Error('Canvas ref is null');
@@ -213,9 +307,9 @@ function TheSoundOfSorting(): JSX.Element {
     canvasRef.current.width = dimensions.width * dpr;
     canvasRef.current.height = dimensions.height * dpr;
     if (arrayRef.current.length > 0) {
-      draw({ activeHighlightsRef, arrayRef, canvasRef, rangeEnd });
+      draw({ activeHighlightsRef, arrayRef, canvasRef, maxRange });
     }
-  }, [dimensions.width, dimensions.height, rangeEnd]);
+  }, [dimensions.width, dimensions.height, maxRange]);
 
   useEffect(() => {
     handleResetWithNewValues();
@@ -239,9 +333,10 @@ function TheSoundOfSorting(): JSX.Element {
         </div>
       </div>
       <TheSoundOfSortingControls
+        isMuted={isMuted}
         isSorted={isSorted}
         isSorting={isSorting}
-        rangeEnd={rangeEnd}
+        maxRange={maxRange}
         sortingAlgorithm={sortingAlgorithm}
         speed={speed}
         cancelAnimationFrameIfAny={cancelAnimationFrameIfAny}
@@ -253,7 +348,8 @@ function TheSoundOfSorting(): JSX.Element {
         setNewSortingAlgorithm={setNewSortingAlgorithm}
         setNewSpeed={setNewSpeed}
         setNewStats={setNewStats}
-        setRangeEnd={setRangeEnd}
+        setMaxRange={setMaxRange}
+        toggleMute={toggleMute}
       />
     </div>
   );

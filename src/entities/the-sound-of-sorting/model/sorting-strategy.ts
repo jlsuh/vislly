@@ -24,4 +24,9 @@ abstract class SortingStrategy {
   }): Generator<SortingStrategyYield, void, unknown>;
 }
 
-export { SortingStrategy, type HighlightGroup, type SortingStrategyYield };
+export {
+  SortingStrategy,
+  type HighlightGroup,
+  type SortingStrategyYield,
+  type SortOperationType,
+};

@@ -9,6 +9,8 @@ import Select from '@/shared/ui/Select/Select.tsx';
 import ShuffleIcon from '@/shared/ui/ShuffleIcon/ShuffleIcon.tsx';
 import SortIcon from '@/shared/ui/SortIcon/SortIcon.tsx';
 import StepIcon from '@/shared/ui/StepIcon/StepIcon.tsx';
+import VolumeOffIcon from '@/shared/ui/VolumeOffIcon/VolumeOffIcon.tsx';
+import VolumeUpIcon from '@/shared/ui/VolumeUpIcon/VolumeUpIcon.tsx';
 import {
   assertIsSortingAlgorithm,
   SORTING_ALGORITHMS,
@@ -17,9 +19,10 @@ import {
 import styles from './the-sound-of-sorting-controls.module.css';
 
 type TheSoundOfSortingControlsProps = {
+  isMuted: boolean;
   isSorted: boolean;
   isSorting: boolean;
-  rangeEnd: number;
+  maxRange: number;
   sortingAlgorithm: string;
   speed: number;
   cancelAnimationFrameIfAny: () => void;
@@ -31,13 +34,15 @@ type TheSoundOfSortingControlsProps = {
   setNewSortingAlgorithm: (newAlgorithm: SortingAlgorithm) => void;
   setNewSpeed: (newSpeed: number) => void;
   setNewStats: () => void;
-  setRangeEnd: (newRangeEnd: number) => void;
+  setMaxRange: (newMaxRange: number) => void;
+  toggleMute: () => void;
 };
 
 function TheSoundOfSortingControls({
+  isMuted,
   isSorted,
   isSorting,
-  rangeEnd,
+  maxRange,
   sortingAlgorithm,
   speed,
   cancelAnimationFrameIfAny,
@@ -49,13 +54,14 @@ function TheSoundOfSortingControls({
   setNewSortingAlgorithm,
   setNewSpeed,
   setNewStats,
-  setRangeEnd,
+  setMaxRange,
+  toggleMute,
 }: TheSoundOfSortingControlsProps): JSX.Element {
   const countRangeInputId = useId();
   const speedRangeInputId = useId();
 
-  const handleOnChangeRangeEnd = (e: ChangeEvent<HTMLInputElement>) => {
-    setRangeEnd(+e.target.value);
+  const handleOnChangeMaxRange = (e: ChangeEvent<HTMLInputElement>) => {
+    setMaxRange(+e.target.value);
   };
 
   const handleOnChangeAlgorithm = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -89,7 +95,7 @@ function TheSoundOfSortingControls({
     executeSortingLoop();
   };
 
-  const composePrimaryAction = () => {
+  function composePrimaryAction() {
     if (isSorted) {
       return {
         label: 'Sort Again',
@@ -109,9 +115,17 @@ function TheSoundOfSortingControls({
       icon: <SortIcon />,
       handler: handleSort,
     };
-  };
+  }
+
+  function composeSoundAction() {
+    if (isMuted) {
+      return { label: 'Unmute', icon: <VolumeOffIcon /> };
+    }
+    return { label: 'Mute', icon: <VolumeUpIcon /> };
+  }
 
   const primaryAction = composePrimaryAction();
+  const soundAction = composeSoundAction();
 
   return (
     <section className={styles.controlsContainer}>
@@ -121,25 +135,25 @@ function TheSoundOfSortingControls({
           handleOnSelectChange={handleOnChangeAlgorithm}
           label="Algorithm"
           options={Object.values(SORTING_ALGORITHMS).map(({ key, label }) => ({
-            value: key,
             label,
+            value: key,
           }))}
           value={sortingAlgorithm}
         />
         <div className={styles.rangeWrapper}>
           <label className={styles.rangeLabel} htmlFor={countRangeInputId}>
-            Items: <strong>{rangeEnd}</strong>
+            Items: <strong>{maxRange}</strong>
           </label>
           <input
             className={styles.rangeInput}
+            disabled={isSorting}
             id={countRangeInputId}
             max="1000"
             min="100"
-            onChange={handleOnChangeRangeEnd}
+            onChange={handleOnChangeMaxRange}
             step="100"
             type="range"
-            value={rangeEnd}
-            disabled={isSorting}
+            value={maxRange}
           />
         </div>
         <div className={styles.rangeWrapper}>
@@ -172,6 +186,12 @@ function TheSoundOfSortingControls({
           handleOnClickButton={handleStep}
           icon={<StepIcon />}
           label="Step"
+        />
+        <Button
+          fullWidth
+          handleOnClickButton={toggleMute}
+          icon={soundAction.icon}
+          label={soundAction.label}
         />
         <Button
           fullWidth
