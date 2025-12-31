@@ -18,16 +18,12 @@
 }
 
 .rangeWrapper {
-  background-color: var(--color-surface-container-high);
   border-radius: 0.5rem;
   border: 0.0625rem solid var(--color-outline);
   display: flex;
   flex-direction: column;
   padding: 0.5rem 1rem;
   position: relative;
-  transition:
-    background-color 150ms ease-out,
-    border-color 150ms ease-out;
 }
 
 .rangeLabel {
@@ -44,7 +40,6 @@
 
 .rangeInput {
   accent-color: var(--color-primary);
-  background: transparent;
   cursor: pointer;
   width: 100%;
 }
