@@ -36,15 +36,16 @@ export default function Select({
         value={value ?? ''}
       >
         {options.map((option) => (
-          <option
-            className={styles.option}
-            key={option.value}
-            value={option.value}
-          >
+          <option key={option.value} value={option.value}>
             {option.label}
           </option>
         ))}
       </select>
+      <fieldset aria-hidden="true" className={styles.fieldset}>
+        <legend className={styles.legend}>
+          <span>{label}</span>
+        </legend>
+      </fieldset>
     </div>
   );
 }

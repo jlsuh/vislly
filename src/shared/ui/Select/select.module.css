@@ -1,46 +1,18 @@
-.label {
-  color: var(--color-secondary);
-  font-size: 0.875rem;
-  left: 1rem;
+.fieldset {
+  border-radius: inherit;
+  border: 0.0625rem solid var(--color-outline);
+  inset: 0;
+  margin: 0;
+  min-width: 0;
   overflow: hidden;
+  padding-left: 0.75rem;
   pointer-events: none;
   position: absolute;
-  right: 0.75rem;
-  text-overflow: ellipsis;
-  top: 0.5rem;
-  transition: all 0.4s ease;
-  white-space: nowrap;
-}
-
-.option {
-  padding: 0.325rem 0 0.325rem 1rem;
-}
-
-.select {
-  appearance: none;
-  background-color: transparent;
-  border: none;
-  color: var(--color-on-surface);
-  height: auto;
-  min-width: 3.75rem;
-  padding: 2rem 2.5rem 0.5rem 1rem;
-  white-space: normal;
-  width: 100%;
-  word-break: break-word;
-  &:disabled {
-    cursor: not-allowed;
-  }
 }
 
 .selectContainer {
-  background-color: var(--color-surface-container-high);
   border-radius: 0.5rem;
-  border: 0.0625rem solid var(--color-outline);
   position: relative;
-  transition:
-    background-color 150ms ease-out,
-    border-color 150ms ease-out,
-    color 150ms ease-out;
   width: 100%;
   &::after {
     background-color: currentColor;
@@ -53,14 +25,55 @@
     pointer-events: none;
     position: absolute;
     right: 1rem;
-    top: 72.5%;
+    top: 50%;
     transform: translateY(-50%);
     transition: transform 0.15s ease-in-out;
   }
   &:has(.select:disabled) {
-    background-color: var(--color-surface-variant);
-    border-color: var(--color-surface-variant);
     color: var(--color-on-surface-variant);
+  }
+  &:has(.select:disabled) .fieldset {
+    border-color: var(--color-surface-variant);
+  }
+}
+
+.legend {
+  font-size: 0.75rem;
+  height: 0;
+  visibility: hidden;
+  & span {
+    padding-left: 0.3rem;
+    padding-right: 0.3rem;
+  }
+}
+
+.label {
+  color: var(--color-secondary);
+  font-size: 0.75rem;
+  padding: 0 0.3rem;
+  pointer-events: none;
+  position: absolute;
+  transform: translate(0.75rem, -50%);
+  white-space: nowrap;
+  z-index: 1;
+}
+
+.select {
+  appearance: none;
+  background-color: transparent;
+  border: none;
+  color: var(--color-on-surface);
+  padding: 0.75rem 2.5rem 0.75rem 1rem;
+  width: 100%;
+  word-break: break-word;
+  &:disabled {
     cursor: not-allowed;
+  }
+  &:focus {
+    outline: none;
+  }
+  &:focus ~ .fieldset {
+    border-color: var(--color-primary);
+    border-width: 0.125rem;
   }
 }
