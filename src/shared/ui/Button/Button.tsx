@@ -4,27 +4,29 @@ import styles from './button.module.css';
 interface ButtonProps {
   disabled?: boolean;
   fullWidth?: boolean;
-  handleOnClickButton: () => void;
   icon: JSX.Element;
   label: string;
+  variant?: 'primary' | 'secondary';
+  handleOnClickButton: () => void;
 }
 
 function Button({
   disabled = false,
   fullWidth = false,
-  handleOnClickButton,
   icon,
   label,
+  variant = 'primary',
+  handleOnClickButton,
 }: ButtonProps): JSX.Element {
   return (
     <button
-      className={`${styles.playButton} elevation-1 ${fullWidth ? styles.fullWidth : ''}`}
+      className={`${styles.button} ${styles[variant]} ${fullWidth ? styles.fullWidth : ''}`}
       disabled={disabled}
       onClick={handleOnClickButton}
       type="button"
     >
       {icon}
-      <span className={styles.label}>{label}</span>
+      <span>{label}</span>
     </button>
   );
 }

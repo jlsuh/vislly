@@ -142,7 +142,7 @@ function TheSoundOfSortingControls({
         />
         <div className={styles.rangeWrapper}>
           <label className={styles.rangeLabel} htmlFor={countRangeInputId}>
-            Items: <strong>{maxRange}</strong>
+            Array Size:<strong>{maxRange}</strong>
           </label>
           <input
             className={styles.rangeInput}
@@ -158,7 +158,7 @@ function TheSoundOfSortingControls({
         </div>
         <div className={styles.rangeWrapper}>
           <label className={styles.rangeLabel} htmlFor={delayRangeInputId}>
-            Delay: <strong>{delay}ms</strong>
+            Delay:<strong>{delay}ms</strong>
           </label>
           <input
             className={styles.rangeInput}
@@ -186,24 +186,28 @@ function TheSoundOfSortingControls({
           handleOnClickButton={handleStep}
           icon={<StepIcon />}
           label="Step"
+          variant="secondary"
         />
         <Button
           fullWidth
           handleOnClickButton={toggleMute}
           icon={soundAction.icon}
           label={soundAction.label}
+          variant="secondary"
         />
         <Button
           fullWidth
           handleOnClickButton={handleResetWithSameValues}
           icon={<ResetIcon />}
           label="Reset"
+          variant="secondary"
         />
         <Button
           fullWidth
           handleOnClickButton={handleResetWithNewValues}
           icon={<ShuffleIcon />}
           label="Shuffle"
+          variant="secondary"
         />
       </div>
     </section>
