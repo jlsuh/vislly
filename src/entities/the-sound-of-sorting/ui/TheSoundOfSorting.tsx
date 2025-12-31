@@ -34,7 +34,7 @@ import styles from './the-sound-of-sorting.module.css';
 
 const BASE_STEPS_PER_FRAME = 73;
 const GAP_THRESHOLD_RATIO = 2.5;
-const INITIAL_RANGE_END = 100;
+const INITIAL_MAX_RANGE = 200;
 const INITIAL_RESIZE_DIMENSIONS: ResizeDimensions = { height: 0, width: 0 };
 const INITIAL_STATS: SortingStats = { accesses: 0, comparisons: 0, swaps: 0 };
 const SWEEP_TONE_DURATION_MS = 30;
@@ -108,7 +108,7 @@ function draw({
 function TheSoundOfSorting(): JSX.Element {
   const [delay, setDelay] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
-  const [maxRange, setMaxRange] = useState(INITIAL_RANGE_END);
+  const [maxRange, setMaxRange] = useState(INITIAL_MAX_RANGE);
   const [sortingAlgorithm, setSortingAlgorithm] = useState(
     INITIAL_SORTING_ALGORITHM,
   );
@@ -196,7 +196,7 @@ function TheSoundOfSorting(): JSX.Element {
     }
   }
 
-  const processStep = (
+  const processSortFrame = (
     shouldDraw: boolean,
     shouldSkipTone: boolean,
     toneDurationMs: number,
@@ -258,11 +258,26 @@ function TheSoundOfSorting(): JSX.Element {
 
   const executeSweepLoop = useCallback(() => {
     updateStatus(SortingStatus.Sweeping);
-    const loop = () => {
-      const isDone = processSweepFrame(2);
-      if (!isDone) {
-        animationFrameIdRef.current = requestAnimationFrame(loop);
+    let previousTime = performance.now();
+    let pendingExecutionTimeMs = 0;
+    const loop = (currentTime: number) => {
+      const Δt = currentTime - previousTime;
+      previousTime = currentTime;
+      let batchedSteps = 3;
+      if (delayRef.current > 0) {
+        batchedSteps = Math.floor(pendingExecutionTimeMs / delayRef.current);
+        pendingExecutionTimeMs += Δt;
       }
+      if (batchedSteps > 0) {
+        const isLastSweepFrame = processSweepFrame(batchedSteps);
+        if (isLastSweepFrame) {
+          return;
+        }
+        if (delayRef.current > 0) {
+          pendingExecutionTimeMs -= batchedSteps * delayRef.current;
+        }
+      }
+      animationFrameIdRef.current = requestAnimationFrame(loop);
     };
     cancelAnimationFrameIfAny();
     animationFrameIdRef.current = requestAnimationFrame(loop);
@@ -290,8 +305,8 @@ function TheSoundOfSorting(): JSX.Element {
       );
       for (let i = 0; i < batchedSteps; i += 1) {
         const shouldSkipTone = i % batchedAudioStep !== 0;
-        const isGeneratorDone = processStep(false, shouldSkipTone, 20);
-        if (isGeneratorDone) {
+        const isLastSortingFrame = processSortFrame(false, shouldSkipTone, 20);
+        if (isLastSortingFrame) {
           executeSweepLoop();
           return;
         }
@@ -308,14 +323,11 @@ function TheSoundOfSorting(): JSX.Element {
     initAudio();
     cancelAnimationFrameIfAny();
     if (statusRef.current === SortingStatus.ReadyToResumeSweeping) {
-      const done = processSweepFrame(1);
-      if (!done) {
-        updateStatus(SortingStatus.ReadyToResumeSweeping);
-      }
+      processSweepFrame(1);
       return;
     }
-    const isGeneratorDone = processStep(true, false, 100);
-    if (isGeneratorDone) {
+    const isLastSortingFrame = processSortFrame(true, false, 100);
+    if (isLastSortingFrame) {
       updateStatus(SortingStatus.ReadyToResumeSweeping);
       return;
     }
