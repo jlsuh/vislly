@@ -8,13 +8,13 @@ import styles from './the-sound-of-sorting-stats.module.css';
 
 type TheSoundOfSortingStatsProps = {
   algorithm: SortingAlgorithm;
-  speed: number;
+  delay: number;
   stats: SortingStats;
 };
 
 function TheSoundOfSortingStats({
   algorithm,
-  speed,
+  delay,
   stats,
 }: TheSoundOfSortingStatsProps): JSX.Element {
   const algorithmLabel = SORTING_ALGORITHMS[algorithm]?.label ?? algorithm;
@@ -22,7 +22,7 @@ function TheSoundOfSortingStats({
   return (
     <div className={styles.statsContainer}>
       {algorithmLabel} - {stats.comparisons} comparisons, {stats.accesses} array
-      accesses, {speed.toFixed(2)} ms delay
+      accesses, {delay.toFixed(2)} ms delay
     </div>
   );
 }

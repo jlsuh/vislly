@@ -19,46 +19,46 @@ import {
 import styles from './the-sound-of-sorting-controls.module.css';
 
 type TheSoundOfSortingControlsProps = {
+  delay: number;
   isMuted: boolean;
   isSorted: boolean;
   isSorting: boolean;
   maxRange: number;
   sortingAlgorithm: string;
-  speed: number;
   cancelAnimationFrameIfAny: () => void;
   executeSortingLoop: () => void;
   handleResetWithNewValues: () => void;
   handleStep: () => void;
   reset: (shouldGenerateNewValues: boolean) => void;
   setIsSorting: (newIsSorting: boolean) => void;
-  setNewSortingAlgorithm: (newAlgorithm: SortingAlgorithm) => void;
-  setNewSpeed: (newSpeed: number) => void;
-  setNewStats: () => void;
   setMaxRange: (newMaxRange: number) => void;
+  setNewDelay: (newDelay: number) => void;
+  setNewSortingAlgorithm: (newAlgorithm: SortingAlgorithm) => void;
+  setNewStats: () => void;
   toggleMute: () => void;
 };
 
 function TheSoundOfSortingControls({
+  delay,
   isMuted,
   isSorted,
   isSorting,
   maxRange,
   sortingAlgorithm,
-  speed,
   cancelAnimationFrameIfAny,
   executeSortingLoop,
   handleResetWithNewValues,
   handleStep,
   reset,
   setIsSorting,
-  setNewSortingAlgorithm,
-  setNewSpeed,
-  setNewStats,
   setMaxRange,
+  setNewDelay,
+  setNewSortingAlgorithm,
+  setNewStats,
   toggleMute,
 }: TheSoundOfSortingControlsProps): JSX.Element {
   const countRangeInputId = useId();
-  const speedRangeInputId = useId();
+  const delayRangeInputId = useId();
 
   const handleOnChangeMaxRange = (e: ChangeEvent<HTMLInputElement>) => {
     setMaxRange(+e.target.value);
@@ -71,8 +71,8 @@ function TheSoundOfSortingControls({
     handleResetWithSameValues();
   };
 
-  const handleOnChangeSpeed = (e: ChangeEvent<HTMLInputElement>) => {
-    setNewSpeed(+e.target.value);
+  const handleOnChangeDelay = (e: ChangeEvent<HTMLInputElement>) => {
+    setNewDelay(+e.target.value);
   };
 
   const handleResetWithSameValues = () => {
@@ -157,18 +157,18 @@ function TheSoundOfSortingControls({
           />
         </div>
         <div className={styles.rangeWrapper}>
-          <label className={styles.rangeLabel} htmlFor={speedRangeInputId}>
-            Speed: <strong>{speed}ms</strong>
+          <label className={styles.rangeLabel} htmlFor={delayRangeInputId}>
+            Delay: <strong>{delay}ms</strong>
           </label>
           <input
             className={styles.rangeInput}
-            id={speedRangeInputId}
+            id={delayRangeInputId}
             max="100"
             min="0"
-            onChange={handleOnChangeSpeed}
+            onChange={handleOnChangeDelay}
             step="10"
             type="range"
-            value={speed}
+            value={delay}
           />
         </div>
       </div>
