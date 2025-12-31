@@ -23,6 +23,7 @@ class SelectionSortStrategy extends SortingStrategy {
           accessCount: 2,
           compareCount: 1,
           highlights,
+          swapCount: 0,
           type: 'compare',
         };
         if (array[j] < array[minIdx]) {
@@ -35,9 +36,10 @@ class SelectionSortStrategy extends SortingStrategy {
           accessCount: 0,
           compareCount: 0,
           highlights: [
-            { indices: [minIdx, i], color: '#ff0000' },
             { indices: [i - 1], color: '#00ff00' },
+            { indices: [minIdx, i], color: '#ff0000' },
           ],
+          swapCount: 1,
           type: 'swap',
         };
       }

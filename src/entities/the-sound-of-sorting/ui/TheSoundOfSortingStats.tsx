@@ -22,7 +22,7 @@ function TheSoundOfSortingStats({
   return (
     <div className={styles.statsContainer}>
       {algorithmLabel} - {stats.comparisons} comparisons, {stats.accesses} array
-      accesses, {delay.toFixed(2)} ms delay
+      accesses, {stats.swaps} swaps, {delay.toFixed(2)}ms delay
     </div>
   );
 }

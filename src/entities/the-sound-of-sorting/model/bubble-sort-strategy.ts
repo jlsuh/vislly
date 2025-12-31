@@ -15,6 +15,7 @@ class BubbleSortStrategy extends SortingStrategy {
           accessCount: 2,
           compareCount: 1,
           highlights: [{ indices: [j, j + 1], color: '#ff0000' }],
+          swapCount: 0,
           type: 'compare',
         };
         if (array[j] > array[j + 1]) {
@@ -23,6 +24,7 @@ class BubbleSortStrategy extends SortingStrategy {
             accessCount: 2,
             compareCount: 0,
             highlights: [{ indices: [j, j + 1], color: '#ff0000' }],
+            swapCount: 1,
             type: 'swap',
           };
         }

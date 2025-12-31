@@ -9,6 +9,7 @@ interface SortingStrategyYield {
   accessCount: number;
   compareCount: number;
   highlights: HighlightGroup[];
+  swapCount: number;
   type: SortOperationType;
 }
 
