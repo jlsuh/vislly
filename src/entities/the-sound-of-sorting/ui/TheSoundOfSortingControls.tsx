@@ -16,52 +16,54 @@ import {
   SORTING_ALGORITHMS,
   type SortingAlgorithm,
 } from '../model/sorting-algorithms.ts';
+import { SortingStatus } from '../model/sorting-status.ts';
 import styles from './the-sound-of-sorting-controls.module.css';
 
 type TheSoundOfSortingControlsProps = {
   delay: number;
   isMuted: boolean;
-  isSorted: boolean;
-  isSorting: boolean;
   maxRange: number;
   sortingAlgorithm: string;
-  cancelAnimationFrameIfAny: () => void;
-  executeSortingLoop: () => void;
+  status: SortingStatus;
+  handlePause: () => void;
   handleResetWithNewValues: () => void;
+  handleResume: () => void;
   handleStep: () => void;
   reset: (shouldGenerateNewValues: boolean) => void;
-  setIsSorting: (newIsSorting: boolean) => void;
   setMaxRange: (newMaxRange: number) => void;
   setNewDelay: (newDelay: number) => void;
   setNewSortingAlgorithm: (newAlgorithm: SortingAlgorithm) => void;
-  setNewStats: () => void;
   toggleMute: () => void;
 };
 
 function TheSoundOfSortingControls({
   delay,
   isMuted,
-  isSorted,
-  isSorting,
   maxRange,
   sortingAlgorithm,
-  cancelAnimationFrameIfAny,
-  executeSortingLoop,
+  status,
+  handlePause,
   handleResetWithNewValues,
+  handleResume,
   handleStep,
   reset,
-  setIsSorting,
   setMaxRange,
   setNewDelay,
   setNewSortingAlgorithm,
-  setNewStats,
   toggleMute,
 }: TheSoundOfSortingControlsProps): JSX.Element {
   const countRangeInputId = useId();
   const delayRangeInputId = useId();
 
+  const isSortingOrSweeping =
+    status === SortingStatus.Sorting || status === SortingStatus.Sweeping;
+
   const handleOnChangeMaxRange = (e: ChangeEvent<HTMLInputElement>) => {
     setMaxRange(+e.target.value);
+  };
+
+  const handleResetWithSameValues = () => {
+    reset(false);
   };
 
   const handleOnChangeAlgorithm = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -75,46 +77,44 @@ function TheSoundOfSortingControls({
     setNewDelay(+e.target.value);
   };
 
-  const handleResetWithSameValues = () => {
-    reset(false);
-  };
-
   const handleSortAgain = () => {
     handleResetWithSameValues();
-    handleSort();
-  };
-
-  const handlePause = () => {
-    cancelAnimationFrameIfAny();
-    setIsSorting(false);
-    setNewStats();
-  };
-
-  const handleSort = () => {
-    setIsSorting(true);
-    executeSortingLoop();
+    handleResume();
   };
 
   function composePrimaryAction() {
-    if (isSorted) {
-      return {
-        label: 'Sort Again',
-        icon: <SortIcon />,
-        handler: handleSortAgain,
-      };
-    }
-    if (isSorting) {
+    if (status === SortingStatus.Sorting || status === SortingStatus.Sweeping) {
       return {
         label: 'Pause',
         icon: <PauseIcon />,
         handler: handlePause,
       };
     }
-    return {
-      label: 'Sort',
-      icon: <SortIcon />,
-      handler: handleSort,
-    };
+    if (status === SortingStatus.Finished) {
+      return {
+        label: 'Sort Again',
+        icon: <SortIcon />,
+        handler: handleSortAgain,
+      };
+    }
+    if (
+      status === SortingStatus.ReadyToResumeSorting ||
+      status === SortingStatus.ReadyToResumeSweeping
+    ) {
+      return {
+        label: 'Resume',
+        icon: <SortIcon />,
+        handler: handleResume,
+      };
+    }
+    if (status === SortingStatus.Idle) {
+      return {
+        label: 'Sort',
+        icon: <SortIcon />,
+        handler: handleResume,
+      };
+    }
+    throw new Error(`Unknown sorting status: ${status}`);
   }
 
   function composeSoundAction() {
@@ -131,7 +131,7 @@ function TheSoundOfSortingControls({
     <section className={styles.controlsContainer}>
       <div className={styles.inputsContainer}>
         <Select
-          disabled={isSorting}
+          disabled={isSortingOrSweeping}
           handleOnSelectChange={handleOnChangeAlgorithm}
           label="Algorithm"
           options={Object.values(SORTING_ALGORITHMS).map(({ key, label }) => ({
@@ -146,7 +146,7 @@ function TheSoundOfSortingControls({
           </label>
           <input
             className={styles.rangeInput}
-            disabled={isSorting}
+            disabled={isSortingOrSweeping}
             id={countRangeInputId}
             max="1000"
             min="100"
@@ -181,7 +181,7 @@ function TheSoundOfSortingControls({
           label={primaryAction.label}
         />
         <Button
-          disabled={isSorted || isSorting}
+          disabled={status === SortingStatus.Finished || isSortingOrSweeping}
           fullWidth
           handleOnClickButton={handleStep}
           icon={<StepIcon />}

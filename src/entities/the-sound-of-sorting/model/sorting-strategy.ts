@@ -1,4 +1,10 @@
-type SortOperationType = 'compare' | 'swap';
+const SortOperationType = {
+  Compare: 'compare',
+  Swap: 'swap',
+} as const;
+
+type SortOperationType =
+  (typeof SortOperationType)[keyof typeof SortOperationType];
 
 interface HighlightGroup {
   color: string;
@@ -27,7 +33,7 @@ abstract class SortingStrategy {
 
 export {
   SortingStrategy,
+  SortOperationType,
   type HighlightGroup,
   type SortingStrategyYield,
-  type SortOperationType,
 };

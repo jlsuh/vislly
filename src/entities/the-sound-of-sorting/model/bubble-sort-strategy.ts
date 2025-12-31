@@ -1,6 +1,8 @@
+import { RED } from '@/shared/lib/rgba.ts';
 import {
   SortingStrategy,
   type SortingStrategyYield,
+  SortOperationType,
 } from './sorting-strategy.ts';
 
 class BubbleSortStrategy extends SortingStrategy {
@@ -14,18 +16,18 @@ class BubbleSortStrategy extends SortingStrategy {
         yield {
           accessCount: 2,
           compareCount: 1,
-          highlights: [{ indices: [j, j + 1], color: '#ff0000' }],
+          highlights: [{ indices: [j, j + 1], color: RED }],
           swapCount: 0,
-          type: 'compare',
+          type: SortOperationType.Compare,
         };
         if (array[j] > array[j + 1]) {
           super.swap(array, j, j + 1);
           yield {
             accessCount: 2,
             compareCount: 0,
-            highlights: [{ indices: [j, j + 1], color: '#ff0000' }],
+            highlights: [{ indices: [j, j + 1], color: RED }],
             swapCount: 1,
-            type: 'swap',
+            type: SortOperationType.Swap,
           };
         }
       }

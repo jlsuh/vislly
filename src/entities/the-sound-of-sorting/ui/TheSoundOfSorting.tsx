@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { getCanvasCtxByRef } from '@/shared/lib/canvas.ts';
 import { composeFisherYatesIntegerRangeShuffle } from '@/shared/lib/random.ts';
+import { GREEN, RED, WHITE } from '@/shared/lib/rgba.ts';
 import {
   type ResizeDimensions,
   useResizeDimensions,
@@ -21,9 +22,10 @@ import {
   type SortingAlgorithm,
 } from '../model/sorting-algorithms.ts';
 import type { SortingStats } from '../model/sorting-stats.ts';
-import type {
-  HighlightGroup,
-  SortingStrategyYield,
+import { SortingStatus } from '../model/sorting-status.ts';
+import {
+  type HighlightGroup,
+  type SortingStrategyYield,
   SortOperationType,
 } from '../model/sorting-strategy.ts';
 import TheSoundOfSortingControls from './TheSoundOfSortingControls.tsx';
@@ -35,6 +37,7 @@ const GAP_THRESHOLD_RATIO = 2.5;
 const INITIAL_RANGE_END = 100;
 const INITIAL_RESIZE_DIMENSIONS: ResizeDimensions = { height: 0, width: 0 };
 const INITIAL_STATS: SortingStats = { accesses: 0, comparisons: 0, swaps: 0 };
+const SWEEP_TONE_DURATION_MS = 30;
 
 function composePendingExecutionTimeMs(
   delay: number,
@@ -95,7 +98,7 @@ function draw({
       : physicalBarWidth + 0.5;
     const yi = 0;
     const yf = (arrayRef.current[i] * height) / maxRange;
-    ctx.fillStyle = activeHighlightsRef.current.get(i) || '#ffffff';
+    ctx.fillStyle = activeHighlightsRef.current.get(i) || WHITE;
     ctx.beginPath();
     ctx.rect(xi, yi, xf, yf);
     ctx.fill();
@@ -105,13 +108,12 @@ function draw({
 function TheSoundOfSorting(): JSX.Element {
   const [delay, setDelay] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
-  const [isSorted, setIsSorted] = useState(false);
-  const [isSorting, setIsSorting] = useState(false);
   const [maxRange, setMaxRange] = useState(INITIAL_RANGE_END);
   const [sortingAlgorithm, setSortingAlgorithm] = useState(
     INITIAL_SORTING_ALGORITHM,
   );
   const [stats, setStats] = useState({ ...INITIAL_STATS });
+  const [status, setStatus] = useState<SortingStatus>(SortingStatus.Idle);
 
   const activeHighlightsRef = useRef<Map<number, string>>(new Map());
   const animationFrameIdRef = useRef<number>(null);
@@ -124,12 +126,19 @@ function TheSoundOfSorting(): JSX.Element {
   const sortingGeneratorRef =
     useRef<Generator<SortingStrategyYield, void, unknown>>(null);
   const statsRef = useRef({ ...INITIAL_STATS });
+  const statusRef = useRef<SortingStatus>(SortingStatus.Idle);
+  const sweepIndexRef = useRef(0);
 
   const { dimensions, resizeRef } = useResizeDimensions<HTMLDivElement>(
     INITIAL_RESIZE_DIMENSIONS,
   );
 
   const { initAudio, playTone } = useTheSoundOfSortingAudio();
+
+  const updateStatus = useCallback((newStatus: SortingStatus) => {
+    statusRef.current = newStatus;
+    setStatus(newStatus);
+  }, []);
 
   const cancelAnimationFrameIfAny = useCallback(() => {
     if (animationFrameIdRef.current !== null) {
@@ -140,8 +149,8 @@ function TheSoundOfSorting(): JSX.Element {
   const reset = useCallback(
     (shouldGenerateNewValues: boolean) => {
       cancelAnimationFrameIfAny();
-      setIsSorting(false);
-      setIsSorted(false);
+      updateStatus(SortingStatus.Idle);
+      sweepIndexRef.current = 0;
       if (shouldGenerateNewValues || initialArrayRef.current.length === 0) {
         initialArrayRef.current = composeFisherYatesIntegerRangeShuffle(
           1,
@@ -157,7 +166,7 @@ function TheSoundOfSorting(): JSX.Element {
       activeHighlightsRef.current.clear();
       draw({ activeHighlightsRef, arrayRef, canvasRef, maxRange });
     },
-    [maxRange, cancelAnimationFrameIfAny],
+    [cancelAnimationFrameIfAny, maxRange, updateStatus],
   );
 
   function applySortStepEffects({
@@ -172,7 +181,7 @@ function TheSoundOfSorting(): JSX.Element {
     type: SortOperationType;
   }): void {
     const shouldPlayTone = !(shouldSkipTone || isMutedRef.current);
-    const isCompareOperation = type === 'compare';
+    const isCompareOperation = type === SortOperationType.Compare;
     for (const group of highlightGroups) {
       for (const index of group.indices) {
         activeHighlightsRef.current.set(index, group.color);
@@ -197,8 +206,6 @@ function TheSoundOfSorting(): JSX.Element {
     }
     const { done, value } = sortingGeneratorRef.current.next();
     if (done) {
-      setIsSorting(false);
-      setIsSorted(true);
       activeHighlightsRef.current.clear();
       draw({ activeHighlightsRef, arrayRef, canvasRef, maxRange });
       setNewStats();
@@ -220,8 +227,50 @@ function TheSoundOfSorting(): JSX.Element {
     return false;
   };
 
+  const processSweepFrame = useCallback(
+    (stepsToExec: number): boolean => {
+      for (let i = 0; i < stepsToExec; i++) {
+        const idx = sweepIndexRef.current;
+        if (idx >= arrayRef.current.length) {
+          activeHighlightsRef.current.clear();
+          draw({ activeHighlightsRef, arrayRef, canvasRef, maxRange });
+          updateStatus(SortingStatus.Finished);
+          return true;
+        }
+        if (idx > 0) {
+          activeHighlightsRef.current.set(idx - 1, GREEN);
+        }
+        activeHighlightsRef.current.set(idx, RED);
+        if (!isMutedRef.current) {
+          playTone({
+            maxRange,
+            toneDurationMs: SWEEP_TONE_DURATION_MS,
+            value: arrayRef.current[idx],
+          });
+        }
+        sweepIndexRef.current += 1;
+      }
+      draw({ activeHighlightsRef, arrayRef, canvasRef, maxRange });
+      return false;
+    },
+    [maxRange, playTone, updateStatus],
+  );
+
+  const executeSweepLoop = useCallback(() => {
+    updateStatus(SortingStatus.Sweeping);
+    const loop = () => {
+      const isDone = processSweepFrame(2);
+      if (!isDone) {
+        animationFrameIdRef.current = requestAnimationFrame(loop);
+      }
+    };
+    cancelAnimationFrameIfAny();
+    animationFrameIdRef.current = requestAnimationFrame(loop);
+  }, [cancelAnimationFrameIfAny, processSweepFrame, updateStatus]);
+
   const executeSortingLoop = () => {
     initAudio();
+    updateStatus(SortingStatus.Sorting);
     let previousTime = performance.now();
     let pendingExecutionTimeMs = 0;
     const loop = (currentTime: number) => {
@@ -243,6 +292,7 @@ function TheSoundOfSorting(): JSX.Element {
         const shouldSkipTone = i % batchedAudioStep !== 0;
         const isGeneratorDone = processStep(false, shouldSkipTone, 20);
         if (isGeneratorDone) {
+          executeSweepLoop();
           return;
         }
       }
@@ -256,16 +306,21 @@ function TheSoundOfSorting(): JSX.Element {
 
   const handleStep = () => {
     initAudio();
-    setIsSorting(false);
-    const isGeneratorDone = processStep(true, false, 100);
-    if (!isGeneratorDone) {
-      setNewStats();
+    cancelAnimationFrameIfAny();
+    if (statusRef.current === SortingStatus.ReadyToResumeSweeping) {
+      const done = processSweepFrame(1);
+      if (!done) {
+        updateStatus(SortingStatus.ReadyToResumeSweeping);
+      }
+      return;
     }
+    const isGeneratorDone = processStep(true, false, 100);
+    if (isGeneratorDone) {
+      updateStatus(SortingStatus.ReadyToResumeSweeping);
+      return;
+    }
+    setNewStats();
   };
-
-  const handleResetWithNewValues = useCallback(() => {
-    reset(true);
-  }, [reset]);
 
   const setNewSortingAlgorithm = (newAlgorithm: SortingAlgorithm) => {
     sortingAlgorithmRef.current = newAlgorithm;
@@ -281,10 +336,32 @@ function TheSoundOfSorting(): JSX.Element {
     setStats({ ...statsRef.current });
   };
 
+  const handlePause = () => {
+    cancelAnimationFrameIfAny();
+    if (status === SortingStatus.Sweeping) {
+      updateStatus(SortingStatus.ReadyToResumeSweeping);
+    } else {
+      updateStatus(SortingStatus.ReadyToResumeSorting);
+    }
+    setNewStats();
+  };
+
+  const handleResume = () => {
+    if (status === SortingStatus.ReadyToResumeSweeping) {
+      executeSweepLoop();
+    } else {
+      executeSortingLoop();
+    }
+  };
+
   const toggleMute = () => {
     isMutedRef.current = !isMuted;
     setIsMuted(isMutedRef.current);
   };
+
+  const handleResetWithNewValues = useCallback(() => {
+    reset(true);
+  }, [reset]);
 
   useEffect(() => {
     if (canvasRef.current === null) {
@@ -325,20 +402,17 @@ function TheSoundOfSorting(): JSX.Element {
       <TheSoundOfSortingControls
         delay={delay}
         isMuted={isMuted}
-        isSorted={isSorted}
-        isSorting={isSorting}
         maxRange={maxRange}
         sortingAlgorithm={sortingAlgorithm}
-        cancelAnimationFrameIfAny={cancelAnimationFrameIfAny}
-        executeSortingLoop={executeSortingLoop}
+        status={status}
+        handlePause={handlePause}
         handleResetWithNewValues={handleResetWithNewValues}
+        handleResume={handleResume}
         handleStep={handleStep}
         reset={reset}
-        setIsSorting={setIsSorting}
         setMaxRange={setMaxRange}
         setNewDelay={setNewDelay}
         setNewSortingAlgorithm={setNewSortingAlgorithm}
-        setNewStats={setNewStats}
         toggleMute={toggleMute}
       />
     </div>

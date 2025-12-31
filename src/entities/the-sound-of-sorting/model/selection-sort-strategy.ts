@@ -1,7 +1,9 @@
+import { GREEN, RED } from '@/shared/lib/rgba.ts';
 import {
   type HighlightGroup,
   SortingStrategy,
   type SortingStrategyYield,
+  SortOperationType,
 } from './sorting-strategy.ts';
 
 class SelectionSortStrategy extends SortingStrategy {
@@ -14,17 +16,17 @@ class SelectionSortStrategy extends SortingStrategy {
       let minIdx = i;
       for (let j = i + 1; j < array.length; j += 1) {
         const highlights: HighlightGroup[] = [
-          { indices: [minIdx, j], color: '#ff0000' },
+          { indices: [minIdx, j], color: RED },
         ];
         if (i > 0) {
-          highlights.push({ indices: [i - 1], color: '#00ff00' });
+          highlights.push({ indices: [i - 1], color: GREEN });
         }
         yield {
           accessCount: 2,
           compareCount: 1,
           highlights,
           swapCount: 0,
-          type: 'compare',
+          type: SortOperationType.Compare,
         };
         if (array[j] < array[minIdx]) {
           minIdx = j;
@@ -36,11 +38,11 @@ class SelectionSortStrategy extends SortingStrategy {
           accessCount: 0,
           compareCount: 0,
           highlights: [
-            { indices: [i - 1], color: '#00ff00' },
-            { indices: [minIdx, i], color: '#ff0000' },
+            { indices: [i - 1], color: GREEN },
+            { indices: [minIdx, i], color: RED },
           ],
           swapCount: 1,
-          type: 'swap',
+          type: SortOperationType.Swap,
         };
       }
     }

@@ -38,7 +38,8 @@ const SORTING_ALGORITHMS: ReadonlyDeep<
   },
 };
 
-const INITIAL_SORTING_ALGORITHM: SortingAlgorithm = 'bubble-sort';
+const INITIAL_SORTING_ALGORITHM: SortingAlgorithm =
+  SORTING_ALGORITHMS['bubble-sort'].key;
 
 export {
   assertIsSortingAlgorithm,

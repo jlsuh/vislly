@@ -31,4 +31,8 @@ class Rgba {
   }
 }
 
-export { Rgba };
+const GREEN: string = new Rgba(0, 1, 0, 1).toStyle();
+const RED: string = new Rgba(1, 0, 0, 1).toStyle();
+const WHITE: string = new Rgba(1, 1, 1, 1).toStyle();
+
+export { GREEN, RED, Rgba, WHITE };
