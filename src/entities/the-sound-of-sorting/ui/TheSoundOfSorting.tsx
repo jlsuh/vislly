@@ -37,7 +37,7 @@ const GAP_THRESHOLD_RATIO = 2.5;
 const INITIAL_MAX_RANGE = 200;
 const INITIAL_RESIZE_DIMENSIONS: ResizeDimensions = { height: 0, width: 0 };
 const INITIAL_STATS: SortingStats = { accesses: 0, comparisons: 0, swaps: 0 };
-const SWEEP_TONE_DURATION_MS = 30;
+const VERIFICATION_TONE_DURATION_MS = 30;
 
 function composePendingExecutionTimeMs(
   delay: number,
@@ -127,7 +127,7 @@ function TheSoundOfSorting(): JSX.Element {
     useRef<Generator<SortingStrategyYield, void, unknown>>(null);
   const statsRef = useRef({ ...INITIAL_STATS });
   const statusRef = useRef<SortingStatus>(SortingStatus.Idle);
-  const sweepIndexRef = useRef(0);
+  const verificationIndexRef = useRef(0);
 
   const { dimensions, resizeRef } = useResizeDimensions<HTMLDivElement>(
     INITIAL_RESIZE_DIMENSIONS,
@@ -150,7 +150,7 @@ function TheSoundOfSorting(): JSX.Element {
     (shouldGenerateNewValues: boolean) => {
       cancelAnimationFrameIfAny();
       updateStatus(SortingStatus.Idle);
-      sweepIndexRef.current = 0;
+      verificationIndexRef.current = 0;
       if (shouldGenerateNewValues || initialArrayRef.current.length === 0) {
         initialArrayRef.current = composeFisherYatesIntegerRangeShuffle(
           1,
@@ -227,15 +227,22 @@ function TheSoundOfSorting(): JSX.Element {
     return false;
   };
 
-  const processSweepFrame = useCallback(
+  const processVerificationFrame = useCallback(
     (stepsToExec: number): boolean => {
       for (let i = 0; i < stepsToExec; i++) {
-        const idx = sweepIndexRef.current;
-        if (idx >= arrayRef.current.length) {
+        const idx = verificationIndexRef.current;
+        if (idx === arrayRef.current.length) {
           activeHighlightsRef.current.clear();
           draw({ activeHighlightsRef, arrayRef, canvasRef, maxRange });
           updateStatus(SortingStatus.Finished);
           return true;
+        }
+        if (arrayRef.current[idx] > arrayRef.current[idx + 1]) {
+          cancelAnimationFrameIfAny();
+          activeHighlightsRef.current.clear();
+          draw({ activeHighlightsRef, arrayRef, canvasRef, maxRange });
+          updateStatus(SortingStatus.Finished);
+          throw new Error('Sorting verification failed');
         }
         if (idx > 0) {
           activeHighlightsRef.current.set(idx - 1, GREEN);
@@ -244,20 +251,20 @@ function TheSoundOfSorting(): JSX.Element {
         if (!isMutedRef.current) {
           playTone({
             maxRange,
-            toneDurationMs: SWEEP_TONE_DURATION_MS,
+            toneDurationMs: VERIFICATION_TONE_DURATION_MS,
             value: arrayRef.current[idx],
           });
         }
-        sweepIndexRef.current += 1;
+        verificationIndexRef.current += 1;
       }
       draw({ activeHighlightsRef, arrayRef, canvasRef, maxRange });
       return false;
     },
-    [maxRange, playTone, updateStatus],
+    [maxRange, cancelAnimationFrameIfAny, playTone, updateStatus],
   );
 
-  const executeSweepLoop = useCallback(() => {
-    updateStatus(SortingStatus.Sweeping);
+  const executeVerificationLoop = useCallback(() => {
+    updateStatus(SortingStatus.Verifying);
     let previousTime = performance.now();
     let pendingExecutionTimeMs = 0;
     const loop = (currentTime: number) => {
@@ -269,8 +276,8 @@ function TheSoundOfSorting(): JSX.Element {
         pendingExecutionTimeMs += Δt;
       }
       if (batchedSteps > 0) {
-        const isLastSweepFrame = processSweepFrame(batchedSteps);
-        if (isLastSweepFrame) {
+        const isLastVerificationFrame = processVerificationFrame(batchedSteps);
+        if (isLastVerificationFrame) {
           return;
         }
         if (delayRef.current > 0) {
@@ -279,9 +286,8 @@ function TheSoundOfSorting(): JSX.Element {
       }
       animationFrameIdRef.current = requestAnimationFrame(loop);
     };
-    cancelAnimationFrameIfAny();
     animationFrameIdRef.current = requestAnimationFrame(loop);
-  }, [cancelAnimationFrameIfAny, processSweepFrame, updateStatus]);
+  }, [processVerificationFrame, updateStatus]);
 
   const executeSortingLoop = () => {
     initAudio();
@@ -307,7 +313,7 @@ function TheSoundOfSorting(): JSX.Element {
         const shouldSkipTone = i % batchedAudioStep !== 0;
         const isLastSortingFrame = processSortFrame(false, shouldSkipTone, 20);
         if (isLastSortingFrame) {
-          executeSweepLoop();
+          executeVerificationLoop();
           return;
         }
       }
@@ -321,14 +327,13 @@ function TheSoundOfSorting(): JSX.Element {
 
   const handleStep = () => {
     initAudio();
-    cancelAnimationFrameIfAny();
-    if (statusRef.current === SortingStatus.ReadyToResumeSweeping) {
-      processSweepFrame(1);
+    if (statusRef.current === SortingStatus.ReadyToResumeVerifying) {
+      processVerificationFrame(1);
       return;
     }
     const isLastSortingFrame = processSortFrame(true, false, 100);
     if (isLastSortingFrame) {
-      updateStatus(SortingStatus.ReadyToResumeSweeping);
+      updateStatus(SortingStatus.ReadyToResumeVerifying);
       return;
     }
     setNewStats();
@@ -350,8 +355,8 @@ function TheSoundOfSorting(): JSX.Element {
 
   const handlePause = () => {
     cancelAnimationFrameIfAny();
-    if (status === SortingStatus.Sweeping) {
-      updateStatus(SortingStatus.ReadyToResumeSweeping);
+    if (status === SortingStatus.Verifying) {
+      updateStatus(SortingStatus.ReadyToResumeVerifying);
     } else {
       updateStatus(SortingStatus.ReadyToResumeSorting);
     }
@@ -359,8 +364,8 @@ function TheSoundOfSorting(): JSX.Element {
   };
 
   const handleResume = () => {
-    if (status === SortingStatus.ReadyToResumeSweeping) {
-      executeSweepLoop();
+    if (status === SortingStatus.ReadyToResumeVerifying) {
+      executeVerificationLoop();
     } else {
       executeSortingLoop();
     }

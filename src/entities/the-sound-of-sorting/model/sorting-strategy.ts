@@ -1,6 +1,6 @@
 const SortOperationType = {
-  Compare: 'compare',
-  Swap: 'swap',
+  Compare: 0,
+  Swap: 1,
 } as const;
 
 type SortOperationType =

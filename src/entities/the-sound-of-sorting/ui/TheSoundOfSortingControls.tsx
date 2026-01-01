@@ -55,8 +55,8 @@ function TheSoundOfSortingControls({
   const countRangeInputId = useId();
   const delayRangeInputId = useId();
 
-  const isSortingOrSweeping =
-    status === SortingStatus.Sorting || status === SortingStatus.Sweeping;
+  const isSortingOrVerifying =
+    status === SortingStatus.Sorting || status === SortingStatus.Verifying;
 
   const handleOnChangeMaxRange = (e: ChangeEvent<HTMLInputElement>) => {
     setMaxRange(+e.target.value);
@@ -83,7 +83,10 @@ function TheSoundOfSortingControls({
   };
 
   function composePrimaryAction() {
-    if (status === SortingStatus.Sorting || status === SortingStatus.Sweeping) {
+    if (
+      status === SortingStatus.Sorting ||
+      status === SortingStatus.Verifying
+    ) {
       return {
         label: 'Pause',
         icon: <PauseIcon />,
@@ -99,7 +102,7 @@ function TheSoundOfSortingControls({
     }
     if (
       status === SortingStatus.ReadyToResumeSorting ||
-      status === SortingStatus.ReadyToResumeSweeping
+      status === SortingStatus.ReadyToResumeVerifying
     ) {
       return {
         label: 'Resume',
@@ -131,7 +134,7 @@ function TheSoundOfSortingControls({
     <section className={styles.controlsContainer}>
       <div className={styles.inputsContainer}>
         <Select
-          disabled={isSortingOrSweeping}
+          disabled={isSortingOrVerifying}
           handleOnSelectChange={handleOnChangeAlgorithm}
           label="Algorithm"
           options={Object.values(SORTING_ALGORITHMS).map(({ key, label }) => ({
@@ -146,7 +149,7 @@ function TheSoundOfSortingControls({
           </label>
           <input
             className={styles.rangeInput}
-            disabled={isSortingOrSweeping}
+            disabled={isSortingOrVerifying}
             id={countRangeInputId}
             max="1000"
             min="100"
@@ -181,7 +184,7 @@ function TheSoundOfSortingControls({
           label={primaryAction.label}
         />
         <Button
-          disabled={status === SortingStatus.Finished || isSortingOrSweeping}
+          disabled={status === SortingStatus.Finished || isSortingOrVerifying}
           fullWidth
           handleOnClickButton={handleStep}
           icon={<StepIcon />}
