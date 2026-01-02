@@ -1,9 +1,10 @@
 import type { ReadonlyDeep } from 'type-fest';
 import { BubbleSortStrategy } from './bubble-sort-strategy.ts';
+import { InsertionSortStrategy } from './insertion-sort-strategy.ts';
 import { SelectionSortStrategy } from './selection-sort-strategy.ts';
 import type { SortingStrategy } from './sorting-strategy.ts';
 
-type SortingAlgorithm = 'bubble-sort' | 'selection-sort';
+type SortingAlgorithm = 'bubble-sort' | 'insertion-sort' | 'selection-sort';
 
 function assertIsSortingAlgorithm(
   value: unknown,
@@ -29,12 +30,17 @@ const SORTING_ALGORITHMS: ReadonlyDeep<
   'bubble-sort': {
     key: 'bubble-sort',
     strategy: new BubbleSortStrategy(),
-    label: 'Bubble Sort',
+    label: 'Bubble',
+  },
+  'insertion-sort': {
+    key: 'insertion-sort',
+    strategy: new InsertionSortStrategy(),
+    label: 'Insertion (Swap)',
   },
   'selection-sort': {
     key: 'selection-sort',
     strategy: new SelectionSortStrategy(),
-    label: 'Selection Sort',
+    label: 'Selection',
   },
 };
 

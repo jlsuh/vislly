@@ -171,21 +171,22 @@ function TheSoundOfSorting(): JSX.Element {
 
   function applySortStepEffects({
     highlightGroups,
-    shouldSkipTone,
+    shouldArbitrarilySkipTone,
     toneDurationMs,
     type,
   }: {
     highlightGroups: HighlightGroup[];
-    shouldSkipTone: boolean;
+    shouldArbitrarilySkipTone: boolean;
     toneDurationMs: number;
     type: SortOperationType;
   }): void {
-    const shouldPlayTone = !(shouldSkipTone || isMutedRef.current);
-    const isCompareOperation = type === SortOperationType.Compare;
+    const shouldPlayTone =
+      !(shouldArbitrarilySkipTone || isMutedRef.current) &&
+      type === SortOperationType.Compare;
     for (const group of highlightGroups) {
       for (const index of group.indices) {
         activeHighlightsRef.current.set(index, group.color);
-        if (shouldPlayTone && isCompareOperation) {
+        if (shouldPlayTone && !group.skipHighlightGroupTone) {
           playTone({
             maxRange,
             toneDurationMs,
@@ -197,8 +198,8 @@ function TheSoundOfSorting(): JSX.Element {
   }
 
   const processSortFrame = (
+    shouldArbitrarilySkipTone: boolean,
     shouldDraw: boolean,
-    shouldSkipTone: boolean,
     toneDurationMs: number,
   ): boolean => {
     if (sortingGeneratorRef.current === null) {
@@ -218,7 +219,7 @@ function TheSoundOfSorting(): JSX.Element {
     activeHighlightsRef.current.clear();
     applySortStepEffects({
       highlightGroups: value.highlights,
-      shouldSkipTone,
+      shouldArbitrarilySkipTone,
       toneDurationMs,
       type: value.type,
     });
@@ -311,8 +312,12 @@ function TheSoundOfSorting(): JSX.Element {
         delayRef.current,
       );
       for (let i = 0; i < batchedSteps; i += 1) {
-        const shouldSkipTone = i % batchedAudioStep !== 0;
-        const isLastSortingFrame = processSortFrame(false, shouldSkipTone, 20);
+        const shouldArbitrarilySkipTone = i % batchedAudioStep !== 0;
+        const isLastSortingFrame = processSortFrame(
+          shouldArbitrarilySkipTone,
+          false,
+          20,
+        );
         if (isLastSortingFrame) {
           executeVerificationLoop();
           return;
@@ -332,7 +337,7 @@ function TheSoundOfSorting(): JSX.Element {
       processVerificationFrame(1);
       return;
     }
-    const isLastSortingFrame = processSortFrame(true, false, 100);
+    const isLastSortingFrame = processSortFrame(false, true, 100);
     if (isLastSortingFrame) {
       updateStatus(SortingStatus.ReadyToResumeVerifying);
       return;

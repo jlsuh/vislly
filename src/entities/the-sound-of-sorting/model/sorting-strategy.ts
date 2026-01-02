@@ -9,6 +9,7 @@ type SortOperationType =
 interface HighlightGroup {
   color: string;
   indices: number[];
+  skipHighlightGroupTone: boolean;
 }
 
 interface SortingStrategyYield {
