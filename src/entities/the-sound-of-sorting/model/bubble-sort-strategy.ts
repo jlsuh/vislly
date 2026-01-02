@@ -25,7 +25,7 @@ class BubbleSortStrategy extends SortingStrategy {
         if (array[j] > array[j + 1]) {
           super.swap(array, j, j + 1);
           yield {
-            accessCount: 2,
+            accessCount: 4,
             compareCount: 0,
             highlights: [
               {

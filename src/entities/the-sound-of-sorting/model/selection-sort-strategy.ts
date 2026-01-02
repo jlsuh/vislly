@@ -39,7 +39,7 @@ class SelectionSortStrategy extends SortingStrategy {
       if (minIdx !== i) {
         super.swap(array, i, minIdx);
         yield {
-          accessCount: 0,
+          accessCount: 4,
           compareCount: 0,
           highlights: [
             { indices: [i - 1], color: GREEN, skipHighlightGroupTone: true },
