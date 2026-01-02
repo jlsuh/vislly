@@ -17,7 +17,7 @@ function TheSoundOfSortingStats({
   delay,
   stats,
 }: TheSoundOfSortingStatsProps): JSX.Element {
-  const algorithmLabel = SORTING_ALGORITHMS[algorithm]?.label ?? algorithm;
+  const algorithmLabel = SORTING_ALGORITHMS[algorithm].label ?? algorithm;
 
   return (
     <div className={styles.statsContainer}>

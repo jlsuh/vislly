@@ -21,7 +21,7 @@ import {
   SORTING_ALGORITHMS,
   type SortingAlgorithm,
 } from '../model/sorting-algorithms.ts';
-import type { SortingStats } from '../model/sorting-stats.ts';
+import { SortingStats } from '../model/sorting-stats.ts';
 import { SortingStatus } from '../model/sorting-status.ts';
 import {
   type HighlightGroup,
@@ -36,7 +36,7 @@ const BASE_STEPS_PER_FRAME = 73;
 const GAP_THRESHOLD_RATIO = 2.5;
 const INITIAL_MAX_RANGE = 200;
 const INITIAL_RESIZE_DIMENSIONS: ResizeDimensions = { height: 0, width: 0 };
-const INITIAL_STATS: SortingStats = { accesses: 0, comparisons: 0, swaps: 0 };
+const INITIAL_STATS = new SortingStats(0, 0, 0);
 const VERIFICATION_TONE_DURATION_MS = 30;
 
 function composePendingExecutionTimeMs(
@@ -112,7 +112,7 @@ function TheSoundOfSorting(): JSX.Element {
   const [sortingAlgorithm, setSortingAlgorithm] = useState(
     INITIAL_SORTING_ALGORITHM,
   );
-  const [stats, setStats] = useState({ ...INITIAL_STATS });
+  const [stats, setStats] = useState(INITIAL_STATS.deepCopy());
   const [status, setStatus] = useState<SortingStatus>(SortingStatus.Idle);
 
   const activeHighlightsRef = useRef<Map<number, string>>(new Map());
@@ -125,7 +125,7 @@ function TheSoundOfSorting(): JSX.Element {
   const sortingAlgorithmRef = useRef(sortingAlgorithm);
   const sortingGeneratorRef =
     useRef<Generator<SortingStrategyYield, void, unknown>>(null);
-  const statsRef = useRef({ ...INITIAL_STATS });
+  const statsRef = useRef(INITIAL_STATS.deepCopy());
   const statusRef = useRef<SortingStatus>(SortingStatus.Idle);
   const verificationIndexRef = useRef(0);
 
@@ -161,8 +161,8 @@ function TheSoundOfSorting(): JSX.Element {
       sortingGeneratorRef.current = SORTING_ALGORITHMS[
         sortingAlgorithmRef.current
       ].strategy.generator({ array: arrayRef.current });
-      statsRef.current = { ...INITIAL_STATS };
-      setStats({ ...INITIAL_STATS });
+      statsRef.current = INITIAL_STATS.deepCopy();
+      setStats(INITIAL_STATS.deepCopy());
       activeHighlightsRef.current.clear();
       draw({ activeHighlightsRef, arrayRef, canvasRef, maxRange });
     },
@@ -211,9 +211,10 @@ function TheSoundOfSorting(): JSX.Element {
       setNewStats();
       return true;
     }
-    statsRef.current.comparisons += value.compareCount;
-    statsRef.current.accesses += value.accessCount;
-    statsRef.current.swaps += value.swapCount;
+    statsRef.current
+      .addAccesses(value.accessCount)
+      .addComparisons(value.compareCount)
+      .addSwaps(value.swapCount);
     activeHighlightsRef.current.clear();
     applySortStepEffects({
       highlightGroups: value.highlights,
@@ -350,7 +351,7 @@ function TheSoundOfSorting(): JSX.Element {
   };
 
   const setNewStats = () => {
-    setStats({ ...statsRef.current });
+    setStats(statsRef.current.deepCopy());
   };
 
   const handlePause = () => {
