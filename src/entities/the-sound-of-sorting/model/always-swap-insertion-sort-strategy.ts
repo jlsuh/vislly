@@ -6,7 +6,7 @@ import {
   SortOperationType,
 } from './sorting-strategy.ts';
 
-class InsertionSortStrategy extends SortingStrategy {
+class AlwaysSwapInsertionSortStrategy extends SortingStrategy {
   public *generator({
     array,
   }: {
@@ -48,4 +48,4 @@ class InsertionSortStrategy extends SortingStrategy {
   }
 }
 
-export { InsertionSortStrategy };
+export { AlwaysSwapInsertionSortStrategy };

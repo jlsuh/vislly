@@ -1,10 +1,15 @@
 import type { ReadonlyDeep } from 'type-fest';
+import { AlwaysSwapInsertionSortStrategy } from './always-swap-insertion-sort-strategy.ts';
+import { BinaryInsertionSortStrategy } from './binary-insertion-sort.ts';
 import { BubbleSortStrategy } from './bubble-sort-strategy.ts';
-import { InsertionSortStrategy } from './insertion-sort-strategy.ts';
 import { SelectionSortStrategy } from './selection-sort-strategy.ts';
 import type { SortingStrategy } from './sorting-strategy.ts';
 
-type SortingAlgorithm = 'bubble-sort' | 'insertion-sort' | 'selection-sort';
+type SortingAlgorithm =
+  | 'always-swap-insertion-sort'
+  | 'binary-insertion-sort'
+  | 'bubble-sort'
+  | 'selection-sort';
 
 function assertIsSortingAlgorithm(
   value: unknown,
@@ -27,20 +32,25 @@ const SORTING_ALGORITHMS: ReadonlyDeep<
     }
   >
 > = {
+  'always-swap-insertion-sort': {
+    key: 'always-swap-insertion-sort',
+    label: 'Always Swap Insertion',
+    strategy: new AlwaysSwapInsertionSortStrategy(),
+  },
+  'binary-insertion-sort': {
+    key: 'binary-insertion-sort',
+    label: 'Binary Insertion',
+    strategy: new BinaryInsertionSortStrategy(),
+  },
   'bubble-sort': {
     key: 'bubble-sort',
-    strategy: new BubbleSortStrategy(),
     label: 'Bubble',
-  },
-  'insertion-sort': {
-    key: 'insertion-sort',
-    strategy: new InsertionSortStrategy(),
-    label: 'Insertion (Swap)',
+    strategy: new BubbleSortStrategy(),
   },
   'selection-sort': {
     key: 'selection-sort',
-    strategy: new SelectionSortStrategy(),
     label: 'Selection',
+    strategy: new SelectionSortStrategy(),
   },
 };
 
