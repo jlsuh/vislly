@@ -1,6 +1,7 @@
 const SortOperationType = {
   Compare: 0,
   Swap: 1,
+  Inspect: 2,
 } as const;
 
 type SortOperationType =

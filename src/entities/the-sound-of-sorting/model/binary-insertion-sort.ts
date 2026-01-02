@@ -36,6 +36,18 @@ class BinaryInsertionSortStrategy extends SortingStrategy {
         }
       }
       let j = i - 1;
+      if (j >= lo) {
+        yield {
+          accessCount: 0,
+          compareCount: 0,
+          highlights: [
+            { color: GREEN, indices: [i], skipHighlightGroupTone: true },
+            { color: RED, indices: [j, j + 1], skipHighlightGroupTone: true },
+          ],
+          swapCount: 0,
+          type: SortOperationType.Inspect,
+        };
+      }
       while (j >= lo) {
         super.swap(array, j, j + 1);
         yield {
