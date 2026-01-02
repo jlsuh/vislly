@@ -199,7 +199,6 @@ function TheSoundOfSorting(): JSX.Element {
 
   const processSortFrame = (
     shouldArbitrarilySkipTone: boolean,
-    shouldDraw: boolean,
     toneDurationMs: number,
   ): boolean => {
     if (sortingGeneratorRef.current === null) {
@@ -208,8 +207,8 @@ function TheSoundOfSorting(): JSX.Element {
     const { done, value } = sortingGeneratorRef.current.next();
     if (done) {
       activeHighlightsRef.current.clear();
-      draw({ activeHighlightsRef, arrayRef, canvasRef, maxRange });
       setNewStats();
+      draw({ activeHighlightsRef, arrayRef, canvasRef, maxRange });
       return true;
     }
     statsRef.current
@@ -223,9 +222,8 @@ function TheSoundOfSorting(): JSX.Element {
       toneDurationMs,
       type: value.type,
     });
-    if (shouldDraw) {
-      draw({ activeHighlightsRef, arrayRef, canvasRef, maxRange });
-    }
+    setNewStats();
+    draw({ activeHighlightsRef, arrayRef, canvasRef, maxRange });
     return false;
   };
 
@@ -315,7 +313,6 @@ function TheSoundOfSorting(): JSX.Element {
         const shouldArbitrarilySkipTone = i % batchedAudioStep !== 0;
         const isLastSortingFrame = processSortFrame(
           shouldArbitrarilySkipTone,
-          false,
           20,
         );
         if (isLastSortingFrame) {
@@ -324,8 +321,6 @@ function TheSoundOfSorting(): JSX.Element {
         }
       }
       pendingExecutionTimeMs -= batchedSteps * delayRef.current;
-      setNewStats();
-      draw({ activeHighlightsRef, arrayRef, canvasRef, maxRange });
       animationFrameIdRef.current = requestAnimationFrame(loop);
     };
     animationFrameIdRef.current = requestAnimationFrame(loop);
@@ -337,12 +332,10 @@ function TheSoundOfSorting(): JSX.Element {
       processVerificationFrame(1);
       return;
     }
-    const isLastSortingFrame = processSortFrame(false, true, 100);
+    const isLastSortingFrame = processSortFrame(false, 100);
     if (isLastSortingFrame) {
       updateStatus(SortingStatus.ReadyToResumeVerifying);
-      return;
     }
-    setNewStats();
   };
 
   const setNewSortingAlgorithm = (newAlgorithm: SortingAlgorithm) => {
