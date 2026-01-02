@@ -1,5 +1,6 @@
 import { GREEN, RED } from '@/shared/lib/rgba.ts';
 import {
+  type HighlightGroup,
   SortingStrategy,
   type SortingStrategyYield,
   SortOperationType,
@@ -11,18 +12,20 @@ class InsertionSortStrategy extends SortingStrategy {
   }: {
     array: number[];
   }): Generator<SortingStrategyYield, void, unknown> {
+    let highlights: HighlightGroup[];
     for (let i = 1; i < array.length; i += 1) {
       const key = array[i];
       let totalAccessCount = 1;
       let j = i - 1;
       while (j >= 0) {
+        highlights = [
+          { indices: [i], color: GREEN, skipHighlightGroupTone: true },
+          { indices: [j, j + 1], color: RED, skipHighlightGroupTone: false },
+        ];
         yield {
           accessCount: totalAccessCount + 1,
           compareCount: 1,
-          highlights: [
-            { indices: [j, j + 1], color: RED, skipHighlightGroupTone: false },
-            { indices: [i], color: GREEN, skipHighlightGroupTone: true },
-          ],
+          highlights,
           swapCount: 0,
           type: SortOperationType.Compare,
         };
@@ -32,14 +35,7 @@ class InsertionSortStrategy extends SortingStrategy {
           yield {
             accessCount: 4,
             compareCount: 0,
-            highlights: [
-              {
-                indices: [j, j + 1],
-                color: RED,
-                skipHighlightGroupTone: false,
-              },
-              { indices: [i], color: GREEN, skipHighlightGroupTone: true },
-            ],
+            highlights,
             swapCount: 1,
             type: SortOperationType.Swap,
           };

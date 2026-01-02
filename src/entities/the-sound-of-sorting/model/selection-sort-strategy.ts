@@ -12,19 +12,24 @@ class SelectionSortStrategy extends SortingStrategy {
   }: {
     array: number[];
   }): Generator<SortingStrategyYield, void, unknown> {
+    const compareGroup: HighlightGroup = {
+      color: RED,
+      indices: [],
+      skipHighlightGroupTone: false,
+    };
+    const delimiterGroup: HighlightGroup = {
+      color: GREEN,
+      indices: [],
+      skipHighlightGroupTone: true,
+    };
+    const highlights: HighlightGroup[] = [compareGroup, delimiterGroup];
     for (let i = 0; i < array.length - 1; i += 1) {
       let minIdx = i;
+      if (i > 0) {
+        delimiterGroup.indices = [i - 1];
+      }
       for (let j = i + 1; j < array.length; j += 1) {
-        const highlights: HighlightGroup[] = [
-          { indices: [minIdx, j], color: RED, skipHighlightGroupTone: false },
-        ];
-        if (i > 0) {
-          highlights.push({
-            indices: [i - 1],
-            color: GREEN,
-            skipHighlightGroupTone: true,
-          });
-        }
+        compareGroup.indices = [minIdx, j];
         yield {
           accessCount: 2,
           compareCount: 1,
@@ -38,13 +43,11 @@ class SelectionSortStrategy extends SortingStrategy {
       }
       if (minIdx !== i) {
         super.swap(array, i, minIdx);
+        compareGroup.indices = [minIdx, i];
         yield {
           accessCount: 4,
           compareCount: 0,
-          highlights: [
-            { indices: [i - 1], color: GREEN, skipHighlightGroupTone: true },
-            { indices: [minIdx, i], color: RED, skipHighlightGroupTone: false },
-          ],
+          highlights,
           swapCount: 1,
           type: SortOperationType.Swap,
         };

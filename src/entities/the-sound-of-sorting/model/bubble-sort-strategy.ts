@@ -1,5 +1,6 @@
 import { RED } from '@/shared/lib/rgba.ts';
 import {
+  type HighlightGroup,
   SortingStrategy,
   type SortingStrategyYield,
   SortOperationType,
@@ -11,14 +12,16 @@ class BubbleSortStrategy extends SortingStrategy {
   }: {
     array: number[];
   }): Generator<SortingStrategyYield, void, unknown> {
+    let highlights: HighlightGroup[];
     for (let i = 0; i < array.length; i += 1) {
       for (let j = 0; j < array.length - i - 1; j += 1) {
+        highlights = [
+          { color: RED, indices: [j, j + 1], skipHighlightGroupTone: false },
+        ];
         yield {
           accessCount: 2,
           compareCount: 1,
-          highlights: [
-            { indices: [j, j + 1], color: RED, skipHighlightGroupTone: false },
-          ],
+          highlights,
           swapCount: 0,
           type: SortOperationType.Compare,
         };
@@ -27,13 +30,7 @@ class BubbleSortStrategy extends SortingStrategy {
           yield {
             accessCount: 4,
             compareCount: 0,
-            highlights: [
-              {
-                indices: [j, j + 1],
-                color: RED,
-                skipHighlightGroupTone: false,
-              },
-            ],
+            highlights,
             swapCount: 1,
             type: SortOperationType.Swap,
           };
