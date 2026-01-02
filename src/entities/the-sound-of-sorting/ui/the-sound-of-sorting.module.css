@@ -26,7 +26,7 @@
 .theSoundOfSortingContainer {
   display: flex;
   flex-direction: column-reverse;
-  gap: 0.725rem;
+  gap: 1rem;
   width: 100%;
 }
 
