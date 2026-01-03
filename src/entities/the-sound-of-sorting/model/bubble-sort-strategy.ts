@@ -20,7 +20,8 @@ class BubbleSortStrategy extends SortingStrategy {
         ];
         yield {
           accessCount: 2,
-          compareCount: 1,
+          assignmentCount: 0,
+          comparisonCount: 1,
           highlights,
           swapCount: 0,
           type: SortOperationType.Compare,
@@ -29,7 +30,8 @@ class BubbleSortStrategy extends SortingStrategy {
           super.swap(array, j, j + 1);
           yield {
             accessCount: 4,
-            compareCount: 0,
+            assignmentCount: 2,
+            comparisonCount: 0,
             highlights,
             swapCount: 1,
             type: SortOperationType.Swap,

@@ -1,15 +1,20 @@
 class SortingStats {
   accesses: number;
+  assignments: number;
   comparisons: number;
   swaps: number;
 
   public constructor(
     initialAccesses: number,
+    initialAssignments: number,
     initialComparisons: number,
     initialSwaps: number,
   ) {
     if (initialAccesses < 0) {
       throw new RangeError('Illegal negative initial accesses');
+    }
+    if (initialAssignments < 0) {
+      throw new RangeError('Illegal negative initial assignments');
     }
     if (initialComparisons < 0) {
       throw new RangeError('Illegal negative initial comparisons');
@@ -18,12 +23,18 @@ class SortingStats {
       throw new RangeError('Illegal negative initial swaps');
     }
     this.accesses = initialAccesses;
+    this.assignments = initialAssignments;
     this.comparisons = initialComparisons;
     this.swaps = initialSwaps;
   }
 
   public addAccesses(count: number): SortingStats {
     this.accesses += count;
+    return this;
+  }
+
+  public addAssignments(count: number): SortingStats {
+    this.assignments += count;
     return this;
   }
 
@@ -38,7 +49,12 @@ class SortingStats {
   }
 
   public deepCopy(): SortingStats {
-    return new SortingStats(this.accesses, this.comparisons, this.swaps);
+    return new SortingStats(
+      this.accesses,
+      this.assignments,
+      this.comparisons,
+      this.swaps,
+    );
   }
 }
 

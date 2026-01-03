@@ -22,7 +22,8 @@ abstract class ShellSortTemplateMethodStrategy extends SortingStrategy {
         while (j >= h) {
           yield {
             accessCount: 1 + pendingAccessCount,
-            compareCount: 1,
+            assignmentCount: 0,
+            comparisonCount: 1,
             highlights: [
               {
                 color: RED,
@@ -30,7 +31,6 @@ abstract class ShellSortTemplateMethodStrategy extends SortingStrategy {
                 skipHighlightGroupTone: false,
               },
             ],
-            setCount: 0,
             swapCount: 0,
             type: SortOperationType.Compare,
           };
@@ -39,7 +39,8 @@ abstract class ShellSortTemplateMethodStrategy extends SortingStrategy {
             array[j] = array[j - h];
             yield {
               accessCount: 2,
-              compareCount: 0,
+              assignmentCount: 1,
+              comparisonCount: 0,
               highlights: [
                 {
                   color: RED,
@@ -47,9 +48,8 @@ abstract class ShellSortTemplateMethodStrategy extends SortingStrategy {
                   skipHighlightGroupTone: false,
                 },
               ],
-              setCount: 1,
               swapCount: 0,
-              type: SortOperationType.Set,
+              type: SortOperationType.Assignment,
             };
             j -= h;
           } else {
@@ -60,13 +60,13 @@ abstract class ShellSortTemplateMethodStrategy extends SortingStrategy {
         if (j !== i) {
           yield {
             accessCount: 1,
-            compareCount: 0,
+            assignmentCount: 1,
+            comparisonCount: 0,
             highlights: [
               { color: RED, indices: [j], skipHighlightGroupTone: false },
             ],
-            setCount: 1,
             swapCount: 0,
-            type: SortOperationType.Set,
+            type: SortOperationType.Assignment,
           };
         }
       }

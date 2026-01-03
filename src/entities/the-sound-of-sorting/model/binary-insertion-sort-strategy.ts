@@ -20,7 +20,8 @@ class BinaryInsertionSortStrategy extends SortingStrategy {
         const mid = Math.floor((lo + hi) / 2);
         yield {
           accessCount: 1 + pendingAccessCount,
-          compareCount: 1,
+          assignmentCount: 0,
+          comparisonCount: 1,
           highlights: [
             { color: GREEN, indices: [i], skipHighlightGroupTone: true },
             { color: RED, indices: [mid], skipHighlightGroupTone: false },
@@ -39,7 +40,8 @@ class BinaryInsertionSortStrategy extends SortingStrategy {
       if (j >= lo) {
         yield {
           accessCount: 0,
-          compareCount: 0,
+          assignmentCount: 0,
+          comparisonCount: 0,
           highlights: [
             { color: GREEN, indices: [i], skipHighlightGroupTone: true },
             { color: RED, indices: [j, j + 1], skipHighlightGroupTone: true },
@@ -52,7 +54,8 @@ class BinaryInsertionSortStrategy extends SortingStrategy {
         super.swap(array, j, j + 1);
         yield {
           accessCount: 4,
-          compareCount: 0,
+          assignmentCount: 2,
+          comparisonCount: 0,
           highlights: [
             { color: GREEN, indices: [i], skipHighlightGroupTone: true },
             { color: RED, indices: [j, j + 1], skipHighlightGroupTone: false },

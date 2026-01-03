@@ -36,7 +36,7 @@ const BASE_STEPS_PER_FRAME = 73;
 const GAP_THRESHOLD_RATIO = 2.5;
 const INITIAL_MAX_RANGE = 200;
 const INITIAL_RESIZE_DIMENSIONS: ResizeDimensions = { height: 0, width: 0 };
-const INITIAL_STATS = new SortingStats(0, 0, 0);
+const INITIAL_STATS = new SortingStats(0, 0, 0, 0);
 const VERIFICATION_TONE_DURATION_MS = 30;
 
 function composePendingExecutionTimeMs(
@@ -213,7 +213,8 @@ function TheSoundOfSorting(): JSX.Element {
     }
     statsRef.current
       .addAccesses(value.accessCount)
-      .addComparisons(value.compareCount)
+      .addAssignments(value.assignmentCount)
+      .addComparisons(value.comparisonCount)
       .addSwaps(value.swapCount);
     activeHighlightsRef.current.clear();
     applySortStepEffects({
