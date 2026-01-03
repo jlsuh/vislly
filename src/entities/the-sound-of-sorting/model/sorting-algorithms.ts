@@ -2,7 +2,8 @@ import type { ReadonlyDeep } from 'type-fest';
 import { AlwaysSwapInsertionSortStrategy } from './always-swap-insertion-sort-strategy.ts';
 import { BinaryInsertionSortStrategy } from './binary-insertion-sort-strategy.ts';
 import { BubbleSortStrategy } from './bubble-sort-strategy.ts';
-import { SedgewickShellSortStrategy } from './sedgewick-shell-sort-strategy.ts';
+import { IncerpiSedgewickShellSortTemplateMethodStrategy } from './incerpi-sedgewick-shell-sort-template-method-strategy.ts';
+import { KnuthShellSortTemplateMethodStrategy } from './knuth-shell-sort-template-method-strategy.ts';
 import { SelectionSortStrategy } from './selection-sort-strategy.ts';
 import type { SortingStrategy } from './sorting-strategy.ts';
 
@@ -10,7 +11,8 @@ type SortingAlgorithm =
   | 'always-swap-insertion-sort'
   | 'binary-insertion-sort'
   | 'bubble-sort'
-  | 'sedgewick-shell-sort'
+  | 'incerpi-sedgewick-shell-sort'
+  | 'knuth-shell-sort'
   | 'selection-sort';
 
 function assertIsSortingAlgorithm(
@@ -49,10 +51,15 @@ const SORTING_ALGORITHMS: ReadonlyDeep<
     label: 'Bubble',
     strategy: new BubbleSortStrategy(),
   },
-  'sedgewick-shell-sort': {
-    key: 'sedgewick-shell-sort',
-    label: 'Sedgewick Shell',
-    strategy: new SedgewickShellSortStrategy(),
+  'incerpi-sedgewick-shell-sort': {
+    key: 'incerpi-sedgewick-shell-sort',
+    label: 'Incerpi-Sedgewick Shell',
+    strategy: new IncerpiSedgewickShellSortTemplateMethodStrategy(),
+  },
+  'knuth-shell-sort': {
+    key: 'knuth-shell-sort',
+    label: 'Knuth Shell',
+    strategy: new KnuthShellSortTemplateMethodStrategy(),
   },
   'selection-sort': {
     key: 'selection-sort',

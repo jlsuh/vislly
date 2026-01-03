@@ -5,21 +5,16 @@ import {
   SortOperationType,
 } from './sorting-strategy.ts';
 
-const SEDGEWICK_GAPS = [
-  1391376, 463792, 198768, 86961, 33936, 13776, 4592, 1968, 861, 336, 112, 48,
-  21, 7, 3, 1,
-];
+abstract class ShellSortTemplateMethodStrategy extends SortingStrategy {
+  protected abstract getGaps(length: number): number[];
 
-/**
- * @see {@link https://sedgewick.io/wp-content/themes/sedgewick/papers/1996Shellsort.pdf | Analysis of Shellsort and Related Algorithms}
- */
-class SedgewickShellSortStrategy extends SortingStrategy {
   public *generator({
     array,
   }: {
     array: number[];
   }): Generator<SortingStrategyYield, void, unknown> {
-    for (const h of SEDGEWICK_GAPS) {
+    const gaps = this.getGaps(array.length);
+    for (const h of gaps) {
       for (let i = h; i < array.length; i += 1) {
         const v = array[i];
         let pendingAccessCount = 1;
@@ -35,6 +30,7 @@ class SedgewickShellSortStrategy extends SortingStrategy {
                 skipHighlightGroupTone: false,
               },
             ],
+            setCount: 0,
             swapCount: 0,
             type: SortOperationType.Compare,
           };
@@ -51,6 +47,7 @@ class SedgewickShellSortStrategy extends SortingStrategy {
                   skipHighlightGroupTone: false,
                 },
               ],
+              setCount: 1,
               swapCount: 0,
               type: SortOperationType.Set,
             };
@@ -67,6 +64,7 @@ class SedgewickShellSortStrategy extends SortingStrategy {
             highlights: [
               { color: RED, indices: [j], skipHighlightGroupTone: false },
             ],
+            setCount: 1,
             swapCount: 0,
             type: SortOperationType.Set,
           };
@@ -76,4 +74,4 @@ class SedgewickShellSortStrategy extends SortingStrategy {
   }
 }
 
-export { SedgewickShellSortStrategy };
+export { ShellSortTemplateMethodStrategy };
