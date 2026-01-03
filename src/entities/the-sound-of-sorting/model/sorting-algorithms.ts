@@ -1,6 +1,6 @@
 import type { ReadonlyDeep } from 'type-fest';
 import { AlwaysSwapInsertionSortStrategy } from './always-swap-insertion-sort-strategy.ts';
-import { BinaryInsertionSortStrategy } from './binary-insertion-sort.ts';
+import { BinaryInsertionSortStrategy } from './binary-insertion-sort-strategy.ts';
 import { BubbleSortStrategy } from './bubble-sort-strategy.ts';
 import { SedgewickShellSortStrategy } from './sedgewick-shell-sort-strategy.ts';
 import { SelectionSortStrategy } from './selection-sort-strategy.ts';
