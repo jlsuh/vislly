@@ -83,10 +83,7 @@ function TheSoundOfSortingControls({
   };
 
   function composePrimaryAction() {
-    if (
-      status === SortingStatus.Sorting ||
-      status === SortingStatus.Verifying
-    ) {
+    if (isSortingOrVerifying) {
       return {
         label: 'Pause',
         icon: <PauseIcon />,

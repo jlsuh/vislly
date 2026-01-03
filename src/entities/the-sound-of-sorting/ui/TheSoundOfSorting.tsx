@@ -355,12 +355,16 @@ function TheSoundOfSorting(): JSX.Element {
 
   const handlePause = () => {
     cancelAnimationFrameIfAny();
+    setNewStats();
     if (status === SortingStatus.Verifying) {
       updateStatus(SortingStatus.ReadyToResumeVerifying);
-    } else {
-      updateStatus(SortingStatus.ReadyToResumeSorting);
+      return;
     }
-    setNewStats();
+    if (status === SortingStatus.Sorting) {
+      updateStatus(SortingStatus.ReadyToResumeSorting);
+      return;
+    }
+    throw new Error(`Illegal state transition on pause: ${status}`);
   };
 
   const handleResume = () => {
