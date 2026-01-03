@@ -1,4 +1,4 @@
-import { ShellSortTemplateMethodStrategy } from './shell-sort-template-method-strategy.ts';
+import { ShellSortStrategy } from './shell-sort-template-method-strategy.ts';
 
 /**
  * @see {@link https://oeis.org/A003462 | OEIS A003462}
@@ -8,10 +8,10 @@ const KNUTH_GAPS = [
   364, 121, 40, 13, 4, 1,
 ];
 
-class KnuthShellSortTemplateMethodStrategy extends ShellSortTemplateMethodStrategy {
+class KnuthShellSortStrategy extends ShellSortStrategy {
   protected getGaps(length: number): number[] {
     return KNUTH_GAPS.filter((h) => 3 * h + 1 <= length);
   }
 }
 
-export { KnuthShellSortTemplateMethodStrategy };
+export { KnuthShellSortStrategy };

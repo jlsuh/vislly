@@ -5,7 +5,7 @@ import {
   SortOperationType,
 } from './sorting-strategy.ts';
 
-abstract class ShellSortTemplateMethodStrategy extends SortingStrategy {
+abstract class ShellSortStrategy extends SortingStrategy {
   protected abstract getGaps(length: number): number[];
 
   public *generator({
@@ -74,4 +74,4 @@ abstract class ShellSortTemplateMethodStrategy extends SortingStrategy {
   }
 }
 
-export { ShellSortTemplateMethodStrategy };
+export { ShellSortStrategy };

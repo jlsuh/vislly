@@ -1,4 +1,4 @@
-import { ShellSortTemplateMethodStrategy } from './shell-sort-template-method-strategy.ts';
+import { ShellSortStrategy } from './shell-sort-template-method-strategy.ts';
 
 /**
  * @see {@link https://oeis.org/A036569 | OEIS A036569}
@@ -9,10 +9,10 @@ const INCERPI_SEDGEWICK_GAPS = [
   21, 7, 3, 1,
 ];
 
-class IncerpiSedgewickShellSortTemplateMethodStrategy extends ShellSortTemplateMethodStrategy {
+class IncerpiSedgewickShellSortStrategy extends ShellSortStrategy {
   protected getGaps(length: number): number[] {
     return INCERPI_SEDGEWICK_GAPS.filter((h) => h < length);
   }
 }
 
-export { IncerpiSedgewickShellSortTemplateMethodStrategy };
+export { IncerpiSedgewickShellSortStrategy };
