@@ -1,7 +1,7 @@
 const SortOperationType = {
-  Assignment: 0,
-  Compare: 1,
-  Inspect: 2,
+  Compare: 0,
+  Inspect: 1,
+  Shift: 2,
   Swap: 3,
 } as const;
 
@@ -16,9 +16,9 @@ interface HighlightGroup {
 
 interface SortingStrategyYield {
   accessCount: number;
-  assignmentCount: number;
   comparisonCount: number;
   highlights: HighlightGroup[];
+  shiftCount: number;
   swapCount: number;
   type: SortOperationType;
 }

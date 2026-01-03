@@ -6,7 +6,7 @@ import {
   SortOperationType,
 } from './sorting-strategy.ts';
 
-class InsertionSortStrategy extends SortingStrategy {
+class SwapInsertionSortStrategy extends SortingStrategy {
   public *generator({
     array,
   }: {
@@ -19,14 +19,14 @@ class InsertionSortStrategy extends SortingStrategy {
       let j = i - 1;
       while (j >= 0) {
         highlights = [
-          { indices: [i], color: GREEN, skipHighlightGroupTone: true },
           { indices: [j, j + 1], color: RED, skipHighlightGroupTone: false },
+          { indices: [i], color: GREEN, skipHighlightGroupTone: true },
         ];
         yield {
           accessCount: totalAccessCount + 1,
-          assignmentCount: 0,
           comparisonCount: 1,
           highlights,
+          shiftCount: 0,
           swapCount: 0,
           type: SortOperationType.Compare,
         };
@@ -35,9 +35,9 @@ class InsertionSortStrategy extends SortingStrategy {
           super.swap(array, j, j + 1);
           yield {
             accessCount: 4,
-            assignmentCount: 2,
             comparisonCount: 0,
             highlights,
+            shiftCount: 0,
             swapCount: 1,
             type: SortOperationType.Swap,
           };
@@ -50,4 +50,4 @@ class InsertionSortStrategy extends SortingStrategy {
   }
 }
 
-export { InsertionSortStrategy };
+export { SwapInsertionSortStrategy };

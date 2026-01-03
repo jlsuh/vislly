@@ -1,5 +1,6 @@
 import { RED } from '@/shared/lib/rgba.ts';
 import {
+  type HighlightGroup,
   SortingStrategy,
   type SortingStrategyYield,
   SortOperationType,
@@ -7,6 +8,10 @@ import {
 
 abstract class ShellSortStrategy extends SortingStrategy {
   protected abstract getGaps(length: number): number[];
+
+  protected getAdditionalHighlights(_: number): HighlightGroup[] {
+    return [];
+  }
 
   public *generator({
     array,
@@ -20,17 +25,15 @@ abstract class ShellSortStrategy extends SortingStrategy {
         let pendingAccessCount = 1;
         let j = i;
         while (j >= h) {
+          const currentHighlights = [
+            { color: RED, indices: [j, j - h], skipHighlightGroupTone: false },
+            ...this.getAdditionalHighlights(i),
+          ];
           yield {
             accessCount: 1 + pendingAccessCount,
-            assignmentCount: 0,
             comparisonCount: 1,
-            highlights: [
-              {
-                color: RED,
-                indices: [j, j - h],
-                skipHighlightGroupTone: false,
-              },
-            ],
+            highlights: currentHighlights,
+            shiftCount: 0,
             swapCount: 0,
             type: SortOperationType.Compare,
           };
@@ -39,34 +42,29 @@ abstract class ShellSortStrategy extends SortingStrategy {
             array[j] = array[j - h];
             yield {
               accessCount: 2,
-              assignmentCount: 1,
               comparisonCount: 0,
-              highlights: [
-                {
-                  color: RED,
-                  indices: [j, j - h],
-                  skipHighlightGroupTone: false,
-                },
-              ],
+              highlights: currentHighlights,
+              shiftCount: 1,
               swapCount: 0,
-              type: SortOperationType.Assignment,
+              type: SortOperationType.Shift,
             };
             j -= h;
           } else {
             break;
           }
         }
-        array[j] = v;
         if (j !== i) {
+          array[j] = v;
           yield {
             accessCount: 1,
-            assignmentCount: 1,
             comparisonCount: 0,
             highlights: [
               { color: RED, indices: [j], skipHighlightGroupTone: false },
+              ...this.getAdditionalHighlights(i),
             ],
+            shiftCount: 1,
             swapCount: 0,
-            type: SortOperationType.Assignment,
+            type: SortOperationType.Shift,
           };
         }
       }

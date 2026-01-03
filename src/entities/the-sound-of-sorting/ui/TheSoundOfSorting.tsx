@@ -213,8 +213,8 @@ function TheSoundOfSorting(): JSX.Element {
     }
     statsRef.current
       .addAccesses(value.accessCount)
-      .addAssignments(value.assignmentCount)
       .addComparisons(value.comparisonCount)
+      .addShifts(value.shiftCount)
       .addSwaps(value.swapCount);
     activeHighlightsRef.current.clear();
     applySortStepEffects({

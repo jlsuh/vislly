@@ -32,9 +32,9 @@ class SelectionSortStrategy extends SortingStrategy {
         compareGroup.indices = [minIdx, j];
         yield {
           accessCount: 2,
-          assignmentCount: 0,
           comparisonCount: 1,
           highlights,
+          shiftCount: 0,
           swapCount: 0,
           type: SortOperationType.Compare,
         };
@@ -47,9 +47,9 @@ class SelectionSortStrategy extends SortingStrategy {
         compareGroup.indices = [minIdx, i];
         yield {
           accessCount: 4,
-          assignmentCount: 2,
           comparisonCount: 0,
           highlights,
+          shiftCount: 0,
           swapCount: 1,
           type: SortOperationType.Swap,
         };
