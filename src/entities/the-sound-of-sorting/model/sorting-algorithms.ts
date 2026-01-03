@@ -2,6 +2,7 @@ import type { ReadonlyDeep } from 'type-fest';
 import { AlwaysSwapInsertionSortStrategy } from './always-swap-insertion-sort-strategy.ts';
 import { BinaryInsertionSortStrategy } from './binary-insertion-sort.ts';
 import { BubbleSortStrategy } from './bubble-sort-strategy.ts';
+import { SedgewickShellSortStrategy } from './sedgewick-shell-sort-strategy.ts';
 import { SelectionSortStrategy } from './selection-sort-strategy.ts';
 import type { SortingStrategy } from './sorting-strategy.ts';
 
@@ -9,6 +10,7 @@ type SortingAlgorithm =
   | 'always-swap-insertion-sort'
   | 'binary-insertion-sort'
   | 'bubble-sort'
+  | 'sedgewick-shell-sort'
   | 'selection-sort';
 
 function assertIsSortingAlgorithm(
@@ -46,6 +48,11 @@ const SORTING_ALGORITHMS: ReadonlyDeep<
     key: 'bubble-sort',
     label: 'Bubble',
     strategy: new BubbleSortStrategy(),
+  },
+  'sedgewick-shell-sort': {
+    key: 'sedgewick-shell-sort',
+    label: 'Sedgewick Shell',
+    strategy: new SedgewickShellSortStrategy(),
   },
   'selection-sort': {
     key: 'selection-sort',
