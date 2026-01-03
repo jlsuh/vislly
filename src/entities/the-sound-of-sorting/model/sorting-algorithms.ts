@@ -2,8 +2,8 @@ import type { ReadonlyDeep } from 'type-fest';
 import { AlwaysSwapInsertionSortStrategy } from './always-swap-insertion-sort-strategy.ts';
 import { BinaryInsertionSortStrategy } from './binary-insertion-sort-strategy.ts';
 import { BubbleSortStrategy } from './bubble-sort-strategy.ts';
-import { IncerpiSedgewickShellSortStrategy } from './incerpi-sedgewick-shell-sort-template-method-strategy.ts';
-import { KnuthShellSortStrategy } from './knuth-shell-sort-template-method-strategy.ts';
+import { IncerpiSedgewickShellSortStrategy } from './incerpi-sedgewick-shell-sort-strategy.ts';
+import { KnuthShellSortStrategy } from './knuth-shell-sort-strategy.ts';
 import { SelectionSortStrategy } from './selection-sort-strategy.ts';
 import type { SortingStrategy } from './sorting-strategy.ts';
 

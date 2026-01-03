@@ -1,4 +1,4 @@
-import { ShellSortStrategy } from './shell-sort-template-method-strategy.ts';
+import { ShellSortStrategy } from './shell-sort-strategy.ts';
 
 /**
  * @see {@link https://oeis.org/A036569 | OEIS A036569}
