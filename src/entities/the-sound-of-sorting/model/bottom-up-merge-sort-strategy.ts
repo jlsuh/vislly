@@ -11,12 +11,12 @@ class BottomUpMergeSortStrategy extends MergeSortStrategy {
     array: number[];
   }): Generator<SortingStrategyYield, void, unknown> {
     const n = array.length;
-    const aux = new Array(n).fill(0);
+    const aux = Object.seal(new Array(n).fill(0));
     for (let len = 1; len < n; len *= 2) {
       for (let lo = 0; lo < n - len; lo += len + len) {
         const mid = lo + len - 1;
         const hi = Math.min(lo + len + len - 1, n - 1);
-        yield* this.merge(array, aux, lo, mid, hi);
+        yield* super.merge(array, aux, lo, mid, hi);
       }
     }
   }

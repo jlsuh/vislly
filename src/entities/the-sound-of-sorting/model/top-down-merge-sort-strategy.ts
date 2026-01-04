@@ -11,7 +11,7 @@ class TopDownMergeSortStrategy extends MergeSortStrategy {
     array: number[];
   }): Generator<SortingStrategyYield, void, unknown> {
     const n = array.length;
-    const aux = new Array(n).fill(0);
+    const aux = Object.seal(new Array(n).fill(0));
     yield* this.sort(array, aux, 0, n - 1);
   }
 
@@ -27,7 +27,7 @@ class TopDownMergeSortStrategy extends MergeSortStrategy {
     const mid = lo + Math.floor((hi - lo) / 2);
     yield* this.sort(array, aux, lo, mid);
     yield* this.sort(array, aux, mid + 1, hi);
-    yield* this.merge(array, aux, lo, mid, hi);
+    yield* super.merge(array, aux, lo, mid, hi);
   }
 }
 
