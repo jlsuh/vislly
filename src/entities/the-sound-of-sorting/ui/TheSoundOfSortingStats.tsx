@@ -17,13 +17,12 @@ function TheSoundOfSortingStats({
   delay,
   stats,
 }: TheSoundOfSortingStatsProps): JSX.Element {
-  const algorithmLabel = SORTING_ALGORITHMS[algorithm].label ?? algorithm;
+  const algorithmLabel = SORTING_ALGORITHMS[algorithm].label;
 
   return (
     <div className={styles.statsContainer}>
-      {algorithmLabel} - {stats.comparisons} comparisons, {stats.accesses} array
-      accesses, {stats.swaps} swaps, {stats.shifts} shifts, {delay.toFixed(2)}ms
-      delay
+      {algorithmLabel} - {stats.comparisons} comparisons, {stats.accesses} R/W
+      accesses, {stats.swaps} swaps, {stats.shifts} shifts, {delay}ms delay
     </div>
   );
 }
