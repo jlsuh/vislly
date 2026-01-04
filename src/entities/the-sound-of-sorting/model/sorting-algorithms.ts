@@ -1,5 +1,6 @@
 import type { ReadonlyDeep } from 'type-fest';
 import { BinaryInsertionSortStrategy } from './binary-insertion-sort-strategy.ts';
+import { BottomUpMergeSortStrategy } from './bottom-up-merge-sort-strategy.ts';
 import { BubbleSortStrategy } from './bubble-sort-strategy.ts';
 import { IncerpiSedgewickShellSortStrategy } from './incerpi-sedgewick-shell-sort-strategy.ts';
 import { KnuthShellSortStrategy } from './knuth-shell-sort-strategy.ts';
@@ -7,6 +8,7 @@ import { SelectionSortStrategy } from './selection-sort-strategy.ts';
 import { ShiftInsertionSortStrategy } from './shift-insertion-sort-strategy.ts';
 import type { SortingStrategy } from './sorting-strategy.ts';
 import { SwapInsertionSortStrategy } from './swap-insertion-sort-strategy.ts';
+import { TopDownMergeSortStrategy } from './top-down-merge-sort-strategy.ts';
 
 type SortingAlgorithm =
   | 'bubble-sort'
@@ -15,7 +17,9 @@ type SortingAlgorithm =
   | 'shift-insertion-sort'
   | 'swap-insertion-sort'
   | 'incerpi-sedgewick-shell-sort'
-  | 'knuth-shell-sort';
+  | 'knuth-shell-sort'
+  | 'bottom-up-merge-sort'
+  | 'top-down-merge-sort';
 
 function assertIsSortingAlgorithm(
   value: unknown,
@@ -72,6 +76,16 @@ const SORTING_ALGORITHMS: ReadonlyDeep<
     key: 'knuth-shell-sort',
     label: 'Knuth Shell',
     strategy: new KnuthShellSortStrategy(),
+  },
+  'bottom-up-merge-sort': {
+    key: 'bottom-up-merge-sort',
+    label: 'Bottom-Up Merge',
+    strategy: new BottomUpMergeSortStrategy(),
+  },
+  'top-down-merge-sort': {
+    key: 'top-down-merge-sort',
+    label: 'Top-Down Merge',
+    strategy: new TopDownMergeSortStrategy(),
   },
 };
 
