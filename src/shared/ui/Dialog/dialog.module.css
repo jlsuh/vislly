@@ -1,4 +1,4 @@
-.root {
+.dialog {
   background-color: var(--color-surface-container);
   border-radius: 1rem;
   border: 0.125rem solid var(--color-outline);
@@ -12,24 +12,21 @@
     overlay 0.2s allow-discrete,
     display 0.2s allow-discrete;
   width: min(90vw, 32rem);
-}
-
-.root[open] {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.root::backdrop {
-  background-color: rgba(0, 0, 0, 0.5);
-  opacity: 0;
-  transition:
-    opacity 0.2s allow-discrete,
-    overlay 0.2s allow-discrete,
-    display 0.2s allow-discrete;
-}
-
-.root[open]::backdrop {
-  opacity: 1;
+  &::backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition:
+      opacity 0.2s allow-discrete,
+      overlay 0.2s allow-discrete,
+      display 0.2s allow-discrete;
+  }
+  &[open] {
+    opacity: 1;
+    transform: scale(1);
+    &::backdrop {
+      opacity: 1;
+    }
+  }
 }
 
 .container {
