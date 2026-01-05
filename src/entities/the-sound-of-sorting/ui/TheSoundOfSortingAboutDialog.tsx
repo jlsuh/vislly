@@ -43,7 +43,7 @@ export function TheSoundOfSortingAboutDialog({
       </p>
       <Divider paddingVertical="sm" />
       <div className={styles.legalNotice}>
-        <span className={styles.legalTitle}>Original Attribution</span>
+        <span className={styles.legalNoticeTitle}>Original Attribution</span>
         <p>
           The original concept and software were created by{' '}
           <strong>Timo Bingmann</strong> (2013).
