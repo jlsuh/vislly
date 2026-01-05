@@ -104,33 +104,37 @@ export default function PathfindingControls(): JSX.Element {
       <div className={styles.pathfindingButtonsContainer}>
         <Button
           fullWidth
-          handleOnClickButton={isAnimationRunning ? pausePathfind : findPath}
           icon={isAnimationRunning ? <PauseIcon /> : <PlayIcon />}
           label={isAnimationRunning ? 'Pause' : 'Play'}
+          onClick={isAnimationRunning ? pausePathfind : findPath}
         />
         <Button
           fullWidth
-          handleOnClickButton={resetGrid}
           icon={<ResetIcon />}
           label="Reset Grid"
+          onClick={resetGrid}
+          variant="secondary"
         />
         <Button
           fullWidth
-          handleOnClickButton={resetPathfind}
           icon={<ClearPathIcon />}
           label="Clear Pathfind"
+          onClick={resetPathfind}
+          variant="secondary"
         />
         <Button
           fullWidth
-          handleOnClickButton={setRandomizedGrid}
           icon={<DiceFiveIcon />}
           label="Randomize Grid"
+          onClick={setRandomizedGrid}
+          variant="secondary"
         />
         <Button
           fullWidth
-          handleOnClickButton={composePerlinGrid}
           icon={<TerrainIcon />}
           label="Generate Perlin Noise"
+          onClick={composePerlinGrid}
+          variant="secondary"
         />
       </div>
     </section>
