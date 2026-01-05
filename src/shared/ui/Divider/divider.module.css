@@ -1,6 +1,17 @@
-.divider {
+.root {
   width: 100%;
   height: 2px;
   background-color: var(--color-outline-variant);
+}
+
+.sm {
+  margin: 0.5rem 0;
+}
+
+.md {
+  margin: 1rem 0;
+}
+
+.big {
   margin: 1.25rem 0;
 }

@@ -1,6 +1,12 @@
 import type { JSX } from 'react';
 import styles from './divider.module.css';
 
-export function Divider(): JSX.Element {
-  return <div className={styles.divider} />;
+type DividerProps = {
+  paddingVertical?: 'sm' | 'md' | 'big';
+};
+
+export function Divider({
+  paddingVertical = 'big',
+}: DividerProps): JSX.Element {
+  return <div className={`${styles.root} ${styles[paddingVertical]}`} />;
 }

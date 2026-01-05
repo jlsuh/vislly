@@ -1,8 +1,9 @@
 'use client';
 
-import { type ChangeEvent, type JSX, useId } from 'react';
+import { type ChangeEvent, type JSX, useId, useRef } from 'react';
 import Button from '@/shared/ui/Button/Button.tsx';
 import { Divider } from '@/shared/ui/Divider/Divider.tsx';
+import InfoIcon from '@/shared/ui/InfoIcon/InfoIcon.tsx';
 import PauseIcon from '@/shared/ui/PauseIcon/PauseIcon.tsx';
 import ResetIcon from '@/shared/ui/ResetIcon/ResetIcon.tsx';
 import Select from '@/shared/ui/Select/Select.tsx';
@@ -17,6 +18,7 @@ import {
   type SortingAlgorithm,
 } from '../model/sorting-algorithms.ts';
 import { SortingStatus } from '../model/sorting-status.ts';
+import { TheSoundOfSortingAboutDialog } from './TheSoundOfSortingAboutDialog.tsx';
 import styles from './the-sound-of-sorting-controls.module.css';
 
 type TheSoundOfSortingControlsProps = {
@@ -54,6 +56,7 @@ function TheSoundOfSortingControls({
 }: TheSoundOfSortingControlsProps): JSX.Element {
   const countRangeInputId = useId();
   const delayRangeInputId = useId();
+  const dialogRef = useRef<HTMLDialogElement>(null);
 
   const isSortingOrVerifying =
     status === SortingStatus.Sorting || status === SortingStatus.Verifying;
@@ -80,6 +83,12 @@ function TheSoundOfSortingControls({
   const handleSortAgain = () => {
     handleResetWithSameValues();
     handleResume();
+  };
+
+  const handleOpenAbout = () => {
+    if (dialogRef.current !== null) {
+      dialogRef.current.showModal();
+    }
   };
 
   function composePrimaryAction() {
@@ -176,40 +185,48 @@ function TheSoundOfSortingControls({
       <div className={styles.buttonsContainer}>
         <Button
           fullWidth
-          handleOnClickButton={primaryAction.handler}
           icon={primaryAction.icon}
           label={primaryAction.label}
+          onClick={primaryAction.handler}
         />
         <Button
           disabled={status === SortingStatus.Finished || isSortingOrVerifying}
           fullWidth
-          handleOnClickButton={handleStep}
           icon={<StepIcon />}
           label="Step"
+          onClick={handleStep}
           variant="secondary"
         />
         <Button
           fullWidth
-          handleOnClickButton={toggleMute}
           icon={soundAction.icon}
           label={soundAction.label}
+          onClick={toggleMute}
           variant="secondary"
         />
         <Button
           fullWidth
-          handleOnClickButton={handleResetWithSameValues}
           icon={<ResetIcon />}
           label="Reset"
+          onClick={handleResetWithSameValues}
           variant="secondary"
         />
         <Button
           fullWidth
-          handleOnClickButton={handleResetWithNewValues}
           icon={<ShuffleIcon />}
           label="Shuffle"
+          onClick={handleResetWithNewValues}
+          variant="secondary"
+        />
+        <Button
+          fullWidth
+          icon={<InfoIcon />}
+          label="About"
+          onClick={handleOpenAbout}
           variant="secondary"
         />
       </div>
+      <TheSoundOfSortingAboutDialog dialogRef={dialogRef} />
     </section>
   );
 }

@@ -1,13 +1,11 @@
-import type { JSX } from 'react';
+import type { ButtonHTMLAttributes, JSX } from 'react';
 import styles from './button.module.css';
 
-interface ButtonProps {
-  disabled?: boolean;
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   fullWidth?: boolean;
-  icon: JSX.Element;
+  icon?: JSX.Element;
   label: string;
   variant?: 'primary' | 'secondary';
-  handleOnClickButton: () => void;
 }
 
 function Button({
@@ -16,14 +14,14 @@ function Button({
   icon,
   label,
   variant = 'primary',
-  handleOnClickButton,
+  ...props
 }: ButtonProps): JSX.Element {
   return (
     <button
       className={`${styles.button} ${styles[variant]} ${fullWidth ? styles.fullWidth : ''}`}
       disabled={disabled}
-      onClick={handleOnClickButton}
       type="button"
+      {...props}
     >
       {icon}
       <span>{label}</span>
