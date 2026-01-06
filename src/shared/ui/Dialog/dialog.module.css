@@ -13,6 +13,9 @@
     overlay 0.2s allow-discrete,
     display 0.2s allow-discrete;
   width: min(90vw, 32rem);
+  body:has(&[open]) {
+    overflow: hidden;
+  }
   &::backdrop {
     background-color: var(--color-scrim);
     opacity: 0;
