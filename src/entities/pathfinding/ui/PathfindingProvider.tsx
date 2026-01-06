@@ -20,7 +20,7 @@ import {
   PATHFINDING_ALGORITHMS,
   type PathfindingAlgorithm,
 } from '../model/pathfinding-algorithms.ts';
-import { composePerlinNoise } from '../model/perlin-noise.ts';
+import { composePerlinNoiseGrid } from '../model/perlin-noise.ts';
 import {
   assertIsTerminalVertex,
   END,
@@ -116,8 +116,19 @@ function resetButtonStyles(vertices: Vertex[]): void {
   }
 }
 
-function composePerlinNoiseGrid(cols: number, rows: number): Vertex[][] {
-  const { values, min, max } = composePerlinNoise(cols, rows);
+const noiseScaleFn = (cols: number, rows: number): number => {
+  const ratio = cols / rows;
+  if (ratio <= 1) {
+    return 3 * ratio;
+  }
+  return 4 - rows / cols;
+};
+
+function composePerlinNoisePathfindingGrid(
+  cols: number,
+  rows: number,
+): Vertex[][] {
+  const { values, min, max } = composePerlinNoiseGrid(cols, rows, noiseScaleFn);
   const perlinNoiseGrid: Vertex[][] = [];
   for (let row = 0; row < rows; row += 1) {
     const newRow: Vertex[] = [];
@@ -345,7 +356,7 @@ function PathfindingProvider({ children }: PropsWithChildren): JSX.Element {
   };
 
   const composePerlinGrid = () => {
-    const perlinNoiseGrid = composePerlinNoiseGrid(cols, rows);
+    const perlinNoiseGrid = composePerlinNoisePathfindingGrid(cols, rows);
     const startVertexPosition = composeRandomInitialVertexPosition(
       rows,
       cols,

@@ -50,24 +50,17 @@ class PerlinNoise {
   }
 }
 
-function composeNoiseScale(cols: number, rows: number): number {
-  const ratio = cols / rows;
-  if (ratio <= 1) {
-    return 3 * ratio;
-  }
-  return 4 - rows / cols;
-}
-
-function composePerlinNoise(
+function composePerlinNoiseGrid(
   cols: number,
   rows: number,
+  noiseScaleFn: (cols: number, rows: number) => number,
 ): {
   values: Record<`${number},${number}`, number>;
   min: number;
   max: number;
 } {
   const perlin = new PerlinNoise();
-  const noiseScale = composeNoiseScale(cols, rows);
+  const noiseScale = noiseScaleFn(cols, rows);
   const seedX = xoshiro128ss()();
   const seedY = xoshiro128ss()();
   const values: Record<`${number},${number}`, number> = {};
@@ -88,4 +81,4 @@ function composePerlinNoise(
   return { values, min, max };
 }
 
-export { composePerlinNoise, PerlinNoise };
+export { composePerlinNoiseGrid, PerlinNoise };
