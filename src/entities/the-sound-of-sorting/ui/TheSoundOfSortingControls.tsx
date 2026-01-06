@@ -1,6 +1,6 @@
 'use client';
 
-import { type ChangeEvent, type JSX, useId, useRef } from 'react';
+import { type ChangeEvent, type JSX, useId } from 'react';
 import Button from '@/shared/ui/Button/Button.tsx';
 import { Divider } from '@/shared/ui/Divider/Divider.tsx';
 import InfoIcon from '@/shared/ui/InfoIcon/InfoIcon.tsx';
@@ -54,9 +54,9 @@ function TheSoundOfSortingControls({
   setNewSortingAlgorithm,
   toggleMute,
 }: TheSoundOfSortingControlsProps): JSX.Element {
+  const aboutDialogId = useId();
   const countRangeInputId = useId();
   const delayRangeInputId = useId();
-  const dialogRef = useRef<HTMLDialogElement>(null);
 
   const isSortingOrVerifying =
     status === SortingStatus.Sorting || status === SortingStatus.Verifying;
@@ -83,12 +83,6 @@ function TheSoundOfSortingControls({
   const handleSortAgain = () => {
     handleResetWithSameValues();
     handleResume();
-  };
-
-  const handleOpenAbout = () => {
-    if (dialogRef.current !== null) {
-      dialogRef.current.showModal();
-    }
   };
 
   function composePrimaryAction() {
@@ -219,14 +213,15 @@ function TheSoundOfSortingControls({
           variant="secondary"
         />
         <Button
+          command="show-modal"
+          commandfor={aboutDialogId}
           fullWidth
           icon={<InfoIcon />}
           label="About"
-          onClick={handleOpenAbout}
           variant="secondary"
         />
       </div>
-      <TheSoundOfSortingAboutDialog dialogRef={dialogRef} />
+      <TheSoundOfSortingAboutDialog id={aboutDialogId} />
     </section>
   );
 }

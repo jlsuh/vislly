@@ -1,4 +1,4 @@
-import type { JSX, RefObject } from 'react';
+import type { JSX } from 'react';
 import Button from '@/shared/ui/Button/Button.tsx';
 import CrossIcon from '@/shared/ui/CrossIcon/CrossIcon';
 import { Dialog } from '@/shared/ui/Dialog/Dialog.tsx';
@@ -6,26 +6,21 @@ import { Divider } from '@/shared/ui/Divider/Divider.tsx';
 import styles from './the-sound-of-sorting-about-dialog.module.css';
 
 type TheSoundOfSortingAboutDialogProps = {
-  dialogRef: RefObject<HTMLDialogElement | null>;
+  id: string;
 };
 
 export function TheSoundOfSortingAboutDialog({
-  dialogRef,
+  id,
 }: TheSoundOfSortingAboutDialogProps): JSX.Element {
-  const handleOnClickCloseButton = () => {
-    if (dialogRef.current !== null) {
-      dialogRef.current.close();
-    }
-  };
-
   return (
     <Dialog
-      dialogRef={dialogRef}
+      id={id}
       footer={
         <Button
+          command="close"
+          commandfor={id}
           icon={<CrossIcon />}
           label="Close"
-          onClick={handleOnClickCloseButton}
           variant="secondary"
         />
       }
