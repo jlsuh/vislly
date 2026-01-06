@@ -6,7 +6,6 @@ type DialogProps = {
   footer?: ReactNode;
   header?: ReactNode;
   id: string;
-  onClose?: () => void;
 };
 
 export function Dialog({
@@ -14,7 +13,6 @@ export function Dialog({
   footer,
   header,
   id,
-  onClose,
 }: DialogProps): JSX.Element {
   const handleOnClickBackdrop = (e: MouseEvent<HTMLDialogElement>) => {
     const dialog = e.currentTarget;
@@ -27,9 +25,6 @@ export function Dialog({
       clientX <= left + width;
     if (!hasClickedWithinDialog) {
       dialog.close();
-      if (onClose !== undefined) {
-        onClose();
-      }
     }
   };
 
