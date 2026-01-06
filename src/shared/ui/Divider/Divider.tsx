@@ -5,8 +5,8 @@ type DividerProps = {
   paddingVertical?: 'sm' | 'md' | 'big';
 };
 
-export function Divider({
-  paddingVertical = 'big',
-}: DividerProps): JSX.Element {
+function Divider({ paddingVertical = 'big' }: DividerProps): JSX.Element {
   return <div className={`${styles.divider} ${styles[paddingVertical]}`} />;
 }
+
+export default Divider;

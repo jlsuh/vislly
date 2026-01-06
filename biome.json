@@ -20,7 +20,8 @@
         "noDuplicateProperties": "off"
       },
       "style": {
-        "useComponentExportOnlyModules": "off"
+        "useComponentExportOnlyModules": "off",
+        "useExportsLast": "error"
       }
     },
     "domains": {

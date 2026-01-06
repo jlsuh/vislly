@@ -1,6 +1,6 @@
 import type { JSX } from 'react';
 
-export default function TerrainIcon(): JSX.Element {
+function TerrainIcon(): JSX.Element {
   return (
     <svg
       aria-hidden="true"
@@ -14,3 +14,5 @@ export default function TerrainIcon(): JSX.Element {
     </svg>
   );
 }
+
+export default TerrainIcon;

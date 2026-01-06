@@ -1,6 +1,6 @@
 import type { JSX } from 'react';
 
-export default function ResetIcon(): JSX.Element {
+function ResetIcon(): JSX.Element {
   return (
     <svg
       aria-hidden="true"
@@ -14,3 +14,5 @@ export default function ResetIcon(): JSX.Element {
     </svg>
   );
 }
+
+export default ResetIcon;

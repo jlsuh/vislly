@@ -1,7 +1,7 @@
 import { type ChangeEvent, type JSX, useId } from 'react';
 import styles from './select.module.css';
 
-export type Option = {
+type Option = {
   label: string;
   value: string;
 };
@@ -14,7 +14,7 @@ type SelectProps = {
   value: string | null;
 };
 
-export default function Select({
+function Select({
   disabled,
   handleOnSelectChange,
   label,
@@ -49,3 +49,5 @@ export default function Select({
     </div>
   );
 }
+
+export default Select;

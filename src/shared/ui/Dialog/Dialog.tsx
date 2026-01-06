@@ -8,12 +8,7 @@ type DialogProps = {
   id: string;
 };
 
-export function Dialog({
-  children,
-  footer,
-  header,
-  id,
-}: DialogProps): JSX.Element {
+function Dialog({ children, footer, header, id }: DialogProps): JSX.Element {
   const handleOnClickBackdrop = (e: MouseEvent<HTMLDialogElement>) => {
     const dialog = e.currentTarget;
     const { top, height, left, width } = dialog.getBoundingClientRect();
@@ -38,3 +33,5 @@ export function Dialog({
     </dialog>
   );
 }
+
+export default Dialog;

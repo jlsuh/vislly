@@ -1,6 +1,6 @@
 import type { JSX } from 'react';
 
-export default function ShuffleIcon(): JSX.Element {
+function ShuffleIcon(): JSX.Element {
   return (
     <svg
       aria-hidden="true"
@@ -14,3 +14,5 @@ export default function ShuffleIcon(): JSX.Element {
     </svg>
   );
 }
+
+export default ShuffleIcon;

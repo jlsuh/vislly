@@ -1,6 +1,6 @@
 import type { JSX } from 'react';
 
-export default function VolumeOffIcon(): JSX.Element {
+function VolumeOffIcon(): JSX.Element {
   return (
     <svg
       aria-hidden="true"
@@ -14,3 +14,5 @@ export default function VolumeOffIcon(): JSX.Element {
     </svg>
   );
 }
+
+export default VolumeOffIcon;

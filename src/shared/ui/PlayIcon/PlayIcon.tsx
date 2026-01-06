@@ -1,6 +1,6 @@
 import type { JSX } from 'react';
 
-export default function PlayIcon(): JSX.Element {
+function PlayIcon(): JSX.Element {
   return (
     <svg
       aria-hidden="true"
@@ -14,3 +14,5 @@ export default function PlayIcon(): JSX.Element {
     </svg>
   );
 }
+
+export default PlayIcon;

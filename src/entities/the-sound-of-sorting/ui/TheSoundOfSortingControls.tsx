@@ -2,7 +2,7 @@
 
 import { type ChangeEvent, type JSX, useId } from 'react';
 import Button from '@/shared/ui/Button/Button.tsx';
-import { Divider } from '@/shared/ui/Divider/Divider.tsx';
+import Divider from '@/shared/ui/Divider/Divider.tsx';
 import InfoIcon from '@/shared/ui/InfoIcon/InfoIcon.tsx';
 import PauseIcon from '@/shared/ui/PauseIcon/PauseIcon.tsx';
 import ResetIcon from '@/shared/ui/ResetIcon/ResetIcon.tsx';
@@ -18,7 +18,7 @@ import {
   type SortingAlgorithm,
 } from '../model/sorting-algorithms.ts';
 import { SortingStatus } from '../model/sorting-status.ts';
-import { TheSoundOfSortingAboutDialog } from './TheSoundOfSortingAboutDialog.tsx';
+import TheSoundOfSortingAboutDialog from './TheSoundOfSortingAboutDialog.tsx';
 import styles from './the-sound-of-sorting-controls.module.css';
 
 type TheSoundOfSortingControlsProps = {

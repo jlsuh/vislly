@@ -8,7 +8,7 @@ interface CheckboxProps {
   label: string;
 }
 
-export default function Checkbox({
+function Checkbox({
   checked,
   disabled,
   handleOnChangeCheckbox,
@@ -33,3 +33,5 @@ export default function Checkbox({
     </label>
   );
 }
+
+export default Checkbox;

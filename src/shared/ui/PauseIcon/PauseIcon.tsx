@@ -1,6 +1,6 @@
 import type { JSX } from 'react';
 
-export default function PauseIcon(): JSX.Element {
+function PauseIcon(): JSX.Element {
   return (
     <svg
       aria-hidden="true"
@@ -14,3 +14,5 @@ export default function PauseIcon(): JSX.Element {
     </svg>
   );
 }
+
+export default PauseIcon;

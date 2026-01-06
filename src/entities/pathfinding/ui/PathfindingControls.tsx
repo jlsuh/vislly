@@ -6,7 +6,7 @@ import Button from '@/shared/ui/Button/Button.tsx';
 import Checkbox from '@/shared/ui/Checkbox/Checkbox.tsx';
 import ClearPathIcon from '@/shared/ui/ClearPathIcon/ClearPathIcon.tsx';
 import DiceFiveIcon from '@/shared/ui/DiceFiveIcon/DiceFiveIcon.tsx';
-import { Divider } from '@/shared/ui/Divider/Divider.tsx';
+import Divider from '@/shared/ui/Divider/Divider.tsx';
 import PauseIcon from '@/shared/ui/PauseIcon/PauseIcon.tsx';
 import PlayIcon from '@/shared/ui/PlayIcon/PlayIcon.tsx';
 import ResetIcon from '@/shared/ui/ResetIcon/ResetIcon.tsx';
@@ -24,7 +24,7 @@ import { assertIsVertexName, VERTEX_NAMES } from '../model/vertex.ts';
 import PathfindingContext from './PathfindingContext.tsx';
 import styles from './pathfinding-controls.module.css';
 
-export default function PathfindingControls(): JSX.Element {
+function PathfindingControls(): JSX.Element {
   const {
     isAnimationRunning,
     isDiagonalAllowed,
@@ -140,3 +140,5 @@ export default function PathfindingControls(): JSX.Element {
     </section>
   );
 }
+
+export default PathfindingControls;

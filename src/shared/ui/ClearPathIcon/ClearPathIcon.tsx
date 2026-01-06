@@ -1,6 +1,6 @@
 import type { JSX } from 'react';
 
-export default function ClearPathIcon(): JSX.Element {
+function ClearPathIcon(): JSX.Element {
   return (
     <svg
       aria-hidden="true"
@@ -15,3 +15,5 @@ export default function ClearPathIcon(): JSX.Element {
     </svg>
   );
 }
+
+export default ClearPathIcon;

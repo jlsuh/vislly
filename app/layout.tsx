@@ -4,13 +4,11 @@ import '@/app/styles/entry.css';
 import type { Metadata } from 'next';
 import type { JSX, PropsWithChildren } from 'react';
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'Vislly',
 };
 
-export default function RootLayout({
-  children,
-}: PropsWithChildren): JSX.Element {
+function RootLayout({ children }: PropsWithChildren): JSX.Element {
   return (
     <html lang="en">
       <body>
@@ -21,3 +19,5 @@ export default function RootLayout({
     </html>
   );
 }
+
+export { RootLayout as default, metadata };

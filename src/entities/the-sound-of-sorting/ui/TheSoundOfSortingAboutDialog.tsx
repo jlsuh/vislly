@@ -1,15 +1,15 @@
 import type { JSX } from 'react';
 import Button from '@/shared/ui/Button/Button.tsx';
 import CrossIcon from '@/shared/ui/CrossIcon/CrossIcon';
-import { Dialog } from '@/shared/ui/Dialog/Dialog.tsx';
-import { Divider } from '@/shared/ui/Divider/Divider.tsx';
+import Dialog from '@/shared/ui/Dialog/Dialog.tsx';
+import Divider from '@/shared/ui/Divider/Divider.tsx';
 import styles from './the-sound-of-sorting-about-dialog.module.css';
 
 type TheSoundOfSortingAboutDialogProps = {
   id: string;
 };
 
-export function TheSoundOfSortingAboutDialog({
+function TheSoundOfSortingAboutDialog({
   id,
 }: TheSoundOfSortingAboutDialogProps): JSX.Element {
   return (
@@ -73,3 +73,5 @@ export function TheSoundOfSortingAboutDialog({
     </Dialog>
   );
 }
+
+export default TheSoundOfSortingAboutDialog;
