@@ -2,6 +2,7 @@ import type { ReadonlyDeep } from 'type-fest';
 import { BinaryInsertionSortStrategy } from './binary-insertion-sort-strategy.ts';
 import { BottomUpMergeSortStrategy } from './bottom-up-merge-sort-strategy.ts';
 import { BubbleSortStrategy } from './bubble-sort-strategy.ts';
+import { HeapSortStrategy } from './heap-sort-strategy.ts';
 import { IncerpiSedgewickShellSortStrategy } from './incerpi-sedgewick-shell-sort-strategy.ts';
 import { KnuthShellSortStrategy } from './knuth-shell-sort-strategy.ts';
 import { SelectionSortStrategy } from './selection-sort-strategy.ts';
@@ -19,7 +20,8 @@ type SortingAlgorithm =
   | 'incerpi-sedgewick-shell-sort'
   | 'knuth-shell-sort'
   | 'bottom-up-merge-sort'
-  | 'top-down-merge-sort';
+  | 'top-down-merge-sort'
+  | 'heap-sort';
 
 function assertIsSortingAlgorithm(
   value: unknown,
@@ -86,6 +88,11 @@ const SORTING_ALGORITHMS: ReadonlyDeep<
     key: 'top-down-merge-sort',
     label: 'Top-Down Merge',
     strategy: new TopDownMergeSortStrategy(),
+  },
+  'heap-sort': {
+    key: 'heap-sort',
+    label: 'Heap',
+    strategy: new HeapSortStrategy(),
   },
 };
 
