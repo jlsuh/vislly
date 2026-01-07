@@ -394,9 +394,7 @@ function TheSoundOfSorting(): JSX.Element {
     const dpr = window.devicePixelRatio || 1;
     canvasRef.current.width = dimensions.width * dpr;
     canvasRef.current.height = dimensions.height * dpr;
-    if (arrayRef.current.length > 0) {
-      draw({ activeHighlightsRef, arrayRef, canvasRef, maxRange });
-    }
+    draw({ activeHighlightsRef, arrayRef, canvasRef, maxRange });
   }, [dimensions.width, dimensions.height, maxRange]);
 
   useEffect(() => {
