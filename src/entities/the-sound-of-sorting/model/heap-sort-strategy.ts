@@ -117,7 +117,7 @@ class HeapSortStrategy extends SortingStrategy {
     }
   }
 
-  private *composeHeap(
+  private *heapify(
     array: number[],
     n: number,
   ): Generator<SortingStrategyYield, void, unknown> {
@@ -134,7 +134,7 @@ class HeapSortStrategy extends SortingStrategy {
   }): Generator<SortingStrategyYield, void, unknown> {
     let n = array.length;
     this.initializeLevelGroups(n);
-    yield* this.composeHeap(array, n);
+    yield* this.heapify(array, n);
     while (n > 1) {
       n -= 1;
       this.hideIndex(n);
