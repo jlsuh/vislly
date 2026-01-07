@@ -9,7 +9,7 @@ import {
 const GOLDEN_ANGLE_DEG = 180 * (3 - Math.sqrt(5));
 
 class HeapSortStrategy extends SortingStrategy {
-  private levelGroupsCache: HighlightGroup[] = [];
+  private depthHighlightGroupsCache: HighlightGroup[] = [];
 
   private getIndexDepth(index: number): number {
     return Math.floor(Math.log2(index + 1));
@@ -19,8 +19,8 @@ class HeapSortStrategy extends SortingStrategy {
     return `hsl(${(this.getIndexDepth(index) * GOLDEN_ANGLE_DEG) % 360}, 85%, 70%)`;
   }
 
-  private initializeLevelGroups(n: number): void {
-    this.levelGroupsCache = [];
+  private initializeDepthHighlightGroups(n: number): void {
+    this.depthHighlightGroupsCache = [];
     const groupsRefMap = new Map<string, HighlightGroup>();
     const firstLeafIndex = Math.floor(n / 2);
     for (let k = 0; k < n; k += 1) {
@@ -32,7 +32,7 @@ class HeapSortStrategy extends SortingStrategy {
           indices: [],
           skipHighlightGroupTone: true,
         };
-        this.levelGroupsCache.push(group);
+        this.depthHighlightGroupsCache.push(group);
         groupsRefMap.set(color, group);
       }
       if (k >= firstLeafIndex) {
@@ -42,19 +42,20 @@ class HeapSortStrategy extends SortingStrategy {
   }
 
   private getIndexGroup(index: number): HighlightGroup | undefined {
-    return this.levelGroupsCache.find(
-      (g) => g.color === this.getIndexColor(index),
+    return this.depthHighlightGroupsCache.find(
+      (depthHighlightGroup) =>
+        depthHighlightGroup.color === this.getIndexColor(index),
     );
   }
 
-  private revealIndex(index: number): void {
+  private revealDepthColorForIndex(index: number): void {
     const group = this.getIndexGroup(index);
     if (group) {
       group.indices.push(index);
     }
   }
 
-  private hideIndex(index: number): void {
+  private hideDepthColorForIndex(index: number): void {
     const group = this.getIndexGroup(index);
     if (group) {
       group.indices = group.indices.filter((i) => i !== index);
@@ -66,7 +67,7 @@ class HeapSortStrategy extends SortingStrategy {
     activeIndices: number[],
   ): HighlightGroup[] {
     return [
-      ...this.levelGroupsCache,
+      ...this.depthHighlightGroupsCache,
       { color: RED, indices: activeIndices, skipHighlightGroupTone: false },
       { color: GREEN, indices: [n], skipHighlightGroupTone: true },
     ];
@@ -123,7 +124,7 @@ class HeapSortStrategy extends SortingStrategy {
   ): Generator<SortingStrategyYield, void, unknown> {
     for (let i = Math.floor(n / 2) - 1; i >= 0; i -= 1) {
       yield* this.siftDown(array, i, n);
-      this.revealIndex(i);
+      this.revealDepthColorForIndex(i);
     }
   }
 
@@ -133,11 +134,11 @@ class HeapSortStrategy extends SortingStrategy {
     array: number[];
   }): Generator<SortingStrategyYield, void, unknown> {
     let n = array.length;
-    this.initializeLevelGroups(n);
+    this.initializeDepthHighlightGroups(n);
     yield* this.heapify(array, n);
     while (n > 1) {
       n -= 1;
-      this.hideIndex(n);
+      this.hideDepthColorForIndex(n);
       super.swap(array, 0, n);
       yield {
         accessCount: 4,
