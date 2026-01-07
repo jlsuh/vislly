@@ -2,7 +2,7 @@ import Image from 'next/image';
 import type { JSX } from 'react';
 import brownianMotion from '@/../public/images/brownian-motion.webp';
 import pathfinding from '@/../public/images/pathfinding.webp';
-import wip from '@/../public/images/wip.webp';
+import theSoundOfSorting from '@/../public/images/the-sound-of-sorting.webp';
 import PrefetchOnHoverLink from '@/shared/ui/PrefetchOnHoverLink/PrefetchOnHoverLink.tsx';
 import styles from './gallery-section.module.css';
 
@@ -16,7 +16,7 @@ function GallerySection(): JSX.Element {
             className={styles.figureImage}
             placeholder="blur"
             priority={true}
-            src={wip}
+            src={theSoundOfSorting}
           />
           <figcaption className={styles.figureCaption}>
             The Sound of Sorting
