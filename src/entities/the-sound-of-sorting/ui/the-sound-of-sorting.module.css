@@ -1,7 +1,7 @@
 .canvasContainer {
   --border-width: 0.125rem;
   background-color: var(--color-surface-container-lowest-dark);
-  border-radius: 0.5rem;
+  border-radius: 0rem;
   border: var(--border-width) solid var(--color-outline-variant);
   display: flex;
   flex-direction: column;
