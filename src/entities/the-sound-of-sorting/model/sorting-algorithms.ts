@@ -2,6 +2,7 @@ import type { ReadonlyDeep } from 'type-fest';
 import { BinaryInsertionSortStrategy } from './binary-insertion-sort-strategy.ts';
 import { BottomUpMergeSortStrategy } from './bottom-up-merge-sort-strategy.ts';
 import { BubbleSortStrategy } from './bubble-sort-strategy.ts';
+import { GnomeSortStrategy } from './gnome-sort-strategy.ts';
 import { HeapSortStrategy } from './heap-sort-strategy.ts';
 import { IncerpiSedgewickShellSortStrategy } from './incerpi-sedgewick-shell-sort-strategy.ts';
 import { KnuthShellSortStrategy } from './knuth-shell-sort-strategy.ts';
@@ -17,6 +18,7 @@ type SortingAlgorithm =
   | 'binary-insertion-sort'
   | 'shift-insertion-sort'
   | 'swap-insertion-sort'
+  | 'gnome-sort'
   | 'incerpi-sedgewick-shell-sort'
   | 'knuth-shell-sort'
   | 'bottom-up-merge-sort'
@@ -68,6 +70,11 @@ const SORTING_ALGORITHMS: ReadonlyDeep<
     key: 'swap-insertion-sort',
     label: 'Swap Insertion',
     strategy: new SwapInsertionSortStrategy(),
+  },
+  'gnome-sort': {
+    key: 'gnome-sort',
+    label: 'Gnome',
+    strategy: new GnomeSortStrategy(),
   },
   'incerpi-sedgewick-shell-sort': {
     key: 'incerpi-sedgewick-shell-sort',
