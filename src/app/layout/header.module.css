@@ -1,20 +1,8 @@
 .header {
   background-color: var(--color-surface-container-low);
   overflow: hidden;
-  position: -webkit-sticky;
-  position: sticky;
-  top: 0;
   width: 100%;
   z-index: 2;
-  animation: elevate-on-scroll linear forwards;
-  animation-timeline: scroll(root);
-  animation-range: 0 0.5rem;
-}
-
-@keyframes elevate-on-scroll {
-  to {
-    box-shadow: var(--elevation-level-2);
-  }
 }
 
 .headerContainer {

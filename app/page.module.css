@@ -1,16 +1,17 @@
 .home {
   align-self: center;
+  margin-top: 3.125rem;
   max-width: 12.5rem;
   width: 100%;
 }
 
-@media (width >= 32.5rem) {
+@media (width >= 30rem) {
   .home {
     max-width: 27rem;
   }
 }
 
-@media (width >= 44.5rem) {
+@media (width >= 45rem) {
   .home {
     max-width: 42rem;
   }
