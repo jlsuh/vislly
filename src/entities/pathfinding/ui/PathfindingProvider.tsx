@@ -23,21 +23,12 @@ import {
 import { composePerlinNoiseGrid } from '../model/perlin-noise.ts';
 import {
   assertIsTerminalVertex,
-  END,
-  GRASS,
-  GRAVEL,
   INITIAL_COORDINATE,
   INITIAL_VERTEX_NAME,
   NON_TERMINAL_VERTEX_NAMES,
-  SAND,
-  SNOW,
-  START,
-  STONE,
   type TerminalVertex,
   Vertex,
-  type VertexName,
-  WATER,
-  WATER_DEEP,
+  VertexName,
 } from '../model/vertex.ts';
 import PathfindingContext from './PathfindingContext.tsx';
 
@@ -147,24 +138,24 @@ function composePerlinNoisePathfindingGrid(
 
 function mapIntensityToVertexName(intensity: number): VertexName {
   if (intensity < 0.2) {
-    return WATER_DEEP;
+    return VertexName.WaterDeep;
   }
   if (intensity < 0.45) {
-    return WATER;
+    return VertexName.Water;
   }
   if (intensity < 0.6) {
-    return SAND;
+    return VertexName.Sand;
   }
   if (intensity < 0.8) {
-    return GRASS;
+    return VertexName.Grass;
   }
   if (intensity < 0.9) {
-    return STONE;
+    return VertexName.Stone;
   }
   if (intensity < 0.95) {
-    return GRAVEL;
+    return VertexName.Gravel;
   }
-  return SNOW;
+  return VertexName.Snow;
 }
 
 const ANIMATION_DELAY = 5;
@@ -198,8 +189,8 @@ function PathfindingProvider({ children }: PropsWithChildren): JSX.Element {
   const lastGenerator = useRef<Generator<Vertex[], Vertex[], unknown>>(null);
   const lastVisitedVertices = useRef<Vertex[]>([]);
   const terminalVertices = useRef<Record<TerminalVertex, Vertex>>({
-    start: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, START),
-    end: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, END),
+    start: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, VertexName.Start),
+    end: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, VertexName.End),
   });
 
   const setTerminalVertices = (newVertices: Record<TerminalVertex, Vertex>) => {
@@ -242,12 +233,12 @@ function PathfindingProvider({ children }: PropsWithChildren): JSX.Element {
     const startVertexPosition = composeRandomInitialVertexPosition(
       rows,
       cols,
-      START,
+      VertexName.Start,
     );
     const endVertexPosition = composeRandomInitialVertexPosition(
       rows,
       cols,
-      END,
+      VertexName.End,
       startVertexPosition,
     );
     newGrid[startVertexPosition.row][startVertexPosition.col] =
@@ -360,12 +351,12 @@ function PathfindingProvider({ children }: PropsWithChildren): JSX.Element {
     const startVertexPosition = composeRandomInitialVertexPosition(
       rows,
       cols,
-      START,
+      VertexName.Start,
     );
     const endVertexPosition = composeRandomInitialVertexPosition(
       rows,
       cols,
-      END,
+      VertexName.End,
       startVertexPosition,
     );
     perlinNoiseGrid[startVertexPosition.row][startVertexPosition.col] =
@@ -384,8 +375,12 @@ function PathfindingProvider({ children }: PropsWithChildren): JSX.Element {
     resetPathfind();
     setGrid(composeNewGrid([], rows, cols));
     terminalVertices.current = {
-      start: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, START),
-      end: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, END),
+      start: new Vertex(
+        INITIAL_COORDINATE,
+        INITIAL_COORDINATE,
+        VertexName.Start,
+      ),
+      end: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, VertexName.End),
     };
   };
 

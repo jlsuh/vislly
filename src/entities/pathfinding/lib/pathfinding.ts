@@ -1,4 +1,4 @@
-import { EMPTY, Vertex } from '../model/vertex.ts';
+import { Vertex, VertexName } from '../model/vertex.ts';
 
 function composeNewRow(
   prevGrid: Vertex[][],
@@ -9,7 +9,7 @@ function composeNewRow(
   for (let col = 0; col < cols; col += 1) {
     const prevVertex: Vertex | undefined = prevGrid[row]?.[col];
     if (prevVertex === undefined) {
-      newRow.push(new Vertex(row, col, EMPTY));
+      newRow.push(new Vertex(row, col, VertexName.Empty));
     } else {
       newRow.push(prevVertex);
     }

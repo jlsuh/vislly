@@ -8,13 +8,13 @@ const ONLY_LIGHT = 'light';
 
 type ThemeValue = typeof ONLY_DARK | typeof ONLY_LIGHT;
 
-type ThemeType = {
+type Theme = {
   icon: () => JSX.Element;
   next: ThemeValue;
   value: ThemeValue;
 };
 
-const Theme: ReadonlyDeep<Record<ThemeValue, ThemeType>> = {
+const Theme: ReadonlyDeep<Record<Theme['value'], Theme>> = {
   [ONLY_LIGHT]: {
     icon: LightThemeIcon,
     next: ONLY_DARK,
@@ -27,6 +27,6 @@ const Theme: ReadonlyDeep<Record<ThemeValue, ThemeType>> = {
   },
 };
 
-const THEME_VALUES: ReadonlyDeep<ThemeType[]> = Object.values(Theme);
+const THEME_VALUES: ReadonlyDeep<Theme[]> = Object.values(Theme);
 
-export { Theme, THEME_VALUES, type ThemeValue };
+export { Theme, THEME_VALUES };

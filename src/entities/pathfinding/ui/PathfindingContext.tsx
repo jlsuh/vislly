@@ -16,12 +16,10 @@ import {
   type PathfindingAlgorithm,
 } from '../model/pathfinding-algorithms.ts';
 import {
-  END,
   INITIAL_COORDINATE,
-  START,
   type TerminalVertex,
   Vertex,
-  type VertexName,
+  VertexName,
 } from '../model/vertex.ts';
 
 type PathfindingContextType = {
@@ -61,11 +59,15 @@ const PathfindingContext: Context<PathfindingContextType> =
     rows: 0,
     selectedAlgorithmName: INITIAL_ALGORITHM,
     selectedHeuristicsName: INITIAL_HEURISTICS,
-    selectedVertexName: START,
+    selectedVertexName: VertexName.Start,
     terminalVertices: {
       current: {
-        start: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, START),
-        end: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, END),
+        start: new Vertex(
+          INITIAL_COORDINATE,
+          INITIAL_COORDINATE,
+          VertexName.Start,
+        ),
+        end: new Vertex(INITIAL_COORDINATE, INITIAL_COORDINATE, VertexName.End),
       },
     },
     composePerlinGrid: () => {},

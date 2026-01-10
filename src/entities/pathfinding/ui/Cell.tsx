@@ -2,11 +2,10 @@
 
 import { type JSX, type MouseEvent, use } from 'react';
 import {
-  EMPTY,
   INITIAL_COORDINATE,
   isTerminalVertex,
   Vertex,
-  type VertexName,
+  VertexName,
 } from '../model/vertex.ts';
 import styles from './cell.module.css';
 import PathfindingContext from './PathfindingContext.tsx';
@@ -46,7 +45,7 @@ function Cell({ gridCell }: { gridCell: Vertex }): JSX.Element {
         const newEmptyVertex = new Vertex(
           terminalVertexRow,
           terminalVertexCol,
-          EMPTY,
+          VertexName.Empty,
         );
         nextGrid[terminalVertexRow][terminalVertexCol] = newEmptyVertex;
       }

@@ -1,6 +1,6 @@
 import type { ReadonlyDeep } from 'type-fest';
 import type { HeuristicsName } from './heuristics.ts';
-import { START, type Vertex, WALL } from './vertex.ts';
+import { type Vertex, VertexName } from './vertex.ts';
 
 type Step = { row: number; col: number };
 
@@ -73,7 +73,10 @@ abstract class PathfindingStrategy {
     ) {
       return true;
     }
-    if (grid[o1Row][o1Col].name === WALL && grid[o2Row][o2Col].name === WALL) {
+    if (
+      grid[o1Row][o1Col].name === VertexName.Wall &&
+      grid[o2Row][o2Col].name === VertexName.Wall
+    ) {
       return true;
     }
     return false;
@@ -117,7 +120,10 @@ abstract class PathfindingStrategy {
         continue;
       }
       const neighbor = grid[dRow][dCol];
-      if (neighbor.name === WALL || neighbor.name === START) {
+      if (
+        neighbor.name === VertexName.Wall ||
+        neighbor.name === VertexName.Start
+      ) {
         continue;
       }
       if (

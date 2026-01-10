@@ -1,46 +1,41 @@
 import type { ReadonlyDeep } from 'type-fest';
 
-const START = 'start';
-const END = 'end';
-const WALL = 'wall';
-const EMPTY = 'empty';
-const GRASS = 'grass';
-const SAND = 'sand';
-const STONE = 'stone';
-const GRAVEL = 'gravel';
-const SNOW = 'snow';
-const WATER = 'water';
-const WATER_DEEP = 'water-deep';
+const VertexName = {
+  Start: 'start',
+  End: 'end',
+  Wall: 'wall',
+  Empty: 'empty',
+  Grass: 'grass',
+  Sand: 'sand',
+  Stone: 'stone',
+  Gravel: 'gravel',
+  Snow: 'snow',
+  Water: 'water',
+  WaterDeep: 'water-deep',
+} as const;
+
+type VertexName = (typeof VertexName)[keyof typeof VertexName];
 
 const INITIAL_COORDINATE = -1;
 
 const WEIGHTS: ReadonlyDeep<Record<VertexName, number>> = {
-  [START]: 1,
-  [END]: 1,
-  [WALL]: Number.POSITIVE_INFINITY,
-  [EMPTY]: 1,
-  [GRASS]: 2,
-  [GRAVEL]: 4,
-  [SAND]: 8,
-  [STONE]: 16,
-  [SNOW]: 32,
-  [WATER]: 64,
-  [WATER_DEEP]: 128,
+  [VertexName.Start]: 1,
+  [VertexName.End]: 1,
+  [VertexName.Wall]: Number.POSITIVE_INFINITY,
+  [VertexName.Empty]: 1,
+  [VertexName.Grass]: 2,
+  [VertexName.Gravel]: 4,
+  [VertexName.Sand]: 8,
+  [VertexName.Stone]: 16,
+  [VertexName.Snow]: 32,
+  [VertexName.Water]: 64,
+  [VertexName.WaterDeep]: 128,
 };
 
-type VertexName =
-  | typeof START
-  | typeof END
-  | typeof WALL
-  | typeof EMPTY
-  | typeof GRASS
-  | typeof GRAVEL
-  | typeof SAND
-  | typeof STONE
-  | typeof SNOW
-  | typeof WATER
-  | typeof WATER_DEEP;
-type TerminalVertex = Extract<VertexName, typeof START | typeof END>;
+type TerminalVertex = Extract<
+  VertexName,
+  typeof VertexName.Start | typeof VertexName.End
+>;
 
 class Vertex {
   public readonly row: number;
@@ -80,7 +75,7 @@ function assertIsVertexName(value: string): asserts value is VertexName {
 }
 
 function isTerminalVertex(value: unknown): value is TerminalVertex {
-  return value === START || value === END;
+  return value === VertexName.Start || value === VertexName.End;
 }
 
 function assertIsTerminalVertex(
@@ -91,54 +86,22 @@ function assertIsTerminalVertex(
   }
 }
 
-const NON_TERMINAL_VERTEX_NAMES: ReadonlyDeep<VertexName[]> = [
-  WALL,
-  EMPTY,
-  GRASS,
-  GRAVEL,
-  SAND,
-  STONE,
-  SNOW,
-  WATER,
-  WATER_DEEP,
-];
+const VERTEX_NAMES: ReadonlyDeep<VertexName[]> = Object.values(VertexName);
 
-const VERTEX_NAMES: ReadonlyDeep<VertexName[]> = [
-  START,
-  END,
-  WALL,
-  EMPTY,
-  GRASS,
-  GRAVEL,
-  SAND,
-  STONE,
-  SNOW,
-  WATER,
-  WATER_DEEP,
-];
+const NON_TERMINAL_VERTEX_NAMES: ReadonlyDeep<VertexName[]> =
+  VERTEX_NAMES.filter((v) => !isTerminalVertex(v));
 
-const INITIAL_VERTEX_NAME: VertexName = START;
+const INITIAL_VERTEX_NAME: VertexName = VertexName.Start;
 
 export {
   assertIsTerminalVertex,
   assertIsVertexName,
-  EMPTY,
-  END,
-  GRASS,
-  GRAVEL,
   INITIAL_COORDINATE,
   INITIAL_VERTEX_NAME,
   isTerminalVertex,
   NON_TERMINAL_VERTEX_NAMES,
-  SAND,
-  SNOW,
-  START,
-  STONE,
   Vertex,
   VERTEX_NAMES,
-  WALL,
-  WATER,
-  WATER_DEEP,
+  VertexName,
   type TerminalVertex,
-  type VertexName,
 };

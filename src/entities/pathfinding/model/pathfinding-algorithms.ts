@@ -6,14 +6,23 @@ import { DijkstraStrategy } from './dijkstra-strategy.ts';
 import { GreedyBestFirstSearchStrategy } from './gbfs-strategy.ts';
 import type { PathfindingStrategy } from './pathfinding-strategy.ts';
 
-type PathfindingAlgorithm = 'a-star' | 'bfs' | 'dfs' | 'dijkstra' | 'gbfs';
+const PathfindingAlgorithm = {
+  AStar: 'a-star',
+  Bfs: 'bfs',
+  Dfs: 'dfs',
+  Dijkstra: 'dijkstra',
+  Gbfs: 'gbfs',
+} as const;
+
+type PathfindingAlgorithm =
+  (typeof PathfindingAlgorithm)[keyof typeof PathfindingAlgorithm];
 
 function assertIsPathfindingAlgorithm(
   value: unknown,
 ): asserts value is PathfindingAlgorithm {
   if (
     typeof value !== 'string' ||
-    !Object.keys(PATHFINDING_ALGORITHMS).includes(value)
+    !Object.values(PathfindingAlgorithm).includes(value as PathfindingAlgorithm)
   ) {
     throw new Error(`Invalid pathfinding algorithm: ${value}`);
   }
@@ -30,43 +39,43 @@ const PATHFINDING_ALGORITHMS: ReadonlyDeep<
     }
   >
 > = {
-  'a-star': {
-    key: 'a-star',
+  [PathfindingAlgorithm.AStar]: {
+    key: PathfindingAlgorithm.AStar,
     strategy: new AStarStrategy(),
     label: 'A*',
     withHeuristics: true,
   },
-  bfs: {
-    key: 'bfs',
+  [PathfindingAlgorithm.Bfs]: {
+    key: PathfindingAlgorithm.Bfs,
     strategy: new BfsStrategy(),
     label: 'Breadth-First Search',
     withHeuristics: false,
   },
-  dfs: {
-    key: 'dfs',
+  [PathfindingAlgorithm.Dfs]: {
+    key: PathfindingAlgorithm.Dfs,
     strategy: new DfsStrategy(),
     label: 'Depth-First Search',
     withHeuristics: false,
   },
-  dijkstra: {
-    key: 'dijkstra',
+  [PathfindingAlgorithm.Dijkstra]: {
+    key: PathfindingAlgorithm.Dijkstra,
     strategy: new DijkstraStrategy(),
     label: 'Dijkstra',
     withHeuristics: false,
   },
-  gbfs: {
-    key: 'gbfs',
+  [PathfindingAlgorithm.Gbfs]: {
+    key: PathfindingAlgorithm.Gbfs,
     strategy: new GreedyBestFirstSearchStrategy(),
     label: 'Greedy Best-First Search',
     withHeuristics: true,
   },
 };
 
-const INITIAL_ALGORITHM: PathfindingAlgorithm = 'a-star';
+const INITIAL_ALGORITHM: PathfindingAlgorithm = PathfindingAlgorithm.AStar;
 
 export {
   assertIsPathfindingAlgorithm,
   INITIAL_ALGORITHM,
   PATHFINDING_ALGORITHMS,
-  type PathfindingAlgorithm,
+  PathfindingAlgorithm,
 };

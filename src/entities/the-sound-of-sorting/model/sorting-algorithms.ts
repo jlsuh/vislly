@@ -12,25 +12,29 @@ import type { SortingStrategy } from './sorting-strategy.ts';
 import { SwapInsertionSortStrategy } from './swap-insertion-sort-strategy.ts';
 import { TopDownMergeSortStrategy } from './top-down-merge-sort-strategy.ts';
 
+const SortingAlgorithm = {
+  BubbleSort: 'bubble-sort',
+  SelectionSort: 'selection-sort',
+  BinaryInsertionSort: 'binary-insertion-sort',
+  ShiftInsertionSort: 'shift-insertion-sort',
+  SwapInsertionSort: 'swap-insertion-sort',
+  GnomeSort: 'gnome-sort',
+  IncerpiSedgewickShellSort: 'incerpi-sedgewick-shell-sort',
+  KnuthShellSort: 'knuth-shell-sort',
+  BottomUpMergeSort: 'bottom-up-merge-sort',
+  TopDownMergeSort: 'top-down-merge-sort',
+  HeapSort: 'heap-sort',
+} as const;
+
 type SortingAlgorithm =
-  | 'bubble-sort'
-  | 'selection-sort'
-  | 'binary-insertion-sort'
-  | 'shift-insertion-sort'
-  | 'swap-insertion-sort'
-  | 'gnome-sort'
-  | 'incerpi-sedgewick-shell-sort'
-  | 'knuth-shell-sort'
-  | 'bottom-up-merge-sort'
-  | 'top-down-merge-sort'
-  | 'heap-sort';
+  (typeof SortingAlgorithm)[keyof typeof SortingAlgorithm];
 
 function assertIsSortingAlgorithm(
   value: unknown,
 ): asserts value is SortingAlgorithm {
   if (
     typeof value !== 'string' ||
-    !Object.keys(SORTING_ALGORITHMS).includes(value)
+    !Object.values(SortingAlgorithm).includes(value as SortingAlgorithm)
   ) {
     throw new Error(`Invalid sorting algorithm: ${value}`);
   }
@@ -46,69 +50,68 @@ const SORTING_ALGORITHMS: ReadonlyDeep<
     }
   >
 > = {
-  'bubble-sort': {
-    key: 'bubble-sort',
+  [SortingAlgorithm.BubbleSort]: {
+    key: SortingAlgorithm.BubbleSort,
     label: 'Bubble',
     strategy: new BubbleSortStrategy(),
   },
-  'selection-sort': {
-    key: 'selection-sort',
+  [SortingAlgorithm.SelectionSort]: {
+    key: SortingAlgorithm.SelectionSort,
     label: 'Selection',
     strategy: new SelectionSortStrategy(),
   },
-  'binary-insertion-sort': {
-    key: 'binary-insertion-sort',
+  [SortingAlgorithm.BinaryInsertionSort]: {
+    key: SortingAlgorithm.BinaryInsertionSort,
     label: 'Binary Insertion',
     strategy: new BinaryInsertionSortStrategy(),
   },
-  'shift-insertion-sort': {
-    key: 'shift-insertion-sort',
+  [SortingAlgorithm.ShiftInsertionSort]: {
+    key: SortingAlgorithm.ShiftInsertionSort,
     label: 'Shift Insertion',
     strategy: new ShiftInsertionSortStrategy(),
   },
-  'swap-insertion-sort': {
-    key: 'swap-insertion-sort',
+  [SortingAlgorithm.SwapInsertionSort]: {
+    key: SortingAlgorithm.SwapInsertionSort,
     label: 'Swap Insertion',
     strategy: new SwapInsertionSortStrategy(),
   },
-  'gnome-sort': {
-    key: 'gnome-sort',
+  [SortingAlgorithm.GnomeSort]: {
+    key: SortingAlgorithm.GnomeSort,
     label: 'Gnome',
     strategy: new GnomeSortStrategy(),
   },
-  'incerpi-sedgewick-shell-sort': {
-    key: 'incerpi-sedgewick-shell-sort',
+  [SortingAlgorithm.IncerpiSedgewickShellSort]: {
+    key: SortingAlgorithm.IncerpiSedgewickShellSort,
     label: 'Incerpi-Sedgewick Shell',
     strategy: new IncerpiSedgewickShellSortStrategy(),
   },
-  'knuth-shell-sort': {
-    key: 'knuth-shell-sort',
+  [SortingAlgorithm.KnuthShellSort]: {
+    key: SortingAlgorithm.KnuthShellSort,
     label: 'Knuth Shell',
     strategy: new KnuthShellSortStrategy(),
   },
-  'bottom-up-merge-sort': {
-    key: 'bottom-up-merge-sort',
+  [SortingAlgorithm.BottomUpMergeSort]: {
+    key: SortingAlgorithm.BottomUpMergeSort,
     label: 'Bottom-Up Merge',
     strategy: new BottomUpMergeSortStrategy(),
   },
-  'top-down-merge-sort': {
-    key: 'top-down-merge-sort',
+  [SortingAlgorithm.TopDownMergeSort]: {
+    key: SortingAlgorithm.TopDownMergeSort,
     label: 'Top-Down Merge',
     strategy: new TopDownMergeSortStrategy(),
   },
-  'heap-sort': {
-    key: 'heap-sort',
+  [SortingAlgorithm.HeapSort]: {
+    key: SortingAlgorithm.HeapSort,
     label: 'Heap',
     strategy: new HeapSortStrategy(),
   },
 };
 
-const INITIAL_SORTING_ALGORITHM: SortingAlgorithm =
-  SORTING_ALGORITHMS['bubble-sort'].key;
+const INITIAL_SORTING_ALGORITHM: SortingAlgorithm = SortingAlgorithm.BubbleSort;
 
 export {
   assertIsSortingAlgorithm,
   INITIAL_SORTING_ALGORITHM,
   SORTING_ALGORITHMS,
-  type SortingAlgorithm,
+  SortingAlgorithm,
 };

@@ -1,8 +1,8 @@
 import { type Context, createContext } from 'react';
-import { Theme, type ThemeValue } from '../config/theme.ts';
+import { Theme } from '../config/theme.ts';
 
 type ThemeContextType = {
-  currentThemeValue: ThemeValue;
+  currentThemeValue: Theme['value'];
   toggleTheme: () => void;
 };
 

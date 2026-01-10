@@ -7,14 +7,14 @@ import {
   useSyncExternalStore,
 } from 'react';
 import useSystemAppearance from '@/shared/lib/useSystemAppearance';
-import { THEME_VALUES, Theme, type ThemeValue } from '../config/theme.ts';
+import { THEME_VALUES, Theme } from '../config/theme.ts';
 import ThemeContext from './ThemeContext.tsx';
 
 const DATA_THEME = 'data-theme';
 const STORAGE = 'storage';
 const THEME_KEY = 'theme';
 
-function isThemeValue(themeValue: string | null): themeValue is ThemeValue {
+function isThemeValue(themeValue: string | null): themeValue is Theme['value'] {
   return (
     themeValue !== null &&
     THEME_VALUES.map(({ value }) => value).some(
@@ -24,7 +24,7 @@ function isThemeValue(themeValue: string | null): themeValue is ThemeValue {
 }
 
 function getThemeSnapshot(prefersDarkColorScheme: boolean) {
-  return (): ThemeValue => {
+  return (): Theme['value'] => {
     const currentThemeValue = localStorage.getItem(THEME_KEY);
     if (isThemeValue(currentThemeValue)) {
       return currentThemeValue;
