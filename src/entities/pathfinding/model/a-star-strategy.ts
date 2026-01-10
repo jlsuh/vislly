@@ -37,7 +37,7 @@ class AStarStrategy extends PathfindingStrategy {
     }
   }
 
-  public *generator({
+  public override *generator({
     end,
     grid,
     heuristicsName,

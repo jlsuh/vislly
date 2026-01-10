@@ -6,7 +6,7 @@ import {
 } from './sorting-strategy.ts';
 
 class QuickSortLRStrategy extends QuickSortStrategy {
-  protected *partition(
+  protected override *partition(
     array: number[],
     lo: number,
     hi: number,

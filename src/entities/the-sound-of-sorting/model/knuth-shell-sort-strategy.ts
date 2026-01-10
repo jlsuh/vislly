@@ -9,7 +9,7 @@ const KNUTH_GAPS = [
 ];
 
 class KnuthShellSortStrategy extends ShellSortStrategy {
-  protected getGaps(length: number): number[] {
+  protected override getGaps(length: number): number[] {
     return KNUTH_GAPS.filter((h) => 3 * h + 1 <= length);
   }
 }

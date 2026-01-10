@@ -5,7 +5,7 @@ import type { SortingStrategyYield } from './sorting-strategy.ts';
  * @see {@link https://algs4.cs.princeton.edu/22mergesort/Merge.java.html | Top-Down Merge Sort}
  */
 class TopDownMergeSortStrategy extends MergeSortStrategy {
-  public *generator({
+  public override *generator({
     array,
   }: {
     array: number[];

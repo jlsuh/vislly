@@ -6,7 +6,7 @@ import {
 } from './sorting-strategy.ts';
 
 export class GnomeSortStrategy extends SortingStrategy {
-  public *generator({
+  public override *generator({
     array,
   }: {
     array: number[];

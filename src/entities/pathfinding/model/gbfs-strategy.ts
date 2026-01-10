@@ -29,7 +29,7 @@ class GreedyBestFirstSearchStrategy extends PathfindingStrategy {
     parent.set(neighbor, current);
   }
 
-  public *generator({
+  public override *generator({
     end,
     grid,
     heuristicsName,

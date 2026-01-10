@@ -13,7 +13,7 @@ abstract class ShellSortStrategy extends SortingStrategy {
     return [];
   }
 
-  public *generator({
+  public override *generator({
     array,
   }: {
     array: number[];

@@ -10,7 +10,7 @@ const INCERPI_SEDGEWICK_GAPS = [
 ];
 
 class IncerpiSedgewickShellSortStrategy extends ShellSortStrategy {
-  protected getGaps(length: number): number[] {
+  protected override getGaps(length: number): number[] {
     return INCERPI_SEDGEWICK_GAPS.filter((h) => h < length);
   }
 }

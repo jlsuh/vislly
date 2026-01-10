@@ -21,8 +21,8 @@ abstract class QuickSortStrategy extends SortingStrategy {
     return true;
   }
 
-  public override setPivot(pivot: QuickSortPivot): void {
-    this.pivot = pivot;
+  public override setPivot(newPivot: QuickSortPivot): void {
+    this.pivot = newPivot;
   }
 
   protected abstract partition(
@@ -123,7 +123,7 @@ abstract class QuickSortStrategy extends SortingStrategy {
     }
   }
 
-  public *generator({
+  public override *generator({
     array,
   }: {
     array: number[];

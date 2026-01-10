@@ -5,7 +5,7 @@ import type { SortingStrategyYield } from './sorting-strategy.ts';
  * @see {@link https://algs4.cs.princeton.edu/22mergesort/MergeBU.java.html | Bottom-Up Merge Sort}
  */
 class BottomUpMergeSortStrategy extends MergeSortStrategy {
-  public *generator({
+  public override *generator({
     array,
   }: {
     array: number[];

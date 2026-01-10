@@ -30,7 +30,7 @@ class DijkstraStrategy extends PathfindingStrategy {
     }
   }
 
-  public *generator({
+  public override *generator({
     end,
     grid,
     isDiagonalAllowed,

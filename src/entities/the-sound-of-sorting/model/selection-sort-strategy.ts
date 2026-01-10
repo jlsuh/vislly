@@ -7,7 +7,7 @@ import {
 } from './sorting-strategy.ts';
 
 class SelectionSortStrategy extends SortingStrategy {
-  public *generator({
+  public override *generator({
     array,
   }: {
     array: number[];

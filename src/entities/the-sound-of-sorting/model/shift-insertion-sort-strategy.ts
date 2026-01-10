@@ -3,11 +3,11 @@ import { ShellSortStrategy } from './shell-sort-strategy.ts';
 import type { HighlightGroup } from './sorting-strategy.ts';
 
 class ShiftInsertionSortStrategy extends ShellSortStrategy {
-  protected getGaps(): number[] {
+  protected override getGaps(): number[] {
     return [1];
   }
 
-  protected getAdditionalHighlights(i: number): HighlightGroup[] {
+  protected override getAdditionalHighlights(i: number): HighlightGroup[] {
     return [
       {
         indices: [i],

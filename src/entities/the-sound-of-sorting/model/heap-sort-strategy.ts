@@ -128,7 +128,7 @@ class HeapSortStrategy extends SortingStrategy {
     }
   }
 
-  public *generator({
+  public override *generator({
     array,
   }: {
     array: number[];

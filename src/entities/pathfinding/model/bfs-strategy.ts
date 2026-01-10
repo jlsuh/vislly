@@ -3,7 +3,7 @@ import { PathfindingStrategy } from './pathfinding-strategy.ts';
 import type { Vertex } from './vertex.ts';
 
 class BfsStrategy extends PathfindingStrategy {
-  public *generator({
+  public override *generator({
     end,
     grid,
     isDiagonalAllowed,

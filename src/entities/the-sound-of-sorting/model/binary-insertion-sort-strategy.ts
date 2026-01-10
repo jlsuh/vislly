@@ -6,7 +6,7 @@ import {
 } from './sorting-strategy.ts';
 
 class BinaryInsertionSortStrategy extends SortingStrategy {
-  public *generator({
+  public override *generator({
     array,
   }: {
     array: number[];
