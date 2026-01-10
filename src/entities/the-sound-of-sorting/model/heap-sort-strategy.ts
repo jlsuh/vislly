@@ -3,7 +3,7 @@ import {
   type HighlightGroup,
   SortingStrategy,
   type SortingStrategyYield,
-  SortOperationType,
+  SortOperation,
 } from './sorting-strategy.ts';
 
 const GOLDEN_ANGLE_DEG = 180 * (3 - Math.sqrt(5));
@@ -86,8 +86,8 @@ class HeapSortStrategy extends SortingStrategy {
           comparisonCount: 1,
           highlights: this.generateHighlights(n, [childIndex, childIndex + 1]),
           shiftCount: 0,
+          sortOperation: SortOperation.Compare,
           swapCount: 0,
-          type: SortOperationType.Compare,
         };
         if (array[childIndex + 1] > array[childIndex]) {
           childIndex += 1;
@@ -98,8 +98,8 @@ class HeapSortStrategy extends SortingStrategy {
         comparisonCount: 1,
         highlights: this.generateHighlights(n, [i, childIndex]),
         shiftCount: 0,
+        sortOperation: SortOperation.Compare,
         swapCount: 0,
-        type: SortOperationType.Compare,
       };
       if (array[i] >= array[childIndex]) {
         return;
@@ -110,8 +110,8 @@ class HeapSortStrategy extends SortingStrategy {
         comparisonCount: 0,
         highlights: this.generateHighlights(n, [i, childIndex]),
         shiftCount: 0,
+        sortOperation: SortOperation.Swap,
         swapCount: 1,
-        type: SortOperationType.Swap,
       };
       i = childIndex;
       childIndex = 2 * i + 1;
@@ -145,8 +145,8 @@ class HeapSortStrategy extends SortingStrategy {
         comparisonCount: 0,
         highlights: this.generateHighlights(n, [0]),
         shiftCount: 0,
+        sortOperation: SortOperation.Swap,
         swapCount: 1,
-        type: SortOperationType.Swap,
       };
       yield* this.siftDown(array, 0, n);
     }
@@ -157,8 +157,8 @@ class HeapSortStrategy extends SortingStrategy {
         { color: GREEN, indices: [0], skipHighlightGroupTone: true },
       ],
       shiftCount: 0,
+      sortOperation: SortOperation.Inspect,
       swapCount: 0,
-      type: SortOperationType.Inspect,
     };
   }
 }

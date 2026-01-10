@@ -2,7 +2,7 @@ import { RED } from '@/shared/lib/rgba.ts';
 import {
   SortingStrategy,
   type SortingStrategyYield,
-  SortOperationType,
+  SortOperation,
 } from './sorting-strategy.ts';
 
 export class GnomeSortStrategy extends SortingStrategy {
@@ -28,8 +28,8 @@ export class GnomeSortStrategy extends SortingStrategy {
           },
         ],
         shiftCount: 0,
+        sortOperation: SortOperation.Compare,
         swapCount: 0,
-        type: SortOperationType.Compare,
       };
       if (array[pos] >= array[pos - 1]) {
         pos += 1;
@@ -40,15 +40,11 @@ export class GnomeSortStrategy extends SortingStrategy {
         accessCount: 4,
         comparisonCount: 0,
         highlights: [
-          {
-            indices: [pos, pos - 1],
-            color: RED,
-            skipHighlightGroupTone: true,
-          },
+          { indices: [pos, pos - 1], color: RED, skipHighlightGroupTone: true },
         ],
         shiftCount: 0,
+        sortOperation: SortOperation.Swap,
         swapCount: 1,
-        type: SortOperationType.Swap,
       };
       pos -= 1;
     }

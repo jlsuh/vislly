@@ -2,7 +2,7 @@ import { GREEN, RED } from '@/shared/lib/rgba.ts';
 import {
   SortingStrategy,
   type SortingStrategyYield,
-  SortOperationType,
+  SortOperation,
 } from './sorting-strategy.ts';
 
 abstract class MergeSortStrategy extends SortingStrategy {
@@ -26,8 +26,8 @@ abstract class MergeSortStrategy extends SortingStrategy {
           { color: GREEN, indices: [frontier], skipHighlightGroupTone: true },
         ],
         shiftCount: 0,
+        sortOperation: SortOperation.Compare,
         swapCount: 0,
-        type: SortOperationType.Compare,
       };
       if (array[i] <= array[j]) {
         aux[k] = array[i];
@@ -61,8 +61,8 @@ abstract class MergeSortStrategy extends SortingStrategy {
           { color: GREEN, indices: [frontier], skipHighlightGroupTone: true },
         ],
         shiftCount: 0,
+        sortOperation: SortOperation.Inspect,
         swapCount: 0,
-        type: SortOperationType.Inspect,
       };
       pendingAccesses = 0;
     }

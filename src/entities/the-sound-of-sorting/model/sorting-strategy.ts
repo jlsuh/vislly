@@ -1,12 +1,11 @@
-const SortOperationType = {
+const SortOperation = {
   Compare: 0,
   Inspect: 1,
   Shift: 2,
   Swap: 3,
 } as const;
 
-type SortOperationType =
-  (typeof SortOperationType)[keyof typeof SortOperationType];
+type SortOperation = (typeof SortOperation)[keyof typeof SortOperation];
 
 interface HighlightGroup {
   color: string;
@@ -20,7 +19,7 @@ interface SortingStrategyYield {
   highlights: HighlightGroup[];
   shiftCount: number;
   swapCount: number;
-  type: SortOperationType;
+  sortOperation: SortOperation;
 }
 
 abstract class SortingStrategy {
@@ -37,7 +36,7 @@ abstract class SortingStrategy {
 
 export {
   SortingStrategy,
-  SortOperationType,
+  SortOperation,
   type HighlightGroup,
   type SortingStrategyYield,
 };

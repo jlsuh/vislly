@@ -3,7 +3,7 @@ import {
   type HighlightGroup,
   SortingStrategy,
   type SortingStrategyYield,
-  SortOperationType,
+  SortOperation,
 } from './sorting-strategy.ts';
 
 abstract class ShellSortStrategy extends SortingStrategy {
@@ -34,8 +34,8 @@ abstract class ShellSortStrategy extends SortingStrategy {
             comparisonCount: 1,
             highlights: currentHighlights,
             shiftCount: 0,
+            sortOperation: SortOperation.Compare,
             swapCount: 0,
-            type: SortOperationType.Compare,
           };
           pendingAccessCount = 0;
           if (array[j - h] > v) {
@@ -45,8 +45,8 @@ abstract class ShellSortStrategy extends SortingStrategy {
               comparisonCount: 0,
               highlights: currentHighlights,
               shiftCount: 1,
+              sortOperation: SortOperation.Shift,
               swapCount: 0,
-              type: SortOperationType.Shift,
             };
             j -= h;
           } else {
@@ -63,8 +63,8 @@ abstract class ShellSortStrategy extends SortingStrategy {
               ...this.getAdditionalHighlights(i),
             ],
             shiftCount: 1,
+            sortOperation: SortOperation.Shift,
             swapCount: 0,
-            type: SortOperationType.Shift,
           };
         }
       }

@@ -3,7 +3,7 @@ import {
   type HighlightGroup,
   SortingStrategy,
   type SortingStrategyYield,
-  SortOperationType,
+  SortOperation,
 } from './sorting-strategy.ts';
 
 class SwapInsertionSortStrategy extends SortingStrategy {
@@ -27,8 +27,8 @@ class SwapInsertionSortStrategy extends SortingStrategy {
           comparisonCount: 1,
           highlights,
           shiftCount: 0,
+          sortOperation: SortOperation.Compare,
           swapCount: 0,
-          type: SortOperationType.Compare,
         };
         totalAccessCount = 0;
         if (array[j] > key) {
@@ -38,8 +38,8 @@ class SwapInsertionSortStrategy extends SortingStrategy {
             comparisonCount: 0,
             highlights,
             shiftCount: 0,
+            sortOperation: SortOperation.Swap,
             swapCount: 1,
-            type: SortOperationType.Swap,
           };
           j -= 1;
         } else {

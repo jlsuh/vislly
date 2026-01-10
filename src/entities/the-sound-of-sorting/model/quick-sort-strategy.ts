@@ -2,10 +2,10 @@ import { RED } from '@/shared/lib/rgba.ts';
 import {
   SortingStrategy,
   type SortingStrategyYield,
-  SortOperationType,
+  SortOperation,
 } from './sorting-strategy.ts';
 
-interface SortRange {
+interface Partition {
   lo: number;
   hi: number;
 }
@@ -39,7 +39,7 @@ abstract class QuickSortStrategy extends SortingStrategy {
     array: number[],
     lo: number,
     hi: number,
-  ): Generator<SortingStrategyYield, SortRange[], unknown>;
+  ): Generator<SortingStrategyYield, Partition[], unknown>;
 
   protected *selectPivot(
     array: number[],
@@ -72,11 +72,17 @@ abstract class QuickSortStrategy extends SortingStrategy {
     const mid = Math.floor((lo + hi) / 2);
     const last = hi - 1;
     yield* this.emitComparison(lo, mid);
-    if (array[lo] === array[mid]) return lo;
+    if (array[lo] === array[mid]) {
+      return lo;
+    }
     yield* this.emitComparison(lo, last);
-    if (array[lo] === array[last]) return last;
+    if (array[lo] === array[last]) {
+      return last;
+    }
     yield* this.emitComparison(mid, last);
-    if (array[mid] === array[last]) return last;
+    if (array[mid] === array[last]) {
+      return last;
+    }
     return yield* this.resolveMedian(array, lo, mid, last);
   }
 
@@ -106,15 +112,11 @@ abstract class QuickSortStrategy extends SortingStrategy {
       accessCount: 2,
       comparisonCount: 1,
       highlights: [
-        {
-          color: RED,
-          indices: [idxA, idxB],
-          skipHighlightGroupTone: true,
-        },
+        { color: RED, indices: [idxA, idxB], skipHighlightGroupTone: false },
       ],
       shiftCount: 0,
+      sortOperation: SortOperation.Compare,
       swapCount: 0,
-      type: SortOperationType.Compare,
     };
   }
 
@@ -126,9 +128,8 @@ abstract class QuickSortStrategy extends SortingStrategy {
     if (lo >= hi - 1 || lo < 0) {
       return;
     }
-    const nextRanges = yield* this.partition(array, lo, hi);
-    for (const range of nextRanges) {
-      yield* this.quickSort(array, range.lo, range.hi);
+    for (const partition of yield* this.partition(array, lo, hi)) {
+      yield* this.quickSort(array, partition.lo, partition.hi);
     }
   }
 
@@ -147,5 +148,5 @@ export {
   assertIsQuickSortPivot,
   QuickSortPivot,
   QuickSortStrategy,
-  type SortRange,
+  type Partition,
 };

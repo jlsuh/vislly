@@ -1,8 +1,8 @@
 import { GREEN, RED } from '@/shared/lib/rgba.ts';
-import { QuickSortStrategy, type SortRange } from './quick-sort-strategy.ts';
+import { type Partition, QuickSortStrategy } from './quick-sort-strategy.ts';
 import {
   type SortingStrategyYield,
-  SortOperationType,
+  SortOperation,
 } from './sorting-strategy.ts';
 
 class QuickSortLLStrategy extends QuickSortStrategy {
@@ -10,7 +10,7 @@ class QuickSortLLStrategy extends QuickSortStrategy {
     array: number[],
     lo: number,
     hi: number,
-  ): Generator<SortingStrategyYield, SortRange[], unknown> {
+  ): Generator<SortingStrategyYield, Partition[], unknown> {
     const last = hi - 1;
     const pivotIdx = yield* this.selectPivot(array, lo, hi);
     if (pivotIdx !== last) {
@@ -19,11 +19,7 @@ class QuickSortLLStrategy extends QuickSortStrategy {
         accessCount: 2,
         comparisonCount: 0,
         highlights: [
-          {
-            color: GREEN,
-            indices: [last],
-            skipHighlightGroupTone: true,
-          },
+          { color: GREEN, indices: [last], skipHighlightGroupTone: true },
           {
             color: RED,
             indices: [pivotIdx, last],
@@ -31,8 +27,8 @@ class QuickSortLLStrategy extends QuickSortStrategy {
           },
         ],
         shiftCount: 0,
+        sortOperation: SortOperation.Swap,
         swapCount: 1,
-        type: SortOperationType.Swap,
       };
     }
     const pivot = array[last];
@@ -46,8 +42,8 @@ class QuickSortLLStrategy extends QuickSortStrategy {
           { color: GREEN, indices: [last], skipHighlightGroupTone: true },
         ],
         shiftCount: 0,
+        sortOperation: SortOperation.Compare,
         swapCount: 0,
-        type: SortOperationType.Compare,
       };
       if (array[j] <= pivot) {
         super.swap(array, i, j);
@@ -59,8 +55,8 @@ class QuickSortLLStrategy extends QuickSortStrategy {
             { color: GREEN, indices: [last], skipHighlightGroupTone: true },
           ],
           shiftCount: 0,
+          sortOperation: SortOperation.Swap,
           swapCount: 1,
-          type: SortOperationType.Swap,
         };
         i += 1;
       }
@@ -73,8 +69,8 @@ class QuickSortLLStrategy extends QuickSortStrategy {
         { color: RED, indices: [i, last], skipHighlightGroupTone: true },
       ],
       shiftCount: 0,
+      sortOperation: SortOperation.Swap,
       swapCount: 1,
-      type: SortOperationType.Swap,
     };
     return [
       { lo, hi: i },

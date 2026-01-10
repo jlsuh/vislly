@@ -1,8 +1,8 @@
 import { GREEN, RED } from '@/shared/lib/rgba.ts';
-import { QuickSortStrategy, type SortRange } from './quick-sort-strategy.ts';
+import { type Partition, QuickSortStrategy } from './quick-sort-strategy.ts';
 import {
   type SortingStrategyYield,
-  SortOperationType,
+  SortOperation,
 } from './sorting-strategy.ts';
 
 class QuickSortDualPivotYaroslavskiyStrategy extends QuickSortStrategy {
@@ -10,7 +10,7 @@ class QuickSortDualPivotYaroslavskiyStrategy extends QuickSortStrategy {
     array: number[],
     lo: number,
     hi: number,
-  ): Generator<SortingStrategyYield, SortRange[], unknown> {
+  ): Generator<SortingStrategyYield, Partition[], unknown> {
     if (hi - lo < 2) {
       return [];
     }
@@ -25,8 +25,8 @@ class QuickSortDualPivotYaroslavskiyStrategy extends QuickSortStrategy {
         { color: GREEN, indices: [lo, last], skipHighlightGroupTone: true },
       ],
       shiftCount: 0,
+      sortOperation: SortOperation.Inspect,
       swapCount: 0,
-      type: SortOperationType.Inspect,
     };
     const { l, g } = yield* this.partitionLoop(array, lo, last, p, q);
     super.swap(array, lo, l - 1);
@@ -134,8 +134,8 @@ class QuickSortDualPivotYaroslavskiyStrategy extends QuickSortStrategy {
         { color: GREEN, indices: [idx2], skipHighlightGroupTone: true },
       ],
       shiftCount: 0,
+      sortOperation: SortOperation.Compare,
       swapCount: 0,
-      type: SortOperationType.Compare,
     };
   }
 
@@ -150,8 +150,8 @@ class QuickSortDualPivotYaroslavskiyStrategy extends QuickSortStrategy {
         { color: RED, indices: [idx1, idx2], skipHighlightGroupTone: true },
       ],
       shiftCount: 0,
+      sortOperation: SortOperation.Swap,
       swapCount: 1,
-      type: SortOperationType.Swap,
     };
   }
 }

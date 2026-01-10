@@ -30,7 +30,7 @@ import { SortingStatus } from '../model/sorting-status.ts';
 import {
   type HighlightGroup,
   type SortingStrategyYield,
-  SortOperationType,
+  SortOperation,
 } from '../model/sorting-strategy.ts';
 import TheSoundOfSortingControls from './TheSoundOfSortingControls.tsx';
 import TheSoundOfSortingStats from './TheSoundOfSortingStats.tsx';
@@ -193,11 +193,11 @@ function TheSoundOfSorting(): JSX.Element {
     highlightGroups: HighlightGroup[];
     shouldArbitrarilySkipTone: boolean;
     toneDurationMs: number;
-    type: SortOperationType;
+    type: SortOperation;
   }): void {
     const shouldPlayTone =
       !(shouldArbitrarilySkipTone || isMutedRef.current) &&
-      type === SortOperationType.Compare;
+      type === SortOperation.Compare;
     for (const group of highlightGroups) {
       for (const index of group.indices) {
         activeHighlightsRef.current.set(index, group.color);
@@ -236,7 +236,7 @@ function TheSoundOfSorting(): JSX.Element {
       highlightGroups: value.highlights,
       shouldArbitrarilySkipTone,
       toneDurationMs,
-      type: value.type,
+      type: value.sortOperation,
     });
     setNewStats();
     draw({ activeHighlightsRef, arrayRef, canvasRef, maxRange });

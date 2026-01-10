@@ -1,8 +1,8 @@
 import { GREEN, RED } from '@/shared/lib/rgba.ts';
-import { QuickSortStrategy, type SortRange } from './quick-sort-strategy.ts';
+import { type Partition, QuickSortStrategy } from './quick-sort-strategy.ts';
 import {
   type SortingStrategyYield,
-  SortOperationType,
+  SortOperation,
 } from './sorting-strategy.ts';
 
 class QuickSortTernaryLLStrategy extends QuickSortStrategy {
@@ -10,7 +10,7 @@ class QuickSortTernaryLLStrategy extends QuickSortStrategy {
     array: number[],
     lo: number,
     hi: number,
-  ): Generator<SortingStrategyYield, SortRange[], unknown> {
+  ): Generator<SortingStrategyYield, Partition[], unknown> {
     const last = hi - 1;
     const pivotIdx = yield* this.selectPivot(array, lo, hi);
     super.swap(array, pivotIdx, last);
@@ -22,8 +22,8 @@ class QuickSortTernaryLLStrategy extends QuickSortStrategy {
         { color: RED, indices: [pivotIdx, last], skipHighlightGroupTone: true },
       ],
       shiftCount: 0,
+      sortOperation: SortOperation.Swap,
       swapCount: 1,
-      type: SortOperationType.Swap,
     };
     const pivotValue = array[last];
     const { i, k } = yield* this.partitionLoop(
@@ -60,8 +60,8 @@ class QuickSortTernaryLLStrategy extends QuickSortStrategy {
           { color: GREEN, indices: [pivotIndex], skipHighlightGroupTone: true },
         ],
         shiftCount: 0,
+        sortOperation: SortOperation.Compare,
         swapCount: 0,
-        type: SortOperationType.Compare,
       };
       const cmp = array[j] - pivotValue;
       if (cmp === 0) {
@@ -74,8 +74,8 @@ class QuickSortTernaryLLStrategy extends QuickSortStrategy {
             { color: RED, indices: [j, k], skipHighlightGroupTone: true },
           ],
           shiftCount: 0,
+          sortOperation: SortOperation.Swap,
           swapCount: 1,
-          type: SortOperationType.Swap,
         };
       } else if (cmp < 0) {
         super.swap(array, i, j);
@@ -86,8 +86,8 @@ class QuickSortTernaryLLStrategy extends QuickSortStrategy {
             { color: RED, indices: [i, j], skipHighlightGroupTone: true },
           ],
           shiftCount: 0,
+          sortOperation: SortOperation.Swap,
           swapCount: 1,
-          type: SortOperationType.Swap,
         };
         i += 1;
         j += 1;
@@ -118,8 +118,8 @@ class QuickSortTernaryLLStrategy extends QuickSortStrategy {
           },
         ],
         shiftCount: 0,
+        sortOperation: SortOperation.Swap,
         swapCount: 1,
-        type: SortOperationType.Swap,
       };
     }
   }

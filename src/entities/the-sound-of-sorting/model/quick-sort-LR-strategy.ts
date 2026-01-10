@@ -1,8 +1,8 @@
 import { GREEN, RED } from '@/shared/lib/rgba.ts';
-import { QuickSortStrategy, type SortRange } from './quick-sort-strategy.ts';
+import { type Partition, QuickSortStrategy } from './quick-sort-strategy.ts';
 import {
   type SortingStrategyYield,
-  SortOperationType,
+  SortOperation,
 } from './sorting-strategy.ts';
 
 class QuickSortLRStrategy extends QuickSortStrategy {
@@ -10,7 +10,7 @@ class QuickSortLRStrategy extends QuickSortStrategy {
     array: number[],
     lo: number,
     hi: number,
-  ): Generator<SortingStrategyYield, SortRange[], unknown> {
+  ): Generator<SortingStrategyYield, Partition[], unknown> {
     const pivotIdx = yield* this.selectPivot(array, lo, hi);
     const pivot = array[pivotIdx];
     if (pivotIdx !== lo) {
@@ -26,8 +26,8 @@ class QuickSortLRStrategy extends QuickSortStrategy {
           },
         ],
         shiftCount: 0,
+        sortOperation: SortOperation.Swap,
         swapCount: 1,
-        type: SortOperationType.Swap,
       };
     }
     let i = lo - 1;
@@ -40,12 +40,11 @@ class QuickSortLRStrategy extends QuickSortStrategy {
           comparisonCount: 1,
           highlights: [
             { color: RED, indices: [i], skipHighlightGroupTone: false },
-
             { color: GREEN, indices: [lo], skipHighlightGroupTone: true },
           ],
           shiftCount: 0,
+          sortOperation: SortOperation.Compare,
           swapCount: 0,
-          type: SortOperationType.Compare,
         };
       } while (array[i] < pivot);
       do {
@@ -58,8 +57,8 @@ class QuickSortLRStrategy extends QuickSortStrategy {
             { color: GREEN, indices: [lo], skipHighlightGroupTone: true },
           ],
           shiftCount: 0,
+          sortOperation: SortOperation.Compare,
           swapCount: 0,
-          type: SortOperationType.Compare,
         };
       } while (array[j] > pivot);
       if (i >= j) {
@@ -77,8 +76,8 @@ class QuickSortLRStrategy extends QuickSortStrategy {
           { color: GREEN, indices: [lo], skipHighlightGroupTone: true },
         ],
         shiftCount: 0,
+        sortOperation: SortOperation.Swap,
         swapCount: 1,
-        type: SortOperationType.Swap,
       };
     }
   }
