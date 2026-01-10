@@ -1,36 +1,36 @@
-import { type RefObject, useEffect, useRef } from 'react';
+import { type RefObject, useCallback, useRef } from 'react';
 
-function useIsHoldingClickOnElement(ref: RefObject<EventTarget | null>): {
-  isHoldingClickRef: RefObject<boolean>;
+function useIsHoldingClickOnElement<T extends HTMLElement>(): {
+  isPressedRef: RefObject<boolean>;
+  pressTargetRef: (node: T | null) => void;
 } {
-  const isHoldingClickRef = useRef(false);
+  const isPressedRef = useRef(false);
 
-  useEffect(() => {
-    const setIsHoldingClickToTrue = (): void => {
-      isHoldingClickRef.current = true;
-    };
-    const setIsHoldingClickToFalse = (): void => {
-      isHoldingClickRef.current = false;
-    };
-    const element = ref.current ?? new Element();
-    if (!element) {
+  const pressTargetRef = useCallback((node: T | null) => {
+    if (!node) {
       return;
     }
-    element.addEventListener('mousedown', setIsHoldingClickToTrue);
-    element.addEventListener('mouseleave', setIsHoldingClickToFalse);
-    element.addEventListener('mouseup', setIsHoldingClickToFalse);
-    element.addEventListener('touchend', setIsHoldingClickToFalse);
-    element.addEventListener('touchstart', setIsHoldingClickToTrue);
-    return () => {
-      element.removeEventListener('mousedown', setIsHoldingClickToTrue);
-      element.removeEventListener('mouseleave', setIsHoldingClickToFalse);
-      element.removeEventListener('mouseup', setIsHoldingClickToFalse);
-      element.removeEventListener('touchend', setIsHoldingClickToFalse);
-      element.removeEventListener('touchstart', setIsHoldingClickToTrue);
+    const setTrue = () => {
+      isPressedRef.current = true;
     };
-  }, [ref]);
+    const setFalse = () => {
+      isPressedRef.current = false;
+    };
+    node.addEventListener('mousedown', setTrue);
+    node.addEventListener('mouseleave', setFalse);
+    node.addEventListener('mouseup', setFalse);
+    node.addEventListener('touchend', setFalse);
+    node.addEventListener('touchstart', setTrue);
+    return () => {
+      node.removeEventListener('mousedown', setTrue);
+      node.removeEventListener('mouseleave', setFalse);
+      node.removeEventListener('mouseup', setFalse);
+      node.removeEventListener('touchend', setFalse);
+      node.removeEventListener('touchstart', setTrue);
+    };
+  }, []);
 
-  return { isHoldingClickRef };
+  return { isPressedRef, pressTargetRef };
 }
 
 export default useIsHoldingClickOnElement;

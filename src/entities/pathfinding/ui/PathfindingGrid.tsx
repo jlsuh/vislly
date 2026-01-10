@@ -8,7 +8,7 @@ import type {
   TouchEvent,
   TouchEventHandler,
 } from 'react';
-import { use, useEffect } from 'react';
+import { use, useEffect, useRef } from 'react';
 import {
   type CssCustomProperty,
   composeCssCustomProperty,
@@ -66,12 +66,12 @@ function dispatchMouseDownOnCell({
 }
 
 function dispatchOnPointerMove(
-  isHoldingClickRef: RefObject<boolean>,
+  isPressedRef: RefObject<boolean>,
   lastVisitedVertices: RefObject<Vertex[]>,
   reset: () => void,
 ): PointerEventHandler<HTMLElement> {
   return (e: PointerEvent<HTMLElement>) => {
-    if (!isHoldingClickRef.current) {
+    if (!isPressedRef.current) {
       return;
     }
     if (lastVisitedVertices.current.length > 0) {
@@ -128,12 +128,16 @@ function handleOverflownTerminalCells(
 }
 
 function PathfindingGrid(): JSX.Element {
+  const gridRef = useRef<HTMLElement>(null);
+
   const { dimensions, resizeRef } = useResizeDimensions<HTMLElement>(
     INITIAL_RESIZE_DIMENSIONS,
   );
-  const { isHoldingClickRef } = useIsHoldingClickOnElement(resizeRef);
 
-  useOnClickOutside([resizeRef], clearBodyOverflow);
+  const { isPressedRef, pressTargetRef } =
+    useIsHoldingClickOnElement<HTMLElement>();
+
+  useOnClickOutside([gridRef], clearBodyOverflow);
 
   const {
     cols,
@@ -171,19 +175,25 @@ function PathfindingGrid(): JSX.Element {
     setRows,
   ]);
 
+  const setRefs = (node: HTMLElement | null) => {
+    gridRef.current = node;
+    resizeRef(node);
+    pressTargetRef(node);
+  };
+
   return (
     <section
       aria-label="Pathfinding grid"
       className={styles.grid}
       onPointerMove={dispatchOnPointerMove(
-        isHoldingClickRef,
+        isPressedRef,
         lastVisitedVertices,
         resetPathfind,
       )}
       onTouchEnd={clearBodyOverflow}
       onTouchMove={dispatchOnTouchMove(lastVisitedVertices, resetPathfind)}
       onTouchStart={hideBodyOverflow}
-      ref={resizeRef}
+      ref={setRefs}
       style={CELL_SIZE_VAR}
     >
       {grid.map((gridRow, cellRow) => {

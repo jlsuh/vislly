@@ -1,4 +1,4 @@
-import { type RefObject, useEffect, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 interface ResizeDimensions {
   /**
@@ -29,21 +29,18 @@ function useResizeDimensions<T extends HTMLElement>(
   initialDimensions: ResizeDimensions,
 ): {
   dimensions: ResizeDimensions;
-  resizeRef: RefObject<T | null>;
+  resizeRef: (node: T | null) => void;
 } {
   const [currentHeight, setCurrentHeight] = useState(initialDimensions.height);
   const [currentWidth, setCurrentWidth] = useState(initialDimensions.width);
-  const resizeRef = useRef<T>(null);
 
-  useEffect(() => {
-    const element = resizeRef.current;
-    if (!element) return;
+  const resizeRef = useCallback((node: T | null) => {
+    if (!node) {
+      return;
+    }
     const resizeObserver = new ResizeObserver((entries) => {
       window.requestAnimationFrame(() => {
-        if (!Array.isArray(entries)) {
-          return;
-        }
-        if (!entries.length) {
+        if (!(Array.isArray(entries) && entries.length)) {
           return;
         }
         const { contentRect } = entries[0];
@@ -55,7 +52,7 @@ function useResizeDimensions<T extends HTMLElement>(
         );
       });
     });
-    resizeObserver.observe(element);
+    resizeObserver.observe(node);
     return () => resizeObserver.disconnect();
   }, []);
 
