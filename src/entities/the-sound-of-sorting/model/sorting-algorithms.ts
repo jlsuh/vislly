@@ -6,6 +6,11 @@ import { GnomeSortStrategy } from './gnome-sort-strategy.ts';
 import { HeapSortStrategy } from './heap-sort-strategy.ts';
 import { IncerpiSedgewickShellSortStrategy } from './incerpi-sedgewick-shell-sort-strategy.ts';
 import { KnuthShellSortStrategy } from './knuth-shell-sort-strategy.ts';
+import { QuickSortDualPivotYaroslavskiyStrategy } from './quick-sort-dual-pivot-strategy.ts';
+import { QuickSortLLStrategy } from './quick-sort-LL-strategy.ts';
+import { QuickSortLRStrategy } from './quick-sort-LR-strategy.ts';
+import { QuickSortTernaryLLStrategy } from './quick-sort-ternary-LL-strategy.ts';
+import { QuickSortTernaryLRStrategy } from './quick-sort-ternary-LR-strategy.ts';
 import { SelectionSortStrategy } from './selection-sort-strategy.ts';
 import { ShiftInsertionSortStrategy } from './shift-insertion-sort-strategy.ts';
 import type { SortingStrategy } from './sorting-strategy.ts';
@@ -24,6 +29,11 @@ const SortingAlgorithm = {
   BottomUpMergeSort: 'bottom-up-merge-sort',
   TopDownMergeSort: 'top-down-merge-sort',
   HeapSort: 'heap-sort',
+  QuickSortLL: 'quick-sort-ll',
+  QuickSortLR: 'quick-sort-lr',
+  QuickSortDualPivotYaroslavskiy: 'quick-sort-dual-pivot-yaroslavskiy',
+  QuickSortTernaryLL: 'quick-sort-ternary-ll',
+  QuickSortTernaryLR: 'quick-sort-ternary-lr',
 } as const;
 
 type SortingAlgorithm =
@@ -104,6 +114,31 @@ const SORTING_ALGORITHMS: ReadonlyDeep<
     key: SortingAlgorithm.HeapSort,
     label: 'Heap',
     strategy: new HeapSortStrategy(),
+  },
+  [SortingAlgorithm.QuickSortLL]: {
+    key: SortingAlgorithm.QuickSortLL,
+    label: 'Quick LL',
+    strategy: new QuickSortLLStrategy(),
+  },
+  [SortingAlgorithm.QuickSortLR]: {
+    key: SortingAlgorithm.QuickSortLR,
+    label: 'Quick LR',
+    strategy: new QuickSortLRStrategy(),
+  },
+  [SortingAlgorithm.QuickSortDualPivotYaroslavskiy]: {
+    key: SortingAlgorithm.QuickSortDualPivotYaroslavskiy,
+    label: 'Quick Dual Pivot Yaroslavskiy',
+    strategy: new QuickSortDualPivotYaroslavskiyStrategy(),
+  },
+  [SortingAlgorithm.QuickSortTernaryLL]: {
+    key: SortingAlgorithm.QuickSortTernaryLL,
+    label: 'Quick Ternary LL',
+    strategy: new QuickSortTernaryLLStrategy(),
+  },
+  [SortingAlgorithm.QuickSortTernaryLR]: {
+    key: SortingAlgorithm.QuickSortTernaryLR,
+    label: 'Quick Ternary LR',
+    strategy: new QuickSortTernaryLRStrategy(),
   },
 };
 

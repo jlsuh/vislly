@@ -13,6 +13,11 @@ import StepIcon from '@/shared/ui/StepIcon/StepIcon.tsx';
 import VolumeOffIcon from '@/shared/ui/VolumeOffIcon/VolumeOffIcon.tsx';
 import VolumeUpIcon from '@/shared/ui/VolumeUpIcon/VolumeUpIcon.tsx';
 import {
+  assertIsQuickSortPivot,
+  QuickSortPivot,
+  QuickSortStrategy,
+} from '../model/quick-sort-strategy.ts';
+import {
   assertIsSortingAlgorithm,
   SORTING_ALGORITHMS,
   type SortingAlgorithm,
@@ -25,7 +30,8 @@ type TheSoundOfSortingControlsProps = {
   delay: number;
   isMuted: boolean;
   maxRange: number;
-  sortingAlgorithm: string;
+  pivot: QuickSortPivot;
+  sortingAlgorithm: SortingAlgorithm;
   status: SortingStatus;
   handlePause: () => void;
   handleResetWithNewValues: () => void;
@@ -34,6 +40,7 @@ type TheSoundOfSortingControlsProps = {
   reset: (shouldGenerateNewValues: boolean) => void;
   setMaxRange: (newMaxRange: number) => void;
   setNewDelay: (newDelay: number) => void;
+  setNewPivot: (newType: QuickSortPivot) => void;
   setNewSortingAlgorithm: (newAlgorithm: SortingAlgorithm) => void;
   toggleMute: () => void;
 };
@@ -42,6 +49,7 @@ function TheSoundOfSortingControls({
   delay,
   isMuted,
   maxRange,
+  pivot,
   sortingAlgorithm,
   status,
   handlePause,
@@ -51,6 +59,7 @@ function TheSoundOfSortingControls({
   reset,
   setMaxRange,
   setNewDelay,
+  setNewPivot,
   setNewSortingAlgorithm,
   toggleMute,
 }: TheSoundOfSortingControlsProps): JSX.Element {
@@ -130,6 +139,17 @@ function TheSoundOfSortingControls({
   const primaryAction = composePrimaryAction();
   const soundAction = composeSoundAction();
 
+  const isQuickSort =
+    SORTING_ALGORITHMS[sortingAlgorithm].strategy instanceof QuickSortStrategy;
+
+  const handleOnChangePivot = (e: ChangeEvent<HTMLSelectElement>) => {
+    const { target } = e;
+    const { value } = target;
+    assertIsQuickSortPivot(value);
+    setNewPivot(value);
+    handleResetWithSameValues();
+  };
+
   return (
     <section className={styles.controlsContainer}>
       <div className={styles.inputsContainer}>
@@ -142,6 +162,22 @@ function TheSoundOfSortingControls({
             value: key,
           }))}
           value={sortingAlgorithm}
+        />
+        <Select
+          disabled={isSortingOrVerifying || !isQuickSort}
+          handleOnSelectChange={handleOnChangePivot}
+          label="Pivot Rule"
+          options={[
+            { label: 'First Item', value: QuickSortPivot.First },
+            { label: 'Last Item', value: QuickSortPivot.Last },
+            { label: 'Middle Item', value: QuickSortPivot.Middle },
+            { label: 'Random Item', value: QuickSortPivot.Random },
+            {
+              label: 'Median of Three',
+              value: QuickSortPivot.MedianOfThree,
+            },
+          ]}
+          value={pivot}
         />
         <div className={styles.rangeWrapper}>
           <label className={styles.rangeLabel} htmlFor={countRangeInputId}>

@@ -17,6 +17,10 @@ import {
 } from '@/shared/lib/useResizeDimensions.ts';
 import useTheSoundOfSortingAudio from '../lib/useTheSoundOfSortingAudio.ts';
 import {
+  QuickSortPivot,
+  QuickSortStrategy,
+} from '../model/quick-sort-strategy.ts';
+import {
   INITIAL_SORTING_ALGORITHM,
   SORTING_ALGORITHMS,
   type SortingAlgorithm,
@@ -109,6 +113,7 @@ function TheSoundOfSorting(): JSX.Element {
   const [delay, setDelay] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
   const [maxRange, setMaxRange] = useState(INITIAL_MAX_RANGE);
+  const [pivot, setPivot] = useState<QuickSortPivot>(QuickSortPivot.Last);
   const [sortingAlgorithm, setSortingAlgorithm] = useState(
     INITIAL_SORTING_ALGORITHM,
   );
@@ -122,6 +127,7 @@ function TheSoundOfSorting(): JSX.Element {
   const delayRef = useRef(delay);
   const initialArrayRef = useRef<number[]>([]);
   const isMutedRef = useRef(isMuted);
+  const pivotRef = useRef(pivot);
   const sortingAlgorithmRef = useRef(sortingAlgorithm);
   const sortingGeneratorRef =
     useRef<Generator<SortingStrategyYield, void, unknown>>(null);
@@ -146,6 +152,11 @@ function TheSoundOfSorting(): JSX.Element {
     }
   }, []);
 
+  const setNewPivot = (newPivot: QuickSortPivot) => {
+    pivotRef.current = newPivot;
+    setPivot(newPivot);
+  };
+
   const reset = useCallback(
     (shouldGenerateNewValues: boolean) => {
       cancelAnimationFrameIfAny();
@@ -158,9 +169,13 @@ function TheSoundOfSorting(): JSX.Element {
         );
       }
       arrayRef.current = [...initialArrayRef.current];
-      sortingGeneratorRef.current = SORTING_ALGORITHMS[
-        sortingAlgorithmRef.current
-      ].strategy.generator({ array: arrayRef.current });
+      const strategy = SORTING_ALGORITHMS[sortingAlgorithmRef.current].strategy;
+      if (strategy instanceof QuickSortStrategy) {
+        strategy.setPivot(pivotRef.current);
+      }
+      sortingGeneratorRef.current = strategy.generator({
+        array: arrayRef.current,
+      });
       statsRef.current = INITIAL_STATS.deepCopy();
       setStats(INITIAL_STATS.deepCopy());
       activeHighlightsRef.current.clear();
@@ -430,6 +445,7 @@ function TheSoundOfSorting(): JSX.Element {
         delay={delay}
         isMuted={isMuted}
         maxRange={maxRange}
+        pivot={pivot}
         sortingAlgorithm={sortingAlgorithm}
         status={status}
         handlePause={handlePause}
@@ -439,6 +455,7 @@ function TheSoundOfSorting(): JSX.Element {
         reset={reset}
         setMaxRange={setMaxRange}
         setNewDelay={setNewDelay}
+        setNewPivot={setNewPivot}
         setNewSortingAlgorithm={setNewSortingAlgorithm}
         toggleMute={toggleMute}
       />
