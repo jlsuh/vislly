@@ -17,9 +17,9 @@ import {
 } from '@/shared/lib/useResizeDimensions.ts';
 import useTheSoundOfSortingAudio from '../lib/useTheSoundOfSortingAudio.ts';
 import {
-  QuickSortPivot,
-  QuickSortStrategy,
-} from '../model/quick-sort-strategy.ts';
+  INITIAL_QUICK_SORT_PIVOT,
+  type QuickSortPivot,
+} from '../model/quick-sort-pivot.ts';
 import {
   INITIAL_SORTING_ALGORITHM,
   SORTING_ALGORITHMS,
@@ -113,7 +113,7 @@ function TheSoundOfSorting(): JSX.Element {
   const [delay, setDelay] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
   const [maxRange, setMaxRange] = useState(INITIAL_MAX_RANGE);
-  const [pivot, setPivot] = useState<QuickSortPivot>(QuickSortPivot.Last);
+  const [pivot, setPivot] = useState<QuickSortPivot>(INITIAL_QUICK_SORT_PIVOT);
   const [sortingAlgorithm, setSortingAlgorithm] = useState(
     INITIAL_SORTING_ALGORITHM,
   );
@@ -170,9 +170,7 @@ function TheSoundOfSorting(): JSX.Element {
       }
       arrayRef.current = [...initialArrayRef.current];
       const strategy = SORTING_ALGORITHMS[sortingAlgorithmRef.current].strategy;
-      if (strategy instanceof QuickSortStrategy) {
-        strategy.setPivot(pivotRef.current);
-      }
+      strategy.setPivot(pivotRef.current);
       sortingGeneratorRef.current = strategy.generator({
         array: arrayRef.current,
       });

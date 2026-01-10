@@ -14,9 +14,9 @@ import VolumeOffIcon from '@/shared/ui/VolumeOffIcon/VolumeOffIcon.tsx';
 import VolumeUpIcon from '@/shared/ui/VolumeUpIcon/VolumeUpIcon.tsx';
 import {
   assertIsQuickSortPivot,
-  QuickSortPivot,
-  QuickSortStrategy,
-} from '../model/quick-sort-strategy.ts';
+  QUICK_SORT_PIVOTS,
+  type QuickSortPivot,
+} from '../model/quick-sort-pivot.ts';
 import {
   assertIsSortingAlgorithm,
   SORTING_ALGORITHMS,
@@ -44,6 +44,14 @@ type TheSoundOfSortingControlsProps = {
   setNewSortingAlgorithm: (newAlgorithm: SortingAlgorithm) => void;
   toggleMute: () => void;
 };
+
+const SORTING_ALGORITHMS_OPTIONS = Object.values(SORTING_ALGORITHMS).map(
+  ({ key, label }) => ({
+    label,
+    value: key,
+  }),
+);
+const QUICK_SORT_PIVOTS_OPTIONS = Object.values(QUICK_SORT_PIVOTS);
 
 function TheSoundOfSortingControls({
   delay,
@@ -139,8 +147,7 @@ function TheSoundOfSortingControls({
   const primaryAction = composePrimaryAction();
   const soundAction = composeSoundAction();
 
-  const isQuickSort =
-    SORTING_ALGORITHMS[sortingAlgorithm].strategy instanceof QuickSortStrategy;
+  const currentStrategy = SORTING_ALGORITHMS[sortingAlgorithm].strategy;
 
   const handleOnChangePivot = (e: ChangeEvent<HTMLSelectElement>) => {
     const { target } = e;
@@ -157,26 +164,14 @@ function TheSoundOfSortingControls({
           disabled={isSortingOrVerifying}
           handleOnSelectChange={handleOnChangeAlgorithm}
           label="Algorithm"
-          options={Object.values(SORTING_ALGORITHMS).map(({ key, label }) => ({
-            label,
-            value: key,
-          }))}
+          options={SORTING_ALGORITHMS_OPTIONS}
           value={sortingAlgorithm}
         />
         <Select
-          disabled={isSortingOrVerifying || !isQuickSort}
+          disabled={isSortingOrVerifying || !currentStrategy.requiresPivot}
           handleOnSelectChange={handleOnChangePivot}
           label="Pivot Rule"
-          options={[
-            { label: 'First Item', value: QuickSortPivot.First },
-            { label: 'Last Item', value: QuickSortPivot.Last },
-            { label: 'Middle Item', value: QuickSortPivot.Middle },
-            { label: 'Random Item', value: QuickSortPivot.Random },
-            {
-              label: 'Median of Three',
-              value: QuickSortPivot.MedianOfThree,
-            },
-          ]}
+          options={QUICK_SORT_PIVOTS_OPTIONS}
           value={pivot}
         />
         <div className={styles.rangeWrapper}>

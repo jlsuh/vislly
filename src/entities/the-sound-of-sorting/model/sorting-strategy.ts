@@ -1,3 +1,5 @@
+import type { QuickSortPivot } from './quick-sort-pivot.ts';
+
 const SortOperation = {
   Compare: 0,
   Inspect: 1,
@@ -23,6 +25,12 @@ interface SortingStrategyYield {
 }
 
 abstract class SortingStrategy {
+  public get requiresPivot(): boolean {
+    return false;
+  }
+
+  public setPivot(_: QuickSortPivot): void {}
+
   public swap(array: number[], i: number, j: number): void {
     [array[i], array[j]] = [array[j], array[i]];
   }

@@ -1,5 +1,9 @@
 import { RED } from '@/shared/lib/rgba.ts';
 import {
+  INITIAL_QUICK_SORT_PIVOT,
+  QuickSortPivot,
+} from './quick-sort-pivot.ts';
+import {
   SortingStrategy,
   type SortingStrategyYield,
   SortOperation,
@@ -10,28 +14,14 @@ interface Partition {
   hi: number;
 }
 
-const QuickSortPivot = {
-  First: 'first',
-  Last: 'last',
-  Middle: 'middle',
-  Random: 'random',
-  MedianOfThree: 'median-of-three',
-} as const;
-
-type QuickSortPivot = (typeof QuickSortPivot)[keyof typeof QuickSortPivot];
-
-function assertIsQuickSortPivot(
-  value: unknown,
-): asserts value is QuickSortPivot {
-  if (!Object.values(QuickSortPivot).includes(value as QuickSortPivot)) {
-    throw new Error(`Invalid QuickSortPivot value: ${value}`);
-  }
-}
-
 abstract class QuickSortStrategy extends SortingStrategy {
-  private pivot: QuickSortPivot = QuickSortPivot.First;
+  private pivot: QuickSortPivot = INITIAL_QUICK_SORT_PIVOT;
 
-  public setPivot(pivot: QuickSortPivot): void {
+  public override get requiresPivot(): boolean {
+    return true;
+  }
+
+  public override setPivot(pivot: QuickSortPivot): void {
     this.pivot = pivot;
   }
 
@@ -144,9 +134,4 @@ abstract class QuickSortStrategy extends SortingStrategy {
   }
 }
 
-export {
-  assertIsQuickSortPivot,
-  QuickSortPivot,
-  QuickSortStrategy,
-  type Partition,
-};
+export { QuickSortStrategy, type Partition };
