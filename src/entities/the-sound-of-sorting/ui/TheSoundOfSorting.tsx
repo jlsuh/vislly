@@ -79,7 +79,7 @@ function draw({
   maxRange: number;
 }) {
   if (canvasRef.current === null) {
-    throw new Error('Canvas ref is null');
+    return;
   }
   const ctx = getCanvasCtxByRef(canvasRef.current);
   const { width, height } = canvasRef.current;
@@ -269,6 +269,9 @@ function TheSoundOfSorting(): JSX.Element {
     let previousTime = performance.now();
     let pendingExecutionTimeMs = 0;
     const loop = (currentTime: number) => {
+      if (canvasRef.current === null) {
+        return;
+      }
       const Δt = currentTime - previousTime;
       previousTime = currentTime;
       let batchedSteps = 3;
@@ -276,14 +279,16 @@ function TheSoundOfSorting(): JSX.Element {
         batchedSteps = Math.floor(pendingExecutionTimeMs / delayRef.current);
         pendingExecutionTimeMs += Δt;
       }
-      if (batchedSteps > 0) {
-        const isLastVerificationFrame = processVerificationFrame(batchedSteps);
-        if (isLastVerificationFrame) {
-          return;
-        }
-        if (delayRef.current > 0) {
-          pendingExecutionTimeMs -= batchedSteps * delayRef.current;
-        }
+      if (batchedSteps === 0) {
+        animationFrameIdRef.current = requestAnimationFrame(loop);
+        return;
+      }
+      const isLastVerificationFrame = processVerificationFrame(batchedSteps);
+      if (isLastVerificationFrame) {
+        return;
+      }
+      if (delayRef.current > 0) {
+        pendingExecutionTimeMs -= batchedSteps * delayRef.current;
       }
       animationFrameIdRef.current = requestAnimationFrame(loop);
     };
@@ -296,6 +301,9 @@ function TheSoundOfSorting(): JSX.Element {
     let previousTime = performance.now();
     let pendingExecutionTimeMs = 0;
     const loop = (currentTime: number) => {
+      if (canvasRef.current === null) {
+        return;
+      }
       const Δt = currentTime - previousTime;
       previousTime = currentTime;
       pendingExecutionTimeMs = composePendingExecutionTimeMs(
@@ -386,7 +394,7 @@ function TheSoundOfSorting(): JSX.Element {
 
   useEffect(() => {
     if (canvasRef.current === null) {
-      throw new Error('Canvas ref is null');
+      return;
     }
     if (dimensions.width === 0 || dimensions.height === 0) {
       return;
