@@ -7,7 +7,7 @@ const INSERTION_SORT_THRESHOLD = 16;
 
 class IntroSortStrategy extends LomutoPartitionQuickSortStrategy {
   private heapSortStrategy = new HeapSortStrategy();
-  private insertionSortStrategy = new SwapInsertionSortStrategy();
+  private swapInsertionSortStrategy = new SwapInsertionSortStrategy();
 
   public override *generator({
     array,
@@ -28,7 +28,7 @@ class IntroSortStrategy extends LomutoPartitionQuickSortStrategy {
     const n = hi - lo + 1;
     if (n < INSERTION_SORT_THRESHOLD) {
       if (n > 1) {
-        yield* this.insertionSortStrategy.sort(array, lo, hi);
+        yield* this.swapInsertionSortStrategy.sort(array, lo, hi);
       }
       return;
     }
