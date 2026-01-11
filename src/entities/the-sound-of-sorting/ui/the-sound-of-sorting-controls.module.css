@@ -17,38 +17,6 @@
   grid-template-columns: repeat(1, 1fr);
 }
 
-.rangeWrapper {
-  border-radius: 0.5rem;
-  border: 0.0625rem solid var(--color-outline);
-  display: flex;
-  flex-direction: column;
-  padding: 0.5rem 1rem;
-  position: relative;
-}
-
-.rangeLabel {
-  color: var(--color-secondary);
-  font-size: 0.75rem;
-  margin-bottom: 0.5rem;
-}
-
-.rangeLabel strong {
-  color: var(--color-on-surface);
-  font-weight: 600;
-  margin-left: 0.25rem;
-}
-
-.rangeInput {
-  accent-color: var(--color-primary);
-  cursor: pointer;
-  width: 100%;
-}
-
-.rangeInput:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
 @media (width >= 40rem) and (width < 56rem) {
   .inputsContainer {
     grid-template-columns: repeat(3, 1fr);

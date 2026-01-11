@@ -1,0 +1,53 @@
+.sm {
+  --padding-wrapper: 0.375rem 0.75rem;
+  --font-size-label: 0.65rem;
+  --font-size-value: 0.75rem;
+  --margin-bottom: 0.25rem;
+}
+
+.md {
+  --padding-wrapper: 0.5rem 1rem;
+  --font-size-label: 0.75rem;
+  --font-size-value: 0.875rem;
+  --margin-bottom: 0.5rem;
+}
+
+.lg {
+  --padding-wrapper: 0.75rem 1.25rem;
+  --font-size-label: 0.875rem;
+  --font-size-value: 1rem;
+  --margin-bottom: 0.75rem;
+}
+
+.rangeWrapper {
+  border-radius: 0.5rem;
+  border: 0.0625rem solid var(--color-outline);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding: var(--padding-wrapper);
+}
+
+.rangeLabel {
+  color: var(--color-secondary);
+  font-size: var(--font-size-label);
+  margin-bottom: var(--margin-bottom);
+  line-height: 1.2;
+  & strong {
+    color: var(--color-on-surface);
+    font-weight: 600;
+    font-size: var(--font-size-value);
+    margin-left: 0.25rem;
+  }
+}
+
+.rangeInput {
+  accent-color: var(--color-primary);
+  cursor: pointer;
+  width: 100%;
+  display: block;
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}

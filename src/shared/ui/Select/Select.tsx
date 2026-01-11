@@ -6,24 +6,30 @@ type Option = {
   value: string;
 };
 
+type SelectSize = 'sm' | 'md' | 'lg';
+
 type SelectProps = {
   disabled?: boolean;
-  handleOnSelectChange: (e: ChangeEvent<HTMLSelectElement>) => void;
   label: string;
   options: Option[];
+  size?: SelectSize;
   value: string | null;
+  handleOnSelectChange: (e: ChangeEvent<HTMLSelectElement>) => void;
 };
 
 function Select({
   disabled,
-  handleOnSelectChange,
   label,
   options,
+  size = 'md',
   value,
+  handleOnSelectChange,
 }: SelectProps): JSX.Element {
   const selectId = useId();
+  const containerClass = `${styles.selectContainer} ${styles[size]}`;
+
   return (
-    <div className={styles.selectContainer}>
+    <div className={containerClass}>
       <label className={styles.label} htmlFor={selectId}>
         {label}
       </label>

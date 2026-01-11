@@ -5,6 +5,7 @@ import Button from '@/shared/ui/Button/Button.tsx';
 import Divider from '@/shared/ui/Divider/Divider.tsx';
 import InfoIcon from '@/shared/ui/InfoIcon/InfoIcon.tsx';
 import PauseIcon from '@/shared/ui/PauseIcon/PauseIcon.tsx';
+import RangeInput from '@/shared/ui/RangeInput/RangeInput.tsx';
 import ResetIcon from '@/shared/ui/ResetIcon/ResetIcon.tsx';
 import Select from '@/shared/ui/Select/Select.tsx';
 import ShuffleIcon from '@/shared/ui/ShuffleIcon/ShuffleIcon.tsx';
@@ -72,8 +73,6 @@ function TheSoundOfSortingControls({
   toggleMute,
 }: TheSoundOfSortingControlsProps): JSX.Element {
   const aboutDialogId = useId();
-  const countRangeInputId = useId();
-  const delayRangeInputId = useId();
 
   const isSortingOrVerifying =
     status === SortingStatus.Sorting || status === SortingStatus.Verifying;
@@ -162,49 +161,39 @@ function TheSoundOfSortingControls({
       <div className={styles.inputsContainer}>
         <Select
           disabled={isSortingOrVerifying}
-          handleOnSelectChange={handleOnChangeAlgorithm}
           label="Algorithm"
           options={SORTING_ALGORITHMS_OPTIONS}
+          size="sm"
           value={sortingAlgorithm}
+          handleOnSelectChange={handleOnChangeAlgorithm}
         />
         <Select
           disabled={isSortingOrVerifying || !currentStrategy.requiresPivot}
-          handleOnSelectChange={handleOnChangePivot}
           label="Pivot Rule"
           options={QUICK_SORT_PIVOTS_OPTIONS}
+          size="sm"
           value={pivot}
+          handleOnSelectChange={handleOnChangePivot}
         />
-        <div className={styles.rangeWrapper}>
-          <label className={styles.rangeLabel} htmlFor={countRangeInputId}>
-            Array Size:<strong>{maxRange}</strong>
-          </label>
-          <input
-            className={styles.rangeInput}
-            disabled={isSortingOrVerifying}
-            id={countRangeInputId}
-            max="1000"
-            min="100"
-            onChange={handleOnChangeMaxRange}
-            step="100"
-            type="range"
-            value={maxRange}
-          />
-        </div>
-        <div className={styles.rangeWrapper}>
-          <label className={styles.rangeLabel} htmlFor={delayRangeInputId}>
-            Delay:<strong>{delay}ms</strong>
-          </label>
-          <input
-            className={styles.rangeInput}
-            id={delayRangeInputId}
-            max="100"
-            min="0"
-            onChange={handleOnChangeDelay}
-            step="10"
-            type="range"
-            value={delay}
-          />
-        </div>
+        <RangeInput
+          disabled={isSortingOrVerifying}
+          label="Array Size"
+          max={1000}
+          min={100}
+          size="sm"
+          step={100}
+          value={maxRange}
+          handleOnChangeInput={handleOnChangeMaxRange}
+        />
+        <RangeInput
+          label="Delay"
+          max={100}
+          min={0}
+          size="sm"
+          step={10}
+          value={`${delay}ms`}
+          handleOnChangeInput={handleOnChangeDelay}
+        />
       </div>
       <Divider />
       <div className={styles.buttonsContainer}>

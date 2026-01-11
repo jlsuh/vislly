@@ -1,3 +1,27 @@
+.sm {
+  --font-size-input: 0.75rem;
+  --font-size-label: 0.65rem;
+  --height: 2rem;
+  --icon-size: 0.875rem;
+  --padding-y: 0.5rem;
+}
+
+.md {
+  --font-size-input: 0.875rem;
+  --font-size-label: 0.75rem;
+  --height: 2.5rem;
+  --icon-size: 1rem;
+  --padding-y: 0.75rem;
+}
+
+.lg {
+  --font-size-input: 1rem;
+  --font-size-label: 0.85rem;
+  --height: 3.5rem;
+  --icon-size: 1.25rem;
+  --padding-y: 1rem;
+}
+
 .fieldset {
   border-radius: inherit;
   border: 0.0625rem solid var(--color-outline);
@@ -17,11 +41,11 @@
   &::after {
     background-color: currentColor;
     content: "";
-    height: 1rem;
+    height: var(--icon-size);
     mask-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 9.95404L14.542 4.50234C14.9192 4.18806 15.4797 4.23902 15.794 4.61615C16.1082 4.99329 16.0573 5.55379 15.6801 5.86807L8.56905 11.794C8.23941 12.0687 7.76059 12.0687 7.43095 11.794L0.319858 5.86807C-0.0572765 5.55379 -0.108231 4.99329 0.206047 4.61615C0.520326 4.23902 1.08083 4.18806 1.45796 4.50234L8 9.95404Z' fill='%23495057'/%3E%3C/svg%3E");
     mask-repeat: no-repeat;
     mask-size: contain;
-    min-width: 1rem;
+    min-width: var(--icon-size);
     pointer-events: none;
     position: absolute;
     right: 1rem;
@@ -38,7 +62,7 @@
 }
 
 .legend {
-  font-size: 0.75rem;
+  font-size: var(--font-size-label);
   height: 0;
   visibility: hidden;
   & span {
@@ -49,10 +73,13 @@
 
 .label {
   color: var(--color-secondary);
-  font-size: 0.75rem;
+  font-size: var(--font-size-label);
+  left: 0;
+  line-height: 1;
   padding: 0 0.3rem;
   pointer-events: none;
   position: absolute;
+  top: 0;
   transform: translate(0.75rem, -50%);
   z-index: 1;
 }
@@ -62,8 +89,8 @@
   background-color: transparent;
   border: none;
   color: var(--color-on-surface);
-  font-size: 0.875rem;
-  padding: 0.75rem 2.5rem 0.75rem 1rem;
+  font-size: var(--font-size-input);
+  padding: var(--padding-y) 2.5rem var(--padding-y) 1rem;
   text-overflow: ellipsis;
   width: 100%;
   &:disabled {
