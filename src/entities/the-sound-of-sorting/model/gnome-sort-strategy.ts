@@ -22,8 +22,8 @@ export class GnomeSortStrategy extends SortingStrategy {
         comparisonCount: 1,
         highlights: [
           {
-            indices: [pos, pos - 1],
             color: RED,
+            indices: [pos, pos - 1],
             skipHighlightGroupTone: false,
           },
         ],
@@ -40,7 +40,7 @@ export class GnomeSortStrategy extends SortingStrategy {
         accessCount: 4,
         comparisonCount: 0,
         highlights: [
-          { indices: [pos, pos - 1], color: RED, skipHighlightGroupTone: true },
+          { color: RED, indices: [pos, pos - 1], skipHighlightGroupTone: true },
         ],
         shiftCount: 0,
         sortOperation: SortOperation.Swap,

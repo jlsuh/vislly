@@ -24,15 +24,19 @@ abstract class ShellSortStrategy extends SortingStrategy {
         const v = array[i];
         let pendingAccessCount = 1;
         let j = i;
+        const additionalHighlights = this.getAdditionalHighlights(i);
         while (j >= h) {
-          const currentHighlights = [
-            { color: RED, indices: [j, j - h], skipHighlightGroupTone: false },
-            ...this.getAdditionalHighlights(i),
-          ];
           yield {
             accessCount: 1 + pendingAccessCount,
             comparisonCount: 1,
-            highlights: currentHighlights,
+            highlights: [
+              {
+                color: RED,
+                indices: [j, j - h],
+                skipHighlightGroupTone: false,
+              },
+              ...additionalHighlights,
+            ],
             shiftCount: 0,
             sortOperation: SortOperation.Compare,
             swapCount: 0,
@@ -43,7 +47,14 @@ abstract class ShellSortStrategy extends SortingStrategy {
             yield {
               accessCount: 2,
               comparisonCount: 0,
-              highlights: currentHighlights,
+              highlights: [
+                {
+                  color: RED,
+                  indices: [j, j - h],
+                  skipHighlightGroupTone: true,
+                },
+                ...additionalHighlights,
+              ],
               shiftCount: 1,
               sortOperation: SortOperation.Shift,
               swapCount: 0,
@@ -59,8 +70,8 @@ abstract class ShellSortStrategy extends SortingStrategy {
             accessCount: 1,
             comparisonCount: 0,
             highlights: [
-              { color: RED, indices: [j], skipHighlightGroupTone: false },
-              ...this.getAdditionalHighlights(i),
+              { color: RED, indices: [j], skipHighlightGroupTone: true },
+              ...additionalHighlights,
             ],
             shiftCount: 1,
             sortOperation: SortOperation.Shift,

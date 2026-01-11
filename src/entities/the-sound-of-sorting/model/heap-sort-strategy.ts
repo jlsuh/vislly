@@ -62,17 +62,6 @@ class HeapSortStrategy extends SortingStrategy {
     }
   }
 
-  private generateHighlights(
-    n: number,
-    activeIndices: number[],
-  ): HighlightGroup[] {
-    return [
-      ...this.depthHighlightGroupsCache,
-      { color: RED, indices: activeIndices, skipHighlightGroupTone: false },
-      { color: GREEN, indices: [n], skipHighlightGroupTone: true },
-    ];
-  }
-
   private *siftDown(
     array: number[],
     i: number,
@@ -84,7 +73,15 @@ class HeapSortStrategy extends SortingStrategy {
         yield {
           accessCount: 2,
           comparisonCount: 1,
-          highlights: this.generateHighlights(n, [childIndex, childIndex + 1]),
+          highlights: [
+            ...this.depthHighlightGroupsCache,
+            {
+              color: RED,
+              indices: [childIndex, childIndex + 1],
+              skipHighlightGroupTone: false,
+            },
+            { color: GREEN, indices: [n], skipHighlightGroupTone: true },
+          ],
           shiftCount: 0,
           sortOperation: SortOperation.Compare,
           swapCount: 0,
@@ -96,7 +93,15 @@ class HeapSortStrategy extends SortingStrategy {
       yield {
         accessCount: 2,
         comparisonCount: 1,
-        highlights: this.generateHighlights(n, [i, childIndex]),
+        highlights: [
+          ...this.depthHighlightGroupsCache,
+          {
+            color: RED,
+            indices: [i, childIndex],
+            skipHighlightGroupTone: false,
+          },
+          { color: GREEN, indices: [n], skipHighlightGroupTone: true },
+        ],
         shiftCount: 0,
         sortOperation: SortOperation.Compare,
         swapCount: 0,
@@ -108,7 +113,15 @@ class HeapSortStrategy extends SortingStrategy {
       yield {
         accessCount: 4,
         comparisonCount: 0,
-        highlights: this.generateHighlights(n, [i, childIndex]),
+        highlights: [
+          ...this.depthHighlightGroupsCache,
+          {
+            color: RED,
+            indices: [i, childIndex],
+            skipHighlightGroupTone: true,
+          },
+          { color: GREEN, indices: [n], skipHighlightGroupTone: true },
+        ],
         shiftCount: 0,
         sortOperation: SortOperation.Swap,
         swapCount: 1,
@@ -143,7 +156,11 @@ class HeapSortStrategy extends SortingStrategy {
       yield {
         accessCount: 4,
         comparisonCount: 0,
-        highlights: this.generateHighlights(n, [0]),
+        highlights: [
+          ...this.depthHighlightGroupsCache,
+          { color: RED, indices: [0], skipHighlightGroupTone: true },
+          { color: GREEN, indices: [n], skipHighlightGroupTone: true },
+        ],
         shiftCount: 0,
         sortOperation: SortOperation.Swap,
         swapCount: 1,

@@ -85,7 +85,7 @@ class LomutoPartitionQuickSortStrategy extends QuickSortStrategy {
       comparisonCount: pendingSwaps,
       highlights: [
         { color: RED, indices: [hi], skipHighlightGroupTone: true },
-        { color: GREEN, indices: [i], skipHighlightGroupTone: false },
+        { color: GREEN, indices: [i], skipHighlightGroupTone: true },
       ],
       shiftCount: 0,
       sortOperation: SortOperation.Swap,
