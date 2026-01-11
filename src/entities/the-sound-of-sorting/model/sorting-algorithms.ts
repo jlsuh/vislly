@@ -5,6 +5,7 @@ import { BubbleSortStrategy } from './bubble-sort-strategy.ts';
 import { GnomeSortStrategy } from './gnome-sort-strategy.ts';
 import { HeapSortStrategy } from './heap-sort-strategy.ts';
 import { IncerpiSedgewickShellSortStrategy } from './incerpi-sedgewick-shell-sort-strategy.ts';
+import { IntroSortStrategy } from './intro-sort-strategy.ts';
 import { KnuthShellSortStrategy } from './knuth-shell-sort-strategy.ts';
 import { HoarePartitionQuickSortStrategy } from './quick-sort-hoare-strategy.ts';
 import { LomutoPartitionQuickSortStrategy } from './quick-sort-lomuto-strategy.ts';
@@ -28,6 +29,7 @@ const SortingAlgorithm = {
   HeapSort: 'heap-sort',
   HoarePartitionQuickSort: 'hoare-partition-quick-sort',
   LomutoPartitionQuickSort: 'lomuto-partition-quick-sort',
+  IntroSort: 'intro-sort',
 } as const;
 
 type SortingAlgorithm =
@@ -118,6 +120,11 @@ const SORTING_ALGORITHMS: ReadonlyDeep<
     key: SortingAlgorithm.LomutoPartitionQuickSort,
     label: 'Lomuto Partition Quick Sort',
     strategy: new LomutoPartitionQuickSortStrategy(),
+  },
+  [SortingAlgorithm.IntroSort]: {
+    key: SortingAlgorithm.IntroSort,
+    label: 'Intro Sort',
+    strategy: new IntroSortStrategy(),
   },
 };
 

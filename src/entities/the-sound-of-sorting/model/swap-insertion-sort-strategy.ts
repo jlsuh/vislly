@@ -7,12 +7,12 @@ import {
 } from './sorting-strategy.ts';
 
 class SwapInsertionSortStrategy extends SortingStrategy {
-  public override *generator({
-    array,
-  }: {
-    array: number[];
-  }): Generator<SortingStrategyYield, void, unknown> {
-    for (let i = 1; i < array.length; i += 1) {
+  public *sort(
+    array: number[],
+    lo: number,
+    hi: number,
+  ): Generator<SortingStrategyYield, void, unknown> {
+    for (let i = lo + 1; i <= hi; i += 1) {
       const key = array[i];
       let totalAccessCount = 1;
       let j = i - 1;
@@ -21,7 +21,7 @@ class SwapInsertionSortStrategy extends SortingStrategy {
         indices: [i],
         skipHighlightGroupTone: true,
       };
-      while (j >= 0) {
+      while (j >= lo) {
         yield {
           accessCount: totalAccessCount + 1,
           comparisonCount: 1,
@@ -53,6 +53,14 @@ class SwapInsertionSortStrategy extends SortingStrategy {
         }
       }
     }
+  }
+
+  public override *generator({
+    array,
+  }: {
+    array: number[];
+  }): Generator<SortingStrategyYield, void, unknown> {
+    yield* this.sort(array, 0, array.length - 1);
   }
 }
 

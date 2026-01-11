@@ -66,6 +66,7 @@ class HeapSortStrategy extends SortingStrategy {
     array: number[],
     i: number,
     n: number,
+    lo: number,
   ): Generator<SortingStrategyYield, void, unknown> {
     let childIndex = 2 * i + 1;
     while (childIndex < n) {
@@ -77,16 +78,16 @@ class HeapSortStrategy extends SortingStrategy {
             ...this.depthHighlightGroupsCache,
             {
               color: RED,
-              indices: [childIndex, childIndex + 1],
+              indices: [lo + childIndex, lo + childIndex + 1],
               skipHighlightGroupTone: false,
             },
-            { color: GREEN, indices: [n], skipHighlightGroupTone: true },
+            { color: GREEN, indices: [lo + n], skipHighlightGroupTone: true },
           ],
           shiftCount: 0,
           sortOperation: SortOperation.Compare,
           swapCount: 0,
         };
-        if (array[childIndex + 1] > array[childIndex]) {
+        if (array[lo + childIndex + 1] > array[lo + childIndex]) {
           childIndex += 1;
         }
       }
@@ -97,19 +98,19 @@ class HeapSortStrategy extends SortingStrategy {
           ...this.depthHighlightGroupsCache,
           {
             color: RED,
-            indices: [i, childIndex],
+            indices: [lo + i, lo + childIndex],
             skipHighlightGroupTone: false,
           },
-          { color: GREEN, indices: [n], skipHighlightGroupTone: true },
+          { color: GREEN, indices: [lo + n], skipHighlightGroupTone: true },
         ],
         shiftCount: 0,
         sortOperation: SortOperation.Compare,
         swapCount: 0,
       };
-      if (array[i] >= array[childIndex]) {
+      if (array[lo + i] >= array[lo + childIndex]) {
         return;
       }
-      super.swap(array, i, childIndex);
+      super.swap(array, lo + i, lo + childIndex);
       yield {
         accessCount: 4,
         comparisonCount: 0,
@@ -117,10 +118,10 @@ class HeapSortStrategy extends SortingStrategy {
           ...this.depthHighlightGroupsCache,
           {
             color: RED,
-            indices: [i, childIndex],
+            indices: [lo + i, lo + childIndex],
             skipHighlightGroupTone: true,
           },
-          { color: GREEN, indices: [n], skipHighlightGroupTone: true },
+          { color: GREEN, indices: [lo + n], skipHighlightGroupTone: true },
         ],
         shiftCount: 0,
         sortOperation: SortOperation.Swap,
@@ -136,8 +137,40 @@ class HeapSortStrategy extends SortingStrategy {
     n: number,
   ): Generator<SortingStrategyYield, void, unknown> {
     for (let i = Math.floor(n / 2) - 1; i >= 0; i -= 1) {
-      yield* this.siftDown(array, i, n);
+      yield* this.siftDown(array, i, n, 0);
       this.revealDepthColorForIndex(i);
+    }
+  }
+
+  public *sort(
+    array: number[],
+    lo: number,
+    hi: number,
+  ): Generator<SortingStrategyYield, void, unknown> {
+    const n = hi - lo + 1;
+    for (let i = Math.floor(n / 2) - 1; i >= 0; i -= 1) {
+      yield* this.siftDown(array, i, n, lo);
+    }
+    let size = n;
+    while (size > 1) {
+      size -= 1;
+      super.swap(array, lo, lo + size);
+      yield {
+        accessCount: 4,
+        comparisonCount: 0,
+        highlights: [
+          {
+            color: RED,
+            indices: [lo, lo + size],
+            skipHighlightGroupTone: true,
+          },
+          { color: GREEN, indices: [lo + size], skipHighlightGroupTone: true },
+        ],
+        shiftCount: 0,
+        sortOperation: SortOperation.Swap,
+        swapCount: 1,
+      };
+      yield* this.siftDown(array, 0, size, lo);
     }
   }
 
@@ -165,7 +198,7 @@ class HeapSortStrategy extends SortingStrategy {
         sortOperation: SortOperation.Swap,
         swapCount: 1,
       };
-      yield* this.siftDown(array, 0, n);
+      yield* this.siftDown(array, 0, n, 0);
     }
     yield {
       accessCount: 0,
