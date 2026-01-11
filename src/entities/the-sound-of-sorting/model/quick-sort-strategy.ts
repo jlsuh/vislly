@@ -9,6 +9,10 @@ import {
   SortOperation,
 } from './sorting-strategy.ts';
 
+/**
+ * @description Represents the boundaries of a subarray partition to be processed.
+ *              It defines a closed interval [lo, hi] within the main array.
+ */
 interface Partition {
   lo: number;
   hi: number;
@@ -40,26 +44,26 @@ abstract class QuickSortStrategy extends SortingStrategy {
       return lo;
     }
     if (this.pivot === QuickSortPivot.Last) {
-      return hi - 1;
+      return hi;
     }
     if (this.pivot === QuickSortPivot.Middle) {
       return Math.floor((lo + hi) / 2);
     }
     if (this.pivot === QuickSortPivot.Random) {
-      return lo + Math.floor(Math.random() * (hi - lo));
+      return lo + Math.floor(Math.random() * (hi - lo + 1));
     }
     if (this.pivot === QuickSortPivot.MedianOfThree) {
-      return yield* this.selectMedianOfThree(array, lo, hi);
+      return yield* this.computeMedianIndex(array, lo, hi);
     }
     return lo;
   }
 
   /**
-   * - Median selection does not sort the three elements (unlike Sedgewick's optimization),
-   *   as it aims to remain consistent with other pivot selection rules.
-   * - Client partitioning is responsible for moving the chosen pivot to the appropriate position.
+   * @description Median selection does not sort the three elements (unlike Sedgewick's optimization),
+   *              as it aims to remain consistent with other pivot selection rules.
+   * @description Client partitioning is responsible for moving the chosen pivot to the appropriate position.
    */
-  private *selectMedianOfThree(
+  private *computeMedianIndex(
     array: number[],
     lo: number,
     hi: number,
@@ -69,18 +73,18 @@ abstract class QuickSortStrategy extends SortingStrategy {
     if (array[lo] === array[mid]) {
       return lo;
     }
-    yield* this.emitComparison(lo, hi - 1);
-    if (array[lo] === array[hi - 1]) {
-      return hi - 1;
+    yield* this.emitComparison(lo, hi);
+    if (array[lo] === array[hi]) {
+      return hi;
     }
-    yield* this.emitComparison(mid, hi - 1);
-    if (array[mid] === array[hi - 1]) {
-      return hi - 1;
+    yield* this.emitComparison(mid, hi);
+    if (array[mid] === array[hi]) {
+      return hi;
     }
-    return yield* this.resolveMedian(array, lo, mid, hi);
+    return yield* this.resolveMedianIndex(array, lo, mid, hi);
   }
 
-  private *resolveMedian(
+  private *resolveMedianIndex(
     array: number[],
     lo: number,
     mid: number,
@@ -88,14 +92,14 @@ abstract class QuickSortStrategy extends SortingStrategy {
   ): Generator<SortingStrategyYield, number, unknown> {
     yield* this.emitComparison(lo, mid);
     const loLessThanMid = array[lo] < array[mid];
-    yield* this.emitComparison(mid, hi - 1);
-    const midLessThanLast = array[mid] < array[hi - 1];
+    yield* this.emitComparison(mid, hi);
+    const midLessThanLast = array[mid] < array[hi];
     if (loLessThanMid === midLessThanLast) {
       return mid;
     }
-    yield* this.emitComparison(lo, hi - 1);
-    const loLessThanLast = array[lo] < array[hi - 1];
-    return loLessThanMid === loLessThanLast ? hi - 1 : lo;
+    yield* this.emitComparison(lo, hi);
+    const loLessThanLast = array[lo] < array[hi];
+    return loLessThanMid === loLessThanLast ? hi : lo;
   }
 
   private *emitComparison(
@@ -119,11 +123,10 @@ abstract class QuickSortStrategy extends SortingStrategy {
     lo: number,
     hi: number,
   ): Generator<SortingStrategyYield, void, unknown> {
-    if (lo >= hi - 1 || lo < 0) {
-      return;
-    }
-    for (const partition of yield* this.partition(array, lo, hi)) {
-      yield* this.quickSort(array, partition.lo, partition.hi);
+    if (lo < hi) {
+      for (const partition of yield* this.partition(array, lo, hi)) {
+        yield* this.quickSort(array, partition.lo, partition.hi);
+      }
     }
   }
 
@@ -133,7 +136,7 @@ abstract class QuickSortStrategy extends SortingStrategy {
     array: number[];
   }): Generator<SortingStrategyYield, void, unknown> {
     const lo = 0;
-    const hi = array.length;
+    const hi = array.length - 1;
     yield* this.quickSort(array, lo, hi);
   }
 }

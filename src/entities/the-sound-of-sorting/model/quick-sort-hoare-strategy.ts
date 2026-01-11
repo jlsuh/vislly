@@ -5,8 +5,7 @@ import {
   SortOperation,
 } from './sorting-strategy.ts';
 
-// LR
-class QuickSortHoareStrategy extends QuickSortStrategy {
+class HoarePartitionQuickSortStrategy extends QuickSortStrategy {
   protected override *partition(
     array: number[],
     lo: number,
@@ -16,14 +15,14 @@ class QuickSortHoareStrategy extends QuickSortStrategy {
     const pivot = array[pivotIdx];
     let currentPivotIdx = yield* this.initializePivot(array, pivotIdx, lo);
     let i = lo - 1;
-    let j = hi;
+    let j = hi + 1;
     const pending = { accesses: 0, comparisons: 0 };
     for (;;) {
       do {
         i += 1;
         yield* this.accumulateOrYield(
           i,
-          [i, ...(j < hi ? [j] : [])],
+          [i, ...(j <= hi ? [j] : [])],
           currentPivotIdx,
           pending,
         );
@@ -34,7 +33,7 @@ class QuickSortHoareStrategy extends QuickSortStrategy {
       } while (array[j] > pivot);
       if (i >= j) {
         return [
-          { lo, hi: j + 1 },
+          { lo, hi: j },
           { lo: j + 1, hi },
         ];
       }
@@ -128,4 +127,4 @@ class QuickSortHoareStrategy extends QuickSortStrategy {
   }
 }
 
-export { QuickSortHoareStrategy };
+export { HoarePartitionQuickSortStrategy };

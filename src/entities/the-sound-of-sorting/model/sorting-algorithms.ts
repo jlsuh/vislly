@@ -6,8 +6,8 @@ import { GnomeSortStrategy } from './gnome-sort-strategy.ts';
 import { HeapSortStrategy } from './heap-sort-strategy.ts';
 import { IncerpiSedgewickShellSortStrategy } from './incerpi-sedgewick-shell-sort-strategy.ts';
 import { KnuthShellSortStrategy } from './knuth-shell-sort-strategy.ts';
-import { QuickSortHoareStrategy } from './quick-sort-hoare-strategy.ts';
-import { QuickSortLomutoStrategy } from './quick-sort-lomuto-strategy.ts';
+import { HoarePartitionQuickSortStrategy } from './quick-sort-hoare-strategy.ts';
+import { LomutoPartitionQuickSortStrategy } from './quick-sort-lomuto-strategy.ts';
 import { SelectionSortStrategy } from './selection-sort-strategy.ts';
 import { ShiftInsertionSortStrategy } from './shift-insertion-sort-strategy.ts';
 import type { SortingStrategy } from './sorting-strategy.ts';
@@ -26,8 +26,8 @@ const SortingAlgorithm = {
   BottomUpMergeSort: 'bottom-up-merge-sort',
   TopDownMergeSort: 'top-down-merge-sort',
   HeapSort: 'heap-sort',
-  QuickSortHoare: 'quick-sort-hoare',
-  QuickSortLomuto: 'quick-sort-lomuto',
+  HoarePartitionQuickSort: 'hoare-partition-quick-sort',
+  LomutoPartitionQuickSort: 'lomuto-partition-quick-sort',
 } as const;
 
 type SortingAlgorithm =
@@ -56,68 +56,68 @@ const SORTING_ALGORITHMS: ReadonlyDeep<
 > = {
   [SortingAlgorithm.BubbleSort]: {
     key: SortingAlgorithm.BubbleSort,
-    label: 'Bubble',
+    label: 'Bubble Sort',
     strategy: new BubbleSortStrategy(),
   },
   [SortingAlgorithm.SelectionSort]: {
     key: SortingAlgorithm.SelectionSort,
-    label: 'Selection',
+    label: 'Selection Sort',
     strategy: new SelectionSortStrategy(),
   },
   [SortingAlgorithm.BinaryInsertionSort]: {
     key: SortingAlgorithm.BinaryInsertionSort,
-    label: 'Binary Insertion',
+    label: 'Binary Insertion Sort',
     strategy: new BinaryInsertionSortStrategy(),
   },
   [SortingAlgorithm.ShiftInsertionSort]: {
     key: SortingAlgorithm.ShiftInsertionSort,
-    label: 'Shift Insertion',
+    label: 'Shift Insertion Sort',
     strategy: new ShiftInsertionSortStrategy(),
   },
   [SortingAlgorithm.SwapInsertionSort]: {
     key: SortingAlgorithm.SwapInsertionSort,
-    label: 'Swap Insertion',
+    label: 'Swap Insertion Sort',
     strategy: new SwapInsertionSortStrategy(),
   },
   [SortingAlgorithm.GnomeSort]: {
     key: SortingAlgorithm.GnomeSort,
-    label: 'Gnome',
+    label: 'Gnome Sort',
     strategy: new GnomeSortStrategy(),
   },
   [SortingAlgorithm.IncerpiSedgewickShellSort]: {
     key: SortingAlgorithm.IncerpiSedgewickShellSort,
-    label: 'Incerpi-Sedgewick Shell',
+    label: 'Incerpi-Sedgewick Shell Sort',
     strategy: new IncerpiSedgewickShellSortStrategy(),
   },
   [SortingAlgorithm.KnuthShellSort]: {
     key: SortingAlgorithm.KnuthShellSort,
-    label: 'Knuth Shell',
+    label: 'Knuth Shell Sort',
     strategy: new KnuthShellSortStrategy(),
   },
   [SortingAlgorithm.BottomUpMergeSort]: {
     key: SortingAlgorithm.BottomUpMergeSort,
-    label: 'Bottom-Up Merge',
+    label: 'Bottom-Up Merge Sort',
     strategy: new BottomUpMergeSortStrategy(),
   },
   [SortingAlgorithm.TopDownMergeSort]: {
     key: SortingAlgorithm.TopDownMergeSort,
-    label: 'Top-Down Merge',
+    label: 'Top-Down Merge Sort',
     strategy: new TopDownMergeSortStrategy(),
   },
   [SortingAlgorithm.HeapSort]: {
     key: SortingAlgorithm.HeapSort,
-    label: 'Heap',
+    label: 'Heap Sort',
     strategy: new HeapSortStrategy(),
   },
-  [SortingAlgorithm.QuickSortHoare]: {
-    key: SortingAlgorithm.QuickSortHoare,
-    label: 'Quick Hoare',
-    strategy: new QuickSortHoareStrategy(),
+  [SortingAlgorithm.HoarePartitionQuickSort]: {
+    key: SortingAlgorithm.HoarePartitionQuickSort,
+    label: 'Hoare Partition Quick Sort',
+    strategy: new HoarePartitionQuickSortStrategy(),
   },
-  [SortingAlgorithm.QuickSortLomuto]: {
-    key: SortingAlgorithm.QuickSortLomuto,
-    label: 'Quick Lomuto',
-    strategy: new QuickSortLomutoStrategy(),
+  [SortingAlgorithm.LomutoPartitionQuickSort]: {
+    key: SortingAlgorithm.LomutoPartitionQuickSort,
+    label: 'Lomuto Partition Quick Sort',
+    strategy: new LomutoPartitionQuickSortStrategy(),
   },
 };
 
