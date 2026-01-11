@@ -54,44 +54,48 @@ abstract class QuickSortStrategy extends SortingStrategy {
     return lo;
   }
 
+  /**
+   * - Median selection does not sort the three elements (unlike Sedgewick's optimization),
+   *   as it aims to remain consistent with other pivot selection rules.
+   * - Client partitioning is responsible for moving the chosen pivot to the appropriate position.
+   */
   private *selectMedianOfThree(
     array: number[],
     lo: number,
     hi: number,
   ): Generator<SortingStrategyYield, number, unknown> {
     const mid = Math.floor((lo + hi) / 2);
-    const last = hi - 1;
     yield* this.emitComparison(lo, mid);
     if (array[lo] === array[mid]) {
       return lo;
     }
-    yield* this.emitComparison(lo, last);
-    if (array[lo] === array[last]) {
-      return last;
+    yield* this.emitComparison(lo, hi - 1);
+    if (array[lo] === array[hi - 1]) {
+      return hi - 1;
     }
-    yield* this.emitComparison(mid, last);
-    if (array[mid] === array[last]) {
-      return last;
+    yield* this.emitComparison(mid, hi - 1);
+    if (array[mid] === array[hi - 1]) {
+      return hi - 1;
     }
-    return yield* this.resolveMedian(array, lo, mid, last);
+    return yield* this.resolveMedian(array, lo, mid, hi);
   }
 
   private *resolveMedian(
     array: number[],
     lo: number,
     mid: number,
-    last: number,
+    hi: number,
   ): Generator<SortingStrategyYield, number, unknown> {
     yield* this.emitComparison(lo, mid);
     const loLessThanMid = array[lo] < array[mid];
-    yield* this.emitComparison(mid, last);
-    const midLessThanLast = array[mid] < array[last];
+    yield* this.emitComparison(mid, hi - 1);
+    const midLessThanLast = array[mid] < array[hi - 1];
     if (loLessThanMid === midLessThanLast) {
       return mid;
     }
-    yield* this.emitComparison(lo, last);
-    const loLessThanLast = array[lo] < array[last];
-    return loLessThanMid === loLessThanLast ? last : lo;
+    yield* this.emitComparison(lo, hi - 1);
+    const loLessThanLast = array[lo] < array[hi - 1];
+    return loLessThanMid === loLessThanLast ? hi - 1 : lo;
   }
 
   private *emitComparison(
