@@ -191,7 +191,8 @@ function TheSoundOfSortingControls({
           min={0}
           size="sm"
           step={10}
-          value={`${delay}ms`}
+          value={delay}
+          valuePostfix="ms"
           handleOnChangeInput={handleOnChangeDelay}
         />
       </div>

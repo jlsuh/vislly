@@ -10,7 +10,8 @@ type RangeInputProps = {
   min: number;
   size?: RangeInputSize;
   step: number;
-  value: number | string;
+  value: number;
+  valuePostfix?: string;
   handleOnChangeInput: (e: ChangeEvent<HTMLInputElement>) => void;
 };
 
@@ -22,6 +23,7 @@ function RangeInput({
   size = 'md',
   step,
   value,
+  valuePostfix = '',
   handleOnChangeInput,
 }: RangeInputProps): JSX.Element {
   const id = useId();
@@ -30,7 +32,11 @@ function RangeInput({
   return (
     <div className={wrapperClass}>
       <label className={styles.rangeLabel} htmlFor={id}>
-        {label}:<strong>{value}</strong>
+        {label}:
+        <strong>
+          {value}
+          {valuePostfix}
+        </strong>
       </label>
       <input
         className={styles.rangeInput}
