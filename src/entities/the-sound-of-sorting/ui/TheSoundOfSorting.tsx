@@ -9,13 +9,17 @@ import {
   useState,
 } from 'react';
 import { getCanvasCtxByRef } from '@/shared/lib/canvas.ts';
-import { composeFisherYatesIntegerRangeShuffle } from '@/shared/lib/random.ts';
 import { GREEN, RED, WHITE } from '@/shared/lib/rgba.ts';
 import {
   type ResizeDimensions,
   useResizeDimensions,
 } from '@/shared/lib/useResizeDimensions.ts';
 import useTheSoundOfSortingAudio from '../lib/useTheSoundOfSortingAudio.ts';
+import {
+  DATA_PATTERNS,
+  type DataPattern,
+  INITIAL_DATA_PATTERN,
+} from '../model/data-patterns.ts';
 import {
   INITIAL_QUICK_SORT_PIVOT,
   type QuickSortPivot,
@@ -109,6 +113,8 @@ function draw({
 }
 
 function TheSoundOfSorting(): JSX.Element {
+  const [dataPattern, setDataPattern] =
+    useState<DataPattern>(INITIAL_DATA_PATTERN);
   const [delay, setDelay] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
   const [maxRange, setMaxRange] = useState(INITIAL_MAX_RANGE);
@@ -123,6 +129,7 @@ function TheSoundOfSorting(): JSX.Element {
   const animationFrameIdRef = useRef<number>(null);
   const arrayRef = useRef<number[]>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const dataPatternRef = useRef(dataPattern);
   const delayRef = useRef(delay);
   const initialArrayRef = useRef<number[]>([]);
   const isMutedRef = useRef(isMuted);
@@ -156,16 +163,19 @@ function TheSoundOfSorting(): JSX.Element {
     setPivot(newPivot);
   };
 
+  const setNewDataPattern = (newPattern: DataPattern) => {
+    dataPatternRef.current = newPattern;
+    setDataPattern(newPattern);
+  };
+
   const reset = useCallback(
     (shouldGenerateNewValues: boolean) => {
       cancelAnimationFrameIfAny();
       updateStatus(SortingStatus.Idle);
       verificationIndexRef.current = 0;
       if (shouldGenerateNewValues || initialArrayRef.current.length === 0) {
-        initialArrayRef.current = composeFisherYatesIntegerRangeShuffle(
-          1,
-          maxRange,
-        );
+        initialArrayRef.current =
+          DATA_PATTERNS[dataPatternRef.current].generate(maxRange);
       }
       arrayRef.current = [...initialArrayRef.current];
       const strategy = SORTING_ALGORITHMS[sortingAlgorithmRef.current].strategy;
@@ -414,7 +424,7 @@ function TheSoundOfSorting(): JSX.Element {
 
   useEffect(() => {
     handleResetWithNewValues();
-  }, [handleResetWithNewValues]);
+  }, [handleResetWithNewValues, dataPattern]);
 
   return (
     <div className={styles.theSoundOfSortingContainer}>
@@ -434,6 +444,7 @@ function TheSoundOfSorting(): JSX.Element {
         </div>
       </div>
       <TheSoundOfSortingControls
+        dataPattern={dataPattern}
         delay={delay}
         isMuted={isMuted}
         maxRange={maxRange}
@@ -446,6 +457,7 @@ function TheSoundOfSorting(): JSX.Element {
         handleStep={handleStep}
         reset={reset}
         setMaxRange={setMaxRange}
+        setNewDataPattern={setNewDataPattern}
         setNewDelay={setNewDelay}
         setNewPivot={setNewPivot}
         setNewSortingAlgorithm={setNewSortingAlgorithm}

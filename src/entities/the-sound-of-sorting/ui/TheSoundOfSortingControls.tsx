@@ -14,6 +14,11 @@ import StepIcon from '@/shared/ui/StepIcon/StepIcon.tsx';
 import VolumeOffIcon from '@/shared/ui/VolumeOffIcon/VolumeOffIcon.tsx';
 import VolumeUpIcon from '@/shared/ui/VolumeUpIcon/VolumeUpIcon.tsx';
 import {
+  assertIsDataPattern,
+  DATA_PATTERNS,
+  type DataPattern,
+} from '../model/data-patterns.ts';
+import {
   assertIsQuickSortPivot,
   QUICK_SORT_PIVOTS,
   type QuickSortPivot,
@@ -28,6 +33,7 @@ import TheSoundOfSortingAboutDialog from './TheSoundOfSortingAboutDialog.tsx';
 import styles from './the-sound-of-sorting-controls.module.css';
 
 type TheSoundOfSortingControlsProps = {
+  dataPattern: DataPattern;
   delay: number;
   isMuted: boolean;
   maxRange: number;
@@ -40,6 +46,7 @@ type TheSoundOfSortingControlsProps = {
   handleStep: () => void;
   reset: (shouldGenerateNewValues: boolean) => void;
   setMaxRange: (newMaxRange: number) => void;
+  setNewDataPattern: (newPattern: DataPattern) => void;
   setNewDelay: (newDelay: number) => void;
   setNewPivot: (newType: QuickSortPivot) => void;
   setNewSortingAlgorithm: (newAlgorithm: SortingAlgorithm) => void;
@@ -53,8 +60,15 @@ const SORTING_ALGORITHMS_OPTIONS = Object.values(SORTING_ALGORITHMS).map(
   }),
 );
 const QUICK_SORT_PIVOTS_OPTIONS = Object.values(QUICK_SORT_PIVOTS);
+const DATA_PATTERN_OPTIONS = Object.values(DATA_PATTERNS).map(
+  ({ key, label }) => ({
+    label,
+    value: key,
+  }),
+);
 
 function TheSoundOfSortingControls({
+  dataPattern,
   delay,
   isMuted,
   maxRange,
@@ -67,6 +81,7 @@ function TheSoundOfSortingControls({
   handleStep,
   reset,
   setMaxRange,
+  setNewDataPattern,
   setNewDelay,
   setNewPivot,
   setNewSortingAlgorithm,
@@ -90,6 +105,12 @@ function TheSoundOfSortingControls({
     assertIsSortingAlgorithm(newAlgorithm);
     setNewSortingAlgorithm(newAlgorithm);
     handleResetWithSameValues();
+  };
+
+  const handleOnChangeDataPattern = (e: ChangeEvent<HTMLSelectElement>) => {
+    const newDataPattern = e.target.value;
+    assertIsDataPattern(newDataPattern);
+    setNewDataPattern(newDataPattern);
   };
 
   const handleOnChangeDelay = (e: ChangeEvent<HTMLInputElement>) => {
@@ -166,6 +187,14 @@ function TheSoundOfSortingControls({
           size="sm"
           value={sortingAlgorithm}
           handleOnSelectChange={handleOnChangeAlgorithm}
+        />
+        <Select
+          disabled={isSortingOrVerifying}
+          label="Data Pattern"
+          options={DATA_PATTERN_OPTIONS}
+          size="sm"
+          value={dataPattern}
+          handleOnSelectChange={handleOnChangeDataPattern}
         />
         <Select
           disabled={isSortingOrVerifying || !currentStrategy.requiresPivot}
