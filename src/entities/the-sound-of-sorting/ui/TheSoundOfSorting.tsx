@@ -169,13 +169,15 @@ function TheSoundOfSorting(): JSX.Element {
   };
 
   const reset = useCallback(
-    (shouldGenerateNewValues: boolean) => {
+    (shouldGenerateNewDataPattern: boolean) => {
       cancelAnimationFrameIfAny();
       updateStatus(SortingStatus.Idle);
       verificationIndexRef.current = 0;
-      if (shouldGenerateNewValues || initialArrayRef.current.length === 0) {
-        initialArrayRef.current =
-          DATA_PATTERNS[dataPatternRef.current].generate(maxRange);
+      if (
+        shouldGenerateNewDataPattern ||
+        initialArrayRef.current.length === 0
+      ) {
+        initialArrayRef.current = DATA_PATTERNS[dataPattern].generate(maxRange);
       }
       arrayRef.current = [...initialArrayRef.current];
       const strategy = SORTING_ALGORITHMS[sortingAlgorithmRef.current].strategy;
@@ -188,7 +190,7 @@ function TheSoundOfSorting(): JSX.Element {
       activeHighlightsRef.current.clear();
       draw({ activeHighlightsRef, arrayRef, canvasRef, maxRange });
     },
-    [cancelAnimationFrameIfAny, maxRange, updateStatus],
+    [dataPattern, maxRange, cancelAnimationFrameIfAny, updateStatus],
   );
 
   function applySortStepEffects({
@@ -225,7 +227,7 @@ function TheSoundOfSorting(): JSX.Element {
     const { done, value } = sortingGeneratorRef.current.next();
     if (done) {
       activeHighlightsRef.current.clear();
-      setNewStats();
+      updateStats();
       draw({ activeHighlightsRef, arrayRef, canvasRef, maxRange });
       return true;
     }
@@ -240,7 +242,7 @@ function TheSoundOfSorting(): JSX.Element {
       shouldArbitrarilySkipTone,
       toneDurationMs,
     });
-    setNewStats();
+    updateStats();
     draw({ activeHighlightsRef, arrayRef, canvasRef, maxRange });
     return false;
   };
@@ -374,13 +376,13 @@ function TheSoundOfSorting(): JSX.Element {
     setDelay(delayRef.current);
   };
 
-  const setNewStats = () => {
+  const updateStats = () => {
     setStats(statsRef.current.deepCopy());
   };
 
   const handlePause = () => {
     cancelAnimationFrameIfAny();
-    setNewStats();
+    updateStats();
     if (status === SortingStatus.Verifying) {
       updateStatus(SortingStatus.ReadyToResumeVerifying);
       return;
@@ -405,7 +407,7 @@ function TheSoundOfSorting(): JSX.Element {
     setIsMuted(isMutedRef.current);
   };
 
-  const handleResetWithNewValues = useCallback(() => {
+  const handleResetWithNewDataPattern = useCallback(() => {
     reset(true);
   }, [reset]);
 
@@ -423,8 +425,8 @@ function TheSoundOfSorting(): JSX.Element {
   }, [dimensions.width, dimensions.height, maxRange]);
 
   useEffect(() => {
-    handleResetWithNewValues();
-  }, [handleResetWithNewValues, dataPattern]);
+    handleResetWithNewDataPattern();
+  }, [handleResetWithNewDataPattern]);
 
   return (
     <div className={styles.theSoundOfSortingContainer}>
@@ -452,7 +454,7 @@ function TheSoundOfSorting(): JSX.Element {
         sortingAlgorithm={sortingAlgorithm}
         status={status}
         handlePause={handlePause}
-        handleResetWithNewValues={handleResetWithNewValues}
+        handleResetWithNewDataPattern={handleResetWithNewDataPattern}
         handleResume={handleResume}
         handleStep={handleStep}
         reset={reset}

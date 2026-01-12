@@ -41,10 +41,10 @@ type TheSoundOfSortingControlsProps = {
   sortingAlgorithm: SortingAlgorithm;
   status: SortingStatus;
   handlePause: () => void;
-  handleResetWithNewValues: () => void;
+  handleResetWithNewDataPattern: () => void;
   handleResume: () => void;
   handleStep: () => void;
-  reset: (shouldGenerateNewValues: boolean) => void;
+  reset: (shouldGenerateNewDataPattern: boolean) => void;
   setMaxRange: (newMaxRange: number) => void;
   setNewDataPattern: (newPattern: DataPattern) => void;
   setNewDelay: (newDelay: number) => void;
@@ -76,7 +76,7 @@ function TheSoundOfSortingControls({
   sortingAlgorithm,
   status,
   handlePause,
-  handleResetWithNewValues,
+  handleResetWithNewDataPattern,
   handleResume,
   handleStep,
   reset,
@@ -96,7 +96,7 @@ function TheSoundOfSortingControls({
     setMaxRange(+e.target.value);
   };
 
-  const handleResetWithSameValues = () => {
+  const handleResetWithSameDataPattern = () => {
     reset(false);
   };
 
@@ -104,7 +104,7 @@ function TheSoundOfSortingControls({
     const newAlgorithm = e.target.value;
     assertIsSortingAlgorithm(newAlgorithm);
     setNewSortingAlgorithm(newAlgorithm);
-    handleResetWithSameValues();
+    handleResetWithSameDataPattern();
   };
 
   const handleOnChangeDataPattern = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -118,7 +118,7 @@ function TheSoundOfSortingControls({
   };
 
   const handleSortAgain = () => {
-    handleResetWithSameValues();
+    handleResetWithSameDataPattern();
     handleResume();
   };
 
@@ -174,7 +174,7 @@ function TheSoundOfSortingControls({
     const { value } = target;
     assertIsQuickSortPivot(value);
     setNewPivot(value);
-    handleResetWithSameValues();
+    handleResetWithSameDataPattern();
   };
 
   return (
@@ -252,14 +252,14 @@ function TheSoundOfSortingControls({
           fullWidth
           icon={<ResetIcon />}
           label="Reset"
-          onClick={handleResetWithSameValues}
+          onClick={handleResetWithSameDataPattern}
           variant="secondary"
         />
         <Button
           fullWidth
           icon={<ShuffleIcon />}
           label="Shuffle"
-          onClick={handleResetWithNewValues}
+          onClick={handleResetWithNewDataPattern}
           variant="secondary"
         />
         <Button
