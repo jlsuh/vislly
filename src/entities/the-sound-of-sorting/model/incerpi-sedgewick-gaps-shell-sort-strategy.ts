@@ -9,10 +9,10 @@ const INCERPI_SEDGEWICK_GAPS = [
   21, 7, 3, 1,
 ];
 
-class IncerpiSedgewickShellSortStrategy extends ShellSortStrategy {
+class IncerpiSedgewickGapsShellSortStrategy extends ShellSortStrategy {
   protected override getGaps(length: number): number[] {
     return INCERPI_SEDGEWICK_GAPS.filter((h) => h < length);
   }
 }
 
-export { IncerpiSedgewickShellSortStrategy };
+export { IncerpiSedgewickGapsShellSortStrategy };

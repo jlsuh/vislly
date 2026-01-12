@@ -8,10 +8,10 @@ const KNUTH_GAPS = [
   364, 121, 40, 13, 4, 1,
 ];
 
-class KnuthShellSortStrategy extends ShellSortStrategy {
+class KnuthGapsShellSortStrategy extends ShellSortStrategy {
   protected override getGaps(length: number): number[] {
     return KNUTH_GAPS.filter((h) => 3 * h + 1 <= length);
   }
 }
 
-export { KnuthShellSortStrategy };
+export { KnuthGapsShellSortStrategy };

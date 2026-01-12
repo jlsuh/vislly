@@ -1,5 +1,5 @@
 import { HeapSortStrategy } from './heap-sort-strategy.ts';
-import { LomutoPartitionQuickSortStrategy } from './quick-sort-lomuto-strategy.ts';
+import { LomutoPartitionQuickSortStrategy } from './lomuto-partition-quick-sort-strategy.ts';
 import type { SortingStrategyYield } from './sorting-strategy.ts';
 import { SwapInsertionSortStrategy } from './swap-insertion-sort-strategy.ts';
 

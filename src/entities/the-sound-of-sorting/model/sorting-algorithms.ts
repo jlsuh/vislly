@@ -4,11 +4,11 @@ import { BottomUpMergeSortStrategy } from './bottom-up-merge-sort-strategy.ts';
 import { BubbleSortStrategy } from './bubble-sort-strategy.ts';
 import { GnomeSortStrategy } from './gnome-sort-strategy.ts';
 import { HeapSortStrategy } from './heap-sort-strategy.ts';
-import { IncerpiSedgewickShellSortStrategy } from './incerpi-sedgewick-shell-sort-strategy.ts';
+import { HoarePartitionQuickSortStrategy } from './hoare-partition-quick-sort-strategy.ts';
+import { IncerpiSedgewickGapsShellSortStrategy } from './incerpi-sedgewick-gaps-shell-sort-strategy.ts';
 import { IntroSortStrategy } from './intro-sort-strategy.ts';
-import { KnuthShellSortStrategy } from './knuth-shell-sort-strategy.ts';
-import { HoarePartitionQuickSortStrategy } from './quick-sort-hoare-strategy.ts';
-import { LomutoPartitionQuickSortStrategy } from './quick-sort-lomuto-strategy.ts';
+import { KnuthGapsShellSortStrategy } from './knuth-gaps-shell-sort-strategy.ts';
+import { LomutoPartitionQuickSortStrategy } from './lomuto-partition-quick-sort-strategy.ts';
 import { SelectionSortStrategy } from './selection-sort-strategy.ts';
 import { ShiftInsertionSortStrategy } from './shift-insertion-sort-strategy.ts';
 import type { SortingStrategy } from './sorting-strategy.ts';
@@ -22,8 +22,8 @@ const SortingAlgorithm = {
   ShiftInsertionSort: 'shift-insertion-sort',
   SwapInsertionSort: 'swap-insertion-sort',
   GnomeSort: 'gnome-sort',
-  IncerpiSedgewickShellSort: 'incerpi-sedgewick-shell-sort',
-  KnuthShellSort: 'knuth-shell-sort',
+  IncerpiSedgewickGapsShellSort: 'incerpi-sedgewick-gaps-shell-sort',
+  KnuthGapsShellSort: 'knuth-gaps-shell-sort',
   BottomUpMergeSort: 'bottom-up-merge-sort',
   TopDownMergeSort: 'top-down-merge-sort',
   HeapSort: 'heap-sort',
@@ -86,15 +86,15 @@ const SORTING_ALGORITHMS: ReadonlyDeep<
     label: 'Gnome Sort',
     strategy: new GnomeSortStrategy(),
   },
-  [SortingAlgorithm.IncerpiSedgewickShellSort]: {
-    key: SortingAlgorithm.IncerpiSedgewickShellSort,
-    label: 'Incerpi-Sedgewick Shell Sort',
-    strategy: new IncerpiSedgewickShellSortStrategy(),
+  [SortingAlgorithm.IncerpiSedgewickGapsShellSort]: {
+    key: SortingAlgorithm.IncerpiSedgewickGapsShellSort,
+    label: 'Incerpi-Sedgewick Gaps Shell Sort',
+    strategy: new IncerpiSedgewickGapsShellSortStrategy(),
   },
-  [SortingAlgorithm.KnuthShellSort]: {
-    key: SortingAlgorithm.KnuthShellSort,
-    label: 'Knuth Shell Sort',
-    strategy: new KnuthShellSortStrategy(),
+  [SortingAlgorithm.KnuthGapsShellSort]: {
+    key: SortingAlgorithm.KnuthGapsShellSort,
+    label: 'Knuth Gaps Shell Sort',
+    strategy: new KnuthGapsShellSortStrategy(),
   },
   [SortingAlgorithm.BottomUpMergeSort]: {
     key: SortingAlgorithm.BottomUpMergeSort,
