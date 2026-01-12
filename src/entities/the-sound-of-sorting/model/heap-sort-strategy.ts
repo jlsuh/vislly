@@ -19,7 +19,7 @@ class HeapSortStrategy extends SortingStrategy {
     return `hsl(${(this.getIndexDepth(index) * GOLDEN_ANGLE_DEG) % 360}, 85%, 70%)`;
   }
 
-  private initializeDepthHighlightGroups(n: number): void {
+  private initializeDepthHighlightGroups(n: number, offset: number): void {
     this.depthHighlightGroupsCache = [];
     const groupsRefMap = new Map<string, HighlightGroup>();
     const firstLeafIndex = Math.floor(n / 2);
@@ -36,30 +36,35 @@ class HeapSortStrategy extends SortingStrategy {
         groupsRefMap.set(color, group);
       }
       if (k >= firstLeafIndex) {
-        group.indices.push(k);
+        group.indices.push(offset + k);
       }
     }
   }
 
-  private getIndexGroup(index: number): HighlightGroup | undefined {
-    return this.depthHighlightGroupsCache.find(
-      (depthHighlightGroup) =>
-        depthHighlightGroup.color === this.getIndexColor(index),
+  private getIndexGroup(index: number, offset: number): HighlightGroup {
+    const relativeIndex = index - offset;
+    const expectedColor = this.getIndexColor(relativeIndex);
+    const group = this.depthHighlightGroupsCache.find(
+      (depthHighlightGroup) => depthHighlightGroup.color === expectedColor,
     );
+    if (group === undefined) {
+      throw new Error(
+        `Depth highlight group not found for expected color: ${expectedColor}`,
+      );
+    }
+    return group;
   }
 
-  private revealDepthColorForIndex(index: number): void {
-    const group = this.getIndexGroup(index);
-    if (group) {
+  private revealDepthColorForIndex(index: number, offset: number): void {
+    const group = this.getIndexGroup(index, offset);
+    if (!group.indices.includes(index)) {
       group.indices.push(index);
     }
   }
 
-  private hideDepthColorForIndex(index: number): void {
-    const group = this.getIndexGroup(index);
-    if (group) {
-      group.indices = group.indices.filter((i) => i !== index);
-    }
+  private hideDepthColorForIndex(index: number, offset: number): void {
+    const group = this.getIndexGroup(index, offset);
+    group.indices = group.indices.filter((i) => i !== index);
   }
 
   private *siftDown(
@@ -132,33 +137,27 @@ class HeapSortStrategy extends SortingStrategy {
     }
   }
 
-  private *heapify(
-    array: number[],
-    n: number,
-  ): Generator<SortingStrategyYield, void, unknown> {
-    for (let i = Math.floor(n / 2) - 1; i >= 0; i -= 1) {
-      yield* this.siftDown(array, i, n, 0);
-      this.revealDepthColorForIndex(i);
-    }
-  }
-
   public *sort(
     array: number[],
     lo: number,
     hi: number,
   ): Generator<SortingStrategyYield, void, unknown> {
     const n = hi - lo + 1;
+    this.initializeDepthHighlightGroups(n, lo);
     for (let i = Math.floor(n / 2) - 1; i >= 0; i -= 1) {
       yield* this.siftDown(array, i, n, lo);
+      this.revealDepthColorForIndex(lo + i, lo);
     }
     let size = n;
     while (size > 1) {
       size -= 1;
+      this.hideDepthColorForIndex(lo + size, lo);
       super.swap(array, lo, lo + size);
       yield {
         accessCount: 4,
         comparisonCount: 0,
         highlights: [
+          ...this.depthHighlightGroupsCache,
           {
             color: RED,
             indices: [lo, lo + size],
@@ -172,6 +171,7 @@ class HeapSortStrategy extends SortingStrategy {
       };
       yield* this.siftDown(array, 0, size, lo);
     }
+    this.depthHighlightGroupsCache = [];
   }
 
   public override *generator({
@@ -179,27 +179,7 @@ class HeapSortStrategy extends SortingStrategy {
   }: {
     array: number[];
   }): Generator<SortingStrategyYield, void, unknown> {
-    let n = array.length;
-    this.initializeDepthHighlightGroups(n);
-    yield* this.heapify(array, n);
-    while (n > 1) {
-      n -= 1;
-      this.hideDepthColorForIndex(n);
-      super.swap(array, 0, n);
-      yield {
-        accessCount: 4,
-        comparisonCount: 0,
-        highlights: [
-          ...this.depthHighlightGroupsCache,
-          { color: RED, indices: [0], skipHighlightGroupTone: true },
-          { color: GREEN, indices: [n], skipHighlightGroupTone: true },
-        ],
-        shiftCount: 0,
-        sortOperation: SortOperation.Swap,
-        swapCount: 1,
-      };
-      yield* this.siftDown(array, 0, n, 0);
-    }
+    yield* this.sort(array, 0, array.length - 1);
     yield {
       accessCount: 0,
       comparisonCount: 0,
