@@ -2,6 +2,7 @@ import type { ReadonlyDeep } from 'type-fest';
 import { BinaryInsertionSortStrategy } from './binary-insertion-sort-strategy.ts';
 import { BottomUpMergeSortStrategy } from './bottom-up-merge-sort-strategy.ts';
 import { BubbleSortStrategy } from './bubble-sort-strategy.ts';
+import { CountingSortStrategy } from './counting-sort-strategy.ts';
 import { GnomeSortStrategy } from './gnome-sort-strategy.ts';
 import { HeapSortStrategy } from './heap-sort-strategy.ts';
 import { HoarePartitionQuickSortStrategy } from './hoare-partition-quick-sort-strategy.ts';
@@ -30,6 +31,7 @@ const SortingAlgorithm = {
   HoarePartitionQuickSort: 'hoare-partition-quick-sort',
   LomutoPartitionQuickSort: 'lomuto-partition-quick-sort',
   IntroSort: 'intro-sort',
+  CountingSort: 'counting-sort',
 } as const;
 
 type SortingAlgorithm =
@@ -125,6 +127,11 @@ const SORTING_ALGORITHMS: ReadonlyDeep<
     key: SortingAlgorithm.IntroSort,
     label: 'Intro Sort',
     strategy: new IntroSortStrategy(),
+  },
+  [SortingAlgorithm.CountingSort]: {
+    key: SortingAlgorithm.CountingSort,
+    label: 'Counting Sort',
+    strategy: new CountingSortStrategy(),
   },
 };
 
