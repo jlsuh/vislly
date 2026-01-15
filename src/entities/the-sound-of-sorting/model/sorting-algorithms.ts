@@ -2,7 +2,6 @@ import type { ReadonlyDeep } from 'type-fest';
 import { BinaryInsertionSortStrategy } from './binary-insertion-sort-strategy.ts';
 import { BottomUpMergeSortStrategy } from './bottom-up-merge-sort-strategy.ts';
 import { BubbleSortStrategy } from './bubble-sort-strategy.ts';
-import { CountingSortStrategy } from './counting-sort-strategy.ts';
 import { GnomeSortStrategy } from './gnome-sort-strategy.ts';
 import { HeapSortStrategy } from './heap-sort-strategy.ts';
 import { HoarePartitionQuickSortStrategy } from './hoare-partition-quick-sort-strategy.ts';
@@ -10,6 +9,7 @@ import { IncerpiSedgewickGapsShellSortStrategy } from './incerpi-sedgewick-gaps-
 import { IntroSortStrategy } from './intro-sort-strategy.ts';
 import { KnuthGapsShellSortStrategy } from './knuth-gaps-shell-sort-strategy.ts';
 import { LomutoPartitionQuickSortStrategy } from './lomuto-partition-quick-sort-strategy.ts';
+import { LsdRadixSortStrategy } from './lsd-radix-sort-strategy.ts';
 import { SelectionSortStrategy } from './selection-sort-strategy.ts';
 import { ShiftInsertionSortStrategy } from './shift-insertion-sort-strategy.ts';
 import type { SortingStrategy } from './sorting-strategy.ts';
@@ -31,7 +31,7 @@ const SortingAlgorithm = {
   HoarePartitionQuickSort: 'hoare-partition-quick-sort',
   LomutoPartitionQuickSort: 'lomuto-partition-quick-sort',
   IntroSort: 'intro-sort',
-  CountingSort: 'counting-sort',
+  LsdRadixSort: 'lsd-radix-sort',
 } as const;
 
 type SortingAlgorithm =
@@ -128,10 +128,10 @@ const SORTING_ALGORITHMS: ReadonlyDeep<
     label: 'Intro Sort',
     strategy: new IntroSortStrategy(),
   },
-  [SortingAlgorithm.CountingSort]: {
-    key: SortingAlgorithm.CountingSort,
-    label: 'Counting Sort',
-    strategy: new CountingSortStrategy(),
+  [SortingAlgorithm.LsdRadixSort]: {
+    key: SortingAlgorithm.LsdRadixSort,
+    label: 'LSD Radix Sort',
+    strategy: new LsdRadixSortStrategy(),
   },
 };
 
