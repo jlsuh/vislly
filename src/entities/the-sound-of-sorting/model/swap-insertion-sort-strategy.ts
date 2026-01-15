@@ -19,14 +19,14 @@ class SwapInsertionSortStrategy extends SortingStrategy {
       const originGroup: HighlightGroup = {
         color: GREEN,
         indices: [i],
-        skipHighlightGroupTone: true,
+        skipTone: true,
       };
       while (j >= lo) {
         yield {
           accessCount: 1 + pendingAccessCount,
           comparisonCount: 1,
           highlights: [
-            { indices: [j, j + 1], color: RED, skipHighlightGroupTone: false },
+            { indices: [j, j + 1], color: RED, skipTone: false },
             originGroup,
           ],
           shiftCount: 0,
@@ -40,7 +40,7 @@ class SwapInsertionSortStrategy extends SortingStrategy {
             accessCount: 4,
             comparisonCount: 0,
             highlights: [
-              { indices: [j, j + 1], color: RED, skipHighlightGroupTone: true },
+              { indices: [j, j + 1], color: RED, skipTone: true },
               originGroup,
             ],
             shiftCount: 0,

@@ -12,7 +12,7 @@ type SortOperation = (typeof SortOperation)[keyof typeof SortOperation];
 interface HighlightGroup {
   color: string;
   indices: number[];
-  skipHighlightGroupTone: boolean;
+  skipTone: boolean;
 }
 
 interface SortingStrategyYield {

@@ -47,12 +47,8 @@ class HoarePartitionQuickSortStrategy extends QuickSortStrategy {
         accessCount: 4,
         comparisonCount: 0,
         highlights: [
-          { color: RED, indices: [i, j], skipHighlightGroupTone: true },
-          {
-            color: GREEN,
-            indices: [currentPivotIdx],
-            skipHighlightGroupTone: true,
-          },
+          { color: RED, indices: [i, j], skipTone: true },
+          { color: GREEN, indices: [currentPivotIdx], skipTone: true },
         ],
         shiftCount: 0,
         sortOperation: SortOperation.Swap,
@@ -75,16 +71,8 @@ class HoarePartitionQuickSortStrategy extends QuickSortStrategy {
         accessCount: 1 + pending.accessCount,
         comparisonCount: 1 + pending.comparisonCount,
         highlights: [
-          {
-            color: RED,
-            indices: highlightIndices,
-            skipHighlightGroupTone: false,
-          },
-          {
-            color: GREEN,
-            indices: [currentPivotIdx],
-            skipHighlightGroupTone: true,
-          },
+          { color: RED, indices: highlightIndices, skipTone: false },
+          { color: GREEN, indices: [currentPivotIdx], skipTone: true },
         ],
         shiftCount: 0,
         sortOperation: SortOperation.Compare,
@@ -103,9 +91,7 @@ class HoarePartitionQuickSortStrategy extends QuickSortStrategy {
     yield {
       accessCount: 1,
       comparisonCount: 0,
-      highlights: [
-        { color: GREEN, indices: [pivotIdx], skipHighlightGroupTone: true },
-      ],
+      highlights: [{ color: GREEN, indices: [pivotIdx], skipTone: true }],
       shiftCount: 0,
       sortOperation: SortOperation.Inspect,
       swapCount: 0,
@@ -115,9 +101,7 @@ class HoarePartitionQuickSortStrategy extends QuickSortStrategy {
       yield {
         accessCount: 4,
         comparisonCount: 0,
-        highlights: [
-          { color: GREEN, indices: [lo], skipHighlightGroupTone: true },
-        ],
+        highlights: [{ color: GREEN, indices: [lo], skipTone: true }],
         shiftCount: 0,
         sortOperation: SortOperation.Swap,
         swapCount: 1,

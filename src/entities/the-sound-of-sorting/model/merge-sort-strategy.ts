@@ -24,8 +24,8 @@ abstract class MergeSortStrategy extends SortingStrategy {
         accessCount: 2,
         comparisonCount: 1,
         highlights: [
-          { color: RED, indices: [i, j], skipHighlightGroupTone: false },
-          { color: GREEN, indices: [frontier], skipHighlightGroupTone: true },
+          { color: RED, indices: [i, j], skipTone: false },
+          { color: GREEN, indices: [frontier], skipTone: true },
         ],
         shiftCount: 0,
         sortOperation: SortOperation.Compare,
@@ -59,8 +59,8 @@ abstract class MergeSortStrategy extends SortingStrategy {
         accessCount: 1 + pendingAccessCount,
         comparisonCount: 0,
         highlights: [
-          { color: RED, indices: [p], skipHighlightGroupTone: true },
-          { color: GREEN, indices: [frontier], skipHighlightGroupTone: true },
+          { color: RED, indices: [p], skipTone: true },
+          { color: GREEN, indices: [frontier], skipTone: true },
         ],
         shiftCount: 0,
         sortOperation: SortOperation.Inspect,

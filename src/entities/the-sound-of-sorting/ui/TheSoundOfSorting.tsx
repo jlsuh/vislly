@@ -206,7 +206,7 @@ function TheSoundOfSorting(): JSX.Element {
     for (const group of highlightGroups) {
       for (const index of group.indices) {
         activeHighlightsRef.current.set(index, group.color);
-        if (shouldPlayTone && !group.skipHighlightGroupTone) {
+        if (shouldPlayTone && !group.skipTone) {
           playTone({
             maxRange,
             toneDurationMs,

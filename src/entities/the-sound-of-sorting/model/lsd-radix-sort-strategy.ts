@@ -60,9 +60,7 @@ class LsdRadixSortStrategy extends SortingStrategy {
       yield {
         accessCount: pending.accessCount,
         comparisonCount: 0,
-        highlights: [
-          { color: RED, indices: [i], skipHighlightGroupTone: false },
-        ],
+        highlights: [{ color: RED, indices: [i], skipTone: false }],
         shiftCount: 0,
         sortOperation: SortOperation.Inspect,
         swapCount: 0,
@@ -110,12 +108,8 @@ class LsdRadixSortStrategy extends SortingStrategy {
         accessCount: pending.accessCount,
         comparisonCount: 0,
         highlights: [
-          { color: RED, indices: [targetIdx], skipHighlightGroupTone: false },
-          {
-            color: CYAN,
-            indices: boundaryIndices,
-            skipHighlightGroupTone: true,
-          },
+          { color: RED, indices: [targetIdx], skipTone: false },
+          { color: CYAN, indices: boundaryIndices, skipTone: true },
         ],
         shiftCount: 0,
         sortOperation: SortOperation.Inspect,

@@ -27,11 +27,7 @@ class HeapSortStrategy extends SortingStrategy {
       const color = this.getIndexColor(k);
       let group = groupsRefMap.get(color);
       if (group === undefined) {
-        group = {
-          color,
-          indices: [],
-          skipHighlightGroupTone: true,
-        };
+        group = { color, indices: [], skipTone: true };
         this.depthHighlightGroupsCache.push(group);
         groupsRefMap.set(color, group);
       }
@@ -86,9 +82,9 @@ class HeapSortStrategy extends SortingStrategy {
             {
               color: RED,
               indices: [lo + childIndex, lo + childIndex + 1],
-              skipHighlightGroupTone: false,
+              skipTone: false,
             },
-            { color: GREEN, indices: [lo + n], skipHighlightGroupTone: true },
+            { color: GREEN, indices: [lo + n], skipTone: true },
           ],
           shiftCount: 0,
           sortOperation: SortOperation.Compare,
@@ -105,12 +101,8 @@ class HeapSortStrategy extends SortingStrategy {
         comparisonCount: 1,
         highlights: [
           ...this.depthHighlightGroupsCache,
-          {
-            color: RED,
-            indices: [lo + i, lo + childIndex],
-            skipHighlightGroupTone: false,
-          },
-          { color: GREEN, indices: [lo + n], skipHighlightGroupTone: true },
+          { color: RED, indices: [lo + i, lo + childIndex], skipTone: false },
+          { color: GREEN, indices: [lo + n], skipTone: true },
         ],
         shiftCount: 0,
         sortOperation: SortOperation.Compare,
@@ -125,12 +117,8 @@ class HeapSortStrategy extends SortingStrategy {
         comparisonCount: 0,
         highlights: [
           ...this.depthHighlightGroupsCache,
-          {
-            color: RED,
-            indices: [lo + i, lo + childIndex],
-            skipHighlightGroupTone: true,
-          },
-          { color: GREEN, indices: [lo + n], skipHighlightGroupTone: true },
+          { color: RED, indices: [lo + i, lo + childIndex], skipTone: true },
+          { color: GREEN, indices: [lo + n], skipTone: true },
         ],
         shiftCount: 0,
         sortOperation: SortOperation.Swap,
@@ -162,12 +150,8 @@ class HeapSortStrategy extends SortingStrategy {
         comparisonCount: 0,
         highlights: [
           ...this.depthHighlightGroupsCache,
-          {
-            color: RED,
-            indices: [lo, lo + size],
-            skipHighlightGroupTone: true,
-          },
-          { color: GREEN, indices: [lo + size], skipHighlightGroupTone: true },
+          { color: RED, indices: [lo, lo + size], skipTone: true },
+          { color: GREEN, indices: [lo + size], skipTone: true },
         ],
         shiftCount: 0,
         sortOperation: SortOperation.Swap,
@@ -187,9 +171,7 @@ class HeapSortStrategy extends SortingStrategy {
     yield {
       accessCount: 0,
       comparisonCount: 0,
-      highlights: [
-        { color: GREEN, indices: [0], skipHighlightGroupTone: true },
-      ],
+      highlights: [{ color: GREEN, indices: [0], skipTone: true }],
       shiftCount: 0,
       sortOperation: SortOperation.Inspect,
       swapCount: 0,

@@ -17,14 +17,14 @@ class SelectionSortStrategy extends SortingStrategy {
       const delimiterGroup: HighlightGroup = {
         color: GREEN,
         indices: i > 0 ? [i - 1] : [],
-        skipHighlightGroupTone: true,
+        skipTone: true,
       };
       for (let j = i + 1; j < array.length; j += 1) {
         yield {
           accessCount: 2,
           comparisonCount: 1,
           highlights: [
-            { color: RED, indices: [minIdx, j], skipHighlightGroupTone: false },
+            { color: RED, indices: [minIdx, j], skipTone: false },
             delimiterGroup,
           ],
           shiftCount: 0,
@@ -41,7 +41,7 @@ class SelectionSortStrategy extends SortingStrategy {
           accessCount: 4,
           comparisonCount: 0,
           highlights: [
-            { color: RED, indices: [minIdx, i], skipHighlightGroupTone: true },
+            { color: RED, indices: [minIdx, i], skipTone: true },
             delimiterGroup,
           ],
           shiftCount: 0,

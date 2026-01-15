@@ -19,9 +19,7 @@ class LomutoPartitionQuickSortStrategy extends QuickSortStrategy {
       yield {
         accessCount: 0,
         comparisonCount: 0,
-        highlights: [
-          { color: GREEN, indices: [pivotIdx], skipHighlightGroupTone: true },
-        ],
+        highlights: [{ color: GREEN, indices: [pivotIdx], skipTone: true }],
         shiftCount: 0,
         sortOperation: SortOperation.Inspect,
         swapCount: 0,
@@ -30,9 +28,7 @@ class LomutoPartitionQuickSortStrategy extends QuickSortStrategy {
       yield {
         accessCount: 4,
         comparisonCount: 0,
-        highlights: [
-          { color: GREEN, indices: [hi], skipHighlightGroupTone: true },
-        ],
+        highlights: [{ color: GREEN, indices: [hi], skipTone: true }],
         shiftCount: 0,
         sortOperation: SortOperation.Swap,
         swapCount: 1,
@@ -50,8 +46,8 @@ class LomutoPartitionQuickSortStrategy extends QuickSortStrategy {
         accessCount: pendingAccessCount,
         comparisonCount: 1,
         highlights: [
-          { color: RED, indices: [i, j], skipHighlightGroupTone: false },
-          { color: GREEN, indices: [hi], skipHighlightGroupTone: true },
+          { color: RED, indices: [i, j], skipTone: false },
+          { color: GREEN, indices: [hi], skipTone: true },
         ],
         shiftCount: 0,
         sortOperation: SortOperation.Compare,
@@ -68,8 +64,8 @@ class LomutoPartitionQuickSortStrategy extends QuickSortStrategy {
             accessCount: 4 + pendingAccessCount,
             comparisonCount: 0,
             highlights: [
-              { color: RED, indices: [i, j], skipHighlightGroupTone: true },
-              { color: GREEN, indices: [hi], skipHighlightGroupTone: true },
+              { color: RED, indices: [i, j], skipTone: true },
+              { color: GREEN, indices: [hi], skipTone: true },
             ],
             shiftCount: 0,
             sortOperation: SortOperation.Swap,
@@ -86,8 +82,8 @@ class LomutoPartitionQuickSortStrategy extends QuickSortStrategy {
       accessCount: 4 + pendingAccessCount,
       comparisonCount: 0,
       highlights: [
-        { color: RED, indices: [hi], skipHighlightGroupTone: true },
-        { color: GREEN, indices: [i], skipHighlightGroupTone: true },
+        { color: RED, indices: [hi], skipTone: true },
+        { color: GREEN, indices: [i], skipTone: true },
       ],
       shiftCount: 0,
       sortOperation: SortOperation.Swap,

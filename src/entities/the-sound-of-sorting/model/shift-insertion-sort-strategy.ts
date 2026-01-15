@@ -8,13 +8,7 @@ class ShiftInsertionSortStrategy extends ShellSortStrategy {
   }
 
   protected override getAdditionalHighlights(i: number): HighlightGroup[] {
-    return [
-      {
-        indices: [i],
-        color: GREEN,
-        skipHighlightGroupTone: true,
-      },
-    ];
+    return [{ color: GREEN, indices: [i], skipTone: true }];
   }
 }
 

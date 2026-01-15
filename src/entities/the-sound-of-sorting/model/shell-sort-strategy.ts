@@ -30,11 +30,7 @@ abstract class ShellSortStrategy extends SortingStrategy {
             accessCount: 1 + pendingAccessCount,
             comparisonCount: 1,
             highlights: [
-              {
-                color: RED,
-                indices: [j, j - h],
-                skipHighlightGroupTone: false,
-              },
+              { color: RED, indices: [j, j - h], skipTone: false },
               ...additionalHighlights,
             ],
             shiftCount: 0,
@@ -48,11 +44,7 @@ abstract class ShellSortStrategy extends SortingStrategy {
               accessCount: 2,
               comparisonCount: 0,
               highlights: [
-                {
-                  color: RED,
-                  indices: [j, j - h],
-                  skipHighlightGroupTone: true,
-                },
+                { color: RED, indices: [j, j - h], skipTone: true },
                 ...additionalHighlights,
               ],
               shiftCount: 1,
@@ -70,7 +62,7 @@ abstract class ShellSortStrategy extends SortingStrategy {
             accessCount: 1,
             comparisonCount: 0,
             highlights: [
-              { color: RED, indices: [j], skipHighlightGroupTone: true },
+              { color: RED, indices: [j], skipTone: true },
               ...additionalHighlights,
             ],
             shiftCount: 1,

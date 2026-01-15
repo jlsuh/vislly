@@ -27,8 +27,8 @@ class BinaryInsertionSortStrategy extends SortingStrategy {
           accessCount: 1 + pendingAccessCount,
           comparisonCount: 1,
           highlights: [
-            { color: RED, indices: [mid], skipHighlightGroupTone: false },
-            { color: GREEN, indices: [i], skipHighlightGroupTone: true },
+            { color: RED, indices: [mid], skipTone: false },
+            { color: GREEN, indices: [i], skipTone: true },
           ],
           shiftCount: 0,
           sortOperation: SortOperation.Compare,
@@ -42,8 +42,8 @@ class BinaryInsertionSortStrategy extends SortingStrategy {
           accessCount: 0,
           comparisonCount: 0,
           highlights: [
-            { color: RED, indices: [j, j + 1], skipHighlightGroupTone: true },
-            { color: GREEN, indices: [i], skipHighlightGroupTone: true },
+            { color: RED, indices: [j, j + 1], skipTone: true },
+            { color: GREEN, indices: [i], skipTone: true },
           ],
           shiftCount: 0,
           sortOperation: SortOperation.Inspect,
@@ -56,8 +56,8 @@ class BinaryInsertionSortStrategy extends SortingStrategy {
           accessCount: 4,
           comparisonCount: 0,
           highlights: [
-            { color: RED, indices: [j, j + 1], skipHighlightGroupTone: true },
-            { color: GREEN, indices: [i], skipHighlightGroupTone: true },
+            { color: RED, indices: [j, j + 1], skipTone: true },
+            { color: GREEN, indices: [i], skipTone: true },
           ],
           shiftCount: 0,
           sortOperation: SortOperation.Swap,

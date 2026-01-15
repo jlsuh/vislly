@@ -109,9 +109,7 @@ abstract class QuickSortStrategy extends SortingStrategy {
     yield {
       accessCount: 2,
       comparisonCount: 1,
-      highlights: [
-        { color: RED, indices: [idxA, idxB], skipHighlightGroupTone: false },
-      ],
+      highlights: [{ color: RED, indices: [idxA, idxB], skipTone: false }],
       shiftCount: 0,
       sortOperation: SortOperation.Compare,
       swapCount: 0,
