@@ -16,7 +16,7 @@ class HoarePartitionQuickSortStrategy extends QuickSortStrategy {
     let currentPivotIdx = yield* this.initializePivot(array, pivotIdx, lo);
     let i = lo - 1;
     let j = hi + 1;
-    const pending = { accesses: 0, comparisons: 0 };
+    const pending = { accessCount: 0, comparisonCount: 0 };
     for (;;) {
       do {
         i += 1;
@@ -65,15 +65,15 @@ class HoarePartitionQuickSortStrategy extends QuickSortStrategy {
     activeIdx: number,
     highlightIndices: number[],
     currentPivotIdx: number,
-    pending: { accesses: number; comparisons: number },
+    pending: { accessCount: number; comparisonCount: number },
   ): Generator<SortingStrategyYield, void, unknown> {
     if (activeIdx === currentPivotIdx) {
-      pending.accesses += 1;
-      pending.comparisons += 1;
+      pending.accessCount += 1;
+      pending.comparisonCount += 1;
     } else {
       yield {
-        accessCount: 1 + pending.accesses,
-        comparisonCount: 1 + pending.comparisons,
+        accessCount: 1 + pending.accessCount,
+        comparisonCount: 1 + pending.comparisonCount,
         highlights: [
           {
             color: RED,
@@ -90,8 +90,8 @@ class HoarePartitionQuickSortStrategy extends QuickSortStrategy {
         sortOperation: SortOperation.Compare,
         swapCount: 0,
       };
-      pending.accesses = 0;
-      pending.comparisons = 0;
+      pending.accessCount = 0;
+      pending.comparisonCount = 0;
     }
   }
 

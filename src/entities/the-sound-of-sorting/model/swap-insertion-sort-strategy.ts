@@ -14,7 +14,7 @@ class SwapInsertionSortStrategy extends SortingStrategy {
   ): Generator<SortingStrategyYield, void, unknown> {
     for (let i = lo + 1; i <= hi; i += 1) {
       const key = array[i];
-      let totalAccessCount = 1;
+      let pendingAccessCount = 1;
       let j = i - 1;
       const originGroup: HighlightGroup = {
         color: GREEN,
@@ -23,7 +23,7 @@ class SwapInsertionSortStrategy extends SortingStrategy {
       };
       while (j >= lo) {
         yield {
-          accessCount: totalAccessCount + 1,
+          accessCount: 1 + pendingAccessCount,
           comparisonCount: 1,
           highlights: [
             { indices: [j, j + 1], color: RED, skipHighlightGroupTone: false },
@@ -33,7 +33,7 @@ class SwapInsertionSortStrategy extends SortingStrategy {
           sortOperation: SortOperation.Compare,
           swapCount: 0,
         };
-        totalAccessCount = 0;
+        pendingAccessCount = 0;
         if (array[j] > key) {
           super.swap(array, j, j + 1);
           yield {

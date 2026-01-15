@@ -40,12 +40,15 @@ class LomutoPartitionQuickSortStrategy extends QuickSortStrategy {
     }
     const pivot = array[hi];
     let i = lo;
-    let pendingAccesses = 0;
-    let pendingSwaps = 0;
+    let pendingAccessCount = 1;
+    let pendingSwapCount = 0;
     for (let j = lo; j < hi; j += 1) {
+      const val = array[j];
+      pendingAccessCount += 1;
+      const isLessOrEqual = val <= pivot;
       yield {
-        accessCount: 1 + pendingAccesses,
-        comparisonCount: 1 + pendingSwaps,
+        accessCount: pendingAccessCount,
+        comparisonCount: 1,
         highlights: [
           { color: RED, indices: [i, j], skipHighlightGroupTone: false },
           { color: GREEN, indices: [hi], skipHighlightGroupTone: true },
@@ -54,42 +57,41 @@ class LomutoPartitionQuickSortStrategy extends QuickSortStrategy {
         sortOperation: SortOperation.Compare,
         swapCount: 0,
       };
-      pendingAccesses = 0;
-      pendingSwaps = 0;
-      if (array[j] <= pivot) {
+      pendingAccessCount = 0;
+      if (isLessOrEqual) {
         super.swap(array, i, j);
         if (i === j) {
-          pendingAccesses += 4;
-          pendingSwaps += 1;
+          pendingAccessCount += 4;
+          pendingSwapCount += 1;
         } else {
           yield {
-            accessCount: 4 + pendingAccesses,
-            comparisonCount: pendingSwaps,
+            accessCount: 4 + pendingAccessCount,
+            comparisonCount: 0,
             highlights: [
               { color: RED, indices: [i, j], skipHighlightGroupTone: true },
               { color: GREEN, indices: [hi], skipHighlightGroupTone: true },
             ],
             shiftCount: 0,
             sortOperation: SortOperation.Swap,
-            swapCount: 1,
+            swapCount: 1 + pendingSwapCount,
           };
-          pendingAccesses = 0;
-          pendingSwaps = 0;
+          pendingAccessCount = 0;
+          pendingSwapCount = 0;
         }
         i += 1;
       }
     }
     super.swap(array, i, hi);
     yield {
-      accessCount: 4 + pendingAccesses,
-      comparisonCount: pendingSwaps,
+      accessCount: 4 + pendingAccessCount,
+      comparisonCount: 0,
       highlights: [
         { color: RED, indices: [hi], skipHighlightGroupTone: true },
         { color: GREEN, indices: [i], skipHighlightGroupTone: true },
       ],
       shiftCount: 0,
       sortOperation: SortOperation.Swap,
-      swapCount: 1,
+      swapCount: 1 + pendingSwapCount,
     };
     return [
       { lo, hi: i - 1 },

@@ -13,6 +13,7 @@ class BubbleSortStrategy extends SortingStrategy {
   }): Generator<SortingStrategyYield, void, unknown> {
     for (let i = 0; i < array.length; i += 1) {
       for (let j = 0; j < array.length - i - 1; j += 1) {
+        const shouldSwap = array[j] > array[j + 1];
         yield {
           accessCount: 2,
           comparisonCount: 1,
@@ -23,7 +24,7 @@ class BubbleSortStrategy extends SortingStrategy {
           sortOperation: SortOperation.Compare,
           swapCount: 0,
         };
-        if (array[j] > array[j + 1]) {
+        if (shouldSwap) {
           super.swap(array, j, j + 1);
           yield {
             accessCount: 4,

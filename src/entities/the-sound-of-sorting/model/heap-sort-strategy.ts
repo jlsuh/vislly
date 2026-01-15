@@ -76,6 +76,8 @@ class HeapSortStrategy extends SortingStrategy {
     let childIndex = 2 * i + 1;
     while (childIndex < n) {
       if (childIndex + 1 < n) {
+        const isRightChildGreaterThanLeftChild =
+          array[lo + childIndex + 1] > array[lo + childIndex];
         yield {
           accessCount: 2,
           comparisonCount: 1,
@@ -92,10 +94,12 @@ class HeapSortStrategy extends SortingStrategy {
           sortOperation: SortOperation.Compare,
           swapCount: 0,
         };
-        if (array[lo + childIndex + 1] > array[lo + childIndex]) {
+        if (isRightChildGreaterThanLeftChild) {
           childIndex += 1;
         }
       }
+      const isParentLargerOrEqualThanCurrentChild =
+        array[lo + i] >= array[lo + childIndex];
       yield {
         accessCount: 2,
         comparisonCount: 1,
@@ -112,7 +116,7 @@ class HeapSortStrategy extends SortingStrategy {
         sortOperation: SortOperation.Compare,
         swapCount: 0,
       };
-      if (array[lo + i] >= array[lo + childIndex]) {
+      if (isParentLargerOrEqualThanCurrentChild) {
         return;
       }
       super.swap(array, lo + i, lo + childIndex);

@@ -17,6 +17,7 @@ export class GnomeSortStrategy extends SortingStrategy {
         pos += 1;
         continue;
       }
+      const isSorted = array[pos] >= array[pos - 1];
       yield {
         accessCount: 2,
         comparisonCount: 1,
@@ -31,7 +32,7 @@ export class GnomeSortStrategy extends SortingStrategy {
         sortOperation: SortOperation.Compare,
         swapCount: 0,
       };
-      if (array[pos] >= array[pos - 1]) {
+      if (isSorted) {
         pos += 1;
         continue;
       }

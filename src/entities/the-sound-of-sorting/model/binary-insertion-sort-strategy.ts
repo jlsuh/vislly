@@ -18,6 +18,11 @@ class BinaryInsertionSortStrategy extends SortingStrategy {
       let hi = i;
       while (lo < hi) {
         const mid = Math.floor((lo + hi) / 2);
+        if (key <= array[mid]) {
+          hi = mid;
+        } else {
+          lo = mid + 1;
+        }
         yield {
           accessCount: 1 + pendingAccessCount,
           comparisonCount: 1,
@@ -30,11 +35,6 @@ class BinaryInsertionSortStrategy extends SortingStrategy {
           swapCount: 0,
         };
         pendingAccessCount = 0;
-        if (key <= array[mid]) {
-          hi = mid;
-        } else {
-          lo = mid + 1;
-        }
       }
       let j = i - 1;
       if (j >= lo) {

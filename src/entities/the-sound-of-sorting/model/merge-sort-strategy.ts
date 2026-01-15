@@ -18,8 +18,10 @@ abstract class MergeSortStrategy extends SortingStrategy {
     let j = mid + 1;
     let k = lo;
     while (i <= mid && j <= hi) {
+      const left = array[i];
+      const right = array[j];
       yield {
-        accessCount: 4,
+        accessCount: 2,
         comparisonCount: 1,
         highlights: [
           { color: RED, indices: [i, j], skipHighlightGroupTone: false },
@@ -29,32 +31,32 @@ abstract class MergeSortStrategy extends SortingStrategy {
         sortOperation: SortOperation.Compare,
         swapCount: 0,
       };
-      if (array[i] <= array[j]) {
-        aux[k] = array[i];
+      if (left <= right) {
+        aux[k] = left;
         i += 1;
       } else {
-        aux[k] = array[j];
+        aux[k] = right;
         j += 1;
       }
       k += 1;
     }
-    let pendingAccesses = 0;
+    let pendingAccessCount = 0;
     while (i <= mid) {
       aux[k] = array[i];
       i += 1;
       k += 1;
-      pendingAccesses += 2;
+      pendingAccessCount += 1;
     }
     while (j <= hi) {
       aux[k] = array[j];
       j += 1;
       k += 1;
-      pendingAccesses += 2;
+      pendingAccessCount += 1;
     }
     for (let p = lo; p <= hi; p += 1) {
       array[p] = aux[p];
       yield {
-        accessCount: 2 + pendingAccesses,
+        accessCount: 1 + pendingAccessCount,
         comparisonCount: 0,
         highlights: [
           { color: RED, indices: [p], skipHighlightGroupTone: true },
@@ -64,7 +66,7 @@ abstract class MergeSortStrategy extends SortingStrategy {
         sortOperation: SortOperation.Inspect,
         swapCount: 0,
       };
-      pendingAccesses = 0;
+      pendingAccessCount = 0;
     }
   }
 }
