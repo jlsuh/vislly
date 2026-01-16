@@ -6,6 +6,20 @@ import type { JSX, PropsWithChildren } from 'react';
 
 const metadata: Metadata = {
   title: 'Vislly',
+  icons: {
+    icon: [
+      {
+        href: '/vislly/favicon-dark.svg',
+        media: '(prefers-color-scheme: dark)',
+        url: '/vislly/favicon-dark.svg',
+      },
+      {
+        href: '/vislly/favicon-light.svg',
+        media: '(prefers-color-scheme: light)',
+        url: '/vislly/favicon-light.svg',
+      },
+    ],
+  },
 };
 
 function RootLayout({ children }: PropsWithChildren): JSX.Element {
