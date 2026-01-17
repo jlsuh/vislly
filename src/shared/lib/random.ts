@@ -46,7 +46,7 @@ function fisherYatesShuffle<T>(values: T[]): T[] {
   let currentIndex = values.length;
   while (currentIndex !== 0) {
     const randomIndex = composeRandomFlooredIntegerBetween(0, currentIndex);
-    currentIndex--;
+    currentIndex -= 1;
     [values[currentIndex], values[randomIndex]] = [
       values[randomIndex],
       values[currentIndex],
