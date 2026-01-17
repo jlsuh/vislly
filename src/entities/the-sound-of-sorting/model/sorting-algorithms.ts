@@ -10,6 +10,7 @@ import { IntroSortStrategy } from './intro-sort-strategy.ts';
 import { KnuthGapsShellSortStrategy } from './knuth-gaps-shell-sort-strategy.ts';
 import { LomutoPartitionQuickSortStrategy } from './lomuto-partition-quick-sort-strategy.ts';
 import { LsdRadixSortStrategy } from './lsd-radix-sort-strategy.ts';
+import { MsdRadixSortStrategy } from './msd-radix-sort-strategy.ts';
 import { SelectionSortStrategy } from './selection-sort-strategy.ts';
 import { ShiftInsertionSortStrategy } from './shift-insertion-sort-strategy.ts';
 import type { SortingStrategy } from './sorting-strategy.ts';
@@ -32,6 +33,7 @@ const SortingAlgorithm = {
   LomutoPartitionQuickSort: 'lomuto-partition-quick-sort',
   IntroSort: 'intro-sort',
   LsdRadixSort: 'lsd-radix-sort',
+  MsdRadixSort: 'msd-radix-sort',
 } as const;
 
 type SortingAlgorithm =
@@ -132,6 +134,11 @@ const SORTING_ALGORITHMS: ReadonlyDeep<
     key: SortingAlgorithm.LsdRadixSort,
     label: 'LSD Radix Sort',
     strategy: new LsdRadixSortStrategy(),
+  },
+  [SortingAlgorithm.MsdRadixSort]: {
+    key: SortingAlgorithm.MsdRadixSort,
+    label: 'MSD Radix Sort',
+    strategy: new MsdRadixSortStrategy(),
   },
 };
 
