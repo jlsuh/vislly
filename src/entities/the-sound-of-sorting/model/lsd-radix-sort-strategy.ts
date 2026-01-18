@@ -3,7 +3,7 @@ import { RADIX, RadixSortStrategy } from './radix-sort-strategy.ts';
 import type { SortingStrategyYield } from './sorting-strategy.ts';
 
 class LsdRadixSortStrategy extends RadixSortStrategy {
-  private countingSorter = new CountingSortStrategy();
+  private countingSortStrategy = new CountingSortStrategy();
 
   public override *generator({
     array,
@@ -17,7 +17,7 @@ class LsdRadixSortStrategy extends RadixSortStrategy {
     const numberOfPasses = super.calculateNumberOfPasses(array);
     for (let pass = 0; pass < numberOfPasses; pass += 1) {
       const base = RADIX ** pass;
-      yield* this.countingSorter.sort(array, base);
+      yield* this.countingSortStrategy.sort(array, base);
     }
   }
 }
