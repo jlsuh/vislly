@@ -1,13 +1,11 @@
 import { CYAN, GREEN, RED } from '@/shared/lib/rgba.ts';
+import { RADIX, RadixSortStrategy } from './radix-sort-strategy.ts';
 import {
-  SortingStrategy,
   type SortingStrategyYield,
   SortOperation,
 } from './sorting-strategy.ts';
 
-const RADIX = 4;
-
-class MsdRadixSortStrategy extends SortingStrategy {
+class MsdRadixSortStrategy extends RadixSortStrategy {
   public override *generator({
     array,
   }: {
@@ -18,8 +16,7 @@ class MsdRadixSortStrategy extends SortingStrategy {
       return;
     }
     const pending = { accessCount: 0 };
-    const maxVal = Math.max(...array);
-    const numberOfPasses = Math.floor(Math.log(maxVal + 1) / Math.log(RADIX));
+    const numberOfPasses = super.calculateNumberOfPasses(array);
     yield* this.sort(array, 0, n, 0, numberOfPasses, pending);
   }
 
@@ -34,7 +31,7 @@ class MsdRadixSortStrategy extends SortingStrategy {
     if (depth > numberOfPasses || hi - lo <= 1) {
       return;
     }
-    const base = RADIX ** (numberOfPasses - depth);
+    const base = RADIX ** (numberOfPasses - 1 - depth);
     const count = yield* this.count(array, lo, hi, base, pending);
     const { bkt, boundaryIndices } = this.calculateBoundaries(count, lo, hi);
     yield* this.redistribute(
@@ -75,7 +72,7 @@ class MsdRadixSortStrategy extends SortingStrategy {
     for (let i = lo; i < hi; i += 1) {
       const val = array[i];
       pending.accessCount += 1;
-      const r = Math.floor(val / base) % RADIX;
+      const r = super.getDigit(val, base);
       count[r] += 1;
       yield {
         accessCount: pending.accessCount,
@@ -128,7 +125,7 @@ class MsdRadixSortStrategy extends SortingStrategy {
     for (let i = 0; i < hi - lo; ) {
       let val = array[lo + i];
       pending.accessCount += 1;
-      let r = Math.floor(val / base) % RADIX;
+      let r = super.getDigit(val, base);
       bkt[r] -= 1;
       let j = bkt[r];
       while (j > i) {
@@ -146,7 +143,7 @@ class MsdRadixSortStrategy extends SortingStrategy {
         };
         pending.accessCount = 1;
         val = array[lo + i];
-        r = Math.floor(val / base) % RADIX;
+        r = super.getDigit(val, base);
         bkt[r] -= 1;
         j = bkt[r];
       }
