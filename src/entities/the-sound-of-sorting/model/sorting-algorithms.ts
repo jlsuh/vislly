@@ -2,6 +2,7 @@ import type { ReadonlyDeep } from 'type-fest';
 import { BinaryInsertionSortStrategy } from './binary-insertion-sort-strategy.ts';
 import { BottomUpMergeSortStrategy } from './bottom-up-merge-sort-strategy.ts';
 import { BubbleSortStrategy } from './bubble-sort-strategy.ts';
+import { BucketSortStrategy } from './bucket-sort-strategy.ts';
 import { GnomeSortStrategy } from './gnome-sort-strategy.ts';
 import { HeapSortStrategy } from './heap-sort-strategy.ts';
 import { HoarePartitionQuickSortStrategy } from './hoare-partition-quick-sort-strategy.ts';
@@ -34,6 +35,7 @@ const SortingAlgorithm = {
   IntroSort: 'intro-sort',
   LsdRadixSort: 'lsd-radix-sort',
   MsdRadixSort: 'msd-radix-sort',
+  BucketSort: 'bucket-sort',
 } as const;
 
 type SortingAlgorithm =
@@ -139,6 +141,11 @@ const SORTING_ALGORITHMS: ReadonlyDeep<
     key: SortingAlgorithm.MsdRadixSort,
     label: 'MSD Radix Sort',
     strategy: new MsdRadixSortStrategy(),
+  },
+  [SortingAlgorithm.BucketSort]: {
+    key: SortingAlgorithm.BucketSort,
+    label: 'Bucket Sort',
+    strategy: new BucketSortStrategy(),
   },
 };
 
