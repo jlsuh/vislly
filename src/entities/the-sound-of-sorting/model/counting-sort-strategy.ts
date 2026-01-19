@@ -1,13 +1,13 @@
 import { CYAN, RED } from '@/shared/lib/rgba.ts';
-import { RADIX, RadixSortStrategy } from './radix-sort-strategy.ts';
 import type {
   HighlightGroup,
   SortingStrategyYield,
 } from './sorting-strategy.ts';
+import { SortingStrategy } from './sorting-strategy.ts';
 
 const identity = <T>(x: T): T => x;
 
-class CountingSortStrategy extends RadixSortStrategy {
+class CountingSortStrategy extends SortingStrategy {
   public override *generator({
     array,
   }: {
@@ -23,13 +23,15 @@ class CountingSortStrategy extends RadixSortStrategy {
 
   public *sort(
     array: number[],
-    base: number,
+    rangeSize: number,
+    keyExtractor: (val: number) => number,
+    isRadixMode: boolean = true,
   ): Generator<SortingStrategyYield, void, unknown> {
     yield* this.internalCountingSort(
       array,
-      RADIX,
-      (val) => super.getDigit(val, base),
-      true,
+      rangeSize,
+      keyExtractor,
+      isRadixMode,
     );
   }
 

@@ -1,5 +1,5 @@
 import { CYAN, GREEN, RED } from '@/shared/lib/rgba.ts';
-import { RADIX, RadixSortStrategy } from './radix-sort-strategy.ts';
+import { RadixSortStrategy } from './radix-sort-strategy.ts';
 import type { SortingStrategyYield } from './sorting-strategy.ts';
 
 class MsdRadixSortStrategy extends RadixSortStrategy {
@@ -28,7 +28,7 @@ class MsdRadixSortStrategy extends RadixSortStrategy {
     if (depth > numberOfPasses || hi - lo <= 1) {
       return;
     }
-    const base = RADIX ** (numberOfPasses - 1 - depth);
+    const base = RadixSortStrategy.RADIX ** (numberOfPasses - 1 - depth);
     const count = yield* this.count(array, lo, hi, base, pending);
     const { bkt, boundaryIndices } = this.calculateBoundaries(count, lo, hi);
     yield* this.redistribute(
@@ -42,7 +42,7 @@ class MsdRadixSortStrategy extends RadixSortStrategy {
       pending,
     );
     let nextLo = lo;
-    for (let i = 0; i < RADIX; i += 1) {
+    for (let i = 0; i < RadixSortStrategy.RADIX; i += 1) {
       const bucketSize = count[i];
       if (bucketSize > 1) {
         yield* this.sort(
@@ -65,7 +65,7 @@ class MsdRadixSortStrategy extends RadixSortStrategy {
     base: number,
     pending: { accessCount: number },
   ): Generator<SortingStrategyYield, number[], unknown> {
-    const count = new Array(RADIX).fill(0);
+    const count = new Array(RadixSortStrategy.RADIX).fill(0);
     for (let i = lo; i < hi; i += 1) {
       const val = array[i];
       pending.accessCount += 1;
@@ -91,9 +91,9 @@ class MsdRadixSortStrategy extends RadixSortStrategy {
     lo: number,
     hi: number,
   ): { bkt: number[]; boundaryIndices: number[] } {
-    const bkt = new Array(RADIX).fill(0);
+    const bkt = new Array(RadixSortStrategy.RADIX).fill(0);
     let sum = 0;
-    for (let i = 0; i < RADIX; i += 1) {
+    for (let i = 0; i < RadixSortStrategy.RADIX; i += 1) {
       sum += count[i];
       bkt[i] = sum;
     }

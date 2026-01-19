@@ -1,5 +1,5 @@
 import { CountingSortStrategy } from './counting-sort-strategy.ts';
-import { RADIX, RadixSortStrategy } from './radix-sort-strategy.ts';
+import { RadixSortStrategy } from './radix-sort-strategy.ts';
 import type { SortingStrategyYield } from './sorting-strategy.ts';
 
 class LsdRadixSortStrategy extends RadixSortStrategy {
@@ -16,8 +16,13 @@ class LsdRadixSortStrategy extends RadixSortStrategy {
     }
     const numberOfPasses = super.calculateNumberOfPasses(array);
     for (let pass = 0; pass < numberOfPasses; pass += 1) {
-      const base = RADIX ** pass;
-      yield* this.countingSortStrategy.sort(array, base);
+      const base = RadixSortStrategy.RADIX ** pass;
+      yield* this.countingSortStrategy.sort(
+        array,
+        RadixSortStrategy.RADIX,
+        (val) => this.getDigit(val, base),
+        true,
+      );
     }
   }
 }
