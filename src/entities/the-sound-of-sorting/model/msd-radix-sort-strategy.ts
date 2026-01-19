@@ -1,9 +1,6 @@
 import { CYAN, GREEN, RED } from '@/shared/lib/rgba.ts';
 import { RADIX, RadixSortStrategy } from './radix-sort-strategy.ts';
-import {
-  type SortingStrategyYield,
-  SortOperation,
-} from './sorting-strategy.ts';
+import type { SortingStrategyYield } from './sorting-strategy.ts';
 
 class MsdRadixSortStrategy extends RadixSortStrategy {
   public override *generator({
@@ -82,7 +79,6 @@ class MsdRadixSortStrategy extends RadixSortStrategy {
           { color: GREEN, indices: [lo, hi - 1], skipTone: true },
         ],
         shiftCount: 0,
-        sortOperation: SortOperation.Inspect,
         swapCount: 0,
       };
       pending.accessCount = 0;
@@ -138,7 +134,6 @@ class MsdRadixSortStrategy extends RadixSortStrategy {
             { color: CYAN, indices: boundaryIndices, skipTone: true },
           ],
           shiftCount: 0,
-          sortOperation: SortOperation.Swap,
           swapCount: 1,
         };
         pending.accessCount = 1;
@@ -154,7 +149,6 @@ class MsdRadixSortStrategy extends RadixSortStrategy {
       comparisonCount: 0,
       highlights: [{ color: CYAN, indices: [hi], skipTone: true }],
       shiftCount: 0,
-      sortOperation: SortOperation.Inspect,
       swapCount: 0,
     };
   }

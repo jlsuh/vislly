@@ -2,7 +2,6 @@ import { GREEN, RED } from '@/shared/lib/rgba.ts';
 import {
   SortingStrategy,
   type SortingStrategyYield,
-  SortOperation,
 } from './sorting-strategy.ts';
 
 /**
@@ -29,7 +28,6 @@ class PigeonholeSortStrategy extends SortingStrategy {
         comparisonCount: 0,
         highlights: [{ color: RED, indices: [i], skipTone: false }],
         shiftCount: 0,
-        sortOperation: SortOperation.Inspect,
         swapCount: 0,
       };
     }
@@ -43,7 +41,6 @@ class PigeonholeSortStrategy extends SortingStrategy {
           comparisonCount: 0,
           highlights: [{ color: GREEN, indices: [idx], skipTone: false }],
           shiftCount: 0,
-          sortOperation: SortOperation.Inspect,
           swapCount: 0,
         };
         idx += 1;

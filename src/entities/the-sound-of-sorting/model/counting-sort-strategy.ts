@@ -1,9 +1,8 @@
 import { CYAN, RED } from '@/shared/lib/rgba.ts';
 import { RADIX, RadixSortStrategy } from './radix-sort-strategy.ts';
-import {
-  type HighlightGroup,
-  type SortingStrategyYield,
-  SortOperation,
+import type {
+  HighlightGroup,
+  SortingStrategyYield,
 } from './sorting-strategy.ts';
 
 const identity = <T>(x: T): T => x;
@@ -55,7 +54,6 @@ class CountingSortStrategy extends RadixSortStrategy {
         comparisonCount: 0,
         highlights: [{ color: RED, indices: [i], skipTone: false }],
         shiftCount: 0,
-        sortOperation: SortOperation.Inspect,
         swapCount: 0,
       };
       pendingAccessCount = 0;
@@ -95,7 +93,6 @@ class CountingSortStrategy extends RadixSortStrategy {
         comparisonCount: 0,
         highlights,
         shiftCount: 0,
-        sortOperation: SortOperation.Inspect,
         swapCount: 0,
       };
       pendingAccessCount = 0;

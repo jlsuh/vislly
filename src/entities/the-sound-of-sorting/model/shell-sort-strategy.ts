@@ -3,7 +3,6 @@ import {
   type HighlightGroup,
   SortingStrategy,
   type SortingStrategyYield,
-  SortOperation,
 } from './sorting-strategy.ts';
 
 abstract class ShellSortStrategy extends SortingStrategy {
@@ -34,7 +33,6 @@ abstract class ShellSortStrategy extends SortingStrategy {
               ...additionalHighlights,
             ],
             shiftCount: 0,
-            sortOperation: SortOperation.Compare,
             swapCount: 0,
           };
           pendingAccessCount = 0;
@@ -48,7 +46,6 @@ abstract class ShellSortStrategy extends SortingStrategy {
                 ...additionalHighlights,
               ],
               shiftCount: 1,
-              sortOperation: SortOperation.Shift,
               swapCount: 0,
             };
             j -= h;
@@ -66,7 +63,6 @@ abstract class ShellSortStrategy extends SortingStrategy {
               ...additionalHighlights,
             ],
             shiftCount: 1,
-            sortOperation: SortOperation.Shift,
             swapCount: 0,
           };
         }

@@ -6,7 +6,6 @@ import {
 import {
   SortingStrategy,
   type SortingStrategyYield,
-  SortOperation,
 } from './sorting-strategy.ts';
 
 /**
@@ -111,7 +110,6 @@ abstract class QuickSortStrategy extends SortingStrategy {
       comparisonCount: 1,
       highlights: [{ color: RED, indices: [idxA, idxB], skipTone: false }],
       shiftCount: 0,
-      sortOperation: SortOperation.Compare,
       swapCount: 0,
     };
   }

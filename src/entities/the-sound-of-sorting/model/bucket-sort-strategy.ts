@@ -2,7 +2,6 @@ import { CYAN, RED } from '@/shared/lib/rgba.ts';
 import {
   SortingStrategy,
   type SortingStrategyYield,
-  SortOperation,
 } from './sorting-strategy.ts';
 import { SwapInsertionSortStrategy } from './swap-insertion-sort-strategy.ts';
 
@@ -43,7 +42,6 @@ class BucketSortStrategy extends SortingStrategy {
         comparisonCount: 0,
         highlights: [{ color: RED, indices: [i], skipTone: false }],
         shiftCount: 0,
-        sortOperation: SortOperation.Inspect,
         swapCount: 0,
       };
     }
@@ -64,7 +62,6 @@ class BucketSortStrategy extends SortingStrategy {
             { color: CYAN, indices: [currentIndex], skipTone: false },
           ],
           shiftCount: 0,
-          sortOperation: SortOperation.Inspect,
           swapCount: 0,
         };
         currentIndex += 1;

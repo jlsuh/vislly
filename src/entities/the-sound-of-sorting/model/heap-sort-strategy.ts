@@ -3,7 +3,6 @@ import {
   type HighlightGroup,
   SortingStrategy,
   type SortingStrategyYield,
-  SortOperation,
 } from './sorting-strategy.ts';
 
 const GOLDEN_ANGLE_DEG = 180 * (3 - Math.sqrt(5));
@@ -87,7 +86,6 @@ class HeapSortStrategy extends SortingStrategy {
             { color: GREEN, indices: [lo + n], skipTone: true },
           ],
           shiftCount: 0,
-          sortOperation: SortOperation.Compare,
           swapCount: 0,
         };
         if (isRightChildGreaterThanLeftChild) {
@@ -105,7 +103,6 @@ class HeapSortStrategy extends SortingStrategy {
           { color: GREEN, indices: [lo + n], skipTone: true },
         ],
         shiftCount: 0,
-        sortOperation: SortOperation.Compare,
         swapCount: 0,
       };
       if (isParentLargerOrEqualThanCurrentChild) {
@@ -121,7 +118,6 @@ class HeapSortStrategy extends SortingStrategy {
           { color: GREEN, indices: [lo + n], skipTone: true },
         ],
         shiftCount: 0,
-        sortOperation: SortOperation.Swap,
         swapCount: 1,
       };
       i = childIndex;
@@ -154,7 +150,6 @@ class HeapSortStrategy extends SortingStrategy {
           { color: GREEN, indices: [lo + size], skipTone: true },
         ],
         shiftCount: 0,
-        sortOperation: SortOperation.Swap,
         swapCount: 1,
       };
       yield* this.siftDown(array, 0, size, lo);
@@ -173,7 +168,6 @@ class HeapSortStrategy extends SortingStrategy {
       comparisonCount: 0,
       highlights: [{ color: GREEN, indices: [0], skipTone: true }],
       shiftCount: 0,
-      sortOperation: SortOperation.Inspect,
       swapCount: 0,
     };
   }

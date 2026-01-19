@@ -3,7 +3,6 @@ import {
   type HighlightGroup,
   SortingStrategy,
   type SortingStrategyYield,
-  SortOperation,
 } from './sorting-strategy.ts';
 
 class SwapInsertionSortStrategy extends SortingStrategy {
@@ -30,7 +29,6 @@ class SwapInsertionSortStrategy extends SortingStrategy {
             originGroup,
           ],
           shiftCount: 0,
-          sortOperation: SortOperation.Compare,
           swapCount: 0,
         };
         pendingAccessCount = 0;
@@ -44,7 +42,6 @@ class SwapInsertionSortStrategy extends SortingStrategy {
               originGroup,
             ],
             shiftCount: 0,
-            sortOperation: SortOperation.Swap,
             swapCount: 1,
           };
           j -= 1;

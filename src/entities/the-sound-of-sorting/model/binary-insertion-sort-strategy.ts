@@ -2,7 +2,6 @@ import { GREEN, RED } from '@/shared/lib/rgba.ts';
 import {
   SortingStrategy,
   type SortingStrategyYield,
-  SortOperation,
 } from './sorting-strategy.ts';
 
 class BinaryInsertionSortStrategy extends SortingStrategy {
@@ -31,7 +30,6 @@ class BinaryInsertionSortStrategy extends SortingStrategy {
             { color: GREEN, indices: [i], skipTone: true },
           ],
           shiftCount: 0,
-          sortOperation: SortOperation.Compare,
           swapCount: 0,
         };
         pendingAccessCount = 0;
@@ -46,7 +44,6 @@ class BinaryInsertionSortStrategy extends SortingStrategy {
             { color: GREEN, indices: [i], skipTone: true },
           ],
           shiftCount: 0,
-          sortOperation: SortOperation.Inspect,
           swapCount: 0,
         };
       }
@@ -60,7 +57,6 @@ class BinaryInsertionSortStrategy extends SortingStrategy {
             { color: GREEN, indices: [i], skipTone: true },
           ],
           shiftCount: 0,
-          sortOperation: SortOperation.Swap,
           swapCount: 1,
         };
         j -= 1;

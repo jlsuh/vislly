@@ -2,7 +2,6 @@ import { RED } from '@/shared/lib/rgba.ts';
 import {
   SortingStrategy,
   type SortingStrategyYield,
-  SortOperation,
 } from './sorting-strategy.ts';
 
 class BubbleSortStrategy extends SortingStrategy {
@@ -19,7 +18,6 @@ class BubbleSortStrategy extends SortingStrategy {
           comparisonCount: 1,
           highlights: [{ color: RED, indices: [j, j + 1], skipTone: false }],
           shiftCount: 0,
-          sortOperation: SortOperation.Compare,
           swapCount: 0,
         };
         if (shouldSwap) {
@@ -29,7 +27,6 @@ class BubbleSortStrategy extends SortingStrategy {
             comparisonCount: 0,
             highlights: [{ color: RED, indices: [j, j + 1], skipTone: true }],
             shiftCount: 0,
-            sortOperation: SortOperation.Swap,
             swapCount: 1,
           };
         }

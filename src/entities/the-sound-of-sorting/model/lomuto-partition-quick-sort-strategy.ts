@@ -1,9 +1,6 @@
 import { GREEN, RED } from '@/shared/lib/rgba.ts';
 import { type Partition, QuickSortStrategy } from './quick-sort-strategy.ts';
-import {
-  type SortingStrategyYield,
-  SortOperation,
-} from './sorting-strategy.ts';
+import type { SortingStrategyYield } from './sorting-strategy.ts';
 
 /**
  * @description Lomuto partition scheme as presented in CLRS Chapter 7 (Introduction to Algorithms).
@@ -21,7 +18,6 @@ class LomutoPartitionQuickSortStrategy extends QuickSortStrategy {
         comparisonCount: 0,
         highlights: [{ color: GREEN, indices: [pivotIdx], skipTone: true }],
         shiftCount: 0,
-        sortOperation: SortOperation.Inspect,
         swapCount: 0,
       };
       super.swap(array, pivotIdx, hi);
@@ -30,7 +26,6 @@ class LomutoPartitionQuickSortStrategy extends QuickSortStrategy {
         comparisonCount: 0,
         highlights: [{ color: GREEN, indices: [hi], skipTone: true }],
         shiftCount: 0,
-        sortOperation: SortOperation.Swap,
         swapCount: 1,
       };
     }
@@ -50,7 +45,6 @@ class LomutoPartitionQuickSortStrategy extends QuickSortStrategy {
           { color: GREEN, indices: [hi], skipTone: true },
         ],
         shiftCount: 0,
-        sortOperation: SortOperation.Compare,
         swapCount: 0,
       };
       pendingAccessCount = 0;
@@ -68,7 +62,6 @@ class LomutoPartitionQuickSortStrategy extends QuickSortStrategy {
               { color: GREEN, indices: [hi], skipTone: true },
             ],
             shiftCount: 0,
-            sortOperation: SortOperation.Swap,
             swapCount: 1 + pendingSwapCount,
           };
           pendingAccessCount = 0;
@@ -86,7 +79,6 @@ class LomutoPartitionQuickSortStrategy extends QuickSortStrategy {
         { color: GREEN, indices: [i], skipTone: true },
       ],
       shiftCount: 0,
-      sortOperation: SortOperation.Swap,
       swapCount: 1 + pendingSwapCount,
     };
     return [

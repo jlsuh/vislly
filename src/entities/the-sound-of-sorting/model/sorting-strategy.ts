@@ -1,14 +1,5 @@
 import type { QuickSortPivot } from './quick-sort-pivot.ts';
 
-const SortOperation = {
-  Compare: 0,
-  Inspect: 1,
-  Shift: 2,
-  Swap: 3,
-} as const;
-
-type SortOperation = (typeof SortOperation)[keyof typeof SortOperation];
-
 interface HighlightGroup {
   color: string;
   indices: number[];
@@ -21,7 +12,6 @@ interface SortingStrategyYield {
   highlights: HighlightGroup[];
   shiftCount: number;
   swapCount: number;
-  sortOperation: SortOperation;
 }
 
 abstract class SortingStrategy {
@@ -42,9 +32,4 @@ abstract class SortingStrategy {
   }): Generator<SortingStrategyYield, void, unknown>;
 }
 
-export {
-  SortingStrategy,
-  SortOperation,
-  type HighlightGroup,
-  type SortingStrategyYield,
-};
+export { SortingStrategy, type HighlightGroup, type SortingStrategyYield };

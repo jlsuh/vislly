@@ -1,9 +1,6 @@
 import { GREEN, RED } from '@/shared/lib/rgba.ts';
 import { type Partition, QuickSortStrategy } from './quick-sort-strategy.ts';
-import {
-  type SortingStrategyYield,
-  SortOperation,
-} from './sorting-strategy.ts';
+import type { SortingStrategyYield } from './sorting-strategy.ts';
 
 class HoarePartitionQuickSortStrategy extends QuickSortStrategy {
   protected override *partition(
@@ -51,7 +48,6 @@ class HoarePartitionQuickSortStrategy extends QuickSortStrategy {
           { color: GREEN, indices: [currentPivotIdx], skipTone: true },
         ],
         shiftCount: 0,
-        sortOperation: SortOperation.Swap,
         swapCount: 1,
       };
     }
@@ -75,7 +71,6 @@ class HoarePartitionQuickSortStrategy extends QuickSortStrategy {
           { color: GREEN, indices: [currentPivotIdx], skipTone: true },
         ],
         shiftCount: 0,
-        sortOperation: SortOperation.Compare,
         swapCount: 0,
       };
       pending.accessCount = 0;
@@ -93,7 +88,6 @@ class HoarePartitionQuickSortStrategy extends QuickSortStrategy {
       comparisonCount: 0,
       highlights: [{ color: GREEN, indices: [pivotIdx], skipTone: true }],
       shiftCount: 0,
-      sortOperation: SortOperation.Inspect,
       swapCount: 0,
     };
     if (pivotIdx !== lo) {
@@ -103,7 +97,6 @@ class HoarePartitionQuickSortStrategy extends QuickSortStrategy {
         comparisonCount: 0,
         highlights: [{ color: GREEN, indices: [lo], skipTone: true }],
         shiftCount: 0,
-        sortOperation: SortOperation.Swap,
         swapCount: 1,
       };
     }

@@ -3,7 +3,6 @@ import {
   type HighlightGroup,
   SortingStrategy,
   type SortingStrategyYield,
-  SortOperation,
 } from './sorting-strategy.ts';
 
 class SelectionSortStrategy extends SortingStrategy {
@@ -28,7 +27,6 @@ class SelectionSortStrategy extends SortingStrategy {
             delimiterGroup,
           ],
           shiftCount: 0,
-          sortOperation: SortOperation.Compare,
           swapCount: 0,
         };
         if (array[j] < array[minIdx]) {
@@ -45,7 +43,6 @@ class SelectionSortStrategy extends SortingStrategy {
             delimiterGroup,
           ],
           shiftCount: 0,
-          sortOperation: SortOperation.Swap,
           swapCount: 1,
         };
       }
