@@ -13,6 +13,7 @@ import { KnuthGapsShellSortStrategy } from './knuth-gaps-shell-sort-strategy.ts'
 import { LomutoPartitionQuickSortStrategy } from './lomuto-partition-quick-sort-strategy.ts';
 import { LsdRadixSortStrategy } from './lsd-radix-sort-strategy.ts';
 import { MsdRadixSortStrategy } from './msd-radix-sort-strategy.ts';
+import { PigeonholeSortStrategy } from './pigeonhole-sort-strategy.ts';
 import { SelectionSortStrategy } from './selection-sort-strategy.ts';
 import { ShiftInsertionSortStrategy } from './shift-insertion-sort-strategy.ts';
 import type { SortingStrategy } from './sorting-strategy.ts';
@@ -26,6 +27,7 @@ const SortingAlgorithm = {
   ShiftInsertionSort: 'shift-insertion-sort',
   SwapInsertionSort: 'swap-insertion-sort',
   GnomeSort: 'gnome-sort',
+  PigeonholeSort: 'pigeonhole-sort',
   IncerpiSedgewickGapsShellSort: 'incerpi-sedgewick-gaps-shell-sort',
   KnuthGapsShellSort: 'knuth-gaps-shell-sort',
   BottomUpMergeSort: 'bottom-up-merge-sort',
@@ -93,6 +95,11 @@ const SORTING_ALGORITHMS: ReadonlyDeep<
     key: SortingAlgorithm.GnomeSort,
     label: 'Gnome Sort',
     strategy: new GnomeSortStrategy(),
+  },
+  [SortingAlgorithm.PigeonholeSort]: {
+    key: SortingAlgorithm.PigeonholeSort,
+    label: 'Pigeonhole Sort',
+    strategy: new PigeonholeSortStrategy(),
   },
   [SortingAlgorithm.IncerpiSedgewickGapsShellSort]: {
     key: SortingAlgorithm.IncerpiSedgewickGapsShellSort,
