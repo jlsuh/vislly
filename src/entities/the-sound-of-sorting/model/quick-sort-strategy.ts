@@ -46,7 +46,7 @@ abstract class QuickSortStrategy extends SortingStrategy {
       return hi;
     }
     if (this.pivot === QuickSortPivot.Middle) {
-      return Math.floor((lo + hi) / 2);
+      return (lo + hi) >>> 1;
     }
     if (this.pivot === QuickSortPivot.Random) {
       return lo + Math.floor(Math.random() * (hi - lo + 1));
@@ -67,7 +67,7 @@ abstract class QuickSortStrategy extends SortingStrategy {
     lo: number,
     hi: number,
   ): Generator<SortingStrategyYield, number, unknown> {
-    const mid = Math.floor((lo + hi) / 2);
+    const mid = (lo + hi) >>> 1;
     yield* this.emitComparison(lo, mid);
     if (array[lo] === array[mid]) {
       return lo;

@@ -21,7 +21,7 @@ class HeapSortStrategy extends SortingStrategy {
   private initializeDepthHighlightGroups(n: number, offset: number): void {
     this.depthHighlightGroupsCache = [];
     const groupsRefMap = new Map<string, HighlightGroup>();
-    const firstLeafIndex = Math.floor(n / 2);
+    const firstLeafIndex = n >>> 1;
     for (let k = 0; k < n; k += 1) {
       const color = this.getIndexColor(k);
       let group = groupsRefMap.get(color);
@@ -132,7 +132,7 @@ class HeapSortStrategy extends SortingStrategy {
   ): Generator<SortingStrategyYield, void, unknown> {
     const n = hi - lo + 1;
     this.initializeDepthHighlightGroups(n, lo);
-    for (let i = Math.floor(n / 2) - 1; i >= 0; i -= 1) {
+    for (let i = (n >>> 1) - 1; i >= 0; i -= 1) {
       yield* this.siftDown(array, i, n, lo);
       this.revealDepthColorForIndex(lo + i, lo);
     }

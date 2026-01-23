@@ -24,7 +24,7 @@ class TopDownMergeSortStrategy extends MergeSortStrategy {
     if (hi <= lo) {
       return;
     }
-    const mid = lo + Math.floor((hi - lo) / 2);
+    const mid = lo + ((hi - lo) >>> 1);
     yield* this.sort(array, aux, lo, mid);
     yield* this.sort(array, aux, mid + 1, hi);
     yield* super.merge(array, aux, lo, mid, hi);

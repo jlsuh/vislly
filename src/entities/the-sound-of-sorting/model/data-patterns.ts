@@ -78,7 +78,7 @@ const DATA_PATTERNS: ReadonlyDeep<
       if (length === 0) return [];
       const arr = new Array(length);
       arr[0] = 1;
-      const midValue = Math.floor(length / 2) + 1;
+      const midValue = (length >>> 1) + 1;
       if (length > 2) {
         arr.fill(midValue, 1, length - 1);
       }

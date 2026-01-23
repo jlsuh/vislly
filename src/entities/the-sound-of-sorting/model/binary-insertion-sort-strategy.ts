@@ -16,7 +16,7 @@ class BinaryInsertionSortStrategy extends SortingStrategy {
       let lo = 0;
       let hi = i;
       while (lo < hi) {
-        const mid = Math.floor((lo + hi) / 2);
+        const mid = (lo + hi) >>> 1;
         if (key <= array[mid]) {
           hi = mid;
         } else {
