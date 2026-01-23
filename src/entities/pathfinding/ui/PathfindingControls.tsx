@@ -1,7 +1,7 @@
 'use client';
 
 import { type ChangeEvent, type JSX, use } from 'react';
-import { capitalizeFirstLetter } from '@/shared/lib/strings.ts';
+import { capitalizeFirstLetter } from '@/shared/lib/string.ts';
 import Button from '@/shared/ui/Button/Button.tsx';
 import Checkbox from '@/shared/ui/Checkbox/Checkbox.tsx';
 import ClearPathIcon from '@/shared/ui/ClearPathIcon/ClearPathIcon.tsx';

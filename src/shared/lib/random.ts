@@ -1,4 +1,4 @@
-import { integerRange } from './arrays.ts';
+import { integerRange } from './array.ts';
 
 function composeRandomAngle(): number {
   return Math.random() * 2 * Math.PI;

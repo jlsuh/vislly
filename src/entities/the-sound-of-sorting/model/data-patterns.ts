@@ -1,6 +1,5 @@
 import type { ReadonlyDeep } from 'type-fest';
-
-import { integerRange } from '@/shared/lib/arrays.ts';
+import { integerRange } from '@/shared/lib/array';
 import {
   composeFisherYatesIntegerRangeShuffle,
   fisherYatesShuffle,
