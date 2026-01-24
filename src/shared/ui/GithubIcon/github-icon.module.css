@@ -1,0 +1,9 @@
+.githubIcon {
+  fill: var(--color-on-surface);
+  height: 1.25rem;
+  width: 1.25rem;
+}
+
+.iconPath {
+  fill: var(--color-on-surface);
+}
