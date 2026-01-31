@@ -22,20 +22,20 @@
     "u:i": "bun update -i"
   },
   "dependencies": {
-    "next": "16.1.4",
-    "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "next": "16.1.6",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.3.12",
-    "@types/node": "25.0.10",
-    "@types/react": "19.2.9",
+    "@biomejs/biome": "2.3.13",
+    "@types/node": "25.1.0",
+    "@types/react": "19.2.10",
     "@types/react-dom": "19.2.3",
-    "@typescript/native-preview": "7.0.0-dev.20260124.1",
+    "@typescript/native-preview": "7.0.0-dev.20260130.1",
     "babel-plugin-react-compiler": "1.0.0",
     "dependency-cruiser": "17.3.7",
     "serve": "14.2.5",
-    "type-fest": "5.4.1",
+    "type-fest": "5.4.2",
     "typescript": "5.9.3"
   }
 }
