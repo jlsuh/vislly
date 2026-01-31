@@ -226,8 +226,8 @@ function TheSoundOfSorting(): JSX.Element {
     }
     const { done, value } = sortingGeneratorRef.current.next();
     if (done) {
-      activeHighlightsRef.current.clear();
       updateStats();
+      activeHighlightsRef.current.clear();
       draw({ activeHighlightsRef, arrayRef, canvasRef, maxRange });
       return true;
     }
@@ -236,13 +236,13 @@ function TheSoundOfSorting(): JSX.Element {
       .addComparisons(value.comparisonCount)
       .addShifts(value.shiftCount)
       .addSwaps(value.swapCount);
+    updateStats();
     activeHighlightsRef.current.clear();
     applySortStepEffects({
       highlightGroups: value.highlights,
       shouldArbitrarilySkipTone,
       toneDurationMs,
     });
-    updateStats();
     draw({ activeHighlightsRef, arrayRef, canvasRef, maxRange });
     return false;
   };
