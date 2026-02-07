@@ -3,12 +3,27 @@ import type { JSX } from 'react';
 import brownianMotion from '@/../public/images/brownian-motion.webp';
 import pathfinding from '@/../public/images/pathfinding.webp';
 import theSoundOfSorting from '@/../public/images/the-sound-of-sorting.webp';
+import wip from '@/../public/images/wip.webp';
 import PrefetchOnHoverLink from '@/shared/ui/PrefetchOnHoverLink/PrefetchOnHoverLink.tsx';
 import styles from './gallery-section.module.css';
 
 function GallerySection(): JSX.Element {
   return (
     <section className={styles.gallerySection}>
+      <PrefetchOnHoverLink href="/barcode-symbologies">
+        <figure className={styles.figure}>
+          <Image
+            alt="Barcode Symbologies"
+            className={styles.figureImage}
+            placeholder="blur"
+            priority={true}
+            src={wip}
+          />
+          <figcaption className={styles.figureCaption}>
+            Barcode Symbologies
+          </figcaption>
+        </figure>
+      </PrefetchOnHoverLink>
       <PrefetchOnHoverLink href="/the-sound-of-sorting">
         <figure className={styles.figure}>
           <Image

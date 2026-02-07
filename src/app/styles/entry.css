@@ -361,7 +361,7 @@
     h4,
     h5,
     h6 {
-      font-family: var(--monaspace);
+      font-family: var(--mona-sans);
     }
 
     color: var(--color-on-surface);

@@ -3,4 +3,7 @@
   overflow-anchor: none;
   padding: 0 4rem;
   width: 100%;
+  & h1:first-of-type {
+    text-align: center;
+  }
 }

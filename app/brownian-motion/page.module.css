@@ -2,4 +2,7 @@
   max-width: 60rem;
   padding: 0 2rem;
   width: 100%;
+  & h1:first-of-type {
+    text-align: center;
+  }
 }
