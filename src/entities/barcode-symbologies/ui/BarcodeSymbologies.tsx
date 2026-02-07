@@ -26,7 +26,7 @@ let barcode128Wasm: Promise<Barcode128> | null = null;
 function fetchBarcode128Wasm(): Promise<Barcode128> {
   if (!barcode128Wasm) {
     barcode128Wasm = (async () => {
-      const response = await fetch('/vislly/wasm/barcode_128.wasm');
+      const response = await fetch('/vislly/wasm/barcode_code_128.wasm');
       if (!response.ok) {
         throw new Error(
           `Failed to load WASM: ${response.status} ${response.statusText}`,
