@@ -333,7 +333,7 @@ void compose_code_set_C(RenderContext *ctx)
 
 int compose_checksum(int *next_symbol_idx)
 {
-    uint64_t dividend = symbol_buffer[0];
+    int dividend = symbol_buffer[0];
     for (int i = 1; i < *next_symbol_idx; i++)
         dividend += symbol_buffer[i] * i;
     return dividend % CHECKSUM_MODULO;
