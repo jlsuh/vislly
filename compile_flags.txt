@@ -1,3 +1,4 @@
 -Wall
 -Wextra
+-Wconversion
 -Isrc/shared/lib/graphics
