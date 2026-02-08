@@ -19,22 +19,31 @@ const BarcodeSymbology = {
 type BarcodeSymbology =
   (typeof BarcodeSymbology)[keyof typeof BarcodeSymbology];
 
+const CODE128_PATTERN = '^[\\x00-\\x7F]*$';
+
 const BARCODE_SYMBOLOGIES: Record<
   BarcodeSymbology,
   {
-    value: BarcodeSymbology;
+    allowedChars: RegExp;
     label: string;
+    paddingChar?: string;
+    targetLength?: number;
+    value: BarcodeSymbology;
     wasmFile: string;
   }
 > = {
   [BarcodeSymbology.Code128]: {
-    value: BarcodeSymbology.Code128,
+    allowedChars: new RegExp(CODE128_PATTERN),
     label: 'Code 128',
+    value: BarcodeSymbology.Code128,
     wasmFile: 'code_128.wasm',
   },
   [BarcodeSymbology.Ean13]: {
-    value: BarcodeSymbology.Ean13,
+    allowedChars: /^[0-9]*$/,
     label: 'EAN-13',
+    paddingChar: '0',
+    targetLength: 12,
+    value: BarcodeSymbology.Ean13,
     wasmFile: 'ean_13.wasm',
   },
 } as const;
@@ -54,11 +63,8 @@ function BarcodeSymbologies(): JSX.Element {
   const scaleSelectId = useId();
   const symbologySelectId = useId();
 
-  const activeConfig = BARCODE_SYMBOLOGIES[symbology];
-
-  const wasmPromise = fetchBarcodeWasm(activeConfig.wasmFile);
-  const wasmModule = use(wasmPromise);
-
+  const activeSymbology = BARCODE_SYMBOLOGIES[symbology];
+  const wasmModule = use(fetchBarcodeWasm(activeSymbology.wasmFile));
   const maxInputLength = wasmModule.get_max_input_length();
 
   const renderBarcode = useCallback(() => {
@@ -66,13 +72,20 @@ function BarcodeSymbologies(): JSX.Element {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+    let textToRender = inputText;
+    if (activeSymbology.paddingChar && activeSymbology.targetLength) {
+      textToRender = textToRender.padEnd(
+        activeSymbology.targetLength,
+        activeSymbology.paddingChar,
+      );
+    }
     wasmModule.set_dpr(scale);
     const inputPtr = wasmModule.get_data_buffer();
     const wasmMem = new Uint8Array(wasmModule.memory.buffer);
-    for (let i = 0; i < inputText.length; i += 1) {
-      wasmMem[inputPtr + i] = inputText.charCodeAt(i);
+    for (let i = 0; i < textToRender.length; i += 1) {
+      wasmMem[inputPtr + i] = textToRender.charCodeAt(i);
     }
-    wasmMem[inputPtr + inputText.length] = 0;
+    wasmMem[inputPtr + textToRender.length] = 0;
     wasmModule.render();
     const width = wasmModule.get_width();
     const height = wasmModule.get_height();
@@ -87,7 +100,7 @@ function BarcodeSymbologies(): JSX.Element {
     );
     const imageData = new ImageData(pixelData, width, height);
     ctx.putImageData(imageData, 0, 0);
-  }, [inputText, scale, wasmModule]);
+  }, [inputText, scale, wasmModule, activeSymbology]);
 
   useEffect(() => {
     renderBarcode();
@@ -103,16 +116,6 @@ function BarcodeSymbologies(): JSX.Element {
         width: '100%',
       }}
     >
-      <canvas
-        ref={canvasRef}
-        style={{
-          boxShadow: '0 0 20px rgba(0, 0, 0, 0.5)',
-          background: '#000',
-          maxWidth: '100%',
-          height: 'auto',
-          display: 'block',
-        }}
-      />
       <div
         style={{
           display: 'flex',
@@ -157,7 +160,12 @@ function BarcodeSymbologies(): JSX.Element {
           type="text"
           name="data"
           value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
+          onChange={(e) => {
+            const val = e.target.value;
+            if (activeSymbology.allowedChars.test(val)) {
+              setInputText(val);
+            }
+          }}
           maxLength={maxInputLength}
           placeholder="Enter data"
           style={{
@@ -197,6 +205,16 @@ function BarcodeSymbologies(): JSX.Element {
           </select>
         </div>
       </div>
+      <canvas
+        ref={canvasRef}
+        style={{
+          boxShadow: '0 0 20px rgba(0, 0, 0, 0.5)',
+          background: '#000',
+          maxWidth: '100%',
+          height: 'auto',
+          display: 'block',
+        }}
+      />
     </div>
   );
 }
