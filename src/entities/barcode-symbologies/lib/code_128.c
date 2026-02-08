@@ -7,56 +7,26 @@
 #define ASCII_NINE '9'
 #define NULL_TERMINATOR '\0'
 #define CARET '^'
+#define MAX_CONTROL_CHAR 31
+#define ASCII_SPACE 32
+#define CTRL_CHAR_OFFSET 64
+#define ASCII_UNDERSCORE 95
+#define ASCII_GRAVE_ACCENT 96
+#define ASCII_LOWER_A 97
+#define ASCII_LOWER_Z 122
+#define ASCII_DEL 127
 
 #define BUFFER_SIZE 65
-int get_max_input_length(void)
-{
-    return BUFFER_SIZE - 1;
-}
-
-char data_buffer[BUFFER_SIZE];
-char *get_data_buffer(void)
-{
-    return data_buffer;
-}
-
-int canvas_width = 0;
-int get_width(void)
-{
-    return canvas_width;
-}
-
-int canvas_height = 0;
-int get_height(void)
-{
-    return canvas_height;
-}
-
-int dpr = 1;
-void set_dpr(int user_dpr)
-{
-    if (user_dpr < 1)
-        user_dpr = 1;
-    if (user_dpr > 4)
-        user_dpr = 4;
-    dpr = user_dpr;
-}
-
 #define MAX_WIDTH 13000
 #define MAX_HEIGHT 1200
-
-uint32_t pixels[MAX_WIDTH * MAX_HEIGHT];
-uint32_t *get_pixel_buffer(void)
-{
-    return pixels;
-}
+#define CHECKSUM_MODULO 103
 
 #define BASE_BAR_HEIGHT_PX 160
 #define BASE_MODULE_WIDTH_PX 4
 #define BASE_VERTICAL_QUIET_ZONE_PX 30
 #define MODULES_PER_SYMBOL 11
 #define START_CHECK_STOP_SYMBOLS 3
-
+#define HORIZONTAL_QUIET_ZONE_MULTIPLIER 10
 #define C_BLACK 0xFF000000
 #define C_WHITE 0xFFFFFFFF
 
@@ -72,28 +42,40 @@ uint32_t *get_pixel_buffer(void)
 #define FNC_2 97
 #define FNC_3 96
 #define SENTINEL_FNC_4 107
-
 #define SHIFT 98
 #define START_A 103
 #define START_B 104
 #define START_C 105
 #define STOP 106
-
 #define FNC4_CODE_SET_A 101
 #define FNC4_CODE_SET_B 100
-#define MAX_CONTROL_CHAR 31
-#define ASCII_SPACE 32
-#define CTRL_CHAR_OFFSET 64
-#define ASCII_UNDERSCORE 95
-#define ASCII_GRAVE_ACCENT 96
-#define ASCII_LOWER_A 97
-#define ASCII_LOWER_Z 122
-#define ASCII_DEL 127
-#define CHECKSUM_MODULO 103
 
 #define PATTERN_WIDTHS_LEN 107
+#define KEYWORDS_LEN 37
 
+typedef struct {
+    const char *key;
+    int len;
+    int value;
+    int dest_code_set;
+} Keyword;
+
+typedef struct {
+    int *next_input_idx;
+    int *next_symbol_idx;
+    int *curr_code_set;
+    int data_len;
+} RenderContext;
+
+typedef void (*SymbolComposer)(RenderContext *ctx);
+
+char data_buffer[BUFFER_SIZE];
 int symbol_buffer[BUFFER_SIZE];
+uint32_t pixels[MAX_WIDTH * MAX_HEIGHT];
+
+int canvas_width = 0;
+int canvas_height = 0;
+int dpr = 1;
 
 const char *PATTERN_WIDTHS[PATTERN_WIDTHS_LEN] = {
     "212222", "222122", "222221", "121223", "121322", "131222", "122213",
@@ -113,67 +95,6 @@ const char *PATTERN_WIDTHS[PATTERN_WIDTHS_LEN] = {
     "411311", "113141", "114131", "311141", "411131", "211412", "211214",
     "211232", "233111"};
 
-static inline int char_to_digit(char c)
-{
-    return c - ASCII_ZERO;
-}
-
-int kernighan_ritchie_strlen(const char *s)
-{
-    int i = 0;
-    while (NULL_TERMINATOR != s[i])
-        ++i;
-    return i;
-}
-
-bool kernighan_ritchie_strncmp(const char *s1, const char *s2, int n)
-{
-    for (int i = 0; i < n; i++)
-        if (s1[i] != s2[i] || NULL_TERMINATOR == s1[i])
-            return false;
-    return true;
-}
-
-bool is_digit(char c)
-{
-    return c >= ASCII_ZERO && c <= ASCII_NINE;
-}
-
-bool is_optimizable_with_code_set_C(const char *buf, int index, int count,
-                                    int total_len)
-{
-    if (index + count > total_len)
-        return false;
-    for (int i = 0; i < count; i++)
-        if (!is_digit(buf[index + i]))
-            return false;
-    return true;
-}
-
-static inline int draw_pattern(Canvas *c, int x, int y,
-                               const char *pattern_width, int module_width,
-                               int h)
-{
-    int curr_x = x;
-    bool is_bar = true;
-    for (int i = 0; NULL_TERMINATOR != pattern_width[i]; i++) {
-        int width_px = char_to_digit(pattern_width[i]) * module_width;
-        if (is_bar)
-            canvas_fill_rect(c, curr_x, y, width_px, h, C_BLACK);
-        curr_x += width_px;
-        is_bar = !is_bar;
-    }
-    return curr_x - x;
-}
-
-typedef struct {
-    const char *key;
-    int len;
-    int value;
-    int dest_code_set;
-} Keyword;
-
-#define KEYWORDS_LEN 37
 Keyword KEYWORDS[KEYWORDS_LEN] = {{"NUL", 3, 64, CODE_SET_A},
                                   {"SOH", 3, 65, CODE_SET_A},
                                   {"STX", 3, 66, CODE_SET_A},
@@ -212,6 +133,43 @@ Keyword KEYWORDS[KEYWORDS_LEN] = {{"NUL", 3, 64, CODE_SET_A},
                                   {"FNC3", 4, FNC_3, ANY_CODE_SET},
                                   {"FNC4", 4, SENTINEL_FNC_4, ANY_CODE_SET}};
 
+static inline int char_to_digit(char c)
+{
+    return c - ASCII_ZERO;
+}
+
+int kernighan_ritchie_strlen(const char *s)
+{
+    int i = 0;
+    while (NULL_TERMINATOR != s[i])
+        ++i;
+    return i;
+}
+
+bool kernighan_ritchie_strncmp(const char *s1, const char *s2, int n)
+{
+    for (int i = 0; i < n; i++)
+        if (s1[i] != s2[i] || NULL_TERMINATOR == s1[i])
+            return false;
+    return true;
+}
+
+bool is_digit(char c)
+{
+    return c >= ASCII_ZERO && c <= ASCII_NINE;
+}
+
+bool is_optimizable_with_code_set_C(const char *buf, int index, int count,
+                                    int total_len)
+{
+    if (index + count > total_len)
+        return false;
+    for (int i = 0; i < count; i++)
+        if (!is_digit(buf[index + i]))
+            return false;
+    return true;
+}
+
 int match_keyword(const char *data_buffer, int idx)
 {
     if (CARET != data_buffer[idx])
@@ -223,14 +181,21 @@ int match_keyword(const char *data_buffer, int idx)
     return -1;
 }
 
-typedef struct {
-    int *next_input_idx;
-    int *next_symbol_idx;
-    int *curr_code_set;
-    int data_len;
-} RenderContext;
-
-typedef void (*CodeSetStrategy)(RenderContext *ctx);
+static inline int draw_pattern(Canvas *c, int x, int y,
+                               const char *pattern_width, int module_width,
+                               int h)
+{
+    int curr_x = x;
+    bool is_bar = true;
+    for (int i = 0; NULL_TERMINATOR != pattern_width[i]; i++) {
+        int width_px = char_to_digit(pattern_width[i]) * module_width;
+        if (is_bar)
+            canvas_fill_rect(c, curr_x, y, width_px, h, C_BLACK);
+        curr_x += width_px;
+        is_bar = !is_bar;
+    }
+    return curr_x - x;
+}
 
 static inline void switch_code_set(RenderContext *ctx, int new_subset,
                                    int symbol)
@@ -273,7 +238,7 @@ static inline bool parse_keyword(RenderContext *ctx)
     return true;
 }
 
-void process_code_set_A(RenderContext *ctx)
+void compose_code_set_A(RenderContext *ctx)
 {
     if (parse_keyword(ctx))
         return;
@@ -314,7 +279,7 @@ void process_code_set_A(RenderContext *ctx)
     }
 }
 
-void process_code_set_B(RenderContext *ctx)
+void compose_code_set_B(RenderContext *ctx)
 {
     if (parse_keyword(ctx))
         return;
@@ -351,7 +316,7 @@ void process_code_set_B(RenderContext *ctx)
     }
 }
 
-void process_code_set_C(RenderContext *ctx)
+void compose_code_set_C(RenderContext *ctx)
 {
     if (parse_keyword(ctx))
         return;
@@ -366,15 +331,58 @@ void process_code_set_C(RenderContext *ctx)
     }
 }
 
-CodeSetStrategy code_set_strategies[] = {process_code_set_A, process_code_set_B,
-                                         process_code_set_C};
+int compose_checksum(int *next_symbol_idx)
+{
+    uint64_t dividend = symbol_buffer[0];
+    for (int i = 1; i < *next_symbol_idx; i++)
+        dividend += symbol_buffer[i] * i;
+    return dividend % CHECKSUM_MODULO;
+}
+
+SymbolComposer code_set_composers[] = {compose_code_set_A, compose_code_set_B,
+                                       compose_code_set_C};
+
+int get_max_input_length(void)
+{
+    return BUFFER_SIZE - 1;
+}
+
+char *get_data_buffer(void)
+{
+    return data_buffer;
+}
+
+int get_width(void)
+{
+    return canvas_width;
+}
+
+int get_height(void)
+{
+    return canvas_height;
+}
+
+uint32_t *get_pixel_buffer(void)
+{
+    return pixels;
+}
+
+void set_dpr(int user_dpr)
+{
+    if (user_dpr < 1)
+        user_dpr = 1;
+    if (user_dpr > 4)
+        user_dpr = 4;
+    dpr = user_dpr;
+}
 
 void render(void)
 {
     int module_width_px = BASE_MODULE_WIDTH_PX * dpr;
     int bar_height_px = BASE_BAR_HEIGHT_PX * dpr;
     int vertical_quiet_zone_px = BASE_VERTICAL_QUIET_ZONE_PX * dpr;
-    int horizontal_quiet_zone_px = 10 * module_width_px;
+    int horizontal_quiet_zone_px =
+        HORIZONTAL_QUIET_ZONE_MULTIPLIER * module_width_px;
     int data_len = kernighan_ritchie_strlen(data_buffer);
     int next_symbol_idx = 0;
     int next_input_idx = 0;
@@ -395,11 +403,8 @@ void render(void)
         }
     }
     while (next_input_idx < data_len)
-        code_set_strategies[curr_code_set](&ctx);
-    uint64_t dividend = symbol_buffer[0];
-    for (int i = 1; i < next_symbol_idx; i++)
-        dividend += symbol_buffer[i] * i;
-    symbol_buffer[next_symbol_idx++] = dividend % CHECKSUM_MODULO;
+        code_set_composers[curr_code_set](&ctx);
+    symbol_buffer[next_symbol_idx++] = compose_checksum(&next_symbol_idx);
     symbol_buffer[next_symbol_idx++] = STOP;
     int total_modules = next_symbol_idx * MODULES_PER_SYMBOL + 2;
     canvas_width =
