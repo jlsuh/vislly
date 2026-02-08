@@ -93,7 +93,7 @@ uint32_t *get_pixel_buffer(void)
 
 #define PATTERN_WIDTHS_LEN 107
 
-int symbol_buffer[BUFFER_SIZE * 2];
+int symbol_buffer[BUFFER_SIZE];
 
 const char *PATTERN_WIDTHS[PATTERN_WIDTHS_LEN] = {
     "212222", "222122", "222221", "121223", "121322", "131222", "122213",
@@ -139,7 +139,7 @@ bool is_digit(char c)
     return c >= ASCII_ZERO && c <= ASCII_NINE;
 }
 
-bool is_optimizable_with_code_set_c(const char *buf, int index, int count,
+bool is_optimizable_with_code_set_C(const char *buf, int index, int count,
                                     int total_len)
 {
     if (index + count > total_len)
@@ -280,7 +280,7 @@ void process_code_set_A(RenderContext *ctx)
     bool is_escape_seq_ahead =
         (-1 != match_keyword(data_buffer, *ctx->next_input_idx));
     if (!is_escape_seq_ahead &&
-        is_optimizable_with_code_set_c(data_buffer, *ctx->next_input_idx, 4,
+        is_optimizable_with_code_set_C(data_buffer, *ctx->next_input_idx, 4,
                                        ctx->data_len)) {
         switch_code_set(ctx, CODE_SET_C, CODE_C);
         return;
@@ -321,7 +321,7 @@ void process_code_set_B(RenderContext *ctx)
     bool is_escape_seq_ahead =
         (-1 != match_keyword(data_buffer, *ctx->next_input_idx));
     if (!is_escape_seq_ahead &&
-        is_optimizable_with_code_set_c(data_buffer, *ctx->next_input_idx, 4,
+        is_optimizable_with_code_set_C(data_buffer, *ctx->next_input_idx, 4,
                                        ctx->data_len)) {
         switch_code_set(ctx, CODE_SET_C, CODE_C);
         return;
@@ -355,7 +355,7 @@ void process_code_set_C(RenderContext *ctx)
 {
     if (parse_keyword(ctx))
         return;
-    if (is_optimizable_with_code_set_c(data_buffer, *ctx->next_input_idx, 2,
+    if (is_optimizable_with_code_set_C(data_buffer, *ctx->next_input_idx, 2,
                                        ctx->data_len)) {
         int d1 = char_to_digit(data_buffer[*ctx->next_input_idx]);
         int d2 = char_to_digit(data_buffer[*ctx->next_input_idx + 1]);
@@ -383,7 +383,7 @@ void render(void)
                          .next_symbol_idx = &next_symbol_idx,
                          .curr_code_set = &curr_code_set,
                          .data_len = data_len};
-    if (is_optimizable_with_code_set_c(data_buffer, 0, 4, data_len)) {
+    if (is_optimizable_with_code_set_C(data_buffer, 0, 4, data_len)) {
         switch_code_set(&ctx, CODE_SET_C, START_C);
     } else {
         int keyword_idx = match_keyword(data_buffer, 0);
