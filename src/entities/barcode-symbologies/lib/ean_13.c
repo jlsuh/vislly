@@ -19,19 +19,20 @@
 #define C_WHITE 0xFFFFFFFF
 
 #define BUFFER_SIZE 13
-#define MAX_WIDTH 13000
-#define MAX_HEIGHT 1200
-#define DIGITS_COUNT 10
-#define TOTAL_MODULES_EAN13 95
 #define CHECKSUM_MODULO 10
 #define CHECKSUM_INDEX 12
 #define CHECKSUM_ODD_WEIGHT 3
+#define MAX_WIDTH 13000
+#define MAX_HEIGHT 1200
+#define DIGITS_COUNT 10
 #define GROUP_LEN 6
+#define TOTAL_MODULES_EAN13 95
 
 #define BASE_BAR_HEIGHT_PX 160
 #define BASE_MODULE_WIDTH_PX 4
 #define BASE_VERTICAL_QUIET_ZONE_PX 30
 #define HORIZONTAL_QUIET_ZONE_MULTIPLIER 10
+#define MARKER_EXTRA_HEIGHT_SCALAR 0.15f
 
 char data_buffer[BUFFER_SIZE];
 int symbol_buffer[BUFFER_SIZE];
@@ -151,13 +152,16 @@ void set_dpr(int user_dpr)
 void render(void)
 {
     int module_width_px = BASE_MODULE_WIDTH_PX * dpr;
-    int bar_height_px = BASE_BAR_HEIGHT_PX * dpr;
+    int regular_bar_height_px = BASE_BAR_HEIGHT_PX * dpr;
+    int marker_extra_height =
+        (int)((float)regular_bar_height_px * MARKER_EXTRA_HEIGHT_SCALAR + 0.5f);
+    int marker_bar_height_px = regular_bar_height_px + marker_extra_height;
     int vertical_quiet_zone_px = BASE_VERTICAL_QUIET_ZONE_PX * dpr;
     int horizontal_quiet_zone_px =
         HORIZONTAL_QUIET_ZONE_MULTIPLIER * module_width_px;
     canvas_width = (TOTAL_MODULES_EAN13 * module_width_px) +
                    (2 * horizontal_quiet_zone_px);
-    canvas_height = bar_height_px + (2 * vertical_quiet_zone_px);
+    canvas_height = marker_bar_height_px + (2 * vertical_quiet_zone_px);
     Canvas c = canvas_create(pixels, canvas_width, canvas_height);
     canvas_fill_rect(&c, 0, 0, canvas_width, canvas_height, C_WHITE);
     symbol_buffer[CHECKSUM_INDEX] = compose_checksum();
@@ -167,13 +171,14 @@ void render(void)
     int curr_symbol_idx = 1;
     const char *parity_pattern = PARITY_PATTERNS[first_digit];
     curr_x += draw_pattern(&c, MARKER_START, curr_x, curr_y, module_width_px,
-                           bar_height_px);
-    curr_x += draw_group(&c, curr_x, curr_y, module_width_px, bar_height_px,
-                         &curr_symbol_idx, parity_pattern);
+                           marker_bar_height_px);
+    curr_x +=
+        draw_group(&c, curr_x, curr_y, module_width_px, regular_bar_height_px,
+                   &curr_symbol_idx, parity_pattern);
     curr_x += draw_pattern(&c, MARKER_CENTER, curr_x, curr_y, module_width_px,
-                           bar_height_px);
-    curr_x += draw_group(&c, curr_x, curr_y, module_width_px, bar_height_px,
-                         &curr_symbol_idx, NULL);
+                           marker_bar_height_px);
+    curr_x += draw_group(&c, curr_x, curr_y, module_width_px,
+                         regular_bar_height_px, &curr_symbol_idx, NULL);
     curr_x += draw_pattern(&c, MARKER_END, curr_x, curr_y, module_width_px,
-                           bar_height_px);
+                           marker_bar_height_px);
 }
