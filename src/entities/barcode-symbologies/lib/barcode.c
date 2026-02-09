@@ -5,6 +5,9 @@
 
 uint32_t pixels[MAX_WIDTH * MAX_HEIGHT];
 
+char data_buffer[BARCODE_BUFFER_SIZE];
+int symbol_buffer[BARCODE_BUFFER_SIZE];
+
 int canvas_width = 0;
 int canvas_height = 0;
 int dpr = 1;

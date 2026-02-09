@@ -21,14 +21,11 @@
 
 #define MARKER_EXTRA_HEIGHT_SCALAR 0.15f
 
-#define EAN13_BUFFER_LEN 13
+#define EAN13_MAX_INPUT_LEN 12
 int get_max_input_length(void)
 {
-    return EAN13_BUFFER_LEN - 1;
+    return EAN13_MAX_INPUT_LEN;
 }
-
-char data_buffer[EAN13_BUFFER_LEN];
-int symbol_buffer[EAN13_BUFFER_LEN];
 
 const char *PARITY_PATTERNS[DIGITS_COUNT] = {
     "LLLLLL", "LLGLGG", "LLGGLG", "LLGGGL", "LGLLGG",

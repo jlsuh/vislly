@@ -20,11 +20,15 @@
 #define BASE_VERTICAL_QUIET_ZONE_PX 30
 #define HORIZONTAL_QUIET_ZONE_MULTIPLIER 10
 
+#define BARCODE_BUFFER_SIZE 256
+
 extern uint32_t pixels[MAX_WIDTH * MAX_HEIGHT];
 extern int canvas_width;
 extern int canvas_height;
 extern int dpr;
-extern char data_buffer[];
+
+extern char data_buffer[BARCODE_BUFFER_SIZE];
+extern int symbol_buffer[BARCODE_BUFFER_SIZE];
 
 int char_to_digit(char c);
 bool is_digit(char c);

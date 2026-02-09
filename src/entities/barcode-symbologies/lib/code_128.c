@@ -56,14 +56,11 @@ typedef struct {
 
 typedef void (*SymbolComposer)(RenderContext *ctx);
 
-#define CODE128_BUFFER_LEN 65
+#define CODE128_MAX_INPUT_LEN 64
 int get_max_input_length(void)
 {
-    return CODE128_BUFFER_LEN - 1;
+    return CODE128_MAX_INPUT_LEN;
 }
-
-char data_buffer[CODE128_BUFFER_LEN];
-int symbol_buffer[CODE128_BUFFER_LEN];
 
 const char *PATTERN_WIDTHS[PATTERN_WIDTHS_LEN] = {
     "212222", "222122", "222221", "121223", "121322", "131222", "122213",
