@@ -1,3 +1,6 @@
+import type { InputHTMLAttributes } from 'react';
+import type { ReadonlyDeep } from 'type-fest';
+
 const BarcodeSymbology = {
   Code128: 'code-128',
   Ean13: 'ean-13',
@@ -16,34 +19,40 @@ function assertIsBarcodeSymbology(
   }
 }
 
-const CODE128_PATTERN = '^[\\x00-\\x7F]*$';
+const CODE128_PATTERN = '[\\x00-\\x7F]*';
+const NUMERIC_PATTERN = '[0-9]*';
 
-const BARCODE_SYMBOLOGIES: Record<
-  BarcodeSymbology,
-  {
-    allowedChars: RegExp;
-    label: string;
-    paddingChar?: string;
-    targetLength?: number;
-    value: BarcodeSymbology;
-    wasmFile: string;
-  }
+type BarcodeConfig = {
+  allowedPattern: string;
+  inputMode: InputHTMLAttributes<HTMLInputElement>['inputMode'];
+  label: string;
+  rightPaddingChar?: string;
+  type: InputHTMLAttributes<HTMLInputElement>['type'];
+  value: BarcodeSymbology;
+  wasmFile: string;
+};
+
+const BARCODE_SYMBOLOGIES: ReadonlyDeep<
+  Record<BarcodeSymbology, BarcodeConfig>
 > = {
   [BarcodeSymbology.Code128]: {
-    allowedChars: new RegExp(CODE128_PATTERN),
+    allowedPattern: CODE128_PATTERN,
+    inputMode: 'text',
     label: 'Code 128',
+    type: 'text',
     value: BarcodeSymbology.Code128,
     wasmFile: 'code_128.wasm',
   },
   [BarcodeSymbology.Ean13]: {
-    allowedChars: /^[0-9]*$/,
+    allowedPattern: NUMERIC_PATTERN,
+    inputMode: 'numeric',
     label: 'EAN-13',
-    paddingChar: '0',
-    targetLength: 12,
+    rightPaddingChar: '0',
+    type: 'text',
     value: BarcodeSymbology.Ean13,
     wasmFile: 'ean_13.wasm',
   },
-} as const;
+};
 
 const INITIAL_SYMBOLOGY: BarcodeSymbology = BarcodeSymbology.Code128;
 

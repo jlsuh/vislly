@@ -6,10 +6,13 @@ import {
   use,
   useCallback,
   useEffect,
-  useId,
   useRef,
   useState,
 } from 'react';
+import type { ReadonlyDeep } from 'type-fest';
+import type { Option } from '@/shared/model/option.ts';
+import Input from '@/shared/ui/Input/Input';
+import Select from '@/shared/ui/Select/Select';
 import { fetchBarcodeWasm } from '../lib/barcode-wasm';
 import {
   assertIsBarcodeSymbology,
@@ -19,8 +22,15 @@ import {
 } from '../model/barcode-symbologies';
 import styles from './barcode-symbologies.module.css';
 
+const DPR_OPTIONS: ReadonlyDeep<Option[]> = [
+  { label: '1x', value: '1' },
+  { label: '2x', value: '2' },
+  { label: '3x', value: '3' },
+  { label: '4x', value: '4' },
+];
+
 function BarcodeSymbologies(): JSX.Element {
-  const [scale, setScale] = useState(
+  const [dpr, setDpr] = useState(
     Math.min(Math.ceil(window.devicePixelRatio || 1), 4),
   );
   const [inputText, setInputText] = useState('');
@@ -28,9 +38,6 @@ function BarcodeSymbologies(): JSX.Element {
     useState<BarcodeSymbology>(INITIAL_SYMBOLOGY);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  const scaleSelectId = useId();
-  const symbologySelectId = useId();
 
   const activeSymbology = BARCODE_SYMBOLOGIES[symbology];
   const barcodeWasm = use(fetchBarcodeWasm(activeSymbology.wasmFile));
@@ -45,19 +52,27 @@ function BarcodeSymbologies(): JSX.Element {
     setInputText('');
   };
 
+  const handleOnChangeBarcodeInput = (e: ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    const regex = new RegExp(`^${activeSymbology.allowedPattern}$`);
+    if (regex.test(val)) {
+      setInputText(val);
+    }
+  };
+
   const renderBarcode = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     let textToRender = inputText;
-    if (activeSymbology.paddingChar && activeSymbology.targetLength) {
+    if (activeSymbology.rightPaddingChar) {
       textToRender = textToRender.padEnd(
-        activeSymbology.targetLength,
-        activeSymbology.paddingChar,
+        maxInputLength,
+        activeSymbology.rightPaddingChar,
       );
     }
-    barcodeWasm.set_dpr(scale);
+    barcodeWasm.set_dpr(dpr);
     const inputPtr = barcodeWasm.get_data_buffer();
     const wasmMem = new Uint8Array(barcodeWasm.memory.buffer);
     for (let i = 0; i < textToRender.length; i += 1) {
@@ -69,7 +84,7 @@ function BarcodeSymbologies(): JSX.Element {
     const height = barcodeWasm.get_height();
     canvas.width = width;
     canvas.height = height;
-    canvas.style.width = `${width / scale}px`;
+    canvas.style.width = `${width / dpr}px`;
     const pixelPtr = barcodeWasm.get_pixel_buffer();
     const pixelData = new Uint8ClampedArray(
       barcodeWasm.memory.buffer,
@@ -78,7 +93,7 @@ function BarcodeSymbologies(): JSX.Element {
     );
     const imageData = new ImageData(pixelData, width, height);
     ctx.putImageData(imageData, 0, 0);
-  }, [activeSymbology, barcodeWasm, inputText, scale]);
+  }, [activeSymbology, barcodeWasm, dpr, inputText, maxInputLength]);
 
   useEffect(() => {
     renderBarcode();
@@ -87,53 +102,31 @@ function BarcodeSymbologies(): JSX.Element {
   return (
     <div className={styles.container}>
       <div className={styles.controls}>
-        <div className={styles.controlGroup}>
-          <label htmlFor={symbologySelectId} className={styles.label}>
-            Type:
-          </label>
-          <select
-            id={symbologySelectId}
+        <div className={styles.row}>
+          <Select
+            handleOnSelectChange={handleOnChangeBarcodeSymbology}
+            label="Barcode Type"
+            options={Object.values(BARCODE_SYMBOLOGIES)}
             value={symbology}
-            onChange={handleOnChangeBarcodeSymbology}
-            className={styles.select}
-          >
-            {Object.values(BARCODE_SYMBOLOGIES).map((config) => (
-              <option key={config.value} value={config.value}>
-                {config.label}
-              </option>
-            ))}
-          </select>
+          />
+          <Select
+            handleOnSelectChange={(e) => setDpr(+e.target.value)}
+            label="Device Pixel Ratio"
+            options={DPR_OPTIONS}
+            value={`${dpr}`}
+          />
         </div>
-        <input
-          type="text"
-          name="data"
-          value={inputText}
-          onChange={(e) => {
-            const val = e.target.value;
-            if (activeSymbology.allowedChars.test(val)) {
-              setInputText(val);
-            }
-          }}
+        <Input
+          handleOnChange={handleOnChangeBarcodeInput}
+          inputMode={activeSymbology.inputMode}
+          label="Barcode Data"
           maxLength={maxInputLength}
+          name="data"
+          pattern={activeSymbology.allowedPattern}
           placeholder="Enter data"
-          className={styles.input}
+          type={activeSymbology.type}
+          value={inputText}
         />
-        <div className={styles.controlGroup}>
-          <label htmlFor={scaleSelectId} className={styles.label}>
-            Scale:
-          </label>
-          <select
-            id={scaleSelectId}
-            value={scale}
-            onChange={(e) => setScale(+e.target.value)}
-            className={styles.select}
-          >
-            <option value={1}>1x</option>
-            <option value={2}>2x</option>
-            <option value={3}>3x</option>
-            <option value={4}>4x</option>
-          </select>
-        </div>
       </div>
       <div className={styles.canvasWrapper}>
         <canvas ref={canvasRef} className={styles.canvas} />
@@ -143,10 +136,10 @@ function BarcodeSymbologies(): JSX.Element {
         <span className={styles.codeBadge}>C code</span> running in your browser
         via WebAssembly.{' '}
         <a
-          href="https://github.com/jlsuh/vislly/tree/dev/src/entities/barcode-symbologies/lib"
-          target="_blank"
-          rel="noopener noreferrer"
           className={styles.link}
+          href="https://github.com/jlsuh/vislly/tree/dev/src/entities/barcode-symbologies/lib"
+          rel="noopener noreferrer"
+          target="_blank"
         >
           See the source code
         </a>

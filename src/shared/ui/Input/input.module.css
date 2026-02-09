@@ -1,0 +1,88 @@
+.sm {
+  --font-size-input: 0.75rem;
+  --font-size-label: 0.65rem;
+  --height: 2rem;
+  --padding-y: 0.5rem;
+}
+
+.md {
+  --font-size-input: 0.875rem;
+  --font-size-label: 0.75rem;
+  --height: 2.5rem;
+  --padding-y: 0.75rem;
+}
+
+.lg {
+  --font-size-input: 1rem;
+  --font-size-label: 0.85rem;
+  --height: 3.5rem;
+  --padding-y: 1rem;
+}
+
+.inputContainer {
+  border-radius: 0.5rem;
+  position: relative;
+  width: 100%;
+  &:has(.input:disabled) {
+    color: var(--color-on-surface-variant);
+  }
+  &:has(.input:disabled) .fieldset {
+    border-color: var(--color-surface-variant);
+  }
+}
+
+.fieldset {
+  border-radius: inherit;
+  border: 0.0625rem solid var(--color-outline);
+  inset: 0;
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  padding-left: 0.75rem;
+  pointer-events: none;
+  position: absolute;
+}
+
+.legend {
+  font-size: var(--font-size-label);
+  height: 0;
+  visibility: hidden;
+  & span {
+    padding-left: 0.3rem;
+    padding-right: 0.3rem;
+  }
+}
+
+.label {
+  color: var(--color-secondary);
+  font-size: var(--font-size-label);
+  left: 0;
+  line-height: 1;
+  padding: 0 0.3rem;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  transform: translate(0.75rem, -50%);
+  z-index: 1;
+}
+
+.input {
+  appearance: none;
+  background-color: transparent;
+  border: none;
+  color: var(--color-on-surface);
+  font-family: inherit;
+  font-size: var(--font-size-input);
+  padding: var(--padding-y) 1rem var(--padding-y) 1rem;
+  width: 100%;
+  &:disabled {
+    cursor: not-allowed;
+  }
+  &:focus {
+    outline: none;
+  }
+  &:focus ~ .fieldset {
+    border-color: var(--color-primary);
+    border-width: 0.125rem;
+  }
+}
