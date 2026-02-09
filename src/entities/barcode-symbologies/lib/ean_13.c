@@ -1,10 +1,7 @@
 #include <stddef.h>
 
+#include "barcode.h"
 #include "graphics.h"
-
-#define ASCII_ZERO '0'
-#define ASCII_NINE '9'
-#define NULL_TERMINATOR '\0'
 
 #define ENC_L 0
 #define ENC_G 1
@@ -15,32 +12,23 @@
 #define MARKER_CENTER "01010"
 #define MARKER_END "101"
 
-#define C_BLACK 0xFF000000
-#define C_WHITE 0xFFFFFFFF
-
-#define BUFFER_SIZE 13
 #define CHECKSUM_MODULO 10
 #define CHECKSUM_INDEX 12
 #define CHECKSUM_ODD_WEIGHT 3
-#define MAX_WIDTH 13000
-#define MAX_HEIGHT 1200
 #define DIGITS_COUNT 10
 #define GROUP_LEN 6
 #define TOTAL_MODULES_EAN13 95
 
-#define BASE_BAR_HEIGHT_PX 160
-#define BASE_MODULE_WIDTH_PX 4
-#define BASE_VERTICAL_QUIET_ZONE_PX 30
-#define HORIZONTAL_QUIET_ZONE_MULTIPLIER 10
 #define MARKER_EXTRA_HEIGHT_SCALAR 0.15f
 
-char data_buffer[BUFFER_SIZE];
-int symbol_buffer[BUFFER_SIZE];
-uint32_t pixels[MAX_WIDTH * MAX_HEIGHT];
+#define EAN13_BUFFER_LEN 13
+int get_max_input_length(void)
+{
+    return EAN13_BUFFER_LEN - 1;
+}
 
-int canvas_width = 0;
-int canvas_height = 0;
-int dpr = 1;
+char data_buffer[EAN13_BUFFER_LEN];
+int symbol_buffer[EAN13_BUFFER_LEN];
 
 const char *PARITY_PATTERNS[DIGITS_COUNT] = {
     "LLLLLL", "LLGLGG", "LLGGLG", "LLGGGL", "LGLLGG",
@@ -52,11 +40,6 @@ const char *ENCODING_TABLE[DIGITS_COUNT][ENCODING_TYPES_COUNT] = {
     {"0100011", "0011101", "1011100"}, {"0110001", "0111001", "1001110"},
     {"0101111", "0000101", "1010000"}, {"0111011", "0010001", "1000100"},
     {"0110111", "0001001", "1001000"}, {"0001011", "0010111", "1110100"}};
-
-static inline int char_to_digit(char c)
-{
-    return c - ASCII_ZERO;
-}
 
 static inline int get_encoding_type(char p)
 {
@@ -113,40 +96,6 @@ int draw_group(Canvas *c, int x, int y, int module_width, int bar_height,
                                       module_width, bar_height);
     }
     return curr_x_offset;
-}
-
-int get_max_input_length(void)
-{
-    return BUFFER_SIZE - 1;
-}
-
-char *get_data_buffer(void)
-{
-    return data_buffer;
-}
-
-int get_width(void)
-{
-    return canvas_width;
-}
-
-int get_height(void)
-{
-    return canvas_height;
-}
-
-uint32_t *get_pixel_buffer(void)
-{
-    return pixels;
-}
-
-void set_dpr(int user_dpr)
-{
-    if (user_dpr < 1)
-        user_dpr = 1;
-    if (user_dpr > 4)
-        user_dpr = 4;
-    dpr = user_dpr;
 }
 
 void render(void)

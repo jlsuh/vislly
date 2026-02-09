@@ -1,11 +1,9 @@
-#include "graphics.h"
-
 #include <stdbool.h>
 
+#include "barcode.h"
+#include "graphics.h"
+
 #define ASCII_NUL 0
-#define ASCII_ZERO '0'
-#define ASCII_NINE '9'
-#define NULL_TERMINATOR '\0'
 #define CARET '^'
 #define MAX_CONTROL_CHAR 31
 #define ASCII_SPACE 32
@@ -16,19 +14,8 @@
 #define ASCII_LOWER_Z 122
 #define ASCII_DEL 127
 
-#define BUFFER_SIZE 65
-#define MAX_WIDTH 13000
-#define MAX_HEIGHT 1200
 #define CHECKSUM_MODULO 103
-
-#define BASE_BAR_HEIGHT_PX 160
-#define BASE_MODULE_WIDTH_PX 4
-#define BASE_VERTICAL_QUIET_ZONE_PX 30
 #define MODULES_PER_SYMBOL 11
-#define START_CHECK_STOP_SYMBOLS 3
-#define HORIZONTAL_QUIET_ZONE_MULTIPLIER 10
-#define C_BLACK 0xFF000000
-#define C_WHITE 0xFFFFFFFF
 
 #define ANY_CODE_SET -1
 #define CODE_SET_A 0
@@ -69,13 +56,14 @@ typedef struct {
 
 typedef void (*SymbolComposer)(RenderContext *ctx);
 
-char data_buffer[BUFFER_SIZE];
-int symbol_buffer[BUFFER_SIZE];
-uint32_t pixels[MAX_WIDTH * MAX_HEIGHT];
+#define CODE128_BUFFER_LEN 65
+int get_max_input_length(void)
+{
+    return CODE128_BUFFER_LEN - 1;
+}
 
-int canvas_width = 0;
-int canvas_height = 0;
-int dpr = 1;
+char data_buffer[CODE128_BUFFER_LEN];
+int symbol_buffer[CODE128_BUFFER_LEN];
 
 const char *PATTERN_WIDTHS[PATTERN_WIDTHS_LEN] = {
     "212222", "222122", "222221", "121223", "121322", "131222", "122213",
@@ -132,32 +120,6 @@ Keyword KEYWORDS[KEYWORDS_LEN] = {{"NUL", 3, 64, CODE_SET_A},
                                   {"FNC2", 4, FNC_2, ANY_CODE_SET},
                                   {"FNC3", 4, FNC_3, ANY_CODE_SET},
                                   {"FNC4", 4, SENTINEL_FNC_4, ANY_CODE_SET}};
-
-static inline int char_to_digit(char c)
-{
-    return c - ASCII_ZERO;
-}
-
-int kernighan_ritchie_strlen(const char *s)
-{
-    int i = 0;
-    while (NULL_TERMINATOR != s[i])
-        ++i;
-    return i;
-}
-
-bool kernighan_ritchie_strncmp(const char *s1, const char *s2, int n)
-{
-    for (int i = 0; i < n; i++)
-        if (s1[i] != s2[i] || NULL_TERMINATOR == s1[i])
-            return false;
-    return true;
-}
-
-bool is_digit(char c)
-{
-    return c >= ASCII_ZERO && c <= ASCII_NINE;
-}
 
 bool is_optimizable_with_code_set_C(const char *buf, int index, int count,
                                     int total_len)
@@ -341,40 +303,6 @@ int compose_checksum(int *next_symbol_idx)
 
 SymbolComposer code_set_composers[] = {compose_code_set_A, compose_code_set_B,
                                        compose_code_set_C};
-
-int get_max_input_length(void)
-{
-    return BUFFER_SIZE - 1;
-}
-
-char *get_data_buffer(void)
-{
-    return data_buffer;
-}
-
-int get_width(void)
-{
-    return canvas_width;
-}
-
-int get_height(void)
-{
-    return canvas_height;
-}
-
-uint32_t *get_pixel_buffer(void)
-{
-    return pixels;
-}
-
-void set_dpr(int user_dpr)
-{
-    if (user_dpr < 1)
-        user_dpr = 1;
-    if (user_dpr > 4)
-        user_dpr = 4;
-    dpr = user_dpr;
-}
 
 void render(void)
 {

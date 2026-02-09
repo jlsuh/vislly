@@ -3,6 +3,7 @@ set -e
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 GRAPHICS_DIR="$PROJECT_ROOT/src/shared/lib/graphics"
+BARCODE_LIB_DIR="$PROJECT_ROOT/src/entities/barcode-symbologies/lib"
 OUT_DIR="$PROJECT_ROOT/public/wasm"
 CC="${CC:-clang}"
 
@@ -42,9 +43,10 @@ FLAGS=(
     "${EXPORTS[@]}"
     "-Wl,--allow-undefined"
     "-I$GRAPHICS_DIR" 
+    "-I$BARCODE_LIB_DIR"
 )
 
 echo "Compiling $FILENAME"
-"$CC" "${FLAGS[@]}" -o "$OUT_WASM" "$INPUT_SRC" "$GRAPHICS_DIR/graphics.c"
+"$CC" "${FLAGS[@]}" -o "$OUT_WASM" "$INPUT_SRC" "$GRAPHICS_DIR/graphics.c" "$BARCODE_LIB_DIR/barcode.c"
 
 echo "Built: $OUT_WASM"
