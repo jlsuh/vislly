@@ -1,0 +1,90 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+}
+
+.controls {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: var(--color-surface-container);
+  border: 1px solid var(--color-outline-variant);
+}
+
+.controlGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.label {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.select,
+.input {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--color-outline);
+  background-color: var(--color-surface-container-high);
+  font-family: var(--monaspace);
+  outline: none;
+}
+
+.select:focus-visible,
+.input:focus-visible {
+  border-color: var(--color-primary);
+}
+
+.select {
+  cursor: pointer;
+}
+
+.canvasWrapper {
+  background-color: #ffffff;
+  box-shadow: var(--elevation-level-2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.canvas {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.description {
+  font-size: 0.875rem;
+  color: var(--color-on-surface-variant);
+  text-align: center;
+  max-width: 500px;
+}
+
+.codeBadge {
+  color: var(--color-on-secondary-container);
+  background-color: var(--color-secondary-container);
+  font-family: var(--monaspace);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.85em;
+}
+
+.link {
+  color: var(--color-primary);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--color-primary);
+}
+
+.link:hover,
+.link:focus-visible {
+  opacity: 0.8;
+  outline: none;
+  border-bottom-style: solid;
+}

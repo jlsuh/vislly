@@ -17,6 +17,7 @@ import {
   type BarcodeSymbology,
   INITIAL_SYMBOLOGY,
 } from '../model/barcode-symbologies';
+import styles from './barcode-symbologies.module.css';
 
 function BarcodeSymbologies(): JSX.Element {
   const [scale, setScale] = useState(
@@ -77,51 +78,24 @@ function BarcodeSymbologies(): JSX.Element {
     );
     const imageData = new ImageData(pixelData, width, height);
     ctx.putImageData(imageData, 0, 0);
-  }, [activeSymbology, inputText, scale, barcodeWasm]);
+  }, [activeSymbology, barcodeWasm, inputText, scale]);
 
   useEffect(() => {
     renderBarcode();
   }, [renderBarcode]);
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '20px',
-        width: '100%',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          gap: '10px',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          justifyContent: 'center',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-          <label
-            htmlFor={symbologySelectId}
-            style={{ fontSize: '0.9rem', color: '#aaa' }}
-          >
+    <div className={styles.container}>
+      <div className={styles.controls}>
+        <div className={styles.controlGroup}>
+          <label htmlFor={symbologySelectId} className={styles.label}>
             Type:
           </label>
           <select
             id={symbologySelectId}
             value={symbology}
             onChange={handleOnChangeBarcodeSymbology}
-            style={{
-              padding: '8px',
-              borderRadius: '4px',
-              border: '1px solid #555',
-              background: '#333',
-              color: 'white',
-              fontFamily: 'monospace',
-              cursor: 'pointer',
-            }}
+            className={styles.select}
           >
             {Object.values(BARCODE_SYMBOLOGIES).map((config) => (
               <option key={config.value} value={config.value}>
@@ -142,35 +116,17 @@ function BarcodeSymbologies(): JSX.Element {
           }}
           maxLength={maxInputLength}
           placeholder="Enter data"
-          style={{
-            padding: '8px',
-            borderRadius: '4px',
-            border: '1px solid #555',
-            background: '#333',
-            color: 'white',
-            fontFamily: 'monospace',
-          }}
+          className={styles.input}
         />
-        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-          <label
-            htmlFor={scaleSelectId}
-            style={{ fontSize: '0.9rem', color: '#aaa' }}
-          >
+        <div className={styles.controlGroup}>
+          <label htmlFor={scaleSelectId} className={styles.label}>
             Scale:
           </label>
           <select
             id={scaleSelectId}
             value={scale}
             onChange={(e) => setScale(+e.target.value)}
-            style={{
-              padding: '8px',
-              borderRadius: '4px',
-              border: '1px solid #555',
-              background: '#333',
-              color: 'white',
-              fontFamily: 'monospace',
-              cursor: 'pointer',
-            }}
+            className={styles.select}
           >
             <option value={1}>1x</option>
             <option value={2}>2x</option>
@@ -179,16 +135,22 @@ function BarcodeSymbologies(): JSX.Element {
           </select>
         </div>
       </div>
-      <canvas
-        ref={canvasRef}
-        style={{
-          boxShadow: '0 0 20px rgba(0, 0, 0, 0.5)',
-          background: '#000',
-          maxWidth: '100%',
-          height: 'auto',
-          display: 'block',
-        }}
-      />
+      <div className={styles.canvasWrapper}>
+        <canvas ref={canvasRef} className={styles.canvas} />
+      </div>
+      <p className={styles.description}>
+        ⚡️ This barcode is generated on the fly by raw{' '}
+        <span className={styles.codeBadge}>C code</span> running in your browser
+        via WebAssembly.{' '}
+        <a
+          href="https://github.com/jlsuh/vislly/tree/dev/src/entities/barcode-symbologies/lib"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.link}
+        >
+          See the source code
+        </a>
+      </p>
     </div>
   );
 }
