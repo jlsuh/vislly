@@ -1,17 +1,14 @@
 import { type ChangeEvent, type JSX, useId } from 'react';
+import type { ReadonlyDeep } from 'type-fest';
+import type { Option } from '@/shared/model/option.ts';
 import styles from './select.module.css';
-
-type Option = {
-  label: string;
-  value: string;
-};
 
 type SelectSize = 'sm' | 'md' | 'lg';
 
 type SelectProps = {
   disabled?: boolean;
   label: string;
-  options: Option[];
+  options: ReadonlyDeep<Option[]>;
   size?: SelectSize;
   value: string | null;
   handleOnSelectChange: (e: ChangeEvent<HTMLSelectElement>) => void;
