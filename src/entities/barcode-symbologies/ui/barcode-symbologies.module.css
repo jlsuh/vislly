@@ -30,6 +30,16 @@
   }
 }
 
+.canvasWrapper {
+  align-items: center;
+  background-color: var(--color-on-primary-light);
+  border-radius: 0.5rem;
+  box-shadow: var(--elevation-level-1);
+  display: flex;
+  justify-content: center;
+  min-height: 16rem;
+}
+
 .canvas {
   display: block;
   max-width: 100%;
