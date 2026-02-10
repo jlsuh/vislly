@@ -47,20 +47,6 @@ static inline int get_encoding_type(char p)
     return ENC_R;
 }
 
-int draw_pattern(Canvas *c, const char *pattern, int x, int y, int module_width,
-                 int bar_height)
-{
-    int i = 0;
-    while (pattern[i] != NULL_TERMINATOR) {
-        if (pattern[i] == '1') {
-            canvas_fill_rect(c, x, y, module_width, bar_height, C_BLACK);
-        }
-        x += module_width;
-        i++;
-    }
-    return i * module_width;
-}
-
 int compose_checksum(void)
 {
     int sum_odd = 0;

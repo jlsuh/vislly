@@ -5,6 +5,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "graphics.h"
+
 #define ASCII_ZERO '0'
 #define ASCII_NINE '9'
 #define NULL_TERMINATOR '\0'
@@ -34,12 +36,14 @@ int char_to_digit(char c);
 bool is_digit(char c);
 int kernighan_ritchie_strlen(const char *s);
 bool kernighan_ritchie_strncmp(const char *s1, const char *s2, int n);
-void set_dpr(int user_dpr);
+int draw_pattern(Canvas *c, const char *pattern, int x, int y, int module_width,
+                 int bar_height);
 
-int get_width(void);
-int get_height(void);
-uint32_t *get_pixel_buffer(void);
 char *get_data_buffer(void);
+int get_height(void);
 int get_max_input_length(void);
+uint32_t *get_pixel_buffer(void);
+int get_width(void);
+void set_dpr(int user_dpr);
 
 #endif // BARCODE_H_

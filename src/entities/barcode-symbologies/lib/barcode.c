@@ -2,6 +2,7 @@
 #include <stdint.h>
 
 #include "barcode.h"
+#include "graphics.h"
 
 uint32_t pixels[MAX_WIDTH * MAX_HEIGHT];
 
@@ -65,4 +66,19 @@ uint32_t *get_pixel_buffer(void)
 char *get_data_buffer(void)
 {
     return data_buffer;
+}
+
+int draw_pattern(Canvas *c, const char *pattern, int x, int y, int module_width,
+                 int bar_height)
+{
+    int curr_x = x;
+    int i = 0;
+    while (pattern[i] != NULL_TERMINATOR) {
+        if (pattern[i] == '1') {
+            canvas_fill_rect(c, curr_x, y, module_width, bar_height, C_BLACK);
+        }
+        curr_x += module_width;
+        i++;
+    }
+    return curr_x - x;
 }
