@@ -17,12 +17,15 @@ const PathfindingAlgorithm = {
 type PathfindingAlgorithm =
   (typeof PathfindingAlgorithm)[keyof typeof PathfindingAlgorithm];
 
+const PATHFINDING_ALGORITHM_VALUES: PathfindingAlgorithm[] =
+  Object.values(PathfindingAlgorithm);
+
 function assertIsPathfindingAlgorithm(
   value: unknown,
 ): asserts value is PathfindingAlgorithm {
   if (
     typeof value !== 'string' ||
-    !Object.values(PathfindingAlgorithm).includes(value as PathfindingAlgorithm)
+    !PATHFINDING_ALGORITHM_VALUES.includes(value as PathfindingAlgorithm)
   ) {
     throw new Error(`Invalid pathfinding algorithm: ${value}`);
   }

@@ -169,6 +169,12 @@ function TheSoundOfSortingControls({
 
   const currentStrategy = SORTING_ALGORITHMS[sortingAlgorithm].strategy;
 
+  const isSelectPivotDisabled =
+    isSortingOrVerifying || !currentStrategy.requiresPivot;
+
+  const isStepButtonDisabled =
+    status === SortingStatus.Finished || isSortingOrVerifying;
+
   const handleOnChangePivot = (e: ChangeEvent<HTMLSelectElement>) => {
     const { target } = e;
     const { value } = target;
@@ -197,7 +203,7 @@ function TheSoundOfSortingControls({
           handleOnSelectChange={handleOnChangeDataPattern}
         />
         <Select
-          disabled={isSortingOrVerifying || !currentStrategy.requiresPivot}
+          disabled={isSelectPivotDisabled}
           label="Pivot Rule"
           options={QUICK_SORT_PIVOTS_OPTIONS}
           size="sm"
@@ -234,7 +240,7 @@ function TheSoundOfSortingControls({
           onClick={primaryAction.handler}
         />
         <Button
-          disabled={status === SortingStatus.Finished || isSortingOrVerifying}
+          disabled={isStepButtonDisabled}
           fullWidth
           icon={<StepIcon />}
           label="Step"

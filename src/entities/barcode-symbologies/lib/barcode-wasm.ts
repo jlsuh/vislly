@@ -1,3 +1,5 @@
+import type { ReadonlyDeep } from 'type-fest';
+import { keysFromObject } from '@/shared/lib/array.ts';
 import { fetchWasm } from '@/shared/lib/wasm';
 
 interface BarcodeWasm {
@@ -11,20 +13,16 @@ interface BarcodeWasm {
   set_dpr: (newDpr: number) => void;
 }
 
-const REQUIRED_FUNCTIONS_MAP: Record<
-  Exclude<keyof BarcodeWasm, 'memory'>,
-  true
-> = {
-  get_data_buffer: true,
-  get_height: true,
-  get_max_input_length: true,
-  get_pixel_buffer: true,
-  get_width: true,
-  render: true,
-  set_dpr: true,
-};
-
-const REQUIRED_FUNCTIONS = Object.keys(REQUIRED_FUNCTIONS_MAP);
+const REQUIRED_FUNCTIONS: ReadonlyDeep<Exclude<keyof BarcodeWasm, 'memory'>[]> =
+  keysFromObject({
+    get_data_buffer: true,
+    get_height: true,
+    get_max_input_length: true,
+    get_pixel_buffer: true,
+    get_width: true,
+    render: true,
+    set_dpr: true,
+  });
 
 const barcodeWasmCache = new Map<string, Promise<BarcodeWasm>>();
 

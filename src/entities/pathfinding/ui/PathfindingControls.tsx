@@ -24,6 +24,23 @@ import { assertIsVertexName, VERTEX_NAMES } from '../model/vertex.ts';
 import PathfindingContext from './PathfindingContext.tsx';
 import styles from './pathfinding-controls.module.css';
 
+const VERTEX_TYPE_OPTIONS = VERTEX_NAMES.map((vertexName) => ({
+  value: vertexName,
+  label: capitalizeFirstLetter(vertexName),
+}));
+
+const PATHFINDING_ALGORITHM_OPTIONS = Object.values(PATHFINDING_ALGORITHMS).map(
+  ({ key }) => ({
+    value: key,
+    label: PATHFINDING_ALGORITHMS[key].label,
+  }),
+);
+
+const HEURISTICS_OPTIONS = Object.values(HeuristicsNames).map((heuristics) => ({
+  value: heuristics,
+  label: capitalizeFirstLetter(heuristics),
+}));
+
 function PathfindingControls(): JSX.Element {
   const {
     isAnimationRunning,
@@ -43,49 +60,57 @@ function PathfindingControls(): JSX.Element {
     setSelectedVertexName,
   } = use(PathfindingContext);
 
+  const isHeuristicsDisabled =
+    !PATHFINDING_ALGORITHMS[selectedAlgorithmName].withHeuristics;
+
+  const mainButtonIcon = isAnimationRunning ? <PauseIcon /> : <PlayIcon />;
+  const mainButtonLabel = isAnimationRunning ? 'Pause' : 'Play';
+  const handleOnClickMainButton = isAnimationRunning ? pausePathfind : findPath;
+
+  const handleOnChangeVertexType = (e: ChangeEvent<HTMLSelectElement>) => {
+    const { value } = e.target;
+    assertIsVertexName(value);
+    setSelectedVertexName(value);
+  };
+
+  const handleOnChangePathfindingAlgorithm = (
+    e: ChangeEvent<HTMLSelectElement>,
+  ) => {
+    const { value } = e.target;
+    assertIsPathfindingAlgorithm(value);
+    setSelectedAlgorithmName(value);
+  };
+
+  const handleOnChangeHeuristics = (e: ChangeEvent<HTMLSelectElement>) => {
+    const { value } = e.target;
+    assertIsHeuristicsName(value);
+    setSelectedHeuristicsName(value);
+  };
+
+  const handleOnChangeAllowDiagonalTraversal = (
+    e: ChangeEvent<HTMLInputElement>,
+  ) => setIsDiagonalAllowed(e.target.checked);
+
   return (
     <section className={styles.pathfindingControlsContainer}>
       <div className={styles.pathfindingSelectsContainer}>
         <Select
-          handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
-            const { value } = e.target;
-            assertIsVertexName(value);
-            setSelectedVertexName(value);
-          }}
+          handleOnSelectChange={handleOnChangeVertexType}
           label="Vertex type"
-          options={VERTEX_NAMES.map((vertexName) => ({
-            value: vertexName,
-            label: capitalizeFirstLetter(vertexName),
-          }))}
+          options={VERTEX_TYPE_OPTIONS}
           value={selectedVertexName}
         />
         <Select
-          handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
-            const { value } = e.target;
-            assertIsPathfindingAlgorithm(value);
-            setSelectedAlgorithmName(value);
-          }}
+          handleOnSelectChange={handleOnChangePathfindingAlgorithm}
           label="Pathfinding algorithm"
-          options={Object.values(PATHFINDING_ALGORITHMS).map(({ key }) => ({
-            value: key,
-            label: PATHFINDING_ALGORITHMS[key].label,
-          }))}
+          options={PATHFINDING_ALGORITHM_OPTIONS}
           value={selectedAlgorithmName}
         />
         <Select
-          disabled={
-            !PATHFINDING_ALGORITHMS[selectedAlgorithmName].withHeuristics
-          }
-          handleOnSelectChange={(e: ChangeEvent<HTMLSelectElement>) => {
-            const { value } = e.target;
-            assertIsHeuristicsName(value);
-            setSelectedHeuristicsName(value);
-          }}
+          disabled={isHeuristicsDisabled}
+          handleOnSelectChange={handleOnChangeHeuristics}
           label="Heuristics"
-          options={Object.values(HeuristicsNames).map((heuristics) => ({
-            value: heuristics,
-            label: capitalizeFirstLetter(heuristics),
-          }))}
+          options={HEURISTICS_OPTIONS}
           value={selectedHeuristicsName}
         />
       </div>
@@ -94,9 +119,7 @@ function PathfindingControls(): JSX.Element {
         <Checkbox
           checked={isDiagonalAllowed}
           disabled={false}
-          handleOnChangeCheckbox={(e: ChangeEvent<HTMLInputElement>) =>
-            setIsDiagonalAllowed(e.target.checked)
-          }
+          handleOnChangeCheckbox={handleOnChangeAllowDiagonalTraversal}
           label="Allow diagonal traversal"
         />
       </div>
@@ -104,9 +127,9 @@ function PathfindingControls(): JSX.Element {
       <div className={styles.pathfindingButtonsContainer}>
         <Button
           fullWidth
-          icon={isAnimationRunning ? <PauseIcon /> : <PlayIcon />}
-          label={isAnimationRunning ? 'Pause' : 'Play'}
-          onClick={isAnimationRunning ? pausePathfind : findPath}
+          icon={mainButtonIcon}
+          label={mainButtonLabel}
+          onClick={handleOnClickMainButton}
         />
         <Button
           fullWidth

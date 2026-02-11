@@ -1,5 +1,6 @@
 import type { InputHTMLAttributes } from 'react';
 import type { ReadonlyDeep } from 'type-fest';
+import type { Option } from '@/shared/model/option.ts';
 
 const BarcodeSymbology = {
   Code128: 'code-128',
@@ -54,10 +55,18 @@ const BARCODE_SYMBOLOGIES: ReadonlyDeep<
   },
 };
 
+const BARCODE_OPTIONS: ReadonlyDeep<Option[]> = Object.values(
+  BARCODE_SYMBOLOGIES,
+).map(({ label, value }) => ({
+  label,
+  value,
+}));
+
 const INITIAL_SYMBOLOGY: BarcodeSymbology = BarcodeSymbology.Code128;
 
 export {
   assertIsBarcodeSymbology,
+  BARCODE_OPTIONS,
   BARCODE_SYMBOLOGIES,
   INITIAL_SYMBOLOGY,
   type BarcodeSymbology,

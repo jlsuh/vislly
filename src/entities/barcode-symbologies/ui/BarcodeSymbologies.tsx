@@ -16,6 +16,7 @@ import Select from '@/shared/ui/Select/Select';
 import { fetchBarcodeWasm } from '../lib/barcode-wasm';
 import {
   assertIsBarcodeSymbology,
+  BARCODE_OPTIONS,
   BARCODE_SYMBOLOGIES,
   type BarcodeSymbology,
   INITIAL_SYMBOLOGY,
@@ -50,6 +51,10 @@ function BarcodeSymbologies(): JSX.Element {
     assertIsBarcodeSymbology(newSymbology);
     setSymbology(newSymbology);
     setInputText('');
+  };
+
+  const handleOnChangeDpr = (e: ChangeEvent<HTMLSelectElement>) => {
+    setDpr(+e.target.value);
   };
 
   const handleOnChangeBarcodeInput = (e: ChangeEvent<HTMLInputElement>) => {
@@ -106,11 +111,11 @@ function BarcodeSymbologies(): JSX.Element {
           <Select
             handleOnSelectChange={handleOnChangeBarcodeSymbology}
             label="Barcode Type"
-            options={Object.values(BARCODE_SYMBOLOGIES)}
+            options={BARCODE_OPTIONS}
             value={symbology}
           />
           <Select
-            handleOnSelectChange={(e) => setDpr(+e.target.value)}
+            handleOnSelectChange={handleOnChangeDpr}
             label="Device Pixel Ratio"
             options={DPR_OPTIONS}
             value={`${dpr}`}
@@ -121,9 +126,9 @@ function BarcodeSymbologies(): JSX.Element {
           inputMode={activeSymbology.inputMode}
           label="Barcode Data"
           maxLength={maxInputLength}
-          name="data"
+          name="barcode-data-input"
           pattern={activeSymbology.allowedPattern}
-          placeholder="Enter data"
+          placeholder="Enter barcode data"
           type={activeSymbology.type}
           value={inputText}
         />

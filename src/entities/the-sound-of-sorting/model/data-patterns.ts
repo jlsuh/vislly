@@ -92,10 +92,12 @@ const DATA_PATTERNS: ReadonlyDeep<
 
 const INITIAL_DATA_PATTERN: DataPattern = DataPattern.Random;
 
+const DATA_PATTERN_VALUES = Object.values(DataPattern);
+
 function assertIsDataPattern(value: unknown): asserts value is DataPattern {
   if (
     typeof value !== 'string' ||
-    !Object.values(DataPattern).includes(value as DataPattern)
+    !DATA_PATTERN_VALUES.includes(value as DataPattern)
   ) {
     throw new Error(`Invalid data pattern: ${value}`);
   }

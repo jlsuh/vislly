@@ -3,4 +3,8 @@ function integerRange(start: number, end: number): number[] {
   return Array.from({ length }, (_, i) => i + start);
 }
 
-export { integerRange };
+function keysFromObject<T extends object>(object: T): (keyof T)[] {
+  return Object.keys(object) as (keyof T)[];
+}
+
+export { integerRange, keysFromObject };

@@ -10,10 +10,12 @@ const QuickSortPivot = {
 
 type QuickSortPivot = (typeof QuickSortPivot)[keyof typeof QuickSortPivot];
 
+const QUICK_SORT_PIVOT_VALUES: QuickSortPivot[] = Object.values(QuickSortPivot);
+
 function assertIsQuickSortPivot(
   value: unknown,
 ): asserts value is QuickSortPivot {
-  if (!Object.values(QuickSortPivot).includes(value as QuickSortPivot)) {
+  if (!QUICK_SORT_PIVOT_VALUES.includes(value as QuickSortPivot)) {
     throw new Error(`Invalid QuickSortPivot value: ${value}`);
   }
 }

@@ -45,12 +45,15 @@ const SortingAlgorithm = {
 type SortingAlgorithm =
   (typeof SortingAlgorithm)[keyof typeof SortingAlgorithm];
 
+const SORTING_ALGORITHM_VALUES: SortingAlgorithm[] =
+  Object.values(SortingAlgorithm);
+
 function assertIsSortingAlgorithm(
   value: unknown,
 ): asserts value is SortingAlgorithm {
   if (
     typeof value !== 'string' ||
-    !Object.values(SortingAlgorithm).includes(value as SortingAlgorithm)
+    !SORTING_ALGORITHM_VALUES.includes(value as SortingAlgorithm)
   ) {
     throw new Error(`Invalid sorting algorithm: ${value}`);
   }
