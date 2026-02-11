@@ -74,9 +74,8 @@ int draw_pattern(Canvas *c, const char *pattern, int x, int y, int module_width,
     int curr_x = x;
     int i = 0;
     while (pattern[i] != NULL_TERMINATOR) {
-        if (pattern[i] == '1') {
+        if (pattern[i] == '1')
             canvas_fill_rect(c, curr_x, y, module_width, bar_height, C_BLACK);
-        }
         curr_x += module_width;
         i++;
     }

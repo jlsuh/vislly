@@ -49,17 +49,13 @@ static inline int get_encoding_type(char p)
 
 int compose_checksum(void)
 {
-    int sum_odd = 0;
-    int sum_even = 0;
+    int dividend = 0;
+    int weights[] = {1, CHECKSUM_ODD_WEIGHT};
     for (int i = 0; i < CHECKSUM_INDEX; i++) {
         int digit = char_to_digit(data_buffer[i]);
         symbol_buffer[i] = digit;
-        if (i % 2 == 0)
-            sum_even += digit;
-        else
-            sum_odd += digit;
+        dividend += digit * weights[i & 1];
     }
-    int dividend = sum_even + (sum_odd * CHECKSUM_ODD_WEIGHT);
     int remainder = dividend % CHECKSUM_MODULO;
     return (remainder == 0) ? 0 : (CHECKSUM_MODULO - remainder);
 }
@@ -71,9 +67,8 @@ int draw_group(Canvas *c, int x, int y, int module_width, int bar_height,
     for (int i = 0; i < GROUP_LEN; ++i) {
         int digit = symbol_buffer[(*symbol_idx)++];
         int encoding_idx = ENC_R;
-        if (parity_pattern != NULL) {
+        if (parity_pattern != NULL)
             encoding_idx = get_encoding_type(parity_pattern[i]);
-        }
         const char *code = ENCODING_TABLE[digit][encoding_idx];
         curr_x_offset += draw_pattern(c, code, x + curr_x_offset, y,
                                       module_width, bar_height);
