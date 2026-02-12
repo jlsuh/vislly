@@ -1,7 +1,6 @@
 .theSoundOfSortingArticle {
-  max-width: 90rem;
-  overflow-anchor: none;
-  padding: 0 4rem;
+  max-width: var(--container-xl);
+  padding: 0 var(--space-16);
   width: 100%;
   & h1:first-of-type {
     text-align: center;

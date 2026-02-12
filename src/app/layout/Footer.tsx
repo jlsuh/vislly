@@ -6,7 +6,7 @@ function Footer(): JSX.Element {
   const lastDeployDate = process.env.NEXT_PUBLIC_LAST_DEPLOY_DATE;
 
   return (
-    <footer className={styles.footer}>
+    <footer>
       <div className={styles.footerContainer}>
         <span className={styles.copyrightNotice}>
           Copyright &copy; {currentYear} Joel Suh

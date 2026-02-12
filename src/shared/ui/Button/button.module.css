@@ -4,16 +4,16 @@
 
 .button {
   align-items: center;
-  border-radius: 0.375rem;
+  border-radius: var(--space-1-5);
   border: none;
   cursor: pointer;
   display: flex;
   flex-wrap: wrap;
-  font-size: 0.875rem;
+  font-size: var(--space-3-5);
   font-weight: 600;
-  gap: 0.5rem;
+  gap: var(--space-2);
   justify-content: center;
-  padding: 0.5rem 0.75rem;
+  padding: var(--space-2) var(--space-3);
   transition-duration: 150ms;
   transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -28,14 +28,14 @@
     transform: none;
   }
   & svg {
-    height: 1.25rem;
-    width: 1.25rem;
+    height: var(--space-5);
+    width: var(--space-5);
   }
 }
 
 .primary {
   background-color: var(--color-inverse-surface);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--elevation-level-1);
   color: var(--color-inverse-on-surface);
   &:hover:not(:disabled) {
     filter: brightness(110%);
@@ -44,7 +44,7 @@
 
 .secondary {
   background-color: transparent;
-  border: 1px solid var(--color-outline);
+  border: var(--space-px) solid var(--color-outline);
   color: var(--color-on-surface);
   &:hover:not(:disabled) {
     background-color: rgba(0, 0, 0, 0.04);

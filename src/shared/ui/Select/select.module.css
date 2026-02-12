@@ -1,41 +1,41 @@
 .sm {
-  --font-size-input: 0.75rem;
-  --font-size-label: 0.65rem;
-  --height: 2rem;
-  --icon-size: 0.875rem;
-  --padding-y: 0.5rem;
+  --font-size-input: var(--space-3);
+  --font-size-label: var(--space-2-5);
+  --height: var(--space-8);
+  --icon-size: var(--space-3-5);
+  --padding-y: var(--space-2);
 }
 
 .md {
-  --font-size-input: 0.875rem;
-  --font-size-label: 0.75rem;
-  --height: 2.5rem;
-  --icon-size: 1rem;
-  --padding-y: 0.75rem;
+  --font-size-input: var(--space-3-5);
+  --font-size-label: var(--space-3);
+  --height: var(--space-10);
+  --icon-size: var(--space-4);
+  --padding-y: var(--space-3);
 }
 
 .lg {
-  --font-size-input: 1rem;
-  --font-size-label: 0.85rem;
-  --height: 3.5rem;
-  --icon-size: 1.25rem;
-  --padding-y: 1rem;
+  --font-size-input: var(--space-4);
+  --font-size-label: var(--space-3-5);
+  --height: var(--space-14);
+  --icon-size: var(--space-5);
+  --padding-y: var(--space-4);
 }
 
 .fieldset {
   border-radius: inherit;
-  border: 0.0625rem solid var(--color-outline);
+  border: var(--space-px) solid var(--color-outline);
   inset: 0;
   margin: 0;
   min-width: 0;
   overflow: hidden;
-  padding-left: 0.75rem;
+  padding-left: var(--space-3);
   pointer-events: none;
   position: absolute;
 }
 
 .selectContainer {
-  border-radius: 0.5rem;
+  border-radius: var(--space-2);
   position: relative;
   width: 100%;
   &::after {
@@ -48,7 +48,7 @@
     min-width: var(--icon-size);
     pointer-events: none;
     position: absolute;
-    right: 1rem;
+    right: var(--space-4);
     top: 50%;
     transform: translateY(-50%);
     transition: transform 0.15s ease-in-out;
@@ -66,8 +66,8 @@
   height: 0;
   visibility: hidden;
   & span {
-    padding-left: 0.3rem;
-    padding-right: 0.3rem;
+    padding-left: var(--space-1-5);
+    padding-right: var(--space-1);
   }
 }
 
@@ -76,11 +76,11 @@
   font-size: var(--font-size-label);
   left: 0;
   line-height: 1;
-  padding: 0 0.3rem;
+  padding: 0 var(--space-1-5);
   pointer-events: none;
   position: absolute;
   top: 0;
-  transform: translate(0.75rem, -50%);
+  transform: translate(var(--space-3), -50%);
   z-index: 1;
 }
 
@@ -90,7 +90,7 @@
   border: none;
   color: var(--color-on-surface);
   font-size: var(--font-size-input);
-  padding: var(--padding-y) 2.5rem var(--padding-y) 1rem;
+  padding: var(--padding-y) var(--space-10) var(--padding-y) var(--space-4);
   text-overflow: ellipsis;
   width: 100%;
   &:disabled {
@@ -101,6 +101,6 @@
   }
   &:focus ~ .fieldset {
     border-color: var(--color-primary);
-    border-width: 0.125rem;
+    border-width: var(--space-0-5);
   }
 }

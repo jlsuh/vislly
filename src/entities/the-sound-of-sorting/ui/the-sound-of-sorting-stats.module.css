@@ -2,9 +2,9 @@
   color: var(--color-on-surface-dark);
   flex: 0 0 auto;
   font-family: monospace;
-  font-size: 0.875rem;
+  font-size: var(--space-3-5);
   font-weight: 400;
-  padding: 0.5rem;
+  padding: var(--space-2);
   pointer-events: none;
   width: 100%;
 }

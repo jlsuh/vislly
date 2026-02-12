@@ -1,25 +1,25 @@
 .checkboxContainer {
   display: flex;
-  gap: 0.325rem;
+  gap: var(--space-1-5);
   justify-content: center;
 }
 
 .pathfindingControlsContainer {
   background-color: var(--color-surface-container);
-  border-radius: 0.5rem;
-  border: 0.125rem solid var(--color-outline);
+  border-radius: var(--space-2);
+  border: var(--space-0-5) solid var(--color-outline);
   display: flex;
   flex-direction: column;
   height: fit-content;
   min-width: 100%;
-  padding: 1rem;
+  padding: var(--space-4);
   width: fit-content;
 }
 
 .pathfindingButtonsContainer,
 .pathfindingSelectsContainer {
   display: grid;
-  gap: 1rem;
+  gap: var(--space-4);
   grid-template-columns: repeat(1, 1fr);
 }
 
@@ -32,7 +32,7 @@
 
 @media (width >= 64rem) {
   .pathfindingControlsContainer {
-    max-width: 16rem;
+    max-width: var(--space-64);
     min-width: fit-content;
   }
   .pathfindingButtonsContainer,

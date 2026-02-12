@@ -4,10 +4,10 @@
   border-radius: 100%;
   color: var(--color-on-surface);
   cursor: pointer;
-  height: 3rem;
+  height: var(--space-12);
   justify-content: center;
   transition: transform 0.2s;
-  width: 3rem;
+  width: var(--space-12);
   &:active {
     transform: matrix(0.95, 0, 0, 0.95, 0, 0);
     transition: transform 0.2s;

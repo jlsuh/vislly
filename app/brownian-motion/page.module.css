@@ -1,6 +1,6 @@
 .brownianMotionArticle {
-  max-width: 60rem;
-  padding: 0 2rem;
+  max-width: var(--container-md);
+  padding: 0 var(--space-8);
   width: 100%;
   & h1:first-of-type {
     text-align: center;

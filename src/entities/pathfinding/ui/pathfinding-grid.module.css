@@ -1,9 +1,9 @@
 .grid {
   flex: 1;
-  height: 40rem;
+  height: var(--container-sm);
   justify-content: center;
   max-height: 70vh;
-  min-height: 40rem;
+  min-height: var(--container-sm);
   user-select: none;
 }
 
@@ -14,6 +14,6 @@
   max-height: calc(var(--cell-size));
   overflow: hidden;
   &:first-child > * {
-    border-top-width: 0.0625rem;
+    border-top-width: var(--space-px);
   }
 }

@@ -8,19 +8,19 @@
 
 .legalNotice {
   background-color: var(--color-surface-container-highest);
-  border-radius: 0.5rem;
+  border-radius: var(--space-2);
   color: var(--color-on-surface-variant);
   display: flex;
   flex-direction: column;
-  font-size: 0.85rem;
-  gap: 0.5rem;
-  padding: 1rem;
+  font-size: var(--space-3-5);
+  gap: var(--space-2);
+  padding: var(--space-4);
   & p {
     margin: 0;
   }
   & ul {
     margin: 0;
-    padding-left: 1.25rem;
+    padding-left: var(--space-5);
   }
 }
 

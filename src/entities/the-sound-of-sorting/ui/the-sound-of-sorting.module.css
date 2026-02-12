@@ -1,12 +1,12 @@
 .canvasContainer {
-  --border-width: 0.125rem;
+  --border-width: var(--space-0-5);
   background-color: var(--color-surface-container-lowest-dark);
   border-radius: 0rem;
   border: var(--border-width) solid var(--color-outline-variant);
   display: flex;
   flex-direction: column;
   max-width: inherit;
-  min-height: calc(40rem + var(--border-width) * 2);
+  min-height: calc(var(--container-sm) + var(--border-width) * 2);
   overflow: hidden;
   width: 100%;
 }
@@ -26,7 +26,7 @@
 .theSoundOfSortingContainer {
   display: flex;
   flex-direction: column-reverse;
-  gap: 1rem;
+  gap: var(--space-4);
   width: 100%;
 }
 

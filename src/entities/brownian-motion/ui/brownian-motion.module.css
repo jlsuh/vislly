@@ -1,9 +1,8 @@
 .brownianMotionContainer {
-  --border-width: 0.125rem;
-  border-radius: 0.5rem;
-  border: var(--border-width) solid var(--color-outline-variant);
+  border-radius: var(--space-2);
+  border: var(--space-0-5) solid var(--color-outline-variant);
   max-width: inherit;
-  min-height: calc(40rem + var(--border-width) * 2);
+  min-height: calc(var(--container-sm) + var(--space-0-5) * 2);
 }
 
 .historicalCanvas,

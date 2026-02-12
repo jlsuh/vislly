@@ -2,14 +2,14 @@
   background-color: lightgray;
   border-color: var(--color-outline-dark);
   border-style: solid;
-  border-width: 0 0.0625rem 0.0625rem 0;
+  border-width: 0 var(--space-px) var(--space-px) 0;
   cursor: pointer;
   height: var(--cell-size);
   padding: 0;
   user-select: none;
   width: var(--cell-size);
   &:first-child {
-    border-left-width: 0.0625rem;
+    border-left-width: var(--space-px);
   }
 }
 

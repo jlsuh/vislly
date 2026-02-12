@@ -1,26 +1,38 @@
 .sm {
-  --font-size-input: 0.75rem;
-  --font-size-label: 0.65rem;
-  --height: 2rem;
-  --padding-y: 0.5rem;
+  --font-size-input: var(--space-3);
+  --font-size-label: var(--space-2-5);
+  --height: var(--space-8);
+  --padding-y: var(--space-2);
 }
 
 .md {
-  --font-size-input: 0.875rem;
-  --font-size-label: 0.75rem;
-  --height: 2.5rem;
-  --padding-y: 0.75rem;
+  --font-size-input: var(--space-3-5);
+  --font-size-label: var(--space-3);
+  --height: var(--space-10);
+  --padding-y: var(--space-3);
 }
 
 .lg {
-  --font-size-input: 1rem;
-  --font-size-label: 0.85rem;
-  --height: 3.5rem;
-  --padding-y: 1rem;
+  --font-size-input: var(--space-4);
+  --font-size-label: var(--space-3-5);
+  --height: var(--space-14);
+  --padding-y: var(--space-4);
+}
+
+.fieldset {
+  border-radius: inherit;
+  border: var(--space-px) solid var(--color-outline);
+  inset: 0;
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  padding-left: var(--space-3);
+  pointer-events: none;
+  position: absolute;
 }
 
 .inputContainer {
-  border-radius: 0.5rem;
+  border-radius: var(--space-2);
   position: relative;
   width: 100%;
   &:has(.input:disabled) {
@@ -31,25 +43,13 @@
   }
 }
 
-.fieldset {
-  border-radius: inherit;
-  border: 0.0625rem solid var(--color-outline);
-  inset: 0;
-  margin: 0;
-  min-width: 0;
-  overflow: hidden;
-  padding-left: 0.75rem;
-  pointer-events: none;
-  position: absolute;
-}
-
 .legend {
   font-size: var(--font-size-label);
   height: 0;
   visibility: hidden;
   & span {
-    padding-left: 0.3rem;
-    padding-right: 0.3rem;
+    padding-left: var(--space-1-5);
+    padding-right: var(--space-1);
   }
 }
 
@@ -58,11 +58,11 @@
   font-size: var(--font-size-label);
   left: 0;
   line-height: 1;
-  padding: 0 0.3rem;
+  padding: 0 var(--space-1-5);
   pointer-events: none;
   position: absolute;
   top: 0;
-  transform: translate(0.75rem, -50%);
+  transform: translate(var(--space-3), -50%);
   z-index: 1;
 }
 
@@ -73,7 +73,7 @@
   color: var(--color-on-surface);
   font-family: inherit;
   font-size: var(--font-size-input);
-  padding: var(--padding-y) 1rem var(--padding-y) 1rem;
+  padding: var(--padding-y) var(--space-4) var(--padding-y) var(--space-4);
   width: 100%;
   &:disabled {
     cursor: not-allowed;
@@ -83,6 +83,6 @@
   }
   &:focus ~ .fieldset {
     border-color: var(--color-primary);
-    border-width: 0.125rem;
+    border-width: var(--space-0-5);
   }
 }

@@ -1,24 +1,24 @@
 .home {
   align-self: center;
-  margin-top: 3.125rem;
-  max-width: 12.5rem;
+  margin-top: var(--space-12);
+  max-width: var(--container-2xs);
   width: 100%;
 }
 
-@media (width >= 30rem) {
+@media (width >= 40rem) {
   .home {
-    max-width: 27rem;
+    max-width: var(--container-sm);
   }
 }
 
-@media (width >= 45rem) {
+@media (width >= 48rem) {
   .home {
-    max-width: 42rem;
+    max-width: var(--container-md);
   }
 }
 
-@media (width >= 75rem) {
+@media (width >= 64rem) {
   .home {
-    max-width: 57.5rem;
+    max-width: var(--container-lg);
   }
 }

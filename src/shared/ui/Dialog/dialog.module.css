@@ -1,7 +1,7 @@
 .dialog {
   background-color: var(--color-surface-container-high);
-  border-radius: 1.75rem;
-  border: 0.0625rem solid var(--color-outline-variant);
+  border-radius: var(--space-7);
+  border: var(--space-px) solid var(--color-outline-variant);
   box-shadow: var(--elevation-level-3);
   color: var(--color-on-surface);
   opacity: 0;
@@ -13,7 +13,7 @@
     transform 0.2s allow-discrete,
     overlay 0.2s allow-discrete,
     display 0.2s allow-discrete;
-  width: min(90vw, 32rem);
+  width: min(90vw, var(--container-xs));
   body:has(&[open]) {
     overflow: hidden;
   }
@@ -37,10 +37,10 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--space-6);
   max-height: 80vh;
   overflow-y: auto;
-  padding: 1.5rem;
+  padding: var(--space-6);
 }
 
 .header {
@@ -50,8 +50,8 @@
 .body {
   display: flex;
   flex-direction: column;
-  font-size: 0.95rem;
-  gap: 1rem;
+  font-size: var(--space-3-5);
+  gap: var(--space-4);
 }
 
 .footer {
