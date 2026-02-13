@@ -58,6 +58,11 @@ int get_height(void)
     return canvas_height;
 }
 
+int get_module_width(void)
+{
+    return BASE_MODULE_WIDTH_PX;
+}
+
 uint32_t *get_pixel_buffer(void)
 {
     return pixels;

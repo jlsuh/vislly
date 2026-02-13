@@ -14,8 +14,8 @@
 #define C_BLACK 0xFF000000
 #define C_WHITE 0xFFFFFFFF
 
-#define MAX_WIDTH 13000
-#define MAX_HEIGHT 1200
+#define MAX_WIDTH 8192
+#define MAX_HEIGHT 1024
 
 #define BASE_BAR_HEIGHT_PX 160
 #define BASE_MODULE_WIDTH_PX 4
@@ -42,6 +42,7 @@ int draw_pattern(Canvas *c, const char *pattern, int x, int y, int module_width,
 char *get_data_buffer(void);
 int get_height(void);
 int get_max_input_length(void);
+int get_module_width(void);
 uint32_t *get_pixel_buffer(void);
 int get_width(void);
 void set_dpr(int user_dpr);

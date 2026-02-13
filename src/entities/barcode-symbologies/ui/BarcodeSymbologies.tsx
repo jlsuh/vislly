@@ -2,7 +2,9 @@
 
 import {
   type ChangeEvent,
+  type CSSProperties,
   type JSX,
+  Suspense,
   use,
   useCallback,
   useEffect,
@@ -10,6 +12,10 @@ import {
   useState,
 } from 'react';
 import type { ReadonlyDeep } from 'type-fest';
+import {
+  type CssCustomProperty,
+  composeCssCustomProperty,
+} from '@/shared/lib/css.ts';
 import type { Option } from '@/shared/model/option.ts';
 import Input from '@/shared/ui/Input/Input';
 import Select from '@/shared/ui/Select/Select';
@@ -30,40 +36,37 @@ const DPR_OPTIONS: ReadonlyDeep<Option[]> = [
   { label: '4x', value: '4' },
 ];
 
-function BarcodeSymbologies(): JSX.Element {
-  const [dpr, setDpr] = useState(
-    Math.min(Math.ceil(window.devicePixelRatio || 1), 4),
-  );
-  const [inputText, setInputText] = useState('');
-  const [symbology, setSymbology] =
-    useState<BarcodeSymbology>(INITIAL_SYMBOLOGY);
+const LOADING_DIMENSIONS: Record<
+  BarcodeSymbology,
+  { width: number; height: number }
+> = {
+  'code-128': { width: 140, height: 160 },
+  'ean-13': { width: 380, height: 184 },
+};
 
+const QUIET_ZONE_HORIZONTAL_PX = 80;
+
+const MAX_INPUT_LENGTHS: Record<BarcodeSymbology, number> = {
+  'code-128': 64,
+  'ean-13': 12,
+};
+
+interface BarcodeRendererProps {
+  symbology: BarcodeSymbology;
+  inputText: string;
+  dpr: number;
+}
+
+function BarcodeRenderer({
+  symbology,
+  inputText,
+  dpr,
+}: BarcodeRendererProps): JSX.Element {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
   const activeSymbology = BARCODE_SYMBOLOGIES[symbology];
+
   const barcodeWasm = use(fetchBarcodeWasm(activeSymbology.wasmFile));
   const maxInputLength = barcodeWasm.get_max_input_length();
-
-  const handleOnChangeBarcodeSymbology = (
-    e: ChangeEvent<HTMLSelectElement>,
-  ) => {
-    const newSymbology = e.target.value;
-    assertIsBarcodeSymbology(newSymbology);
-    setSymbology(newSymbology);
-    setInputText('');
-  };
-
-  const handleOnChangeDpr = (e: ChangeEvent<HTMLSelectElement>) => {
-    setDpr(+e.target.value);
-  };
-
-  const handleOnChangeBarcodeInput = (e: ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    const regex = new RegExp(`^${activeSymbology.allowedPattern}$`);
-    if (regex.test(val)) {
-      setInputText(val);
-    }
-  };
 
   const renderBarcode = useCallback(() => {
     const canvas = canvasRef.current;
@@ -104,6 +107,64 @@ function BarcodeSymbologies(): JSX.Element {
     renderBarcode();
   }, [renderBarcode]);
 
+  return <canvas ref={canvasRef} className={styles.canvas} />;
+}
+
+interface BarcodeLoadingProps {
+  style?: CSSProperties;
+}
+
+function BarcodeLoading({ style }: BarcodeLoadingProps): JSX.Element {
+  return <div className={styles.loadingCanvas} style={style} />;
+}
+
+function BarcodeSymbologies(): JSX.Element {
+  const [dpr, setDpr] = useState(
+    Math.min(Math.ceil(window.devicePixelRatio || 1), 4),
+  );
+  const [inputText, setInputText] = useState('');
+  const [symbology, setSymbology] =
+    useState<BarcodeSymbology>(INITIAL_SYMBOLOGY);
+
+  const activeSymbology = BARCODE_SYMBOLOGIES[symbology];
+  const dimensions = LOADING_DIMENSIONS[symbology];
+  const maxInputLength = MAX_INPUT_LENGTHS[symbology];
+
+  const totalRenderedWidth = dimensions.width + QUIET_ZONE_HORIZONTAL_PX;
+  const maxWidthPercentage = (dimensions.width / totalRenderedWidth) * 100;
+
+  const aspectRatio = `${dimensions.width} / ${dimensions.height}`;
+
+  const loadingStyle: CssCustomProperty = {
+    ...composeCssCustomProperty(
+      'loading-barcode-width',
+      `${dimensions.width}px`,
+    ),
+    ...composeCssCustomProperty('loading-aspect-ratio', aspectRatio),
+    ...composeCssCustomProperty('loading-max-width', `${maxWidthPercentage}%`),
+  };
+
+  const handleOnChangeBarcodeSymbology = (
+    e: ChangeEvent<HTMLSelectElement>,
+  ) => {
+    const newSymbology = e.target.value;
+    assertIsBarcodeSymbology(newSymbology);
+    setSymbology(newSymbology);
+    setInputText('');
+  };
+
+  const handleOnChangeDpr = (e: ChangeEvent<HTMLSelectElement>) => {
+    setDpr(+e.target.value);
+  };
+
+  const handleOnChangeBarcodeInput = (e: ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    const regex = new RegExp(`^${activeSymbology.allowedPattern}$`);
+    if (regex.test(val)) {
+      setInputText(val);
+    }
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.controls}>
@@ -134,7 +195,13 @@ function BarcodeSymbologies(): JSX.Element {
         />
       </div>
       <div className={styles.canvasWrapper}>
-        <canvas ref={canvasRef} className={styles.canvas} />
+        <Suspense fallback={<BarcodeLoading style={loadingStyle} />}>
+          <BarcodeRenderer
+            dpr={dpr}
+            inputText={inputText}
+            symbology={symbology}
+          />
+        </Suspense>
       </div>
       <p className={styles.description}>
         ⚡️ This barcode is generated on the fly by raw{' '}

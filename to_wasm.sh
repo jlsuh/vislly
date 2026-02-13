@@ -28,6 +28,7 @@ EXPORTS=(
     "-Wl,--export=get_width"
     "-Wl,--export=get_height"
     "-Wl,--export=get_max_input_length"
+    "-Wl,--export=get_module_width"
     "-Wl,--export=set_dpr"
 )
 
@@ -38,15 +39,26 @@ FLAGS=(
     "-nostdlib"
     "-Wall"
     "-Wextra"
+    "-Wpedantic"
     "-Wconversion"
     "-Wl,--no-entry"
     "${EXPORTS[@]}"
-    "-Wl,--allow-undefined"
-    "-I$GRAPHICS_DIR" 
+    "-Wl,--lto-O3"
+    "-I$GRAPHICS_DIR"
     "-I$BARCODE_LIB_DIR"
 )
 
+if [[ "$LINK_DYNAMIC" == "true" ]]; then
+    echo "Dynamic Linking graphics.c"
+    FLAGS+=("-Wl,--allow-undefined")
+    FLAGS+=("-Wl,--import-memory")
+    SOURCES=("$INPUT_SRC" "$BARCODE_LIB_DIR/barcode.c")
+else
+    echo "Static Linking graphics.c"
+    SOURCES=("$INPUT_SRC" "$GRAPHICS_DIR/graphics.c" "$BARCODE_LIB_DIR/barcode.c")
+fi
+
 echo "Compiling $FILENAME"
-"$CC" "${FLAGS[@]}" -o "$OUT_WASM" "$INPUT_SRC" "$GRAPHICS_DIR/graphics.c" "$BARCODE_LIB_DIR/barcode.c"
+"$CC" "${FLAGS[@]}" -o "$OUT_WASM" "${SOURCES[@]}"
 
 echo "Built: $OUT_WASM"
