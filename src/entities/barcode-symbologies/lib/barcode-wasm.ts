@@ -57,29 +57,30 @@ function fetchGraphicsLibWasm(): Promise<WebAssembly.Module> {
   return graphicsLibPromise;
 }
 
+async function instantiateBarcodeWasm(fileName: string): Promise<BarcodeWasm> {
+  const [graphicsLib, barcodeModule] = await Promise.all([
+    fetchGraphicsLibWasm(),
+    fetchWasmModule(fileName),
+  ]);
+  const memory = new WebAssembly.Memory({
+    initial: INITIAL_MEMORY_PAGES,
+  });
+  const graphicsLibInstance = await WebAssembly.instantiate(graphicsLib, {
+    env: { memory },
+  });
+  const imports = { env: { memory, ...graphicsLibInstance.exports } };
+  const instance = await WebAssembly.instantiate(barcodeModule, imports);
+  const { exports } = instance;
+  assertIsBarcodeWasm(exports);
+  return exports;
+}
+
 function fetchBarcodeWasm(fileName: string): Promise<BarcodeWasm> {
   let barcodePromise = barcodesCache.get(fileName);
-  if (barcodePromise) {
-    return barcodePromise;
+  if (!barcodePromise) {
+    barcodePromise = instantiateBarcodeWasm(fileName);
+    barcodesCache.set(fileName, barcodePromise);
   }
-  barcodePromise = (async () => {
-    const [graphicsLib, barcodeModule] = await Promise.all([
-      fetchGraphicsLibWasm(),
-      fetchWasmModule(fileName),
-    ]);
-    const memory = new WebAssembly.Memory({
-      initial: INITIAL_MEMORY_PAGES,
-    });
-    const graphicsLibInstance = await WebAssembly.instantiate(graphicsLib, {
-      env: { memory },
-    });
-    const imports = { env: { memory, ...graphicsLibInstance.exports } };
-    const instance = await WebAssembly.instantiate(barcodeModule, imports);
-    const { exports } = instance;
-    assertIsBarcodeWasm(exports);
-    return exports;
-  })();
-  barcodesCache.set(fileName, barcodePromise);
   return barcodePromise;
 }
 
