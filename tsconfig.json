@@ -11,7 +11,7 @@
     "isolatedDeclarations": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "lib": ["DOM.Iterable", "DOM", "ESNext"],
+    "lib": ["DOM", "ESNext"],
     "module": "ESNext",
     "moduleDetection": "force",
     "moduleResolution": "bundler",
