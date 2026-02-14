@@ -9,8 +9,6 @@ interface BarcodeWasm {
   memory: WebAssembly.Memory;
   get_data_buffer: () => number;
   get_height: () => number;
-  get_max_input_length: () => number;
-  get_module_width: () => number;
   get_pixel_buffer: () => number;
   get_width: () => number;
   render: () => void;
@@ -22,8 +20,6 @@ const BARCODE_REQUIRED_FUNCTIONS: ReadonlyDeep<
 > = keysFromObject({
   get_data_buffer: true,
   get_height: true,
-  get_max_input_length: true,
-  get_module_width: true,
   get_pixel_buffer: true,
   get_width: true,
   render: true,

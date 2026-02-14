@@ -20,15 +20,13 @@ OUT_WASM="$OUT_DIR/${FILENAME}.wasm"
 mkdir -p "$OUT_DIR"
 
 EXPORTS=(
-    "-Wl,--export=render"
-    "-Wl,--export=pixels"
     "-Wl,--export-memory"
     "-Wl,--export=get_data_buffer"
+    "-Wl,--export=get_height"
     "-Wl,--export=get_pixel_buffer"
     "-Wl,--export=get_width"
-    "-Wl,--export=get_height"
-    "-Wl,--export=get_max_input_length"
-    "-Wl,--export=get_module_width"
+    "-Wl,--export=pixels"
+    "-Wl,--export=render"
     "-Wl,--export=set_dpr"
 )
 

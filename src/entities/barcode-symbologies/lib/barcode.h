@@ -2,7 +2,6 @@
 #define BARCODE_H_
 
 #include <stdbool.h>
-#include <stddef.h>
 #include <stdint.h>
 
 #include "graphics.h"
@@ -24,27 +23,29 @@
 
 #define BARCODE_BUFFER_SIZE 256
 
-extern uint32_t pixels[MAX_WIDTH * MAX_HEIGHT];
-extern int canvas_width;
-extern int canvas_height;
-extern int dpr;
+#define MAX_DPR 4
+#define MIN_DPR 1
 
 extern char data_buffer[BARCODE_BUFFER_SIZE];
+extern int canvas_height;
+extern int canvas_width;
+extern int dpr;
 extern int symbol_buffer[BARCODE_BUFFER_SIZE];
+extern uint32_t pixels[MAX_WIDTH * MAX_HEIGHT];
 
-int char_to_digit(char c);
 bool is_digit(char c);
-int kernighan_ritchie_strlen(const char *s);
 bool kernighan_ritchie_strncmp(const char *s1, const char *s2, int n);
+int char_to_digit(char c);
 int draw_pattern(Canvas *c, const char *pattern, int x, int y, int module_width,
                  int bar_height);
+int kernighan_ritchie_strlen(const char *s);
 
 char *get_data_buffer(void);
 int get_height(void);
-int get_max_input_length(void);
-int get_module_width(void);
-uint32_t *get_pixel_buffer(void);
 int get_width(void);
+uint32_t *get_pixel_buffer(void);
 void set_dpr(int user_dpr);
+
+extern void render(void);
 
 #endif // BARCODE_H_

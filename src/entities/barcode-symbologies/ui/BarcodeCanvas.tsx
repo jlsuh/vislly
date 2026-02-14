@@ -15,9 +15,8 @@ function BarcodeCanvas({
   inputText,
 }: BarcodeCanvasProps): JSX.Element {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { rightPaddingChar, wasmFile } = currentSymbology;
+  const { maxInputLength, rightPaddingChar, wasmFile } = currentSymbology;
   const barcodeWasm = use(fetchBarcodeWasm(wasmFile));
-  const maxInputLength = barcodeWasm.get_max_input_length();
 
   const renderBarcode = useCallback(() => {
     const canvas = canvasRef.current;

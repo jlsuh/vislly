@@ -3,16 +3,16 @@
 #include "barcode.h"
 #include "graphics.h"
 
-#define ASCII_NUL 0
-#define CARET '^'
-#define MAX_CONTROL_CHAR 31
-#define ASCII_SPACE 32
-#define CTRL_CHAR_OFFSET 64
-#define ASCII_UNDERSCORE 95
+#define ASCII_DEL 127
 #define ASCII_GRAVE_ACCENT 96
 #define ASCII_LOWER_A 97
 #define ASCII_LOWER_Z 122
-#define ASCII_DEL 127
+#define ASCII_NUL 0
+#define ASCII_SPACE 32
+#define ASCII_UNDERSCORE 95
+#define CARET '^'
+#define CTRL_CHAR_OFFSET 64
+#define MAX_CONTROL_CHAR 31
 
 #define CHECKSUM_MODULO 103
 #define MODULES_PER_SYMBOL 11
@@ -25,6 +25,8 @@
 #define CODE_A 101
 #define CODE_B 100
 #define CODE_C 99
+#define FNC4_CODE_SET_A 101
+#define FNC4_CODE_SET_B 100
 #define FNC_1 102
 #define FNC_2 97
 #define FNC_3 96
@@ -34,11 +36,9 @@
 #define START_B 104
 #define START_C 105
 #define STOP 106
-#define FNC4_CODE_SET_A 101
-#define FNC4_CODE_SET_B 100
 
-#define PATTERN_WIDTHS_LEN 107
 #define KEYWORDS_LEN 37
+#define PATTERN_WIDTHS_LEN 107
 
 typedef struct {
     const char *key;
@@ -56,13 +56,7 @@ typedef struct {
 
 typedef void (*SymbolComposer)(RenderContext *ctx);
 
-#define CODE128_MAX_INPUT_LEN 64
-int get_max_input_length(void)
-{
-    return CODE128_MAX_INPUT_LEN;
-}
-
-const char *PATTERN_WIDTHS[PATTERN_WIDTHS_LEN] = {
+static const char *PATTERN_WIDTHS[PATTERN_WIDTHS_LEN] = {
     "11011001100", "11001101100", "11001100110", "10010011000", "10010001100",
     "10001001100", "10011001000", "10011000100", "10001100100", "11001001000",
     "11001000100", "11000100100", "10110011100", "10011011100", "10011001110",
@@ -86,46 +80,47 @@ const char *PATTERN_WIDTHS[PATTERN_WIDTHS_LEN] = {
     "10111101110", "11101011110", "11110101110", "11010000100", "11010010000",
     "11010011100", "11000111010"};
 
-Keyword KEYWORDS[KEYWORDS_LEN] = {{"NUL", 3, 64, CODE_SET_A},
-                                  {"SOH", 3, 65, CODE_SET_A},
-                                  {"STX", 3, 66, CODE_SET_A},
-                                  {"ETX", 3, 67, CODE_SET_A},
-                                  {"EOT", 3, 68, CODE_SET_A},
-                                  {"ENQ", 3, 69, CODE_SET_A},
-                                  {"ACK", 3, 70, CODE_SET_A},
-                                  {"BEL", 3, 71, CODE_SET_A},
-                                  {"BS", 2, 72, CODE_SET_A},
-                                  {"HT", 2, 73, CODE_SET_A},
-                                  {"LF", 2, 74, CODE_SET_A},
-                                  {"VT", 2, 75, CODE_SET_A},
-                                  {"FF", 2, 76, CODE_SET_A},
-                                  {"CR", 2, 77, CODE_SET_A},
-                                  {"SO", 2, 78, CODE_SET_A},
-                                  {"SI", 2, 79, CODE_SET_A},
-                                  {"DLE", 3, 80, CODE_SET_A},
-                                  {"DC1", 3, 81, CODE_SET_A},
-                                  {"DC2", 3, 82, CODE_SET_A},
-                                  {"DC3", 3, 83, CODE_SET_A},
-                                  {"DC4", 3, 84, CODE_SET_A},
-                                  {"NAK", 3, 85, CODE_SET_A},
-                                  {"SYN", 3, 86, CODE_SET_A},
-                                  {"ETB", 3, 87, CODE_SET_A},
-                                  {"CAN", 3, 88, CODE_SET_A},
-                                  {"EM", 2, 89, CODE_SET_A},
-                                  {"SUB", 3, 90, CODE_SET_A},
-                                  {"ESC", 3, 91, CODE_SET_A},
-                                  {"FS", 2, 92, CODE_SET_A},
-                                  {"GS", 2, 93, CODE_SET_A},
-                                  {"RS", 2, 94, CODE_SET_A},
-                                  {"US", 2, 95, CODE_SET_A},
-                                  {"DEL", 3, 95, CODE_SET_B},
-                                  {"FNC1", 4, FNC_1, ANY_CODE_SET},
-                                  {"FNC2", 4, FNC_2, ANY_CODE_SET},
-                                  {"FNC3", 4, FNC_3, ANY_CODE_SET},
-                                  {"FNC4", 4, SENTINEL_FNC_4, ANY_CODE_SET}};
+static Keyword KEYWORDS[KEYWORDS_LEN] = {
+    {"NUL", 3, 64, CODE_SET_A},
+    {"SOH", 3, 65, CODE_SET_A},
+    {"STX", 3, 66, CODE_SET_A},
+    {"ETX", 3, 67, CODE_SET_A},
+    {"EOT", 3, 68, CODE_SET_A},
+    {"ENQ", 3, 69, CODE_SET_A},
+    {"ACK", 3, 70, CODE_SET_A},
+    {"BEL", 3, 71, CODE_SET_A},
+    {"BS", 2, 72, CODE_SET_A},
+    {"HT", 2, 73, CODE_SET_A},
+    {"LF", 2, 74, CODE_SET_A},
+    {"VT", 2, 75, CODE_SET_A},
+    {"FF", 2, 76, CODE_SET_A},
+    {"CR", 2, 77, CODE_SET_A},
+    {"SO", 2, 78, CODE_SET_A},
+    {"SI", 2, 79, CODE_SET_A},
+    {"DLE", 3, 80, CODE_SET_A},
+    {"DC1", 3, 81, CODE_SET_A},
+    {"DC2", 3, 82, CODE_SET_A},
+    {"DC3", 3, 83, CODE_SET_A},
+    {"DC4", 3, 84, CODE_SET_A},
+    {"NAK", 3, 85, CODE_SET_A},
+    {"SYN", 3, 86, CODE_SET_A},
+    {"ETB", 3, 87, CODE_SET_A},
+    {"CAN", 3, 88, CODE_SET_A},
+    {"EM", 2, 89, CODE_SET_A},
+    {"SUB", 3, 90, CODE_SET_A},
+    {"ESC", 3, 91, CODE_SET_A},
+    {"FS", 2, 92, CODE_SET_A},
+    {"GS", 2, 93, CODE_SET_A},
+    {"RS", 2, 94, CODE_SET_A},
+    {"US", 2, 95, CODE_SET_A},
+    {"DEL", 3, 95, CODE_SET_B},
+    {"FNC1", 4, FNC_1, ANY_CODE_SET},
+    {"FNC2", 4, FNC_2, ANY_CODE_SET},
+    {"FNC3", 4, FNC_3, ANY_CODE_SET},
+    {"FNC4", 4, SENTINEL_FNC_4, ANY_CODE_SET}};
 
-bool is_optimizable_with_code_set_C(const char *buf, int index, int count,
-                                    int total_len)
+static inline bool is_optimizable_with_code_set_C(const char *buf, int index,
+                                                  int count, int total_len)
 {
     if (index + count > total_len)
         return false;
@@ -135,7 +130,7 @@ bool is_optimizable_with_code_set_C(const char *buf, int index, int count,
     return true;
 }
 
-int match_keyword(const char *data_buffer, int idx)
+static inline int match_keyword(const char *data_buffer, int idx)
 {
     if (CARET != data_buffer[idx])
         return -1;
@@ -194,7 +189,7 @@ static inline bool parse_keyword(RenderContext *ctx)
     return true;
 }
 
-void compose_code_set_A(RenderContext *ctx)
+static inline void compose_code_set_A(RenderContext *ctx)
 {
     if (parse_keyword(ctx))
         return;
@@ -236,7 +231,7 @@ void compose_code_set_A(RenderContext *ctx)
     (*ctx->next_input_idx)++;
 }
 
-void compose_code_set_B(RenderContext *ctx)
+static inline void compose_code_set_B(RenderContext *ctx)
 {
     if (parse_keyword(ctx))
         return;
@@ -270,7 +265,7 @@ void compose_code_set_B(RenderContext *ctx)
     (*ctx->next_input_idx)++;
 }
 
-void compose_code_set_C(RenderContext *ctx)
+static inline void compose_code_set_C(RenderContext *ctx)
 {
     if (parse_keyword(ctx))
         return;
@@ -285,7 +280,7 @@ void compose_code_set_C(RenderContext *ctx)
     *ctx->next_input_idx += 2;
 }
 
-int compose_checksum(int *next_symbol_idx)
+static inline int compose_checksum(int *next_symbol_idx)
 {
     int dividend = symbol_buffer[0];
     for (int i = 1; i < *next_symbol_idx; i++)
@@ -293,8 +288,8 @@ int compose_checksum(int *next_symbol_idx)
     return dividend % CHECKSUM_MODULO;
 }
 
-SymbolComposer code_set_composers[] = {compose_code_set_A, compose_code_set_B,
-                                       compose_code_set_C};
+static SymbolComposer code_set_composers[] = {
+    compose_code_set_A, compose_code_set_B, compose_code_set_C};
 
 void render(void)
 {

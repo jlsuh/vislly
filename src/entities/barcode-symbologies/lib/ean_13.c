@@ -3,17 +3,17 @@
 #include "barcode.h"
 #include "graphics.h"
 
+#define ENCODING_TYPES_COUNT 3
 #define ENC_L 0
 #define ENC_G 1
 #define ENC_R 2
-#define ENCODING_TYPES_COUNT 3
 
 #define MARKER_START "101"
 #define MARKER_CENTER "01010"
 #define MARKER_END "101"
 
-#define CHECKSUM_MODULO 10
 #define CHECKSUM_INDEX 12
+#define CHECKSUM_MODULO 10
 #define CHECKSUM_ODD_WEIGHT 3
 #define DIGITS_COUNT 10
 #define GROUP_LEN 6
@@ -21,17 +21,11 @@
 
 #define MARKER_EXTRA_HEIGHT_SCALAR 0.15f
 
-#define EAN13_MAX_INPUT_LEN 12
-int get_max_input_length(void)
-{
-    return EAN13_MAX_INPUT_LEN;
-}
-
-const char *PARITY_PATTERNS[DIGITS_COUNT] = {
+static const char *PARITY_PATTERNS[DIGITS_COUNT] = {
     "LLLLLL", "LLGLGG", "LLGGLG", "LLGGGL", "LGLLGG",
     "LGGLLG", "LGGGLL", "LGLGLG", "LGLGGL", "LGGLGL"};
 
-const char *ENCODING_TABLE[DIGITS_COUNT][ENCODING_TYPES_COUNT] = {
+static const char *ENCODING_TABLE[DIGITS_COUNT][ENCODING_TYPES_COUNT] = {
     {"0001101", "0100111", "1110010"}, {"0011001", "0110011", "1100110"},
     {"0010011", "0011011", "1101100"}, {"0111101", "0100001", "1000010"},
     {"0100011", "0011101", "1011100"}, {"0110001", "0111001", "1001110"},
@@ -47,7 +41,7 @@ static inline int get_encoding_type(char p)
     return ENC_R;
 }
 
-int compose_checksum(void)
+static inline int compose_checksum(void)
 {
     int dividend = 0;
     int weights[] = {1, CHECKSUM_ODD_WEIGHT};
@@ -60,8 +54,9 @@ int compose_checksum(void)
     return (remainder == 0) ? 0 : (CHECKSUM_MODULO - remainder);
 }
 
-int draw_group(Canvas *c, int x, int y, int module_width, int bar_height,
-               int *symbol_idx, const char *parity_pattern)
+static inline int draw_group(Canvas *c, int x, int y, int module_width,
+                             int bar_height, int *symbol_idx,
+                             const char *parity_pattern)
 {
     int curr_x_offset = 0;
     for (int i = 0; i < GROUP_LEN; ++i) {
