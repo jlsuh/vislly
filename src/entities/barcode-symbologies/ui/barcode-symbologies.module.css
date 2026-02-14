@@ -38,9 +38,9 @@
   display: flex;
   justify-content: center;
   min-height: var(--space-64);
-  width: 100%;
   overflow: hidden;
   position: relative;
+  width: 100%;
 }
 
 .description {

@@ -1,7 +1,4 @@
 .canvas {
   display: block;
   max-width: 100%;
-  position: relative;
-  z-index: 2;
-  background-color: white;
 }

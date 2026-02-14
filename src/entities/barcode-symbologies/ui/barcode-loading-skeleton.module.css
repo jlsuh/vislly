@@ -1,38 +1,100 @@
 .loadingCanvas {
-  display: block;
-  max-width: var(--loading-max-width, 100%);
+  animation: pulse 1.5s ease-in-out infinite;
   aspect-ratio: var(--loading-aspect-ratio);
-  width: var(--loading-barcode-width, 0);
-  height: auto;
-  position: absolute;
-  z-index: 1;
   background-color: #ffffff;
-  background-image: repeating-linear-gradient(
-    90deg,
-    #000000 0,
-    #000000 4px,
-    #ffffff 4px,
-    #ffffff 8px,
-    #000000 8px,
-    #000000 16px,
-    #ffffff 16px,
-    #ffffff 22px
-  );
-  filter: blur(8px);
-  opacity: 0.9;
-  border-radius: var(--space-2);
+  background-image:
+    linear-gradient(#000, #000), linear-gradient(#000, #000),
+    repeating-linear-gradient(
+      90deg,
+      #000 0,
+      #000 4px,
+      transparent 4px,
+      transparent 10px,
+      #000 10px,
+      #000 18px,
+      transparent 18px,
+      transparent 23px,
+      #000 23px,
+      #000 27px,
+      transparent 27px,
+      transparent 37px,
+      #000 37px,
+      #000 49px,
+      transparent 49px,
+      transparent 56px,
+      #000 56px,
+      #000 60px,
+      transparent 60px,
+      transparent 65px,
+      #000 65px,
+      #000 73px,
+      transparent 73px,
+      transparent 81px,
+      #000 81px,
+      #000 85px,
+      transparent 85px,
+      transparent 91px,
+      #000 91px,
+      #000 105px,
+      transparent 105px,
+      transparent 115px
+    );
+  background-position:
+    0 0,
+    100% 0,
+    calc(var(--seed) * 23px) 0;
+  background-repeat: no-repeat, no-repeat, repeat;
+  background-size:
+    5px 100%,
+    5px 100%,
+    auto;
   box-sizing: border-box;
-  animation: pulse 2s ease-in-out infinite;
+  display: block;
+  height: auto;
+  max-width: var(--loading-max-width, 100%);
+  opacity: 0.8;
+  overflow: hidden;
+  position: absolute;
+  width: var(--loading-barcode-width, 0);
+  &::after {
+    animation: shimmer 1.5s infinite;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.6) 50%,
+      transparent 100%
+    );
+    content: "";
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    transform: translateX(-100%);
+    width: 100%;
+  }
+}
+
+@keyframes shimmer {
+  0%,
+  50% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 @keyframes pulse {
   0% {
-    opacity: 0.9;
+    opacity: 0.8;
+    filter: blur(2px) contrast(1.1);
   }
   50% {
-    opacity: 0.5;
+    opacity: 0.3;
+    filter: blur(2px) contrast(1.1);
   }
   100% {
-    opacity: 0.9;
+    opacity: 0.8;
+    filter: blur(2px) contrast(1.1);
   }
 }
