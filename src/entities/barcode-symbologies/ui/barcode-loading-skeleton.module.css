@@ -1,0 +1,38 @@
+.loadingCanvas {
+  display: block;
+  max-width: var(--loading-max-width, 100%);
+  aspect-ratio: var(--loading-aspect-ratio);
+  width: var(--loading-barcode-width, 0);
+  height: auto;
+  position: absolute;
+  z-index: 1;
+  background-color: #ffffff;
+  background-image: repeating-linear-gradient(
+    90deg,
+    #000000 0,
+    #000000 4px,
+    #ffffff 4px,
+    #ffffff 8px,
+    #000000 8px,
+    #000000 16px,
+    #ffffff 16px,
+    #ffffff 22px
+  );
+  filter: blur(8px);
+  opacity: 0.9;
+  border-radius: var(--space-2);
+  box-sizing: border-box;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.9;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0.9;
+  }
+}

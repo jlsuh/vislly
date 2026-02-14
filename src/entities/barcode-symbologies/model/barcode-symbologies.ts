@@ -27,6 +27,8 @@ type BarcodeConfig = {
   allowedPattern: string;
   inputMode: InputHTMLAttributes<HTMLInputElement>['inputMode'];
   label: string;
+  loadingDimensions: { width: number; height: number };
+  maxInputLength: number;
   rightPaddingChar?: string;
   type: InputHTMLAttributes<HTMLInputElement>['type'];
   value: BarcodeSymbology;
@@ -40,6 +42,8 @@ const BARCODE_SYMBOLOGIES: ReadonlyDeep<
     allowedPattern: CODE128_PATTERN,
     inputMode: 'text',
     label: 'Code 128',
+    loadingDimensions: { width: 140, height: 160 },
+    maxInputLength: 64,
     type: 'text',
     value: BarcodeSymbology.Code128,
     wasmFile: 'code_128.wasm',
@@ -48,6 +52,8 @@ const BARCODE_SYMBOLOGIES: ReadonlyDeep<
     allowedPattern: NUMERIC_PATTERN,
     inputMode: 'numeric',
     label: 'EAN-13',
+    loadingDimensions: { width: 380, height: 184 },
+    maxInputLength: 12,
     rightPaddingChar: '0',
     type: 'text',
     value: BarcodeSymbology.Ean13,
@@ -69,5 +75,6 @@ export {
   BARCODE_OPTIONS,
   BARCODE_SYMBOLOGIES,
   INITIAL_SYMBOLOGY,
+  type BarcodeConfig,
   type BarcodeSymbology,
 };
