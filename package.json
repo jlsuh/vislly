@@ -17,7 +17,7 @@
     "deploy": "rm -rf ./out/ ./.next/ && bun biome:ci && bun run build && bunx gh-pages -d ./out/vislly -b gh-pages -t -m \"Deploy: $(date)\"",
     "dev": "next dev --turbopack",
     "o:r": "bun outdated -r",
-    "serve": "bun run build && serve ./out",
+    "serve": "time bun run build && serve ./out",
     "start": "next start",
     "u:i": "bun update -i"
   },
