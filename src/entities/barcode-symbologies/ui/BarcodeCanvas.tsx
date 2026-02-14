@@ -1,10 +1,10 @@
 import { type JSX, use, useCallback, useEffect, useRef } from 'react';
 import { fetchBarcodeWasm } from '../lib/barcode-wasm.ts';
-import type { BarcodeConfig } from '../model/barcode-symbologies.ts';
+import type { SymbologyConfig } from '../model/barcode-symbologies.ts';
 import styles from './barcode-canvas.module.css';
 
 interface BarcodeCanvasProps {
-  currentSymbology: BarcodeConfig;
+  currentSymbology: SymbologyConfig;
   dpr: number;
   inputText: string;
 }

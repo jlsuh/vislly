@@ -4,10 +4,10 @@ import {
   composeCssCustomProperty,
 } from '@/shared/lib/css.ts';
 import { composeRandomFlooredIntegerBetween } from '@/shared/lib/random.ts';
-import type { BarcodeConfig } from '../model/barcode-symbologies.ts';
+import type { SymbologyConfig } from '../model/barcode-symbologies.ts';
 import styles from './barcode-loading-skeleton.module.css';
 
-type BarcodeLoadingSkeletonProps = { currentSymbology: BarcodeConfig };
+type BarcodeLoadingSkeletonProps = { currentSymbology: SymbologyConfig };
 
 const HORIZONTAL_QUIET_ZONE = 40;
 

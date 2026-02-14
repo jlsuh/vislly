@@ -23,7 +23,7 @@ function assertIsBarcodeSymbology(
 const CODE128_PATTERN = '[\\x00-\\x7F]*';
 const NUMERIC_PATTERN = '[0-9]*';
 
-type BarcodeConfig = {
+type SymbologyConfig = {
   allowedPattern: string;
   inputMode: InputHTMLAttributes<HTMLInputElement>['inputMode'];
   label: string;
@@ -36,7 +36,7 @@ type BarcodeConfig = {
 };
 
 const BARCODE_SYMBOLOGIES: ReadonlyDeep<
-  Record<BarcodeSymbology, BarcodeConfig>
+  Record<BarcodeSymbology, SymbologyConfig>
 > = {
   [BarcodeSymbology.Code128]: {
     allowedPattern: CODE128_PATTERN,
@@ -75,6 +75,6 @@ export {
   BARCODE_OPTIONS,
   BARCODE_SYMBOLOGIES,
   INITIAL_SYMBOLOGY,
-  type BarcodeConfig,
   type BarcodeSymbology,
+  type SymbologyConfig,
 };
