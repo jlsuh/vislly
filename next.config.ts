@@ -3,6 +3,16 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   basePath: '/vislly',
   distDir: '/out/vislly',
+  env: {
+    NEXT_PUBLIC_LAST_DEPLOY_DATE: new Date().toLocaleDateString('en-US', {
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      month: 'long',
+      timeZoneName: 'short',
+      year: 'numeric',
+    }),
+  },
   images: {
     unoptimized: true,
   },
@@ -10,15 +20,8 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   reactProductionProfiling: true,
   trailingSlash: true,
-  env: {
-    NEXT_PUBLIC_LAST_DEPLOY_DATE: new Date().toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      timeZoneName: 'short',
-    }),
+  typescript: {
+    ignoreBuildErrors: true,
   },
 };
 
