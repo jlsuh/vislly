@@ -21,11 +21,11 @@
 
 #define MARKER_EXTRA_HEIGHT_SCALAR 0.15f
 
-static const char *PARITY_PATTERNS[DIGITS_COUNT] = {
+static const char *const PARITY_PATTERNS[DIGITS_COUNT] = {
     "LLLLLL", "LLGLGG", "LLGGLG", "LLGGGL", "LGLLGG",
     "LGGLLG", "LGGGLL", "LGLGLG", "LGLGGL", "LGGLGL"};
 
-static const char *ENCODING_TABLE[DIGITS_COUNT][ENCODING_TYPES_COUNT] = {
+static const char *const ENCODING_TABLE[DIGITS_COUNT][ENCODING_TYPES_COUNT] = {
     {"0001101", "0100111", "1110010"}, {"0011001", "0110011", "1100110"},
     {"0010011", "0011011", "1101100"}, {"0111101", "0100001", "1000010"},
     {"0100011", "0011101", "1011100"}, {"0110001", "0111001", "1001110"},
@@ -45,26 +45,25 @@ static inline int compose_checksum(void)
 {
     int dividend = 0;
     int weights[] = {1, CHECKSUM_ODD_WEIGHT};
-    for (int i = 0; i < CHECKSUM_INDEX; i++) {
-        int digit = char_to_digit(data_buffer[i]);
-        symbol_buffer[i] = digit;
-        dividend += digit * weights[i & 1];
-    }
+    for (size_t i = 0; i < CHECKSUM_INDEX; ++i)
+        dividend += char_to_digit(data_buffer[i]) * weights[i & 1];
     int remainder = dividend % CHECKSUM_MODULO;
     return (remainder == 0) ? 0 : (CHECKSUM_MODULO - remainder);
 }
 
 static inline int draw_group(Canvas *c, int x, int y, int module_width,
-                             int bar_height, int *symbol_idx,
-                             const char *parity_pattern)
+                             int bar_height, size_t group_start_index,
+                             size_t group_end_index, const char *parity_pattern)
 {
     int curr_x_offset = 0;
-    for (int i = 0; i < GROUP_LEN; ++i) {
-        int digit = symbol_buffer[(*symbol_idx)++];
+    const char *code = NULL;
+    for (size_t i = group_start_index; i <= group_end_index; ++i) {
+        int digit = char_to_digit(data_buffer[i]);
         int encoding_idx = ENC_R;
         if (parity_pattern != NULL)
-            encoding_idx = get_encoding_type(parity_pattern[i]);
-        const char *code = ENCODING_TABLE[digit][encoding_idx];
+            encoding_idx =
+                get_encoding_type(parity_pattern[i - group_start_index]);
+        code = ENCODING_TABLE[digit][encoding_idx];
         curr_x_offset += draw_pattern(c, code, x + curr_x_offset, y,
                                       module_width, bar_height);
     }
@@ -86,21 +85,22 @@ void render(void)
     canvas_height = marker_bar_height_px + (2 * vertical_quiet_zone_px);
     Canvas c = canvas_create(pixels, canvas_width, canvas_height);
     canvas_fill_rect(&c, 0, 0, canvas_width, canvas_height, C_WHITE);
-    symbol_buffer[CHECKSUM_INDEX] = compose_checksum();
+    int checksum = compose_checksum();
     int curr_x = horizontal_quiet_zone_px;
     int curr_y = vertical_quiet_zone_px;
-    int first_digit = symbol_buffer[0];
-    int curr_symbol_idx = 1;
-    const char *parity_pattern = PARITY_PATTERNS[first_digit];
+    int first_digit = char_to_digit(data_buffer[0]);
+    const char *const parity_pattern = PARITY_PATTERNS[first_digit];
     curr_x += draw_pattern(&c, MARKER_START, curr_x, curr_y, module_width_px,
+                           marker_bar_height_px);
+    curr_x += draw_group(&c, curr_x, curr_y, module_width_px,
+                         regular_bar_height_px, 1, GROUP_LEN, parity_pattern);
+    curr_x += draw_pattern(&c, MARKER_CENTER, curr_x, curr_y, module_width_px,
                            marker_bar_height_px);
     curr_x +=
         draw_group(&c, curr_x, curr_y, module_width_px, regular_bar_height_px,
-                   &curr_symbol_idx, parity_pattern);
-    curr_x += draw_pattern(&c, MARKER_CENTER, curr_x, curr_y, module_width_px,
-                           marker_bar_height_px);
-    curr_x += draw_group(&c, curr_x, curr_y, module_width_px,
-                         regular_bar_height_px, &curr_symbol_idx, NULL);
+                   GROUP_LEN + 1, (GROUP_LEN * 2) - 1, NULL);
+    curr_x += draw_pattern(&c, ENCODING_TABLE[checksum][ENC_R], curr_x, curr_y,
+                           module_width_px, regular_bar_height_px);
     curr_x += draw_pattern(&c, MARKER_END, curr_x, curr_y, module_width_px,
                            marker_bar_height_px);
 }
