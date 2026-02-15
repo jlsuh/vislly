@@ -3,6 +3,7 @@ import 'react';
 declare module 'react' {
   /**
    * @see https://github.com/DefinitelyTyped/DefinitelyTyped/pull/73957
+   * TODO: Delete once in DefinitelyTyped
    */
   interface ButtonHTMLAttributes<T> extends HTMLAttributes<T> {
     /**
