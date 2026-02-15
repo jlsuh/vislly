@@ -23,7 +23,6 @@
     "plugins": [{ "name": "next" }],
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "strict": true, // TODO: Delete this once Next.js bumps to 6.0
     "target": "ESNext",
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo",
     "verbatimModuleSyntax": true
