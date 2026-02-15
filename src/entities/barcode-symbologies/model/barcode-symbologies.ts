@@ -5,6 +5,7 @@ import type { Option } from '@/shared/model/option.ts';
 const BarcodeSymbology = {
   Code128: 'code-128',
   Ean13: 'ean-13',
+  Itf14: 'itf-14',
 } as const;
 
 const AVAILABLE_BARCODE_SYMBOLOGIES = Object.values(BarcodeSymbology);
@@ -58,6 +59,17 @@ const BARCODE_SYMBOLOGIES: ReadonlyDeep<
     type: 'text',
     value: BarcodeSymbology.Ean13,
     wasmFile: 'ean_13.wasm',
+  },
+  [BarcodeSymbology.Itf14]: {
+    allowedPattern: NUMERIC_PATTERN,
+    inputMode: 'numeric',
+    label: 'ITF-14',
+    loadingDimensions: { width: 380, height: 184 },
+    maxInputLength: 13,
+    rightPaddingChar: '0',
+    type: 'text',
+    value: BarcodeSymbology.Itf14,
+    wasmFile: 'itf_14.wasm',
   },
 };
 

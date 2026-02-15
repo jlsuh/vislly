@@ -30,6 +30,7 @@ graphics:
 bar: graphics
 	LINK_DYNAMIC=true $(TO_WASM_SCRIPT) $(BARCODE_LIB_DIR)/code_128.c
 	LINK_DYNAMIC=true $(TO_WASM_SCRIPT) $(BARCODE_LIB_DIR)/ean_13.c
+	LINK_DYNAMIC=true $(TO_WASM_SCRIPT) $(BARCODE_LIB_DIR)/itf_14.c
 
 prebar:
 	$(if $(TU),,$(error $(USAGE)))
