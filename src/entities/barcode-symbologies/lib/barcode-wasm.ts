@@ -1,6 +1,7 @@
-import type { ReadonlyDeep } from 'type-fest';
 import { keysFromObject } from '@/shared/lib/array.ts';
 import { fetchWasmModule } from '@/shared/lib/wasm.ts';
+import '@/shared/polyfill/upsert.ts';
+import type { ReadonlyDeep } from 'type-fest';
 
 const GRAPHICS_LIB = 'graphics.wasm';
 const INITIAL_MEMORY_PAGES = 1024;
@@ -45,12 +46,7 @@ function assertIsBarcodeWasm(value: unknown): asserts value is BarcodeWasm {
 }
 
 function fetchGraphicsLibWasm(): Promise<WebAssembly.Module> {
-  let graphicsLibPromise = graphicsLibCache.get(GRAPHICS_LIB);
-  if (!graphicsLibPromise) {
-    graphicsLibPromise = fetchWasmModule(GRAPHICS_LIB);
-    graphicsLibCache.set(GRAPHICS_LIB, graphicsLibPromise);
-  }
-  return graphicsLibPromise;
+  return graphicsLibCache.getOrInsertComputed(GRAPHICS_LIB, fetchWasmModule);
 }
 
 async function instantiateBarcodeWasm(fileName: string): Promise<BarcodeWasm> {
@@ -72,12 +68,7 @@ async function instantiateBarcodeWasm(fileName: string): Promise<BarcodeWasm> {
 }
 
 function fetchBarcodeWasm(fileName: string): Promise<BarcodeWasm> {
-  let barcodePromise = barcodesCache.get(fileName);
-  if (!barcodePromise) {
-    barcodePromise = instantiateBarcodeWasm(fileName);
-    barcodesCache.set(fileName, barcodePromise);
-  }
-  return barcodePromise;
+  return barcodesCache.getOrInsertComputed(fileName, instantiateBarcodeWasm);
 }
 
 export { fetchBarcodeWasm, type BarcodeWasm };

@@ -1,4 +1,5 @@
 import { GREEN, RED } from '@/shared/lib/rgba.ts';
+import '@/shared/polyfill/upsert.ts';
 import {
   type HighlightGroup,
   SortingStrategy,
@@ -24,12 +25,11 @@ class HeapSortStrategy extends SortingStrategy {
     const firstLeafIndex = n >>> 1;
     for (let k = 0; k < n; k += 1) {
       const color = this.getIndexColor(k);
-      let group = groupsRefMap.get(color);
-      if (group === undefined) {
-        group = { color, indices: [], skipTone: true };
-        this.depthHighlightGroupsCache.push(group);
-        groupsRefMap.set(color, group);
-      }
+      const group = groupsRefMap.getOrInsertComputed(color, (key) => {
+        const newGroup = { color: key, indices: [], skipTone: true };
+        this.depthHighlightGroupsCache.push(newGroup);
+        return newGroup;
+      });
       if (k >= firstLeafIndex) {
         group.indices.push(offset + k);
       }
