@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stddef.h>
 
 #include "barcode.h"
 #include "graphics.h"
@@ -56,7 +57,7 @@ typedef struct {
 
 typedef void (*SymbolComposer)(RenderContext *ctx);
 
-static const char *PATTERN_WIDTHS[PATTERN_WIDTHS_LEN] = {
+static const char *const PATTERN_WIDTHS[PATTERN_WIDTHS_LEN] = {
     "11011001100", "11001101100", "11001100110", "10010011000", "10010001100",
     "10001001100", "10011001000", "10011000100", "10001100100", "11001001000",
     "11001000100", "11000100100", "10110011100", "10011011100", "10011001110",
@@ -124,7 +125,7 @@ static inline bool is_optimizable_with_code_set_C(const char *buf, int index,
 {
     if (index + count > total_len)
         return false;
-    for (int i = 0; i < count; i++)
+    for (int i = 0; i < count; ++i)
         if (!is_digit(buf[index + i]))
             return false;
     return true;
@@ -134,7 +135,7 @@ static inline int match_keyword(const char *data_buffer, int idx)
 {
     if (CARET != data_buffer[idx])
         return -1;
-    for (int k = 0; k < KEYWORDS_LEN; k++)
+    for (int k = 0; k < KEYWORDS_LEN; ++k)
         if (kernighan_ritchie_strncmp(&data_buffer[idx + 1], KEYWORDS[k].key,
                                       KEYWORDS[k].len))
             return k;
@@ -283,7 +284,7 @@ static inline void compose_code_set_C(RenderContext *ctx)
 static inline int compose_checksum(int *next_symbol_idx)
 {
     int dividend = symbol_buffer[0];
-    for (int i = 1; i < *next_symbol_idx; i++)
+    for (int i = 1; i < *next_symbol_idx; ++i)
         dividend += symbol_buffer[i] * i;
     return dividend % CHECKSUM_MODULO;
 }
@@ -330,7 +331,7 @@ void render(void)
     canvas_fill_rect(&c, 0, 0, canvas_width, canvas_height, C_WHITE);
     int curr_x = horizontal_quiet_zone_px;
     int curr_y = vertical_quiet_zone_px;
-    for (int i = 0; i < next_symbol_idx; i++) {
+    for (int i = 0; i < next_symbol_idx; ++i) {
         int value = symbol_buffer[i];
         curr_x += draw_pattern(&c, PATTERN_WIDTHS[value], curr_x, curr_y,
                                module_width_px, bar_height_px);

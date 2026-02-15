@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #include "barcode.h"
@@ -18,7 +19,7 @@ bool is_digit(char c)
 
 bool kernighan_ritchie_strncmp(const char *s1, const char *s2, int n)
 {
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < n; ++i)
         if (s1[i] != s2[i] || NULL_TERMINATOR == s1[i])
             return false;
     return true;
@@ -29,8 +30,8 @@ int char_to_digit(char c)
     return c - ASCII_ZERO;
 }
 
-int draw_pattern(Canvas *c, const char *pattern, int x, int y, int module_width,
-                 int bar_height)
+int draw_pattern(Canvas *c, const char *const pattern, int x, int y,
+                 int module_width, int bar_height)
 {
     int curr_x = x;
     int i = 0;
@@ -38,7 +39,7 @@ int draw_pattern(Canvas *c, const char *pattern, int x, int y, int module_width,
         if (pattern[i] == '1')
             canvas_fill_rect(c, curr_x, y, module_width, bar_height, C_BLACK);
         curr_x += module_width;
-        i++;
+        ++i;
     }
     return curr_x - x;
 }

@@ -36,8 +36,8 @@ extern uint32_t pixels[MAX_WIDTH * MAX_HEIGHT];
 bool is_digit(char c);
 bool kernighan_ritchie_strncmp(const char *s1, const char *s2, int n);
 int char_to_digit(char c);
-int draw_pattern(Canvas *c, const char *pattern, int x, int y, int module_width,
-                 int bar_height);
+int draw_pattern(Canvas *c, const char *const pattern, int x, int y,
+                 int module_width, int bar_height);
 int kernighan_ritchie_strlen(const char *s);
 
 char *get_data_buffer(void);
