@@ -64,7 +64,7 @@ const BARCODE_SYMBOLOGIES: ReadonlyDeep<
     allowedPattern: NUMERIC_PATTERN,
     inputMode: 'numeric',
     label: 'ITF-14',
-    loadingDimensions: { width: 380, height: 184 },
+    loadingDimensions: { width: 528, height: 160 },
     maxInputLength: 13,
     rightPaddingChar: '0',
     type: 'text',
