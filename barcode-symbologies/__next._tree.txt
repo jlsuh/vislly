@@ -1,5 +1,4 @@
 :HL["/vislly/_next/static/chunks/48d5b3017ea13314.css","style"]
 :HL["/vislly/_next/static/chunks/116e0c1bf1550544.css","style"]
-:HL["/vislly/_next/static/chunks/697fb10d01cf65ce.css","style"]
-:HL["/vislly/_next/static/chunks/b017944af5f25ab9.css","style"]
-0:{"buildId":"nmgIyQtHOW7klYECnzqI_","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"barcode-symbologies","paramType":null,"paramKey":"barcode-symbologies","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
+:HL["/vislly/_next/static/chunks/efdc2218c5f721ae.css","style"]
+0:{"buildId":"7Y7TIBsMppDezhI_V1bMu","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"barcode-symbologies","paramType":null,"paramKey":"barcode-symbologies","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
