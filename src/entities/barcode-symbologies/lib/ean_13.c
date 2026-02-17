@@ -7,6 +7,8 @@
 #define EAN13_ENC_L 0
 #define EAN13_ENC_G 1
 #define EAN13_ENC_R 2
+#define EAN13_ENC_G_CHAR 'G'
+#define EAN13_ENC_L_CHAR 'L'
 
 #define EAN13_MARKER_START "101"
 #define EAN13_MARKER_CENTER "01010"
@@ -34,11 +36,11 @@ static const char *const
         {"0101111", "0000101", "1010000"}, {"0111011", "0010001", "1000100"},
         {"0110111", "0001001", "1001000"}, {"0001011", "0010111", "1110100"}};
 
-static inline int get_encoding_type(char c)
+static inline int get_integer_encoding_type(char c)
 {
-    if (c == 'L')
+    if (EAN13_ENC_L_CHAR == c)
         return EAN13_ENC_L;
-    if (c == 'G')
+    if (EAN13_ENC_G_CHAR == c)
         return EAN13_ENC_G;
     return EAN13_ENC_R;
 }
@@ -52,9 +54,9 @@ static inline int draw_group(Canvas *c, int x, int y, int module_width,
     for (size_t i = group_start_index; i <= group_end_index; ++i) {
         int digit = char_to_digit(data_buffer[i]);
         int encoding_idx = EAN13_ENC_R;
-        if (parity_pattern != NULL)
-            encoding_idx =
-                get_encoding_type(parity_pattern[i - group_start_index]);
+        if (NULL != parity_pattern)
+            encoding_idx = get_integer_encoding_type(
+                parity_pattern[i - group_start_index]);
         code = ENCODING_TABLE[digit][encoding_idx];
         curr_x_offset += draw_pattern(c, code, x + curr_x_offset, y,
                                       module_width, bar_height);

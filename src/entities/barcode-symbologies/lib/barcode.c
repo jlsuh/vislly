@@ -93,7 +93,7 @@ void set_dpr(int user_dpr)
 {
     if (user_dpr < MIN_DPR)
         user_dpr = MIN_DPR;
-    if (user_dpr > MAX_DPR)
+    else if (user_dpr > MAX_DPR)
         user_dpr = MAX_DPR;
     dpr = user_dpr;
 }
