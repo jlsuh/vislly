@@ -78,9 +78,9 @@ void render(void)
     canvas_height = marker_bar_height_px + (2 * vertical_quiet_zone_px);
     Canvas c = canvas_create(pixels, canvas_width, canvas_height);
     canvas_fill_rect(&c, 0, 0, canvas_width, canvas_height, C_WHITE);
-    int checksum = compose_checksum_mod10_complement(
-        data_buffer, EAN13_CHECKSUM_INDEX, EAN13_ODD_POS_WEIGHT,
-        EAN13_EVEN_POS_WEIGHT, EAN13_CHECKSUM_MODULO);
+    int checksum = mod10_complement(data_buffer, EAN13_CHECKSUM_INDEX,
+                                    EAN13_ODD_POS_WEIGHT, EAN13_EVEN_POS_WEIGHT,
+                                    EAN13_CHECKSUM_MODULO);
     int curr_x = horizontal_quiet_zone_px;
     int curr_y = vertical_quiet_zone_px;
     int first_digit = char_to_digit(data_buffer[0]);

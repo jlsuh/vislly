@@ -35,14 +35,14 @@ int char_to_digit(char c)
     return c - ASCII_ZERO;
 }
 
-int compose_checksum_mod10_complement(const char *const data_buffer, size_t len,
-                                      int odd_pos_weight, int even_pos_weight,
-                                      int checksum_modulo)
+int mod10_complement(const char *const data_buffer, size_t len,
+                     int odd_pos_weight, int even_pos_weight,
+                     int checksum_modulo)
 {
     int dividend = 0;
     int weights[] = {odd_pos_weight, even_pos_weight};
-    for (size_t i = 0; i < len; ++i)
-        dividend += char_to_digit(data_buffer[i]) * weights[i & 1];
+    for (size_t i = len, weight_idx = 0; i > 0; --i, weight_idx ^= 1)
+        dividend += char_to_digit(data_buffer[i - 1]) * weights[weight_idx];
     int remainder = dividend % checksum_modulo;
     return (checksum_modulo - remainder) % checksum_modulo;
 }

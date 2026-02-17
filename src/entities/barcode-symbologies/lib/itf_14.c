@@ -6,15 +6,18 @@
 
 #define ITF14_BAR_PATTERN_NARROW "1"
 #define ITF14_BAR_PATTERN_WIDE "11"
-#define ITF14_CHECKSUM_INDEX 13
+#define ITF14_WIDE_WIDTH 'W'
+
 #define ITF14_CHECKSUM_MODULO 10
-#define ITF14_EVEN_POS_WEIGHT 1
 #define ITF14_NARROW_BAR_WIDTH 4
 #define ITF14_NARROW_SPACE_WIDTH 6
-#define ITF14_ODD_POS_WEIGHT 3
-#define ITF14_START_INDEX 0
-#define ITF14_WIDE_WIDTH 'W'
 #define ITF14_WIDTHS_PER_DIGIT 5
+
+#define ITF14_EVEN_POS_WEIGHT 1
+#define ITF14_ODD_POS_WEIGHT 3
+
+#define ITF14_CHECKSUM_INDEX 13
+#define ITF14_START_INDEX 0
 
 #define ITF14_GET_BAR_PATTERN(pattern_char)                                    \
     (((pattern_char) == ITF14_WIDE_WIDTH) ? ITF14_BAR_PATTERN_WIDE             \
@@ -95,9 +98,9 @@ void render(void)
     canvas_height = bar_height_px + 2 * vertical_quiet_zone;
     Canvas c = canvas_create(pixels, canvas_width, canvas_height);
     canvas_fill_rect(&c, 0, 0, canvas_width, canvas_height, C_WHITE);
-    int checksum = compose_checksum_mod10_complement(
-        data_buffer, ITF14_CHECKSUM_INDEX, ITF14_ODD_POS_WEIGHT,
-        ITF14_EVEN_POS_WEIGHT, ITF14_CHECKSUM_MODULO);
+    int checksum = mod10_complement(data_buffer, ITF14_CHECKSUM_INDEX,
+                                    ITF14_ODD_POS_WEIGHT, ITF14_EVEN_POS_WEIGHT,
+                                    ITF14_CHECKSUM_MODULO);
     data_buffer[ITF14_CHECKSUM_INDEX] = digit_to_char(checksum);
     int curr_x = horizontal_quiet_zone;
     int curr_y = vertical_quiet_zone;
