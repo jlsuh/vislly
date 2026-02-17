@@ -1,0 +1,11 @@
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+@container (width >= 24rem) {
+  .row {
+    flex-direction: row;
+  }
+}

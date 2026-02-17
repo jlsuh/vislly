@@ -1,27 +1,16 @@
 'use client';
 
 import { type ChangeEvent, type JSX, Suspense, useState } from 'react';
-import type { ReadonlyDeep } from 'type-fest';
-import type { Option } from '@/shared/model/option.ts';
-import Input from '@/shared/ui/Input/Input';
-import Select from '@/shared/ui/Select/Select';
 import {
   assertIsBarcodeSymbology,
-  BARCODE_OPTIONS,
   BARCODE_SYMBOLOGIES,
   type BarcodeSymbology,
   INITIAL_SYMBOLOGY,
 } from '../model/barcode-symbologies';
 import BarcodeCanvas from './BarcodeCanvas.tsx';
+import BarcodeControls from './BarcodeControls.tsx';
 import BarcodeLoadingSkeleton from './BarcodeLoadingSkeleton.tsx';
 import styles from './barcode-symbologies.module.css';
-
-const DPR_OPTIONS: ReadonlyDeep<Option[]> = [
-  { label: '1x', value: '1' },
-  { label: '2x', value: '2' },
-  { label: '3x', value: '3' },
-  { label: '4x', value: '4' },
-];
 
 function BarcodeSymbologies(): JSX.Element {
   const [dpr, setDpr] = useState(
@@ -31,7 +20,7 @@ function BarcodeSymbologies(): JSX.Element {
   const [selectedSymbology, setSelectedSymbology] =
     useState<BarcodeSymbology>(INITIAL_SYMBOLOGY);
   const currentSymbology = BARCODE_SYMBOLOGIES[selectedSymbology];
-  const { maxInputLength } = currentSymbology;
+  const { allowedPattern } = currentSymbology;
 
   const handleOnChangeBarcodeSymbology = (
     e: ChangeEvent<HTMLSelectElement>,
@@ -48,7 +37,7 @@ function BarcodeSymbologies(): JSX.Element {
 
   const handleOnChangeBarcodeInput = (e: ChangeEvent<HTMLInputElement>) => {
     const newBarcodeInput = e.target.value;
-    const regex = new RegExp(`^${currentSymbology.allowedPattern}$`);
+    const regex = new RegExp(`^${allowedPattern}$`);
     if (regex.test(newBarcodeInput)) {
       setBarcodeInput(newBarcodeInput);
     }
@@ -57,30 +46,14 @@ function BarcodeSymbologies(): JSX.Element {
   return (
     <div className={styles.container}>
       <div className={styles.controls}>
-        <div className={styles.row}>
-          <Select
-            handleOnSelectChange={handleOnChangeBarcodeSymbology}
-            label="Barcode Type"
-            options={BARCODE_OPTIONS}
-            value={selectedSymbology}
-          />
-          <Select
-            handleOnSelectChange={handleOnChangeDpr}
-            label="Device Pixel Ratio"
-            options={DPR_OPTIONS}
-            value={`${dpr}`}
-          />
-        </div>
-        <Input
-          handleOnChange={handleOnChangeBarcodeInput}
-          inputMode={currentSymbology.inputMode}
-          label="Barcode Data"
-          maxLength={maxInputLength}
-          name="barcode-data-input"
-          pattern={currentSymbology.allowedPattern}
-          placeholder="Enter barcode data"
-          type={currentSymbology.type}
-          value={barcodeInput}
+        <BarcodeControls
+          barcodeInput={barcodeInput}
+          currentSymbology={currentSymbology}
+          dpr={dpr}
+          handleOnChangeBarcodeInput={handleOnChangeBarcodeInput}
+          handleOnChangeBarcodeSymbology={handleOnChangeBarcodeSymbology}
+          handleOnChangeDpr={handleOnChangeDpr}
+          selectedSymbology={selectedSymbology}
         />
       </div>
       <div className={styles.canvasWrapper}>
