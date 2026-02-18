@@ -31,8 +31,8 @@ EXPORTS=(
     "-Wl,--export=set_dpr"
 )
 
-read -ra ENV_CFLAGS <<< "$CFLAGS"
-read -ra ENV_WASM_FLAGS <<< "$WASMFLAGS"
+read -ra ENV_CFLAGS <<<"$CFLAGS"
+read -ra ENV_WASM_FLAGS <<<"$WASMFLAGS"
 
 FLAGS=(
     "${ENV_CFLAGS[@]}"
