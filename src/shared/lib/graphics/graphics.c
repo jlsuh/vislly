@@ -44,3 +44,20 @@ void canvas_fill_rect(Canvas *self, int x0, int y0, int width, int height,
             row[x] = color;
     }
 }
+
+void canvas_stroke_rect(Canvas *self, int x0, int y0, int width, int height,
+                        int border, uint32_t color)
+{
+    if (0 == border || NULL == self->pixels)
+        return;
+    if (border * 2 < width && border * 2 < height) {
+        canvas_fill_rect(self, x0, y0, width, border, color);
+        canvas_fill_rect(self, x0, y0 + height - border, width, border, color);
+        canvas_fill_rect(self, x0, y0 + border, border, height - 2 * border,
+                         color);
+        canvas_fill_rect(self, x0 + width - border, y0 + border, border,
+                         height - 2 * border, color);
+        return;
+    }
+    canvas_fill_rect(self, x0, y0, width, height, color);
+}
