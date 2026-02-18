@@ -27,7 +27,6 @@ EXPORTS=(
     "-Wl,--export=get_height"
     "-Wl,--export=get_pixel_buffer"
     "-Wl,--export=get_width"
-    "-Wl,--export=pixels"
     "-Wl,--export=render"
     "-Wl,--export=set_dpr"
 )
