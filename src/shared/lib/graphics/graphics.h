@@ -20,7 +20,7 @@ typedef struct {
 } Canvas;
 
 Canvas canvas_create(uint32_t *pixels, int width, int height);
-int8_t canvas_fill_rect(Canvas *self, int x0, int y0, int width, int height,
-                        uint32_t color);
+void canvas_fill_rect(Canvas *self, int x0, int y0, int width, int height,
+                      uint32_t color);
 
 #endif // GRAPHICS_H_
