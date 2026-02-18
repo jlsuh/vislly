@@ -1,11 +1,15 @@
 ARCH := $(shell uname -m)
-CC := gcc
-CFLAGS := -O3 -Wall -Wextra -Wpedantic
+CC := clang
+CFLAGS := -O3 -Wall -Wextra -Wpedantic -Wconversion
+WASMFLAGS := --target=wasm32 -flto -nostdlib -mbulk-memory -Wl,--no-entry -Wl,--lto-O3
 BARCODE_LIB_DIR := src/entities/barcode-symbologies/lib
 SHARED_GRAPHICS_DIR := src/shared/lib/graphics
 GRAPHICS_SRC := $(SHARED_GRAPHICS_DIR)/graphics.c
 GRAPHICS_WASM := public/wasm/graphics.wasm
 TO_WASM_SCRIPT := ./to_wasm.sh
+INCLUDES := -I$(BARCODE_LIB_DIR) -I$(SHARED_GRAPHICS_DIR)
+CFLAGS += $(INCLUDES)
+BARCODE_COMMON_SRC := $(BARCODE_LIB_DIR)/barcode.c
 USAGE := Usage: make pre TU=path/to/file.c
 SRC := src
 ALL_HEADER_FILES := $(shell find $(SRC) -type f -name "*.h")
@@ -22,28 +26,23 @@ endif
 graphics:
 	@echo "Building $(GRAPHICS_WASM)"
 	@mkdir -p $(dir $(GRAPHICS_WASM))
-	$(CC) --target=wasm32 -O3 -flto -nostdlib \
-		-mbulk-memory -Wall -Wextra -Wpedantic \
-		-Wl,--no-entry -Wl,--export-all -Wl,--import-memory \
-		-Wl,--lto-O3 -Wl,--strip-all \
-		-I$(SHARED_GRAPHICS_DIR) \
-		-o $(GRAPHICS_WASM) $(GRAPHICS_SRC)
-	@echo "Built: $(GRAPHICS_WASM)"
+	$(CC) $(WASMFLAGS) $(CFLAGS) -Wl,--export-all -Wl,--import-memory -Wl,--strip-all -o $(GRAPHICS_WASM) $(GRAPHICS_SRC)
+	@echo "Built: $(GRAPHICS_WASM)\n"
 
 bar: graphics
-	LINK_DYNAMIC=true $(TO_WASM_SCRIPT) $(BARCODE_LIB_DIR)/code_128.c
-	LINK_DYNAMIC=true $(TO_WASM_SCRIPT) $(BARCODE_LIB_DIR)/ean_13.c
-	LINK_DYNAMIC=true $(TO_WASM_SCRIPT) $(BARCODE_LIB_DIR)/itf_14.c
+	CC="$(CC)" CFLAGS="$(CFLAGS)" WASMFLAGS="$(WASMFLAGS)" LINK_DYNAMIC=true $(TO_WASM_SCRIPT) $(BARCODE_LIB_DIR)/code_128.c $(BARCODE_COMMON_SRC)
+	CC="$(CC)" CFLAGS="$(CFLAGS)" WASMFLAGS="$(WASMFLAGS)" LINK_DYNAMIC=true $(TO_WASM_SCRIPT) $(BARCODE_LIB_DIR)/ean_13.c $(BARCODE_COMMON_SRC)
+	CC="$(CC)" CFLAGS="$(CFLAGS)" WASMFLAGS="$(WASMFLAGS)" LINK_DYNAMIC=true $(TO_WASM_SCRIPT) $(BARCODE_LIB_DIR)/itf_14.c $(BARCODE_COMMON_SRC)
 
 prebar:
 	$(if $(TU),,$(error $(USAGE)))
-	$(CC) -E -P $(TU) -I $(BARCODE_LIB_DIR) -I $(SHARED_GRAPHICS_DIR)
+	$(CC) -E -P $(TU) $(INCLUDES)
 
 asmbar:
 	$(if $(TU),,$(error $(USAGE)))
 	@echo "Architecture: $(ARCH)"
-	$(CC) -S $(ASM_DIALECT) $(CFLAGS) $(TU) -I $(BARCODE_LIB_DIR) -I $(SHARED_GRAPHICS_DIR) -o -
+	$(CC) -S $(ASM_DIALECT) $(CFLAGS) $(TU) -o -
 
 tidy:
 	clang-format -i $(ALL_SRC_FILES) $(ALL_HEADER_FILES)
-	clang-tidy --fix $(ALL_SRC_FILES) -- -I $(BARCODE_LIB_DIR) -I $(SHARED_GRAPHICS_DIR)
+	clang-tidy --fix $(ALL_SRC_FILES) -- $(INCLUDES)
