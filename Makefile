@@ -7,6 +7,9 @@ GRAPHICS_SRC := $(SHARED_GRAPHICS_DIR)/graphics.c
 GRAPHICS_WASM := public/wasm/graphics.wasm
 TO_WASM_SCRIPT := ./to_wasm.sh
 USAGE := Usage: make pre TU=path/to/file.c
+SRC := src
+ALL_HEADER_FILES := $(shell find $(SRC) -type f -name "*.h")
+ALL_SRC_FILES := $(shell find $(SRC) -type f -name "*.c")
 
 ifeq ($(ARCH),x86_64)
 	ASM_DIALECT := -masm=intel
@@ -40,3 +43,7 @@ asmbar:
 	$(if $(TU),,$(error $(USAGE)))
 	@echo "Architecture: $(ARCH)"
 	$(CC) -S $(ASM_DIALECT) $(CFLAGS) $(TU) -I $(BARCODE_LIB_DIR) -I $(SHARED_GRAPHICS_DIR) -o -
+
+tidy:
+	clang-format -i $(ALL_SRC_FILES) $(ALL_HEADER_FILES)
+	clang-tidy --fix $(ALL_SRC_FILES) -- -I $(BARCODE_LIB_DIR) -I $(SHARED_GRAPHICS_DIR)
