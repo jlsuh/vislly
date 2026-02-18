@@ -68,9 +68,9 @@ void render(void)
 {
     int module_width_px = BASE_MODULE_WIDTH_PX * dpr;
     int regular_bar_height_px = BASE_BAR_HEIGHT_PX * dpr;
-    int marker_extra_height =
-        (int)((float)regular_bar_height_px * EAN13_MARKER_EXTRA_HEIGHT_SCALAR +
-              0.5f);
+    int marker_extra_height = (int)(((float)regular_bar_height_px *
+                                     EAN13_MARKER_EXTRA_HEIGHT_SCALAR) +
+                                    0.5f);
     int marker_bar_height_px = regular_bar_height_px + marker_extra_height;
     int vertical_quiet_zone_px = BASE_VERTICAL_QUIET_ZONE_PX * dpr;
     int horizontal_quiet_zone_px =

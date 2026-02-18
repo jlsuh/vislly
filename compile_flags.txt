@@ -1,5 +1,6 @@
 -Wall
--Wextra
 -Wconversion
+-Wextra
+-Wparentheses
 -Wpedantic
 -Isrc/shared/lib/graphics

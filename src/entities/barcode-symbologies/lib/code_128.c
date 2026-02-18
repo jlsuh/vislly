@@ -325,10 +325,10 @@ void render(void)
         code_set_composers[curr_code_set](&ctx);
     symbol_buffer[next_symbol_idx++] = compose_checksum(&next_symbol_idx);
     symbol_buffer[next_symbol_idx++] = CODE128_STOP;
-    int total_modules = next_symbol_idx * CODE128_MODULES_PER_SYMBOL + 2;
+    int total_modules = (next_symbol_idx * CODE128_MODULES_PER_SYMBOL) + 2;
     canvas_width =
-        total_modules * module_width_px + 2 * horizontal_quiet_zone_px;
-    canvas_height = bar_height_px + 2 * vertical_quiet_zone_px;
+        (total_modules * module_width_px) + (2 * horizontal_quiet_zone_px);
+    canvas_height = bar_height_px + (2 * vertical_quiet_zone_px);
     Canvas c = canvas_create(pixels, canvas_width, canvas_height);
     canvas_fill_rect(&c, 0, 0, canvas_width, canvas_height, C_WHITE);
     int curr_x = horizontal_quiet_zone_px;

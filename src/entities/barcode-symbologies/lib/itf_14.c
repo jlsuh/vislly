@@ -83,12 +83,12 @@ void render(void)
     int vertical_quiet_zone = BASE_VERTICAL_QUIET_ZONE_PX * dpr;
     int pair_width = (2 * w_bar + 3 * n_bar) + (2 * w_space + 3 * n_space);
     int content_body_width = 7 * pair_width;
-    int start_code_total_width = 2 * n_bar + 2 * n_space;
+    int start_code_total_width = (2 * n_bar) + (2 * n_space);
     int stop_code_total_width = w_bar + n_space + n_bar;
     int content_width_px =
         start_code_total_width + content_body_width + stop_code_total_width;
-    canvas_width = 2 * horizontal_quiet_zone + content_width_px;
-    canvas_height = bar_height_px + 2 * vertical_quiet_zone;
+    canvas_width = (2 * horizontal_quiet_zone) + content_width_px;
+    canvas_height = bar_height_px + (2 * vertical_quiet_zone);
     Canvas c = canvas_create(pixels, canvas_width, canvas_height);
     canvas_fill_rect(&c, 0, 0, canvas_width, canvas_height, C_WHITE);
     int checksum = mod10_complement(data_buffer, ITF14_CHECKSUM_INDEX,
