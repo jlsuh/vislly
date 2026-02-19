@@ -48,14 +48,12 @@ typedef struct {
     int dest_code_set;
 } Keyword;
 
-typedef struct {
-    int *next_input_idx;
-    int *next_symbol_idx;
-    int *curr_code_set;
-    int data_len;
-} RenderContext;
+static int curr_code_set;
+static int data_len;
+static int next_input_idx;
+static int next_symbol_idx;
 
-typedef void (*SymbolComposer)(RenderContext *ctx);
+typedef void (*SymbolComposer)(void);
 
 static const char *const PATTERN_WIDTHS[CODE128_PATTERN_WIDTHS_LEN] = {
     "11011001100", "11001101100", "11001100110", "10010011000", "10010001100",
@@ -142,151 +140,150 @@ static inline int match_keyword(const char *data_buffer, int idx)
     return -1;
 }
 
-static inline void switch_code_set(RenderContext *ctx, int new_subset,
-                                   int symbol)
+static inline void switch_code_set(int new_subset, int symbol)
 {
-    symbol_buffer[(*ctx->next_symbol_idx)++] = symbol;
-    *ctx->curr_code_set = new_subset;
+    symbol_buffer[next_symbol_idx++] = symbol;
+    curr_code_set = new_subset;
 }
 
-static inline void fallback_fnc4_in_code_set_C(RenderContext *ctx)
+static inline void fallback_fnc4_in_code_set_C(void)
 {
-    switch_code_set(ctx, CODE128_CODE_SET_B, CODE128_CODE_B);
-    symbol_buffer[(*ctx->next_symbol_idx)++] = CODE128_FNC4_CODE_SET_B;
+    switch_code_set(CODE128_CODE_SET_B, CODE128_CODE_B);
+    symbol_buffer[next_symbol_idx++] = CODE128_FNC4_CODE_SET_B;
 }
 
-static inline bool parse_keyword(RenderContext *ctx)
+static inline bool parse_keyword(void)
 {
-    int keyword_idx = match_keyword(data_buffer, *ctx->next_input_idx);
+    int keyword_idx = match_keyword(data_buffer, next_input_idx);
     if (-1 == keyword_idx)
         return false;
     Keyword keyword = KEYWORDS[keyword_idx];
-    if (keyword.dest_code_set != *ctx->curr_code_set) {
+    if (keyword.dest_code_set != curr_code_set) {
         switch (keyword.dest_code_set) {
         case CODE128_CODE_SET_A:
-            switch_code_set(ctx, CODE128_CODE_SET_A, CODE128_CODE_A);
+            switch_code_set(CODE128_CODE_SET_A, CODE128_CODE_A);
             break;
         case CODE128_CODE_SET_B:
-            switch_code_set(ctx, CODE128_CODE_SET_B, CODE128_CODE_B);
+            switch_code_set(CODE128_CODE_SET_B, CODE128_CODE_B);
             break;
         }
     }
-    if (CODE128_SENTINEL_FNC_4 != keyword.value) {
-        symbol_buffer[(*ctx->next_symbol_idx)++] = keyword.value;
-    } else {
-        switch (*ctx->curr_code_set) {
+    if (CODE128_SENTINEL_FNC_4 != keyword.value)
+        symbol_buffer[next_symbol_idx++] = keyword.value;
+    else {
+        switch (curr_code_set) {
         case CODE128_CODE_SET_A:
-            symbol_buffer[(*ctx->next_symbol_idx)++] = CODE128_FNC4_CODE_SET_A;
+            symbol_buffer[next_symbol_idx++] = CODE128_FNC4_CODE_SET_A;
             break;
         case CODE128_CODE_SET_B:
-            symbol_buffer[(*ctx->next_symbol_idx)++] = CODE128_FNC4_CODE_SET_B;
+            symbol_buffer[next_symbol_idx++] = CODE128_FNC4_CODE_SET_B;
             break;
         default:
-            fallback_fnc4_in_code_set_C(ctx);
+            fallback_fnc4_in_code_set_C();
             break;
         }
     }
-    *ctx->next_input_idx += 1 + keyword.len;
+    next_input_idx += 1 + keyword.len;
     return true;
 }
 
-static inline void compose_code_set_A(RenderContext *ctx)
+static inline void compose_code_set_A(void)
 {
-    if (parse_keyword(ctx))
+    if (parse_keyword())
         return;
-    int idx = *ctx->next_input_idx;
-    if (match_keyword(data_buffer, idx) == -1 &&
-        is_optimizable_with_code_set_C(data_buffer, idx, 4, ctx->data_len)) {
-        switch_code_set(ctx, CODE128_CODE_SET_C, CODE128_CODE_C);
+    int idx = next_input_idx;
+    if (-1 == match_keyword(data_buffer, idx) &&
+        is_optimizable_with_code_set_C(data_buffer, idx, 4, data_len)) {
+        switch_code_set(CODE128_CODE_SET_C, CODE128_CODE_C);
         return;
     }
     char c = data_buffer[idx];
     if (c >= CODE128_ASCII_LOWER_A && c <= CODE128_ASCII_LOWER_Z) {
         bool next_is_lower = false;
-        if (idx + 1 < ctx->data_len) {
+        if (idx + 1 < data_len) {
             char next = data_buffer[idx + 1];
             next_is_lower = (next >= CODE128_ASCII_LOWER_A &&
                              next <= CODE128_ASCII_LOWER_Z);
         }
         if (next_is_lower)
-            switch_code_set(ctx, CODE128_CODE_SET_B, CODE128_CODE_B);
+            switch_code_set(CODE128_CODE_SET_B, CODE128_CODE_B);
         else
-            symbol_buffer[(*ctx->next_symbol_idx)++] = CODE128_SHIFT;
-        symbol_buffer[(*ctx->next_symbol_idx)++] = c - CODE128_ASCII_SPACE;
-        (*ctx->next_input_idx)++;
+            symbol_buffer[next_symbol_idx++] = CODE128_SHIFT;
+        symbol_buffer[next_symbol_idx++] = c - CODE128_ASCII_SPACE;
+        next_input_idx++;
         return;
     }
     if (c >= CODE128_ASCII_SPACE && c <= CODE128_ASCII_UNDERSCORE) {
-        symbol_buffer[(*ctx->next_symbol_idx)++] = c - CODE128_ASCII_SPACE;
-        (*ctx->next_input_idx)++;
+        symbol_buffer[next_symbol_idx++] = c - CODE128_ASCII_SPACE;
+        next_input_idx++;
         return;
     }
     if (c >= CODE128_ASCII_NUL && c <= CODE128_MAX_CONTROL_CHAR) {
-        symbol_buffer[(*ctx->next_symbol_idx)++] = c + CODE128_CTRL_CHAR_OFFSET;
-        (*ctx->next_input_idx)++;
+        symbol_buffer[next_symbol_idx++] = c + CODE128_CTRL_CHAR_OFFSET;
+        next_input_idx++;
         return;
     }
     if (c >= CODE128_ASCII_GRAVE_ACCENT && c <= CODE128_ASCII_DEL) {
-        switch_code_set(ctx, CODE128_CODE_SET_B, CODE128_CODE_B);
+        switch_code_set(CODE128_CODE_SET_B, CODE128_CODE_B);
         return;
     }
-    (*ctx->next_input_idx)++;
+    next_input_idx++;
 }
 
-static inline void compose_code_set_B(RenderContext *ctx)
+static inline void compose_code_set_B(void)
 {
-    if (parse_keyword(ctx))
+    if (parse_keyword())
         return;
-    int idx = *ctx->next_input_idx;
-    if (match_keyword(data_buffer, idx) == -1 &&
-        is_optimizable_with_code_set_C(data_buffer, idx, 4, ctx->data_len)) {
-        switch_code_set(ctx, CODE128_CODE_SET_C, CODE128_CODE_C);
+    int idx = next_input_idx;
+    if (-1 == match_keyword(data_buffer, idx) &&
+        is_optimizable_with_code_set_C(data_buffer, idx, 4, data_len)) {
+        switch_code_set(CODE128_CODE_SET_C, CODE128_CODE_C);
         return;
     }
     char c = data_buffer[idx];
     if (c >= CODE128_ASCII_NUL && c <= CODE128_MAX_CONTROL_CHAR) {
         bool next_is_ctrl = false;
-        if (idx + 1 < ctx->data_len) {
+        if (idx + 1 < data_len) {
             char next = data_buffer[idx + 1];
             next_is_ctrl =
                 (next >= CODE128_ASCII_NUL && next <= CODE128_MAX_CONTROL_CHAR);
         }
         if (next_is_ctrl)
-            switch_code_set(ctx, CODE128_CODE_SET_A, CODE128_CODE_A);
+            switch_code_set(CODE128_CODE_SET_A, CODE128_CODE_A);
         else
-            symbol_buffer[(*ctx->next_symbol_idx)++] = CODE128_SHIFT;
-        symbol_buffer[(*ctx->next_symbol_idx)++] = c + CODE128_CTRL_CHAR_OFFSET;
-        (*ctx->next_input_idx)++;
+            symbol_buffer[next_symbol_idx++] = CODE128_SHIFT;
+        symbol_buffer[next_symbol_idx++] = c + CODE128_CTRL_CHAR_OFFSET;
+        next_input_idx++;
         return;
     }
     if (c >= CODE128_ASCII_SPACE && c <= CODE128_ASCII_DEL) {
-        symbol_buffer[(*ctx->next_symbol_idx)++] = c - CODE128_ASCII_SPACE;
-        (*ctx->next_input_idx)++;
+        symbol_buffer[next_symbol_idx++] = c - CODE128_ASCII_SPACE;
+        next_input_idx++;
         return;
     }
-    symbol_buffer[(*ctx->next_symbol_idx)++] = 0;
-    (*ctx->next_input_idx)++;
+    symbol_buffer[next_symbol_idx++] = 0;
+    next_input_idx++;
 }
 
-static inline void compose_code_set_C(RenderContext *ctx)
+static inline void compose_code_set_C(void)
 {
-    if (parse_keyword(ctx))
+    if (parse_keyword())
         return;
-    int idx = *ctx->next_input_idx;
-    if (!is_optimizable_with_code_set_C(data_buffer, idx, 2, ctx->data_len)) {
-        switch_code_set(ctx, CODE128_CODE_SET_B, CODE128_CODE_B);
+    int idx = next_input_idx;
+    if (!is_optimizable_with_code_set_C(data_buffer, idx, 2, data_len)) {
+        switch_code_set(CODE128_CODE_SET_B, CODE128_CODE_B);
         return;
     }
     int d1 = char_to_digit(data_buffer[idx]);
     int d2 = char_to_digit(data_buffer[idx + 1]);
-    symbol_buffer[(*ctx->next_symbol_idx)++] = (d1 * 10) + d2;
-    *ctx->next_input_idx += 2;
+    symbol_buffer[next_symbol_idx++] = (d1 * 10) + d2;
+    next_input_idx += 2;
 }
 
-static inline int compose_checksum(int *next_symbol_idx)
+static inline int compose_checksum(void)
 {
     int dividend = symbol_buffer[0];
-    for (int i = 1; i < *next_symbol_idx; ++i)
+    for (int i = 1; i < next_symbol_idx; ++i)
         dividend += symbol_buffer[i] * i;
     return dividend % CODE128_CHECKSUM_MODULO;
 }
@@ -301,29 +298,25 @@ void render(void)
     int vertical_quiet_zone_px = BASE_VERTICAL_QUIET_ZONE_PX * dpr;
     int horizontal_quiet_zone_px =
         HORIZONTAL_QUIET_ZONE_MULTIPLIER * module_width_px;
-    int data_len = kernighan_ritchie_strlen(data_buffer);
-    int next_symbol_idx = 0;
-    int next_input_idx = 0;
-    int curr_code_set = CODE128_CODE_SET_B;
-    RenderContext ctx = {.next_input_idx = &next_input_idx,
-                         .next_symbol_idx = &next_symbol_idx,
-                         .curr_code_set = &curr_code_set,
-                         .data_len = data_len};
+    data_len = kernighan_ritchie_strlen(data_buffer);
+    next_symbol_idx = 0;
+    next_input_idx = 0;
+    curr_code_set = CODE128_CODE_SET_B;
     if (is_optimizable_with_code_set_C(data_buffer, 0, 4, data_len)) {
-        switch_code_set(&ctx, CODE128_CODE_SET_C, CODE128_START_C);
+        switch_code_set(CODE128_CODE_SET_C, CODE128_START_C);
     } else {
         int keyword_idx = match_keyword(data_buffer, 0);
         bool should_use_code_set_A =
-            (keyword_idx != -1 &&
+            (-1 != keyword_idx &&
              KEYWORDS[keyword_idx].dest_code_set == CODE128_CODE_SET_A);
         if (should_use_code_set_A)
-            switch_code_set(&ctx, CODE128_CODE_SET_A, CODE128_START_A);
+            switch_code_set(CODE128_CODE_SET_A, CODE128_START_A);
         else
-            switch_code_set(&ctx, CODE128_CODE_SET_B, CODE128_START_B);
+            switch_code_set(CODE128_CODE_SET_B, CODE128_START_B);
     }
     while (next_input_idx < data_len)
-        code_set_composers[curr_code_set](&ctx);
-    symbol_buffer[next_symbol_idx++] = compose_checksum(&next_symbol_idx);
+        code_set_composers[curr_code_set]();
+    symbol_buffer[next_symbol_idx++] = compose_checksum();
     symbol_buffer[next_symbol_idx++] = CODE128_STOP;
     int total_modules = (next_symbol_idx * CODE128_MODULES_PER_SYMBOL) + 2;
     canvas_width =
