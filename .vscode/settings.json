@@ -1,5 +1,7 @@
 {
   "[css]": { "editor.defaultFormatter": "biomejs.biome" },
+  "[javascript]": { "editor.defaultFormatter": "biomejs.biome" },
+  "[json]": { "editor.defaultFormatter": "biomejs.biome" },
   "[jsonc]": { "editor.defaultFormatter": "biomejs.biome" },
   "[typescript]": {
     "typescript.preferences.importModuleSpecifierEnding": "js",
@@ -15,11 +17,6 @@
     "source.organizeImports.biome": "explicit"
   },
   "editor.defaultFormatter": "biomejs.biome",
-  "[json]": {
-    "editor.defaultFormatter": "biomejs.biome"
-  },
-  "[javascript]": {
-    "editor.defaultFormatter": "biomejs.biome"
-  },
+  "editor.formatOnSave": true,
   "typescript.experimental.useTsgo": true
 }
