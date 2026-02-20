@@ -7,7 +7,7 @@
     "biome:ci": "biome ci .",
     "biome:format": "biome check --write --unsafe .",
     "biome:migrate": "biome migrate --write",
-    "build": "bun clean && tsgo && bun depc:report && (trap 'mv tsconfig.json.bak tsconfig.json' EXIT; cp tsconfig.json tsconfig.json.bak && next build --turbopack)",
+    "build": "bun clean && tsgo && bun depc:report && next build --turbopack",
     "clean": "rm -rf ./out/ ./.next/",
     "depc:ci": "bun depc:report && bun depc:metrics && bun depc:gen",
     "depc:gen": "depcruise . -I '^src|^app' -T dot | dot -T svg | depcruise-wrap-stream-in-html > ./dependency-graph.html && bun depc:open",

@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "allowJs": false,
+    "declaration": true,
+    "erasableSyntaxOnly": true,
+    "extendedDiagnostics": true,
+    "forceConsistentCasingInFileNames": true,
+    "incremental": true,
+    "isolatedDeclarations": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "lib": ["DOM", "ESNext"],
+    "moduleDetection": "force",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "paths": { "@/*": ["./src/*"] },
+    "plugins": [{ "name": "next" }],
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "target": "ESNext",
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo",
+    "types": ["node", "react-dom", "react"],
+    "verbatimModuleSyntax": true
+  },
+  "exclude": ["node_modules"],
+  "include": [
+    "./src/app/ambient/global.d.ts",
+    ".next/dev/types/**/*.ts",
+    ".next/types/**/*.ts",
+    "**/*.mts",
+    "**/*.ts",
+    "**/*.tsx",
+    "/out/vislly/dev/types/**/*.ts",
+    "/out/vislly/types/**/*.ts",
+    "next-env.d.ts"
+  ]
+}
