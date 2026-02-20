@@ -1,5 +1,5 @@
 1:"$Sreact.fragment"
 2:I[97367,["/vislly/_next/static/chunks/10283db501a468c7.js","/vislly/_next/static/chunks/d2be314c3ece3fbe.js"],"OutletBoundary"]
 3:"$Sreact.suspense"
-0:{"buildId":"Wn70AG4BsaqJDorLj50A-","rsc":["$","$1","c",{"children":[["$","section",null,{"children":[["$","h1",null,{"children":"Not Found"}],["$","q",null,{"children":"The journey in search of what is missing sometimes leads us to ourselves."}]]}],null,["$","$L2",null,{"children":["$","$3",null,{"name":"Next.MetadataOutlet","children":"$@4"}]}]]}],"loading":null,"isPartial":false}
+0:{"buildId":"2KsF5UHjZnnoKKbDghSdi","rsc":["$","$1","c",{"children":[["$","section",null,{"children":[["$","h1",null,{"children":"Not Found"}],["$","q",null,{"children":"The journey in search of what is missing sometimes leads us to ourselves."}]]}],null,["$","$L2",null,{"children":["$","$3",null,{"name":"Next.MetadataOutlet","children":"$@4"}]}]]}],"loading":null,"isPartial":false}
 4:null
