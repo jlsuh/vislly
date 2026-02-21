@@ -69,6 +69,15 @@ int wasm_strlen(const char *s)
     return i;
 }
 
+void *wasm_memset(void *dest, int c, size_t n)
+{
+    unsigned char *p = dest;
+    while (n--) {
+        *p++ = (unsigned char)c;
+    }
+    return dest;
+}
+
 char *get_data_buffer(void)
 {
     return data_buffer;

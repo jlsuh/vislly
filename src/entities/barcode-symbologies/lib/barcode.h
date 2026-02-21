@@ -45,6 +45,7 @@ int mod10_complement(const char *const data_buffer, size_t len,
                      int odd_pos_weight, int even_pos_weight,
                      int checksum_modulo);
 int wasm_strlen(const char *s);
+void *wasm_memset(void *dest, int c, size_t n);
 
 char *get_data_buffer(void);
 int get_height(void);
