@@ -21,8 +21,8 @@ function BarcodeLoadingSkeleton({
   const aspectRatio = `${width} / ${height}`;
   const seed = composeRandomFlooredIntegerBetween(0, 100);
   const loadingVariables: CssCustomProperty = {
-    ...composeCssCustomProperty('loading-barcode-width', `${width}px`),
     ...composeCssCustomProperty('loading-aspect-ratio', aspectRatio),
+    ...composeCssCustomProperty('loading-barcode-width', `${width}px`),
     ...composeCssCustomProperty('loading-max-width', `${maxWidthPercentage}%`),
     ...composeCssCustomProperty('seed', seed),
   };
