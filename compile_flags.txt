@@ -3,4 +3,5 @@
 -Wextra
 -Wparentheses
 -Wpedantic
+-Isrc/shared/lib
 -Isrc/shared/lib/graphics

@@ -7,13 +7,14 @@ SHARED_GRAPHICS_DIR := src/shared/lib/graphics
 GRAPHICS_SRC := $(SHARED_GRAPHICS_DIR)/graphics.c
 GRAPHICS_WASM := public/wasm/graphics.wasm
 TO_WASM_SCRIPT := ./to_wasm.sh
-INCLUDES := -I$(BARCODE_LIB_DIR) -I$(SHARED_GRAPHICS_DIR)
+INCLUDES := -I$(BARCODE_LIB_DIR) -I$(SHARED_GRAPHICS_DIR) -Isrc/shared/lib
 CFLAGS += $(INCLUDES)
 BARCODE_COMMON_SRC := $(BARCODE_LIB_DIR)/barcode.c
 USAGE := Usage: make pre TU=path/to/file.c
 SRC := src
 ALL_HEADER_FILES := $(shell find $(SRC) -type f -name "*.h")
 ALL_SRC_FILES := $(shell find $(SRC) -type f -name "*.c")
+QR_TEST_OUT := $(BARCODE_LIB_DIR)/qr_code_tests.out
 
 ifeq ($(ARCH),x86_64)
 	ASM_DIALECT := -masm=intel
@@ -21,7 +22,7 @@ else
 	ASM_DIALECT :=
 endif
 
-.PHONY: bar prebar asmbar graphics
+.PHONY: bar prebar asmbar graphics tidy qrtest
 
 graphics:
 	@echo "Building $(GRAPHICS_WASM)"
@@ -46,3 +47,7 @@ asmbar:
 tidy:
 	clang-format -i $(ALL_SRC_FILES) $(ALL_HEADER_FILES)
 	clang-tidy --fix $(ALL_SRC_FILES) -- $(INCLUDES)
+
+qrtest:
+	@$(CC) $(CFLAGS) $(BARCODE_LIB_DIR)/qr_code_tests.c $(BARCODE_COMMON_SRC) $(GRAPHICS_SRC) -o $(QR_TEST_OUT)
+	@./$(QR_TEST_OUT); EXIT_STATUS=$$?; rm -f $(QR_TEST_OUT); exit $$EXIT_STATUS
