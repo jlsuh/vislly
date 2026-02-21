@@ -17,7 +17,7 @@ bool is_digit(char c)
     return c >= ASCII_ZERO && c <= ASCII_NINE;
 }
 
-bool kernighan_ritchie_strncmp(const char *s1, const char *s2, int n)
+bool wasm_strncmp(const char *s1, const char *s2, int n)
 {
     for (int i = 0; i < n; ++i)
         if (s1[i] != s2[i] || NULL_TERMINATOR == s1[i])
@@ -35,18 +35,6 @@ int char_to_digit(char c)
     return c - ASCII_ZERO;
 }
 
-int mod10_complement(const char *const data_buffer, size_t len,
-                     int odd_pos_weight, int even_pos_weight,
-                     int checksum_modulo)
-{
-    int dividend = 0;
-    int weights[] = {odd_pos_weight, even_pos_weight};
-    for (size_t i = len, weight_idx = 0; i > 0; --i, weight_idx ^= 1)
-        dividend += char_to_digit(data_buffer[i - 1]) * weights[weight_idx];
-    int remainder = dividend % checksum_modulo;
-    return (checksum_modulo - remainder) % checksum_modulo;
-}
-
 int draw_pattern(Canvas *c, const char *const pattern, int x, int y,
                  int module_width, int bar_height)
 {
@@ -61,7 +49,19 @@ int draw_pattern(Canvas *c, const char *const pattern, int x, int y,
     return curr_x - x;
 }
 
-int kernighan_ritchie_strlen(const char *s)
+int mod10_complement(const char *const data_buffer, size_t len,
+                     int odd_pos_weight, int even_pos_weight,
+                     int checksum_modulo)
+{
+    int dividend = 0;
+    int weights[] = {odd_pos_weight, even_pos_weight};
+    for (size_t i = len, weight_idx = 0; i > 0; --i, weight_idx ^= 1)
+        dividend += char_to_digit(data_buffer[i - 1]) * weights[weight_idx];
+    int remainder = dividend % checksum_modulo;
+    return (checksum_modulo - remainder) % checksum_modulo;
+}
+
+int wasm_strlen(const char *s)
 {
     int i = 0;
     while (NULL_TERMINATOR != s[i])

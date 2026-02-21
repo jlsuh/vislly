@@ -155,8 +155,8 @@ static inline int match_keyword(const char *data_buffer, int idx)
     if (CODE128_CARET != data_buffer[idx])
         return -1;
     for (int k = 0; k < CODE128_KEYWORDS_LEN; ++k)
-        if (kernighan_ritchie_strncmp(&data_buffer[idx + 1], KEYWORDS[k].key,
-                                      KEYWORDS[k].len))
+        if (wasm_strncmp(&data_buffer[idx + 1], KEYWORDS[k].key,
+                         KEYWORDS[k].len))
             return k;
     return -1;
 }
@@ -320,7 +320,7 @@ void render(void)
     int vertical_quiet_zone_px = BASE_VERTICAL_QUIET_ZONE_PX * dpr;
     int horizontal_quiet_zone_px =
         HORIZONTAL_QUIET_ZONE_MULTIPLIER * module_width_px;
-    data_len = kernighan_ritchie_strlen(data_buffer);
+    data_len = wasm_strlen(data_buffer);
     next_symbol_idx = 0;
     next_input_idx = 0;
     curr_code_set = CODE128_CODE_SET_B;
