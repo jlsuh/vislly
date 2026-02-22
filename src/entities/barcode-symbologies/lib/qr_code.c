@@ -89,14 +89,14 @@ static inline void append_bits(int value, int bit_count)
     }
 }
 
-static inline int get_numeric_group_length(int remaining_digits)
+static inline int numeric_get_group_size(int remaining_digits)
 {
     if (remaining_digits >= NUMERIC_GROUP_SIZE)
         return NUMERIC_GROUP_SIZE;
     return remaining_digits;
 }
 
-static inline int get_bit_count_for_numeric_group(int group_len)
+static inline int numeric_get_bit_count_for_group(int group_len)
 {
     if (group_len == 3)
         return NUMERIC_GROUP_BITS_3;
@@ -105,14 +105,14 @@ static inline int get_bit_count_for_numeric_group(int group_len)
     return NUMERIC_GROUP_BITS_1;
 }
 
-static inline int get_terminator_length(int remaining_bits)
+static inline int numeric_get_terminator_length(int remaining_bits)
 {
     if (remaining_bits > NUMERIC_MAX_TERMINATOR_LENGTH)
         return NUMERIC_MAX_TERMINATOR_LENGTH;
     return remaining_bits;
 }
 
-static inline int get_numeric_cci_length(int version)
+static inline int numeric_get_cci_bits(int version)
 {
     if (version < 10)
         return NUMERIC_CCI_BITS_1_9;
@@ -121,7 +121,7 @@ static inline int get_numeric_cci_length(int version)
     return NUMERIC_CCI_BITS_27_40;
 }
 
-static inline int get_numeric_data_bits_length(int len)
+static inline int numeric_get_content_bits(int len)
 {
     int groups_of_three = len / NUMERIC_GROUP_SIZE;
     int remaining_digits = len % NUMERIC_GROUP_SIZE;
@@ -130,7 +130,6 @@ static inline int get_numeric_data_bits_length(int len)
         total_bits += NUMERIC_GROUP_BITS_2;
     else if (remaining_digits == 1)
         total_bits += NUMERIC_GROUP_BITS_1;
-
     return total_bits;
 }
 
@@ -138,11 +137,11 @@ static inline void numeric_encode_segment_data(const char *const data, int len)
 {
     for (int i = 0; i < len; i += NUMERIC_GROUP_SIZE) {
         int remaining_digits = len - i;
-        int group_len = get_numeric_group_length(remaining_digits);
+        int group_len = numeric_get_group_size(remaining_digits);
         int value = 0;
         for (int j = 0; j < group_len; ++j)
             value = (value * 10) + char_to_digit(data[i + j]);
-        int bit_count = get_bit_count_for_numeric_group(group_len);
+        int bit_count = numeric_get_bit_count_for_group(group_len);
         append_bits(value, bit_count);
     }
 }
@@ -151,7 +150,7 @@ static inline void numeric_append_terminator(int target_codewords)
 {
     int max_capacity_bits = target_codewords * BITS_PER_BYTE;
     int remaining_bits = max_capacity_bits - global_bit_offset;
-    int terminator_len = get_terminator_length(remaining_bits);
+    int terminator_len = numeric_get_terminator_length(remaining_bits);
     append_bits(0, terminator_len);
 }
 
@@ -170,21 +169,21 @@ static inline void numeric_append_pad_codewords(int target_codewords)
         append_bits(NUMERIC_MODE_PAD_PATTERN[i % 2], BITS_PER_BYTE);
 }
 
-static bool determine_version(int data_bits, ErrorCorrectionLevel ec_level,
+static bool determine_version(int content_bits, ErrorCorrectionLevel ec_level,
                               int *out_version, int *out_codewords,
-                              int *out_cci_length)
+                              int *out_cci_bits)
 {
     for (int i = 0; i < VERSION_CAPACITY_LEN; ++i) {
         if (VERSION_CAPACITIES[i].ec_level == ec_level) {
             int version = VERSION_CAPACITIES[i].version;
             int capacity_bits =
                 VERSION_CAPACITIES[i].data_codewords * BITS_PER_BYTE;
-            int cci_length = get_numeric_cci_length(version);
-            int total_needed_bits = NUMERIC_MODE_BITS + cci_length + data_bits;
-            if (total_needed_bits <= capacity_bits) {
+            int cci_bits = numeric_get_cci_bits(version);
+            int data_bits = NUMERIC_MODE_BITS + cci_bits + content_bits;
+            if (data_bits <= capacity_bits) {
                 *out_version = version;
                 *out_codewords = VERSION_CAPACITIES[i].data_codewords;
-                *out_cci_length = cci_length;
+                *out_cci_bits = cci_bits;
                 return true;
             }
         }
@@ -195,12 +194,13 @@ static bool determine_version(int data_bits, ErrorCorrectionLevel ec_level,
 void process_qr_data(void)
 {
     int len = wasm_strlen(data);
-    int data_bits = get_numeric_data_bits_length(len);
+    int content_bits = numeric_get_content_bits(len);
     int target_version = -1;
     int target_codewords = -1;
     int target_cci_length = -1;
-    if (!determine_version(data_bits, error_correction_level, &target_version,
-                           &target_codewords, &target_cci_length)) {
+    if (!determine_version(content_bits, error_correction_level,
+                           &target_version, &target_codewords,
+                           &target_cci_length)) {
         return;
     }
     global_bit_offset = 0;
