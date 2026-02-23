@@ -6,6 +6,7 @@ const BarcodeSymbology = {
   Code128: 'code-128',
   Ean13: 'ean-13',
   Itf14: 'itf-14',
+  // QrCode: 'qr-code',
 } as const;
 
 const AVAILABLE_BARCODE_SYMBOLOGIES = Object.values(BarcodeSymbology);
@@ -71,6 +72,16 @@ const BARCODE_SYMBOLOGIES: ReadonlyDeep<
     value: BarcodeSymbology.Itf14,
     wasmFile: 'itf_14.wasm',
   },
+  // [BarcodeSymbology.QrCode]: {
+  //   allowedPattern: NUMERIC_PATTERN,
+  //   inputMode: 'numeric',
+  //   label: 'QR Code',
+  //   loadingDimensions: { width: 250, height: 250 },
+  //   maxInputLength: 7089,
+  //   type: 'text',
+  //   value: BarcodeSymbology.QrCode,
+  //   wasmFile: 'qr_code.wasm',
+  // },
 };
 
 const BARCODE_OPTIONS: ReadonlyDeep<Option[]> = Object.values(
