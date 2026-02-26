@@ -6,7 +6,7 @@ const BarcodeSymbology = {
   Code128: 'code-128',
   Ean13: 'ean-13',
   Itf14: 'itf-14',
-  // QrCode: 'qr-code',
+  QrCode: 'qr-code',
 } as const;
 
 const AVAILABLE_BARCODE_SYMBOLOGIES = Object.values(BarcodeSymbology);
@@ -31,6 +31,7 @@ type SymbologyConfig = {
   label: string;
   loadingDimensions: { width: number; height: number };
   maxInputLength: number;
+  paddingLength: number;
   rightPaddingChar?: string;
   type: InputHTMLAttributes<HTMLInputElement>['type'];
   value: BarcodeSymbology;
@@ -46,6 +47,7 @@ const BARCODE_SYMBOLOGIES: ReadonlyDeep<
     label: 'Code 128',
     loadingDimensions: { width: 140, height: 160 },
     maxInputLength: 64,
+    paddingLength: 0,
     type: 'text',
     value: BarcodeSymbology.Code128,
     wasmFile: 'code_128.wasm',
@@ -56,6 +58,7 @@ const BARCODE_SYMBOLOGIES: ReadonlyDeep<
     label: 'EAN-13',
     loadingDimensions: { width: 380, height: 184 },
     maxInputLength: 12,
+    paddingLength: 12,
     rightPaddingChar: '0',
     type: 'text',
     value: BarcodeSymbology.Ean13,
@@ -67,21 +70,24 @@ const BARCODE_SYMBOLOGIES: ReadonlyDeep<
     label: 'ITF-14',
     loadingDimensions: { width: 528, height: 160 },
     maxInputLength: 13,
+    paddingLength: 13,
     rightPaddingChar: '0',
     type: 'text',
     value: BarcodeSymbology.Itf14,
     wasmFile: 'itf_14.wasm',
   },
-  // [BarcodeSymbology.QrCode]: {
-  //   allowedPattern: NUMERIC_PATTERN,
-  //   inputMode: 'numeric',
-  //   label: 'QR Code',
-  //   loadingDimensions: { width: 250, height: 250 },
-  //   maxInputLength: 7089,
-  //   type: 'text',
-  //   value: BarcodeSymbology.QrCode,
-  //   wasmFile: 'qr_code.wasm',
-  // },
+  [BarcodeSymbology.QrCode]: {
+    allowedPattern: NUMERIC_PATTERN,
+    inputMode: 'numeric',
+    label: 'QR Code',
+    loadingDimensions: { width: 250, height: 250 },
+    maxInputLength: 7089,
+    paddingLength: 41,
+    rightPaddingChar: '0',
+    type: 'text',
+    value: BarcodeSymbology.QrCode,
+    wasmFile: 'qr_code.wasm',
+  },
 };
 
 const BARCODE_OPTIONS: ReadonlyDeep<Option[]> = Object.values(

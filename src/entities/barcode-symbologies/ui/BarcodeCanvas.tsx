@@ -15,7 +15,7 @@ function BarcodeCanvas({
   inputText,
 }: BarcodeCanvasProps): JSX.Element {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { maxInputLength, rightPaddingChar, wasmFile } = currentSymbology;
+  const { paddingLength, rightPaddingChar, wasmFile } = currentSymbology;
   const barcodeWasm = use(fetchBarcodeWasm(wasmFile));
 
   const renderBarcode = useCallback(() => {
@@ -25,7 +25,7 @@ function BarcodeCanvas({
     if (!ctx) return;
     let textToRender = inputText;
     if (rightPaddingChar) {
-      textToRender = textToRender.padEnd(maxInputLength, rightPaddingChar);
+      textToRender = textToRender.padEnd(paddingLength, rightPaddingChar);
     }
     barcodeWasm.set_dpr(dpr);
     const inputPtr = barcodeWasm.get_data_buffer();
@@ -48,7 +48,7 @@ function BarcodeCanvas({
     );
     const imageData = new ImageData(pixelData, width, height);
     ctx.putImageData(imageData, 0, 0);
-  }, [barcodeWasm, dpr, inputText, maxInputLength, rightPaddingChar]);
+  }, [barcodeWasm, dpr, inputText, paddingLength, rightPaddingChar]);
 
   useEffect(() => renderBarcode(), [renderBarcode]);
 
