@@ -3,11 +3,27 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define ALIGNMENT_PATTERN_CENTER_OFFSET 2
+#define ALIGNMENT_PATTERN_SIZE 5
 #define BITS_PER_BYTE 8
+#define FINDER_PATTERN_AREA_SIZE 8
+#define FINDER_PATTERN_INNER_OFFSET 2
+#define FINDER_PATTERN_INNER_SIZE 3
+#define FINDER_PATTERN_SIZE 7
+#define MAX_ALIGNMENT_COORDS 7
+#define MAX_ALIGNMENT_COORDS 7
 #define MAX_BLOCKS 81
 #define MAX_EC_CODEWORDS_PER_BLOCK 68
 #define MAX_QR_CODEWORDS 4096
+#define MODULE_DIM 4
+#define NO_ALIGNMENT_VERSION 1
+#define QR_VERSION_COUNT 41
+#define QUIET_ZONE_MULTIPLIER 4
+#define TIMING_PATTERN_COORD 6
+#define TIMING_PATTERN_END_MARGIN 9
 #define VERSION_CAPACITY_LEN 160
+#define VERSION_MODULES_BASE 17
+#define VERSION_MODULES_STEP 4
 
 #define NUMERIC_CCI_BITS_1_9 10
 #define NUMERIC_CCI_BITS_10_26 12
@@ -204,6 +220,50 @@ static const VersionCapacity VERSION_CAPACITIES[VERSION_CAPACITY_LEN] = {
     {40, EC_M, 2334, 18, 75, 47, 31, 76, 48},
     {40, EC_Q, 1666, 34, 54, 24, 34, 55, 25},
     {40, EC_H, 1276, 20, 45, 15, 61, 46, 16}};
+
+static const int ALIGNMENT_PATTERN_COORDS[QR_VERSION_COUNT]
+                                         [MAX_ALIGNMENT_COORDS] = {
+                                             {0},
+                                             {0},
+                                             {6, 18},
+                                             {6, 22},
+                                             {6, 26},
+                                             {6, 30},
+                                             {6, 34},
+                                             {6, 22, 38},
+                                             {6, 24, 42},
+                                             {6, 26, 46},
+                                             {6, 28, 50},
+                                             {6, 30, 54},
+                                             {6, 32, 58},
+                                             {6, 34, 62},
+                                             {6, 26, 46, 66},
+                                             {6, 26, 48, 70},
+                                             {6, 26, 50, 74},
+                                             {6, 30, 54, 78},
+                                             {6, 30, 56, 82},
+                                             {6, 30, 58, 86},
+                                             {6, 34, 62, 90},
+                                             {6, 28, 50, 72, 94},
+                                             {6, 26, 50, 74, 98},
+                                             {6, 30, 54, 78, 102},
+                                             {6, 28, 54, 80, 106},
+                                             {6, 32, 58, 84, 110},
+                                             {6, 30, 58, 86, 114},
+                                             {6, 34, 62, 90, 118},
+                                             {6, 26, 50, 74, 98, 122},
+                                             {6, 30, 54, 78, 102, 126},
+                                             {6, 26, 52, 78, 104, 130},
+                                             {6, 30, 56, 82, 108, 134},
+                                             {6, 34, 60, 86, 112, 138},
+                                             {6, 30, 58, 86, 114, 142},
+                                             {6, 34, 62, 90, 118, 146},
+                                             {6, 30, 54, 78, 102, 126, 150},
+                                             {6, 24, 50, 76, 102, 128, 154},
+                                             {6, 28, 54, 80, 106, 132, 158},
+                                             {6, 32, 58, 84, 110, 136, 162},
+                                             {6, 26, 54, 82, 110, 138, 166},
+                                             {6, 30, 58, 86, 114, 142, 170}};
 
 static uint8_t gf_ilog[512];
 static uint8_t gf_log[256];
@@ -442,7 +502,106 @@ static bool determine_version(int content_bits, ErrorCorrectionLevel ec_level,
     return false;
 }
 
-void process_qr_data(void)
+static inline int get_version_modules(int version)
+{
+    return VERSION_MODULES_BASE + VERSION_MODULES_STEP * version;
+}
+
+static inline void emplace_finder_pattern(Canvas *c, int x, int y)
+{
+    int mod_size = MODULE_DIM * dpr;
+    canvas_stroke_rect(c, x, y, FINDER_PATTERN_SIZE * mod_size,
+                       FINDER_PATTERN_SIZE * mod_size, mod_size, C_BLACK);
+    canvas_fill_rect(c, x + FINDER_PATTERN_INNER_OFFSET * mod_size,
+                     y + FINDER_PATTERN_INNER_OFFSET * mod_size,
+                     FINDER_PATTERN_INNER_SIZE * mod_size,
+                     FINDER_PATTERN_INNER_SIZE * mod_size, C_BLACK);
+}
+
+static inline void emplace_finder_patterns(Canvas *c, int quiet_zone_width,
+                                           int version_modules)
+{
+    int top_left_x = quiet_zone_width;
+    int top_left_y = quiet_zone_width;
+    emplace_finder_pattern(c, top_left_x, top_left_y);
+    int top_right_x =
+        quiet_zone_width +
+        (version_modules - FINDER_PATTERN_SIZE) * MODULE_DIM * dpr;
+    int top_right_y = quiet_zone_width;
+    emplace_finder_pattern(c, top_right_x, top_right_y);
+    int bottom_left_x = quiet_zone_width;
+    int bottom_left_y =
+        quiet_zone_width +
+        (version_modules - FINDER_PATTERN_SIZE) * MODULE_DIM * dpr;
+    emplace_finder_pattern(c, bottom_left_x, bottom_left_y);
+}
+
+static inline void emplace_timing_patterns(Canvas *c, int quiet_zone_width,
+                                           int version_modules)
+{
+    int mod_size = MODULE_DIM * dpr;
+    for (int i = FINDER_PATTERN_AREA_SIZE;
+         i <= version_modules - TIMING_PATTERN_END_MARGIN; ++i) {
+        uint32_t color = (i % 2 == 0) ? C_BLACK : C_WHITE;
+        canvas_fill_rect(c, quiet_zone_width + i * mod_size,
+                         quiet_zone_width + TIMING_PATTERN_COORD * mod_size,
+                         mod_size, mod_size, color);
+        canvas_fill_rect(c, quiet_zone_width + TIMING_PATTERN_COORD * mod_size,
+                         quiet_zone_width + i * mod_size, mod_size, mod_size,
+                         color);
+    }
+}
+
+static inline bool is_overlapping_finder_pattern(int r, int c,
+                                                 int version_modules)
+{
+    if (r < FINDER_PATTERN_AREA_SIZE && c < FINDER_PATTERN_AREA_SIZE)
+        return true;
+    if (r < FINDER_PATTERN_AREA_SIZE &&
+        c >= version_modules - FINDER_PATTERN_AREA_SIZE)
+        return true;
+    if (r >= version_modules - FINDER_PATTERN_AREA_SIZE &&
+        c < FINDER_PATTERN_AREA_SIZE)
+        return true;
+    return false;
+}
+
+static inline void emplace_alignment_pattern(Canvas *c, int cx, int cy,
+                                             int quiet_zone_width)
+{
+    int mod_size = MODULE_DIM * dpr;
+    int px =
+        quiet_zone_width + (cx - ALIGNMENT_PATTERN_CENTER_OFFSET) * mod_size;
+    int py =
+        quiet_zone_width + (cy - ALIGNMENT_PATTERN_CENTER_OFFSET) * mod_size;
+    canvas_stroke_rect(c, px, py, ALIGNMENT_PATTERN_SIZE * mod_size,
+                       ALIGNMENT_PATTERN_SIZE * mod_size, mod_size, C_BLACK);
+    canvas_fill_rect(c, px + ALIGNMENT_PATTERN_CENTER_OFFSET * mod_size,
+                     py + ALIGNMENT_PATTERN_CENTER_OFFSET * mod_size, mod_size,
+                     mod_size, C_BLACK);
+}
+
+static inline void emplace_alignment_patterns(Canvas *c, int quiet_zone_width,
+                                              int version, int version_modules)
+{
+    if (NO_ALIGNMENT_VERSION == version)
+        return;
+    const int *coords = ALIGNMENT_PATTERN_COORDS[version];
+    int num_coords = 0;
+    while (num_coords < MAX_ALIGNMENT_COORDS && 0 != coords[num_coords])
+        ++num_coords;
+    for (int i = 0; i < num_coords; ++i) {
+        for (int j = 0; j < num_coords; ++j) {
+            int row = coords[i];
+            int col = coords[j];
+            if (is_overlapping_finder_pattern(row, col, version_modules))
+                continue;
+            emplace_alignment_pattern(c, col, row, quiet_zone_width);
+        }
+    }
+}
+
+static inline void process_qr_data(void)
 {
     init_gf_tables();
     int len = wasm_strlen(data);
@@ -467,9 +626,25 @@ void process_qr_data(void)
         get_version_capacity(target_version, error_correction_level);
     if (vc != NULL) {
         generate_interleaved_message(codeword_buffer, vc);
+        int quiet_zone_width = MODULE_DIM * QUIET_ZONE_MULTIPLIER * dpr;
+        int version_modules = get_version_modules(target_version);
+        int qr_dim = quiet_zone_width * 2 + version_modules * MODULE_DIM * dpr;
+        canvas_width = qr_dim;
+        canvas_height = qr_dim;
+        Canvas c = canvas_create(pixels, canvas_width, canvas_height);
+        canvas_fill_rect(&c, 0, 0, canvas_width, canvas_height, C_WHITE);
+        emplace_finder_patterns(&c, quiet_zone_width, version_modules);
+        emplace_timing_patterns(&c, quiet_zone_width, version_modules);
+        emplace_alignment_patterns(&c, quiet_zone_width, target_version,
+                                   version_modules);
     }
 }
 
 void render(void)
 {
+    canvas_width = 0;
+    canvas_height = 0;
+    data = get_data_buffer();
+    error_correction_level = EC_L;
+    process_qr_data();
 }
