@@ -300,7 +300,7 @@ static inline void init_gf_tables(void)
 
 static inline uint8_t gf_mul(uint8_t x, uint8_t y)
 {
-    if (x == 0 || y == 0)
+    if (0 == x || 0 == y)
         return 0;
     return gf_ilog[gf_log[x] + gf_log[y]];
 }
@@ -328,7 +328,7 @@ static inline void encode_reed_solomon_block(const uint8_t *data_block, int data
         for (int j = 0; j < ec_len - 1; ++j)
             ec[j] = ec[j + 1];
         ec[ec_len - 1] = 0;
-        if (feedback != 0)
+        if (0 != feedback)
             for (int j = 0; j < ec_len; ++j)
                 ec[j] ^= gf_mul(feedback, g[j + 1]);
     }
@@ -380,10 +380,10 @@ static inline void generate_interleaved_message(const uint8_t *data_codewords, c
     }
 }
 
-static inline const VersionCapacity *get_version_capacity(int version, ErrorCorrectionLevel ec_level)
+static inline const VersionCapacity *get_version_capacity(int target_version, ErrorCorrectionLevel target_ec_level)
 {
     for (int i = 0; i < VERSION_CAPACITY_LEN; ++i)
-        if (VERSION_CAPACITIES[i].version == version && VERSION_CAPACITIES[i].ec_level == ec_level)
+        if (target_version == VERSION_CAPACITIES[i].version && target_ec_level == VERSION_CAPACITIES[i].ec_level)
             return &VERSION_CAPACITIES[i];
     return NULL;
 }
@@ -409,9 +409,9 @@ static inline int numeric_get_group_size(int remaining_digits)
 
 static inline int numeric_get_bit_count_for_group(int group_len)
 {
-    if (group_len == 3)
+    if (3 == group_len)
         return NUMERIC_GROUP_BITS_3;
-    if (group_len == 2)
+    if (2 == group_len)
         return NUMERIC_GROUP_BITS_2;
     return NUMERIC_GROUP_BITS_1;
 }
@@ -437,9 +437,9 @@ static inline int numeric_get_content_bits(int len)
     int groups_of_three = len / NUMERIC_GROUP_SIZE;
     int remaining_digits = len % NUMERIC_GROUP_SIZE;
     int total_bits = groups_of_three * NUMERIC_GROUP_BITS_3;
-    if (remaining_digits == 2)
+    if (2 == remaining_digits)
         total_bits += NUMERIC_GROUP_BITS_2;
-    else if (remaining_digits == 1)
+    else if (1 == remaining_digits)
         total_bits += NUMERIC_GROUP_BITS_1;
     return total_bits;
 }
@@ -478,11 +478,11 @@ static inline void numeric_append_pad_codewords(int target_codewords)
         append_bits(NUMERIC_MODE_PAD_PATTERN[i % 2], BITS_PER_BYTE);
 }
 
-static inline bool determine_version(int content_bits, ErrorCorrectionLevel ec_level, int *out_version,
+static inline bool determine_version(int content_bits, ErrorCorrectionLevel target_ec_level, int *out_version,
                                      int *out_codewords, int *out_cci_bits)
 {
     for (int i = 0; i < VERSION_CAPACITY_LEN; ++i) {
-        if (VERSION_CAPACITIES[i].ec_level == ec_level) {
+        if (target_ec_level == VERSION_CAPACITIES[i].ec_level) {
             int version = VERSION_CAPACITIES[i].version;
             int capacity_bits = VERSION_CAPACITIES[i].data_codewords * BITS_PER_BYTE;
             int cci_bits = numeric_get_cci_bits(version);
@@ -558,11 +558,11 @@ static inline void emplace_alignment_pattern(Canvas *c, int cx, int cy, int quie
                      py + (ALIGNMENT_PATTERN_CENTER_OFFSET * mod_size), mod_size, mod_size, C_BLACK);
 }
 
-static inline void emplace_alignment_patterns(Canvas *c, int quiet_zone_width, int version, int version_modules)
+static inline void emplace_alignment_patterns(Canvas *c, int quiet_zone_width, int target_version, int version_modules)
 {
-    if (NO_ALIGNMENT_VERSION == version)
+    if (NO_ALIGNMENT_VERSION == target_version)
         return;
-    const int *coords = ALIGNMENT_PATTERN_COORDS[version];
+    const int *coords = ALIGNMENT_PATTERN_COORDS[target_version];
     int num_coords = 0;
     while (num_coords < MAX_ALIGNMENT_COORDS && 0 != coords[num_coords])
         ++num_coords;
@@ -680,10 +680,10 @@ static inline void emplace_codewords(Canvas *canvas, int quiet_zone_width, int v
     int vertical_direction = DIRECTION_UP;
     int path_x = version_modules - 1;
     while (path_x > 0) {
-        if (path_x == TIMING_PATTERN_COORD)
+        if (TIMING_PATTERN_COORD == path_x)
             --path_x;
         for (int step_y = 0; step_y < version_modules; ++step_y) {
-            int module_y = (vertical_direction == DIRECTION_UP) ? (version_modules - 1 - step_y) : step_y;
+            int module_y = (DIRECTION_UP == vertical_direction) ? (version_modules - 1 - step_y) : step_y;
             for (int step_x = 0; step_x < 2; ++step_x) {
                 int module_x = path_x - step_x;
                 if (!is_reserved_position(module_y, module_x, version, version_modules)) {
@@ -727,7 +727,7 @@ static inline void process_qr_data(void)
     numeric_append_padding_bits();
     numeric_append_pad_codewords(target_codewords);
     const VersionCapacity *vc = get_version_capacity(target_version, error_correction_level);
-    if (vc != NULL) {
+    if (vc) {
         generate_interleaved_message(codeword_buffer, vc);
         int quiet_zone_width = MODULE_DIM * QUIET_ZONE_MULTIPLIER * dpr;
         int version_modules = get_version_modules(target_version);
