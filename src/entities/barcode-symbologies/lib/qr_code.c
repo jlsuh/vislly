@@ -6,11 +6,12 @@
 #define ALIGNMENT_PATTERN_CENTER_OFFSET 2
 #define ALIGNMENT_PATTERN_SIZE 5
 #define BITS_PER_BYTE 8
+#define DIRECTION_UP -1
 #define FINDER_PATTERN_AREA_SIZE 8
 #define FINDER_PATTERN_INNER_OFFSET 2
 #define FINDER_PATTERN_INNER_SIZE 3
 #define FINDER_PATTERN_SIZE 7
-#define MAX_ALIGNMENT_COORDS 7
+#define FORMAT_INFO_COORD 8
 #define MAX_ALIGNMENT_COORDS 7
 #define MAX_BLOCKS 81
 #define MAX_EC_CODEWORDS_PER_BLOCK 68
@@ -22,6 +23,9 @@
 #define TIMING_PATTERN_COORD 6
 #define TIMING_PATTERN_END_MARGIN 9
 #define VERSION_CAPACITY_LEN 160
+#define VERSION_INFO_EDGE_OFFSET 11
+#define VERSION_INFO_MAX_COORD 5
+#define VERSION_INFO_MIN_VERSION 7
 #define VERSION_MODULES_BASE 17
 #define VERSION_MODULES_STEP 4
 
@@ -60,210 +64,211 @@ static ErrorCorrectionLevel error_correction_level;
 static const int NUMERIC_MODE_PAD_PATTERN[] = {0xEC, 0x11};
 
 static const VersionCapacity VERSION_CAPACITIES[VERSION_CAPACITY_LEN] = {
-    {1, EC_L, 19, 1, 26, 19, 0, 0, 0},
-    {1, EC_M, 16, 1, 26, 16, 0, 0, 0},
-    {1, EC_Q, 13, 1, 26, 13, 0, 0, 0},
-    {1, EC_H, 9, 1, 26, 9, 0, 0, 0},
-    {2, EC_L, 34, 1, 44, 34, 0, 0, 0},
-    {2, EC_M, 28, 1, 44, 28, 0, 0, 0},
-    {2, EC_Q, 22, 1, 44, 22, 0, 0, 0},
-    {2, EC_H, 16, 1, 44, 16, 0, 0, 0},
-    {3, EC_L, 55, 1, 70, 55, 0, 0, 0},
-    {3, EC_M, 44, 1, 70, 44, 0, 0, 0},
-    {3, EC_Q, 34, 2, 35, 17, 0, 0, 0},
-    {3, EC_H, 26, 2, 35, 13, 0, 0, 0},
-    {4, EC_L, 80, 1, 100, 80, 0, 0, 0},
-    {4, EC_M, 64, 2, 50, 32, 0, 0, 0},
-    {4, EC_Q, 48, 2, 50, 24, 0, 0, 0},
-    {4, EC_H, 36, 4, 25, 9, 0, 0, 0},
-    {5, EC_L, 108, 1, 134, 108, 0, 0, 0},
-    {5, EC_M, 86, 2, 67, 43, 0, 0, 0},
-    {5, EC_Q, 62, 2, 33, 15, 2, 34, 16},
-    {5, EC_H, 46, 2, 33, 11, 2, 34, 12},
-    {6, EC_L, 136, 2, 86, 68, 0, 0, 0},
-    {6, EC_M, 108, 4, 43, 27, 0, 0, 0},
-    {6, EC_Q, 76, 4, 43, 19, 0, 0, 0},
-    {6, EC_H, 60, 4, 43, 15, 0, 0, 0},
-    {7, EC_L, 156, 2, 98, 78, 0, 0, 0},
-    {7, EC_M, 124, 4, 49, 31, 0, 0, 0},
-    {7, EC_Q, 88, 2, 32, 14, 4, 33, 15},
-    {7, EC_H, 66, 4, 39, 13, 1, 40, 14},
-    {8, EC_L, 194, 2, 121, 97, 0, 0, 0},
-    {8, EC_M, 154, 2, 60, 38, 2, 61, 39},
-    {8, EC_Q, 110, 4, 40, 18, 2, 41, 19},
-    {8, EC_H, 86, 4, 40, 14, 2, 41, 15},
-    {9, EC_L, 232, 2, 146, 116, 0, 0, 0},
-    {9, EC_M, 182, 3, 58, 36, 2, 59, 37},
-    {9, EC_Q, 132, 4, 36, 16, 4, 37, 17},
-    {9, EC_H, 100, 4, 36, 12, 4, 37, 13},
-    {10, EC_L, 274, 2, 86, 68, 2, 87, 69},
-    {10, EC_M, 216, 4, 69, 43, 1, 70, 44},
-    {10, EC_Q, 154, 6, 43, 19, 2, 44, 20},
-    {10, EC_H, 122, 6, 43, 15, 2, 44, 16},
-    {11, EC_L, 324, 4, 101, 81, 0, 0, 0},
-    {11, EC_M, 254, 1, 80, 50, 4, 81, 51},
-    {11, EC_Q, 180, 4, 50, 22, 4, 51, 23},
-    {11, EC_H, 140, 3, 36, 12, 8, 37, 13},
-    {12, EC_L, 370, 2, 116, 92, 2, 117, 93},
-    {12, EC_M, 290, 6, 58, 36, 2, 59, 37},
-    {12, EC_Q, 206, 4, 46, 20, 6, 47, 21},
-    {12, EC_H, 158, 7, 42, 14, 4, 43, 15},
-    {13, EC_L, 428, 4, 133, 107, 0, 0, 0},
-    {13, EC_M, 334, 8, 59, 37, 1, 60, 38},
-    {13, EC_Q, 244, 8, 44, 20, 4, 45, 21},
-    {13, EC_H, 180, 12, 33, 11, 4, 34, 12},
-    {14, EC_L, 461, 3, 145, 115, 1, 146, 116},
-    {14, EC_M, 365, 4, 64, 40, 5, 65, 41},
-    {14, EC_Q, 261, 11, 36, 16, 5, 37, 17},
-    {14, EC_H, 197, 11, 36, 12, 5, 37, 13},
-    {15, EC_L, 523, 5, 109, 87, 1, 110, 88},
-    {15, EC_M, 415, 5, 65, 41, 5, 66, 42},
-    {15, EC_Q, 295, 5, 54, 24, 7, 55, 25},
-    {15, EC_H, 223, 11, 36, 12, 7, 37, 13},
-    {16, EC_L, 589, 5, 122, 98, 1, 123, 99},
-    {16, EC_M, 453, 7, 73, 45, 3, 74, 46},
-    {16, EC_Q, 325, 15, 43, 19, 2, 44, 20},
-    {16, EC_H, 253, 3, 45, 15, 13, 46, 16},
-    {17, EC_L, 647, 1, 135, 107, 5, 136, 108},
-    {17, EC_M, 507, 10, 74, 46, 1, 75, 47},
-    {17, EC_Q, 367, 1, 50, 22, 15, 51, 23},
-    {17, EC_H, 283, 2, 42, 14, 17, 43, 15},
-    {18, EC_L, 721, 5, 150, 120, 1, 151, 121},
-    {18, EC_M, 563, 9, 69, 43, 4, 70, 44},
-    {18, EC_Q, 397, 17, 50, 22, 1, 51, 23},
-    {18, EC_H, 313, 2, 42, 14, 19, 43, 15},
-    {19, EC_L, 795, 3, 141, 113, 4, 142, 114},
-    {19, EC_M, 627, 3, 70, 44, 11, 71, 45},
-    {19, EC_Q, 445, 17, 47, 21, 4, 48, 22},
-    {19, EC_H, 341, 9, 39, 13, 16, 40, 14},
-    {20, EC_L, 861, 3, 135, 107, 5, 136, 108},
-    {20, EC_M, 669, 3, 67, 41, 13, 68, 42},
-    {20, EC_Q, 485, 15, 54, 24, 5, 55, 25},
-    {20, EC_H, 385, 15, 43, 15, 10, 44, 16},
-    {21, EC_L, 932, 4, 144, 116, 4, 145, 117},
-    {21, EC_M, 757, 17, 68, 42, 1, 69, 43},
-    {21, EC_Q, 512, 17, 50, 22, 6, 51, 23},
-    {21, EC_H, 406, 19, 46, 16, 6, 47, 17},
-    {22, EC_L, 1006, 2, 139, 111, 7, 140, 112},
-    {22, EC_M, 782, 17, 74, 46, 0, 0, 0},
-    {22, EC_Q, 568, 7, 54, 24, 16, 55, 25},
-    {22, EC_H, 442, 34, 37, 13, 0, 0, 0},
-    {23, EC_L, 1094, 4, 151, 121, 5, 152, 122},
-    {23, EC_M, 860, 4, 75, 47, 14, 76, 48},
-    {23, EC_Q, 614, 11, 54, 24, 16, 55, 25},
-    {23, EC_H, 464, 16, 45, 15, 14, 46, 16},
-    {24, EC_L, 1174, 6, 147, 117, 4, 148, 118},
-    {24, EC_M, 914, 6, 73, 45, 14, 74, 46},
-    {24, EC_Q, 664, 11, 54, 24, 16, 55, 25},
-    {24, EC_H, 514, 30, 46, 16, 2, 47, 17},
-    {25, EC_L, 1276, 8, 132, 106, 4, 133, 107},
-    {25, EC_M, 1000, 8, 75, 47, 13, 76, 48},
-    {25, EC_Q, 718, 7, 54, 24, 22, 55, 25},
-    {25, EC_H, 538, 22, 45, 15, 13, 46, 16},
-    {26, EC_L, 1370, 10, 142, 114, 2, 143, 115},
-    {26, EC_M, 1062, 19, 74, 46, 4, 75, 47},
-    {26, EC_Q, 754, 28, 50, 22, 6, 51, 23},
-    {26, EC_H, 596, 33, 46, 16, 4, 47, 17},
-    {27, EC_L, 1468, 8, 152, 122, 4, 153, 123},
-    {27, EC_M, 1128, 22, 73, 45, 3, 74, 46},
-    {27, EC_Q, 808, 8, 53, 23, 26, 54, 24},
-    {27, EC_H, 628, 12, 45, 15, 28, 46, 16},
-    {28, EC_L, 1531, 3, 147, 117, 10, 148, 118},
-    {28, EC_M, 1193, 3, 73, 45, 23, 74, 46},
-    {28, EC_Q, 871, 4, 54, 24, 31, 55, 25},
-    {28, EC_H, 661, 11, 45, 15, 31, 46, 16},
-    {29, EC_L, 1631, 7, 146, 116, 7, 147, 117},
-    {29, EC_M, 1267, 21, 73, 45, 7, 74, 46},
-    {29, EC_Q, 911, 1, 53, 23, 37, 54, 24},
-    {29, EC_H, 701, 19, 45, 15, 26, 46, 16},
-    {30, EC_L, 1735, 5, 145, 115, 10, 146, 116},
-    {30, EC_M, 1373, 19, 75, 47, 10, 76, 48},
-    {30, EC_Q, 985, 15, 54, 24, 25, 55, 25},
-    {30, EC_H, 745, 23, 45, 15, 25, 46, 16},
-    {31, EC_L, 1843, 13, 145, 115, 3, 146, 116},
-    {31, EC_M, 1455, 2, 74, 46, 29, 75, 47},
-    {31, EC_Q, 1033, 42, 54, 24, 1, 55, 25},
-    {31, EC_H, 793, 23, 45, 15, 28, 46, 16},
-    {32, EC_L, 1955, 17, 145, 115, 0, 0, 0},
-    {32, EC_M, 1541, 10, 74, 46, 23, 75, 47},
-    {32, EC_Q, 1115, 10, 54, 24, 35, 55, 25},
-    {32, EC_H, 845, 19, 45, 15, 35, 46, 16},
-    {33, EC_L, 2071, 17, 145, 115, 1, 146, 116},
-    {33, EC_M, 1631, 14, 74, 46, 21, 75, 47},
-    {33, EC_Q, 1171, 29, 54, 24, 19, 55, 25},
-    {33, EC_H, 901, 11, 45, 15, 46, 46, 16},
-    {34, EC_L, 2191, 13, 145, 115, 6, 146, 116},
-    {34, EC_M, 1725, 14, 74, 46, 23, 75, 47},
-    {34, EC_Q, 1231, 44, 54, 24, 7, 55, 25},
-    {34, EC_H, 961, 59, 46, 16, 1, 47, 17},
-    {35, EC_L, 2306, 12, 151, 121, 7, 152, 122},
-    {35, EC_M, 1812, 12, 75, 47, 26, 76, 48},
-    {35, EC_Q, 1286, 39, 54, 24, 14, 55, 25},
-    {35, EC_H, 986, 22, 45, 15, 41, 46, 16},
-    {36, EC_L, 2434, 6, 151, 121, 14, 152, 122},
-    {36, EC_M, 1914, 6, 75, 47, 34, 76, 48},
-    {36, EC_Q, 1354, 46, 54, 24, 10, 55, 25},
-    {36, EC_H, 1054, 2, 45, 15, 64, 46, 16},
-    {37, EC_L, 2566, 17, 152, 122, 4, 153, 123},
-    {37, EC_M, 1992, 29, 74, 46, 14, 75, 47},
-    {37, EC_Q, 1426, 49, 54, 24, 10, 55, 25},
-    {37, EC_H, 1096, 24, 45, 15, 46, 46, 16},
-    {38, EC_L, 2702, 4, 152, 122, 18, 153, 123},
-    {38, EC_M, 2102, 13, 74, 46, 32, 75, 47},
-    {38, EC_Q, 1502, 48, 54, 24, 14, 55, 25},
-    {38, EC_H, 1142, 42, 45, 15, 32, 46, 16},
-    {39, EC_L, 2812, 20, 147, 117, 4, 148, 118},
-    {39, EC_M, 2216, 40, 75, 47, 7, 76, 48},
-    {39, EC_Q, 1582, 43, 54, 24, 22, 55, 25},
-    {39, EC_H, 1222, 10, 45, 15, 67, 46, 16},
-    {40, EC_L, 2956, 19, 148, 118, 6, 149, 119},
-    {40, EC_M, 2334, 18, 75, 47, 31, 76, 48},
-    {40, EC_Q, 1666, 34, 54, 24, 34, 55, 25},
-    {40, EC_H, 1276, 20, 45, 15, 61, 46, 16}};
+    {1,  EC_L, 19,   1,  26,  19,  0,  0,   0  },
+    {1,  EC_M, 16,   1,  26,  16,  0,  0,   0  },
+    {1,  EC_Q, 13,   1,  26,  13,  0,  0,   0  },
+    {1,  EC_H, 9,    1,  26,  9,   0,  0,   0  },
+    {2,  EC_L, 34,   1,  44,  34,  0,  0,   0  },
+    {2,  EC_M, 28,   1,  44,  28,  0,  0,   0  },
+    {2,  EC_Q, 22,   1,  44,  22,  0,  0,   0  },
+    {2,  EC_H, 16,   1,  44,  16,  0,  0,   0  },
+    {3,  EC_L, 55,   1,  70,  55,  0,  0,   0  },
+    {3,  EC_M, 44,   1,  70,  44,  0,  0,   0  },
+    {3,  EC_Q, 34,   2,  35,  17,  0,  0,   0  },
+    {3,  EC_H, 26,   2,  35,  13,  0,  0,   0  },
+    {4,  EC_L, 80,   1,  100, 80,  0,  0,   0  },
+    {4,  EC_M, 64,   2,  50,  32,  0,  0,   0  },
+    {4,  EC_Q, 48,   2,  50,  24,  0,  0,   0  },
+    {4,  EC_H, 36,   4,  25,  9,   0,  0,   0  },
+    {5,  EC_L, 108,  1,  134, 108, 0,  0,   0  },
+    {5,  EC_M, 86,   2,  67,  43,  0,  0,   0  },
+    {5,  EC_Q, 62,   2,  33,  15,  2,  34,  16 },
+    {5,  EC_H, 46,   2,  33,  11,  2,  34,  12 },
+    {6,  EC_L, 136,  2,  86,  68,  0,  0,   0  },
+    {6,  EC_M, 108,  4,  43,  27,  0,  0,   0  },
+    {6,  EC_Q, 76,   4,  43,  19,  0,  0,   0  },
+    {6,  EC_H, 60,   4,  43,  15,  0,  0,   0  },
+    {7,  EC_L, 156,  2,  98,  78,  0,  0,   0  },
+    {7,  EC_M, 124,  4,  49,  31,  0,  0,   0  },
+    {7,  EC_Q, 88,   2,  32,  14,  4,  33,  15 },
+    {7,  EC_H, 66,   4,  39,  13,  1,  40,  14 },
+    {8,  EC_L, 194,  2,  121, 97,  0,  0,   0  },
+    {8,  EC_M, 154,  2,  60,  38,  2,  61,  39 },
+    {8,  EC_Q, 110,  4,  40,  18,  2,  41,  19 },
+    {8,  EC_H, 86,   4,  40,  14,  2,  41,  15 },
+    {9,  EC_L, 232,  2,  146, 116, 0,  0,   0  },
+    {9,  EC_M, 182,  3,  58,  36,  2,  59,  37 },
+    {9,  EC_Q, 132,  4,  36,  16,  4,  37,  17 },
+    {9,  EC_H, 100,  4,  36,  12,  4,  37,  13 },
+    {10, EC_L, 274,  2,  86,  68,  2,  87,  69 },
+    {10, EC_M, 216,  4,  69,  43,  1,  70,  44 },
+    {10, EC_Q, 154,  6,  43,  19,  2,  44,  20 },
+    {10, EC_H, 122,  6,  43,  15,  2,  44,  16 },
+    {11, EC_L, 324,  4,  101, 81,  0,  0,   0  },
+    {11, EC_M, 254,  1,  80,  50,  4,  81,  51 },
+    {11, EC_Q, 180,  4,  50,  22,  4,  51,  23 },
+    {11, EC_H, 140,  3,  36,  12,  8,  37,  13 },
+    {12, EC_L, 370,  2,  116, 92,  2,  117, 93 },
+    {12, EC_M, 290,  6,  58,  36,  2,  59,  37 },
+    {12, EC_Q, 206,  4,  46,  20,  6,  47,  21 },
+    {12, EC_H, 158,  7,  42,  14,  4,  43,  15 },
+    {13, EC_L, 428,  4,  133, 107, 0,  0,   0  },
+    {13, EC_M, 334,  8,  59,  37,  1,  60,  38 },
+    {13, EC_Q, 244,  8,  44,  20,  4,  45,  21 },
+    {13, EC_H, 180,  12, 33,  11,  4,  34,  12 },
+    {14, EC_L, 461,  3,  145, 115, 1,  146, 116},
+    {14, EC_M, 365,  4,  64,  40,  5,  65,  41 },
+    {14, EC_Q, 261,  11, 36,  16,  5,  37,  17 },
+    {14, EC_H, 197,  11, 36,  12,  5,  37,  13 },
+    {15, EC_L, 523,  5,  109, 87,  1,  110, 88 },
+    {15, EC_M, 415,  5,  65,  41,  5,  66,  42 },
+    {15, EC_Q, 295,  5,  54,  24,  7,  55,  25 },
+    {15, EC_H, 223,  11, 36,  12,  7,  37,  13 },
+    {16, EC_L, 589,  5,  122, 98,  1,  123, 99 },
+    {16, EC_M, 453,  7,  73,  45,  3,  74,  46 },
+    {16, EC_Q, 325,  15, 43,  19,  2,  44,  20 },
+    {16, EC_H, 253,  3,  45,  15,  13, 46,  16 },
+    {17, EC_L, 647,  1,  135, 107, 5,  136, 108},
+    {17, EC_M, 507,  10, 74,  46,  1,  75,  47 },
+    {17, EC_Q, 367,  1,  50,  22,  15, 51,  23 },
+    {17, EC_H, 283,  2,  42,  14,  17, 43,  15 },
+    {18, EC_L, 721,  5,  150, 120, 1,  151, 121},
+    {18, EC_M, 563,  9,  69,  43,  4,  70,  44 },
+    {18, EC_Q, 397,  17, 50,  22,  1,  51,  23 },
+    {18, EC_H, 313,  2,  42,  14,  19, 43,  15 },
+    {19, EC_L, 795,  3,  141, 113, 4,  142, 114},
+    {19, EC_M, 627,  3,  70,  44,  11, 71,  45 },
+    {19, EC_Q, 445,  17, 47,  21,  4,  48,  22 },
+    {19, EC_H, 341,  9,  39,  13,  16, 40,  14 },
+    {20, EC_L, 861,  3,  135, 107, 5,  136, 108},
+    {20, EC_M, 669,  3,  67,  41,  13, 68,  42 },
+    {20, EC_Q, 485,  15, 54,  24,  5,  55,  25 },
+    {20, EC_H, 385,  15, 43,  15,  10, 44,  16 },
+    {21, EC_L, 932,  4,  144, 116, 4,  145, 117},
+    {21, EC_M, 757,  17, 68,  42,  1,  69,  43 },
+    {21, EC_Q, 512,  17, 50,  22,  6,  51,  23 },
+    {21, EC_H, 406,  19, 46,  16,  6,  47,  17 },
+    {22, EC_L, 1006, 2,  139, 111, 7,  140, 112},
+    {22, EC_M, 782,  17, 74,  46,  0,  0,   0  },
+    {22, EC_Q, 568,  7,  54,  24,  16, 55,  25 },
+    {22, EC_H, 442,  34, 37,  13,  0,  0,   0  },
+    {23, EC_L, 1094, 4,  151, 121, 5,  152, 122},
+    {23, EC_M, 860,  4,  75,  47,  14, 76,  48 },
+    {23, EC_Q, 614,  11, 54,  24,  16, 55,  25 },
+    {23, EC_H, 464,  16, 45,  15,  14, 46,  16 },
+    {24, EC_L, 1174, 6,  147, 117, 4,  148, 118},
+    {24, EC_M, 914,  6,  73,  45,  14, 74,  46 },
+    {24, EC_Q, 664,  11, 54,  24,  16, 55,  25 },
+    {24, EC_H, 514,  30, 46,  16,  2,  47,  17 },
+    {25, EC_L, 1276, 8,  132, 106, 4,  133, 107},
+    {25, EC_M, 1000, 8,  75,  47,  13, 76,  48 },
+    {25, EC_Q, 718,  7,  54,  24,  22, 55,  25 },
+    {25, EC_H, 538,  22, 45,  15,  13, 46,  16 },
+    {26, EC_L, 1370, 10, 142, 114, 2,  143, 115},
+    {26, EC_M, 1062, 19, 74,  46,  4,  75,  47 },
+    {26, EC_Q, 754,  28, 50,  22,  6,  51,  23 },
+    {26, EC_H, 596,  33, 46,  16,  4,  47,  17 },
+    {27, EC_L, 1468, 8,  152, 122, 4,  153, 123},
+    {27, EC_M, 1128, 22, 73,  45,  3,  74,  46 },
+    {27, EC_Q, 808,  8,  53,  23,  26, 54,  24 },
+    {27, EC_H, 628,  12, 45,  15,  28, 46,  16 },
+    {28, EC_L, 1531, 3,  147, 117, 10, 148, 118},
+    {28, EC_M, 1193, 3,  73,  45,  23, 74,  46 },
+    {28, EC_Q, 871,  4,  54,  24,  31, 55,  25 },
+    {28, EC_H, 661,  11, 45,  15,  31, 46,  16 },
+    {29, EC_L, 1631, 7,  146, 116, 7,  147, 117},
+    {29, EC_M, 1267, 21, 73,  45,  7,  74,  46 },
+    {29, EC_Q, 911,  1,  53,  23,  37, 54,  24 },
+    {29, EC_H, 701,  19, 45,  15,  26, 46,  16 },
+    {30, EC_L, 1735, 5,  145, 115, 10, 146, 116},
+    {30, EC_M, 1373, 19, 75,  47,  10, 76,  48 },
+    {30, EC_Q, 985,  15, 54,  24,  25, 55,  25 },
+    {30, EC_H, 745,  23, 45,  15,  25, 46,  16 },
+    {31, EC_L, 1843, 13, 145, 115, 3,  146, 116},
+    {31, EC_M, 1455, 2,  74,  46,  29, 75,  47 },
+    {31, EC_Q, 1033, 42, 54,  24,  1,  55,  25 },
+    {31, EC_H, 793,  23, 45,  15,  28, 46,  16 },
+    {32, EC_L, 1955, 17, 145, 115, 0,  0,   0  },
+    {32, EC_M, 1541, 10, 74,  46,  23, 75,  47 },
+    {32, EC_Q, 1115, 10, 54,  24,  35, 55,  25 },
+    {32, EC_H, 845,  19, 45,  15,  35, 46,  16 },
+    {33, EC_L, 2071, 17, 145, 115, 1,  146, 116},
+    {33, EC_M, 1631, 14, 74,  46,  21, 75,  47 },
+    {33, EC_Q, 1171, 29, 54,  24,  19, 55,  25 },
+    {33, EC_H, 901,  11, 45,  15,  46, 46,  16 },
+    {34, EC_L, 2191, 13, 145, 115, 6,  146, 116},
+    {34, EC_M, 1725, 14, 74,  46,  23, 75,  47 },
+    {34, EC_Q, 1231, 44, 54,  24,  7,  55,  25 },
+    {34, EC_H, 961,  59, 46,  16,  1,  47,  17 },
+    {35, EC_L, 2306, 12, 151, 121, 7,  152, 122},
+    {35, EC_M, 1812, 12, 75,  47,  26, 76,  48 },
+    {35, EC_Q, 1286, 39, 54,  24,  14, 55,  25 },
+    {35, EC_H, 986,  22, 45,  15,  41, 46,  16 },
+    {36, EC_L, 2434, 6,  151, 121, 14, 152, 122},
+    {36, EC_M, 1914, 6,  75,  47,  34, 76,  48 },
+    {36, EC_Q, 1354, 46, 54,  24,  10, 55,  25 },
+    {36, EC_H, 1054, 2,  45,  15,  64, 46,  16 },
+    {37, EC_L, 2566, 17, 152, 122, 4,  153, 123},
+    {37, EC_M, 1992, 29, 74,  46,  14, 75,  47 },
+    {37, EC_Q, 1426, 49, 54,  24,  10, 55,  25 },
+    {37, EC_H, 1096, 24, 45,  15,  46, 46,  16 },
+    {38, EC_L, 2702, 4,  152, 122, 18, 153, 123},
+    {38, EC_M, 2102, 13, 74,  46,  32, 75,  47 },
+    {38, EC_Q, 1502, 48, 54,  24,  14, 55,  25 },
+    {38, EC_H, 1142, 42, 45,  15,  32, 46,  16 },
+    {39, EC_L, 2812, 20, 147, 117, 4,  148, 118},
+    {39, EC_M, 2216, 40, 75,  47,  7,  76,  48 },
+    {39, EC_Q, 1582, 43, 54,  24,  22, 55,  25 },
+    {39, EC_H, 1222, 10, 45,  15,  67, 46,  16 },
+    {40, EC_L, 2956, 19, 148, 118, 6,  149, 119},
+    {40, EC_M, 2334, 18, 75,  47,  31, 76,  48 },
+    {40, EC_Q, 1666, 34, 54,  24,  34, 55,  25 },
+    {40, EC_H, 1276, 20, 45,  15,  61, 46,  16 }
+};
 
-static const int ALIGNMENT_PATTERN_COORDS[QR_VERSION_COUNT]
-                                         [MAX_ALIGNMENT_COORDS] = {
-                                             {0},
-                                             {0},
-                                             {6, 18},
-                                             {6, 22},
-                                             {6, 26},
-                                             {6, 30},
-                                             {6, 34},
-                                             {6, 22, 38},
-                                             {6, 24, 42},
-                                             {6, 26, 46},
-                                             {6, 28, 50},
-                                             {6, 30, 54},
-                                             {6, 32, 58},
-                                             {6, 34, 62},
-                                             {6, 26, 46, 66},
-                                             {6, 26, 48, 70},
-                                             {6, 26, 50, 74},
-                                             {6, 30, 54, 78},
-                                             {6, 30, 56, 82},
-                                             {6, 30, 58, 86},
-                                             {6, 34, 62, 90},
-                                             {6, 28, 50, 72, 94},
-                                             {6, 26, 50, 74, 98},
-                                             {6, 30, 54, 78, 102},
-                                             {6, 28, 54, 80, 106},
-                                             {6, 32, 58, 84, 110},
-                                             {6, 30, 58, 86, 114},
-                                             {6, 34, 62, 90, 118},
-                                             {6, 26, 50, 74, 98, 122},
-                                             {6, 30, 54, 78, 102, 126},
-                                             {6, 26, 52, 78, 104, 130},
-                                             {6, 30, 56, 82, 108, 134},
-                                             {6, 34, 60, 86, 112, 138},
-                                             {6, 30, 58, 86, 114, 142},
-                                             {6, 34, 62, 90, 118, 146},
-                                             {6, 30, 54, 78, 102, 126, 150},
-                                             {6, 24, 50, 76, 102, 128, 154},
-                                             {6, 28, 54, 80, 106, 132, 158},
-                                             {6, 32, 58, 84, 110, 136, 162},
-                                             {6, 26, 54, 82, 110, 138, 166},
-                                             {6, 30, 58, 86, 114, 142, 170}};
+static const int ALIGNMENT_PATTERN_COORDS[QR_VERSION_COUNT][MAX_ALIGNMENT_COORDS] = {
+    {0},
+    {0},
+    {6, 18},
+    {6, 22},
+    {6, 26},
+    {6, 30},
+    {6, 34},
+    {6, 22, 38},
+    {6, 24, 42},
+    {6, 26, 46},
+    {6, 28, 50},
+    {6, 30, 54},
+    {6, 32, 58},
+    {6, 34, 62},
+    {6, 26, 46, 66},
+    {6, 26, 48, 70},
+    {6, 26, 50, 74},
+    {6, 30, 54, 78},
+    {6, 30, 56, 82},
+    {6, 30, 58, 86},
+    {6, 34, 62, 90},
+    {6, 28, 50, 72, 94},
+    {6, 26, 50, 74, 98},
+    {6, 30, 54, 78, 102},
+    {6, 28, 54, 80, 106},
+    {6, 32, 58, 84, 110},
+    {6, 30, 58, 86, 114},
+    {6, 34, 62, 90, 118},
+    {6, 26, 50, 74, 98, 122},
+    {6, 30, 54, 78, 102, 126},
+    {6, 26, 52, 78, 104, 130},
+    {6, 30, 56, 82, 108, 134},
+    {6, 34, 60, 86, 112, 138},
+    {6, 30, 58, 86, 114, 142},
+    {6, 34, 62, 90, 118, 146},
+    {6, 30, 54, 78, 102, 126, 150},
+    {6, 24, 50, 76, 102, 128, 154},
+    {6, 28, 54, 80, 106, 132, 158},
+    {6, 32, 58, 84, 110, 136, 162},
+    {6, 26, 54, 82, 110, 138, 166},
+    {6, 30, 58, 86, 114, 142, 170}
+};
 
 static uint8_t gf_ilog[512];
 static uint8_t gf_log[256];
@@ -276,7 +281,7 @@ static bool gf_initialized = false;
  * @see
  * https://people.computing.clemson.edu/~jmarty/papers/IntroToGaloisFieldsAndRSCoding.pdf
  */
-static void init_gf_tables(void)
+static inline void init_gf_tables(void)
 {
     if (gf_initialized)
         return;
@@ -300,7 +305,7 @@ static inline uint8_t gf_mul(uint8_t x, uint8_t y)
     return gf_ilog[gf_log[x] + gf_log[y]];
 }
 
-static const uint8_t *compute_generator_poly(int ec_block_len)
+static inline const uint8_t *compute_generator_poly(int ec_block_len)
 {
     static uint8_t g[MAX_EC_CODEWORDS_PER_BLOCK + 1];
     g[0] = 1;
@@ -313,8 +318,8 @@ static const uint8_t *compute_generator_poly(int ec_block_len)
     return g;
 }
 
-static void encode_reed_solomon_block(const uint8_t *data_block, int data_len,
-                                      const uint8_t *g, int ec_len, uint8_t *ec)
+static inline void encode_reed_solomon_block(const uint8_t *data_block, int data_len, const uint8_t *g, int ec_len,
+                                             uint8_t *ec)
 {
     for (int i = 0; i < ec_len; ++i)
         ec[i] = 0;
@@ -329,8 +334,7 @@ static void encode_reed_solomon_block(const uint8_t *data_block, int data_len,
     }
 }
 
-static void generate_interleaved_message(const uint8_t *data_codewords,
-                                         const VersionCapacity *vc)
+static inline void generate_interleaved_message(const uint8_t *data_codewords, const VersionCapacity *vc)
 {
     int total_blocks = vc->num_blocks_g1 + vc->num_blocks_g2;
     const uint8_t *data_blocks[MAX_BLOCKS];
@@ -352,8 +356,7 @@ static void generate_interleaved_message(const uint8_t *data_codewords,
         data_blocks[b] = &data_codewords[data_offset];
         ec_blocks_ptrs[b] = ec_blocks[b];
         const uint8_t *g = compute_generator_poly(ec_block_len);
-        encode_reed_solomon_block(data_blocks[b], data_block_len, g,
-                                  ec_block_len, ec_blocks[b]);
+        encode_reed_solomon_block(data_blocks[b], data_block_len, g, ec_block_len, ec_blocks[b]);
         if (data_block_len > max_data_len)
             max_data_len = data_block_len;
         if (ec_block_len > max_ec_len)
@@ -370,20 +373,17 @@ static void generate_interleaved_message(const uint8_t *data_codewords,
     }
     for (int col = 0; col < max_ec_len; ++col) {
         for (int b = 0; b < total_blocks; ++b) {
-            int ec_block_len = (b < vc->num_blocks_g1) ? vc->c_g1 - vc->k_g1
-                                                       : vc->c_g2 - vc->k_g2;
+            int ec_block_len = (b < vc->num_blocks_g1) ? vc->c_g1 - vc->k_g1 : vc->c_g2 - vc->k_g2;
             if (col < ec_block_len)
                 interleaved_codewords[len++] = ec_blocks[b][col];
         }
     }
 }
 
-static const VersionCapacity *
-get_version_capacity(int version, ErrorCorrectionLevel ec_level)
+static inline const VersionCapacity *get_version_capacity(int version, ErrorCorrectionLevel ec_level)
 {
     for (int i = 0; i < VERSION_CAPACITY_LEN; ++i)
-        if (VERSION_CAPACITIES[i].version == version &&
-            VERSION_CAPACITIES[i].ec_level == ec_level)
+        if (VERSION_CAPACITIES[i].version == version && VERSION_CAPACITIES[i].ec_level == ec_level)
             return &VERSION_CAPACITIES[i];
     return NULL;
 }
@@ -467,28 +467,24 @@ static inline void numeric_append_terminator(int target_codewords)
 
 static inline void numeric_append_padding_bits(void)
 {
-    int padding_bits =
-        (BITS_PER_BYTE - (global_bit_offset % BITS_PER_BYTE)) % BITS_PER_BYTE;
+    int padding_bits = (BITS_PER_BYTE - (global_bit_offset % BITS_PER_BYTE)) % BITS_PER_BYTE;
     append_bits(0, padding_bits);
 }
 
 static inline void numeric_append_pad_codewords(int target_codewords)
 {
-    int pad_bytes_needed =
-        target_codewords - (global_bit_offset / BITS_PER_BYTE);
+    int pad_bytes_needed = target_codewords - (global_bit_offset / BITS_PER_BYTE);
     for (int i = 0; i < pad_bytes_needed; ++i)
         append_bits(NUMERIC_MODE_PAD_PATTERN[i % 2], BITS_PER_BYTE);
 }
 
-static bool determine_version(int content_bits, ErrorCorrectionLevel ec_level,
-                              int *out_version, int *out_codewords,
-                              int *out_cci_bits)
+static inline bool determine_version(int content_bits, ErrorCorrectionLevel ec_level, int *out_version,
+                                     int *out_codewords, int *out_cci_bits)
 {
     for (int i = 0; i < VERSION_CAPACITY_LEN; ++i) {
         if (VERSION_CAPACITIES[i].ec_level == ec_level) {
             int version = VERSION_CAPACITIES[i].version;
-            int capacity_bits =
-                VERSION_CAPACITIES[i].data_codewords * BITS_PER_BYTE;
+            int capacity_bits = VERSION_CAPACITIES[i].data_codewords * BITS_PER_BYTE;
             int cci_bits = numeric_get_cci_bits(version);
             int data_bits = NUMERIC_MODE_BITS + cci_bits + content_bits;
             if (data_bits <= capacity_bits) {
@@ -510,79 +506,59 @@ static inline int get_version_modules(int version)
 static inline void emplace_finder_pattern(Canvas *c, int x, int y)
 {
     int mod_size = MODULE_DIM * dpr;
-    canvas_stroke_rect(c, x, y, FINDER_PATTERN_SIZE * mod_size,
-                       FINDER_PATTERN_SIZE * mod_size, mod_size, C_BLACK);
-    canvas_fill_rect(c, x + FINDER_PATTERN_INNER_OFFSET * mod_size,
-                     y + FINDER_PATTERN_INNER_OFFSET * mod_size,
-                     FINDER_PATTERN_INNER_SIZE * mod_size,
-                     FINDER_PATTERN_INNER_SIZE * mod_size, C_BLACK);
+    canvas_stroke_rect(c, x, y, FINDER_PATTERN_SIZE * mod_size, FINDER_PATTERN_SIZE * mod_size, mod_size, C_BLACK);
+    canvas_fill_rect(c, x + FINDER_PATTERN_INNER_OFFSET * mod_size, y + FINDER_PATTERN_INNER_OFFSET * mod_size,
+                     FINDER_PATTERN_INNER_SIZE * mod_size, FINDER_PATTERN_INNER_SIZE * mod_size, C_BLACK);
 }
 
-static inline void emplace_finder_patterns(Canvas *c, int quiet_zone_width,
-                                           int version_modules)
+static inline void emplace_finder_patterns(Canvas *c, int quiet_zone_width, int version_modules)
 {
     int top_left_x = quiet_zone_width;
     int top_left_y = quiet_zone_width;
     emplace_finder_pattern(c, top_left_x, top_left_y);
-    int top_right_x =
-        quiet_zone_width +
-        (version_modules - FINDER_PATTERN_SIZE) * MODULE_DIM * dpr;
+    int top_right_x = quiet_zone_width + (version_modules - FINDER_PATTERN_SIZE) * MODULE_DIM * dpr;
     int top_right_y = quiet_zone_width;
     emplace_finder_pattern(c, top_right_x, top_right_y);
     int bottom_left_x = quiet_zone_width;
-    int bottom_left_y =
-        quiet_zone_width +
-        (version_modules - FINDER_PATTERN_SIZE) * MODULE_DIM * dpr;
+    int bottom_left_y = quiet_zone_width + (version_modules - FINDER_PATTERN_SIZE) * MODULE_DIM * dpr;
     emplace_finder_pattern(c, bottom_left_x, bottom_left_y);
 }
 
-static inline void emplace_timing_patterns(Canvas *c, int quiet_zone_width,
-                                           int version_modules)
+static inline void emplace_timing_patterns(Canvas *c, int quiet_zone_width, int version_modules)
 {
     int mod_size = MODULE_DIM * dpr;
-    for (int i = FINDER_PATTERN_AREA_SIZE;
-         i <= version_modules - TIMING_PATTERN_END_MARGIN; ++i) {
+    for (int i = FINDER_PATTERN_AREA_SIZE; i <= version_modules - TIMING_PATTERN_END_MARGIN; ++i) {
         uint32_t color = (i % 2 == 0) ? C_BLACK : C_WHITE;
-        canvas_fill_rect(c, quiet_zone_width + i * mod_size,
-                         quiet_zone_width + TIMING_PATTERN_COORD * mod_size,
+        canvas_fill_rect(c, quiet_zone_width + i * mod_size, quiet_zone_width + TIMING_PATTERN_COORD * mod_size,
                          mod_size, mod_size, color);
-        canvas_fill_rect(c, quiet_zone_width + TIMING_PATTERN_COORD * mod_size,
-                         quiet_zone_width + i * mod_size, mod_size, mod_size,
-                         color);
+        canvas_fill_rect(c, quiet_zone_width + TIMING_PATTERN_COORD * mod_size, quiet_zone_width + i * mod_size,
+                         mod_size, mod_size, color);
     }
 }
 
-static inline bool is_overlapping_finder_pattern(int r, int c,
-                                                 int version_modules)
+static inline bool is_overlapping_finder_pattern(int row, int col, int version_modules)
 {
-    if (r < FINDER_PATTERN_AREA_SIZE && c < FINDER_PATTERN_AREA_SIZE)
+    if (row < FINDER_PATTERN_AREA_SIZE && col < FINDER_PATTERN_AREA_SIZE)
         return true;
-    if (r < FINDER_PATTERN_AREA_SIZE &&
-        c >= version_modules - FINDER_PATTERN_AREA_SIZE)
+    if (row < FINDER_PATTERN_AREA_SIZE && col >= version_modules - FINDER_PATTERN_AREA_SIZE)
         return true;
-    if (r >= version_modules - FINDER_PATTERN_AREA_SIZE &&
-        c < FINDER_PATTERN_AREA_SIZE)
+    if (row >= version_modules - FINDER_PATTERN_AREA_SIZE && col < FINDER_PATTERN_AREA_SIZE)
         return true;
     return false;
 }
 
-static inline void emplace_alignment_pattern(Canvas *c, int cx, int cy,
-                                             int quiet_zone_width)
+static inline void emplace_alignment_pattern(Canvas *c, int cx, int cy, int quiet_zone_width)
 {
     int mod_size = MODULE_DIM * dpr;
-    int px =
-        quiet_zone_width + (cx - ALIGNMENT_PATTERN_CENTER_OFFSET) * mod_size;
-    int py =
-        quiet_zone_width + (cy - ALIGNMENT_PATTERN_CENTER_OFFSET) * mod_size;
-    canvas_stroke_rect(c, px, py, ALIGNMENT_PATTERN_SIZE * mod_size,
-                       ALIGNMENT_PATTERN_SIZE * mod_size, mod_size, C_BLACK);
+    int px = quiet_zone_width + (cx - ALIGNMENT_PATTERN_CENTER_OFFSET) * mod_size;
+    int py = quiet_zone_width + (cy - ALIGNMENT_PATTERN_CENTER_OFFSET) * mod_size;
+    canvas_stroke_rect(c, px, py, ALIGNMENT_PATTERN_SIZE * mod_size, ALIGNMENT_PATTERN_SIZE * mod_size, mod_size,
+                       C_BLACK);
     canvas_fill_rect(c, px + ALIGNMENT_PATTERN_CENTER_OFFSET * mod_size,
-                     py + ALIGNMENT_PATTERN_CENTER_OFFSET * mod_size, mod_size,
-                     mod_size, C_BLACK);
+                     py + ALIGNMENT_PATTERN_CENTER_OFFSET * mod_size, mod_size, mod_size, C_BLACK);
 }
 
-static inline void emplace_alignment_patterns(Canvas *c, int quiet_zone_width,
-                                              int version, int version_modules)
+static inline void emplace_alignment_patterns(Canvas *c, int quiet_zone_width, int version, int version_modules)
 {
     if (NO_ALIGNMENT_VERSION == version)
         return;
@@ -601,6 +577,135 @@ static inline void emplace_alignment_patterns(Canvas *c, int quiet_zone_width,
     }
 }
 
+static inline bool is_in_timing_range(int val, int version_modules)
+{
+    if (val < FINDER_PATTERN_AREA_SIZE)
+        return false;
+    if (val > version_modules - TIMING_PATTERN_END_MARGIN)
+        return false;
+    return true;
+}
+
+static inline bool is_inside_alignment_box(int row, int col, int center_row, int center_col)
+{
+    if (row < center_row - ALIGNMENT_PATTERN_CENTER_OFFSET)
+        return false;
+    if (row > center_row + ALIGNMENT_PATTERN_CENTER_OFFSET)
+        return false;
+    if (col < center_col - ALIGNMENT_PATTERN_CENTER_OFFSET)
+        return false;
+    if (col > center_col + ALIGNMENT_PATTERN_CENTER_OFFSET)
+        return false;
+    return true;
+}
+
+static inline int get_alignment_coords_count(const int *coords)
+{
+    int count = 0;
+    while (count < MAX_ALIGNMENT_COORDS && 0 != coords[count])
+        ++count;
+    return count;
+}
+
+static inline bool is_overlapping_format_info(int row, int col, int version_modules)
+{
+    if (FORMAT_INFO_COORD == row)
+        return col <= FORMAT_INFO_COORD || col >= version_modules - FINDER_PATTERN_AREA_SIZE;
+    if (FORMAT_INFO_COORD == col)
+        return row <= FORMAT_INFO_COORD || row >= version_modules - FINDER_PATTERN_AREA_SIZE;
+    return false;
+}
+
+static inline bool is_overlapping_timing_pattern(int row, int col, int version_modules)
+{
+    if (TIMING_PATTERN_COORD == row)
+        return is_in_timing_range(col, version_modules);
+    if (TIMING_PATTERN_COORD == col)
+        return is_in_timing_range(row, version_modules);
+    return false;
+}
+
+static inline bool is_overlapping_version_info(int row, int col, int version, int version_modules)
+{
+    if (version < VERSION_INFO_MIN_VERSION)
+        return false;
+    if (row <= VERSION_INFO_MAX_COORD && col >= version_modules - VERSION_INFO_EDGE_OFFSET)
+        return true;
+    if (row >= version_modules - VERSION_INFO_EDGE_OFFSET && col <= VERSION_INFO_MAX_COORD)
+        return true;
+    return false;
+}
+
+static inline bool is_overlapping_alignment_pattern(int row, int col, int version, int version_modules)
+{
+    if (NO_ALIGNMENT_VERSION == version)
+        return false;
+    const int *coords = ALIGNMENT_PATTERN_COORDS[version];
+    int num_coords = get_alignment_coords_count(coords);
+    for (int i = 0; i < num_coords; ++i) {
+        for (int j = 0; j < num_coords; ++j) {
+            int center_row = coords[i];
+            int center_col = coords[j];
+            if (is_overlapping_finder_pattern(center_row, center_col, version_modules))
+                continue;
+            if (is_inside_alignment_box(row, col, center_row, center_col))
+                return true;
+        }
+    }
+    return false;
+}
+
+static inline bool is_reserved_position(int row, int col, int version, int version_modules)
+{
+    if (is_overlapping_finder_pattern(row, col, version_modules))
+        return true;
+    if (is_overlapping_format_info(row, col, version_modules))
+        return true;
+    if (is_overlapping_timing_pattern(row, col, version_modules))
+        return true;
+    if (is_overlapping_version_info(row, col, version, version_modules))
+        return true;
+    if (is_overlapping_alignment_pattern(row, col, version, version_modules))
+        return true;
+    return false;
+}
+
+static inline void emplace_codewords(Canvas *canvas, int quiet_zone_width, int version, int version_modules,
+                                     const VersionCapacity *vc)
+{
+    int total_codewords = (vc->num_blocks_g1 * vc->c_g1) + (vc->num_blocks_g2 * vc->c_g2);
+    int total_bits = total_codewords * BITS_PER_BYTE;
+    int module_pixel_size = MODULE_DIM * dpr;
+    int placed_bits = 0;
+    int vertical_direction = DIRECTION_UP;
+    int path_x = version_modules - 1;
+    while (path_x > 0) {
+        if (path_x == TIMING_PATTERN_COORD)
+            --path_x;
+        for (int step_y = 0; step_y < version_modules; ++step_y) {
+            int module_y = (vertical_direction == DIRECTION_UP) ? (version_modules - 1 - step_y) : step_y;
+            for (int step_x = 0; step_x < 2; ++step_x) {
+                int module_x = path_x - step_x;
+                if (!is_reserved_position(module_y, module_x, version, version_modules)) {
+                    bool is_dark_module = false;
+                    if (placed_bits < total_bits) {
+                        int byte_index = placed_bits / BITS_PER_BYTE;
+                        int bit_within_byte = 7 - (placed_bits % BITS_PER_BYTE);
+                        is_dark_module = (interleaved_codewords[byte_index] >> bit_within_byte) & 1;
+                    }
+                    uint32_t module_color = is_dark_module ? C_BLACK : C_WHITE;
+                    canvas_fill_rect(canvas, quiet_zone_width + module_x * module_pixel_size,
+                                     quiet_zone_width + module_y * module_pixel_size, module_pixel_size,
+                                     module_pixel_size, module_color);
+                    ++placed_bits;
+                }
+            }
+        }
+        vertical_direction = -vertical_direction;
+        path_x -= 2;
+    }
+}
+
 static inline void process_qr_data(void)
 {
     init_gf_tables();
@@ -609,8 +714,7 @@ static inline void process_qr_data(void)
     int target_version = -1;
     int target_codewords = -1;
     int target_cci_length = -1;
-    if (!determine_version(content_bits, error_correction_level,
-                           &target_version, &target_codewords,
+    if (!determine_version(content_bits, error_correction_level, &target_version, &target_codewords,
                            &target_cci_length)) {
         return;
     }
@@ -622,8 +726,7 @@ static inline void process_qr_data(void)
     numeric_append_terminator(target_codewords);
     numeric_append_padding_bits();
     numeric_append_pad_codewords(target_codewords);
-    const VersionCapacity *vc =
-        get_version_capacity(target_version, error_correction_level);
+    const VersionCapacity *vc = get_version_capacity(target_version, error_correction_level);
     if (vc != NULL) {
         generate_interleaved_message(codeword_buffer, vc);
         int quiet_zone_width = MODULE_DIM * QUIET_ZONE_MULTIPLIER * dpr;
@@ -635,8 +738,8 @@ static inline void process_qr_data(void)
         canvas_fill_rect(&c, 0, 0, canvas_width, canvas_height, C_WHITE);
         emplace_finder_patterns(&c, quiet_zone_width, version_modules);
         emplace_timing_patterns(&c, quiet_zone_width, version_modules);
-        emplace_alignment_patterns(&c, quiet_zone_width, target_version,
-                                   version_modules);
+        emplace_alignment_patterns(&c, quiet_zone_width, target_version, version_modules);
+        emplace_codewords(&c, quiet_zone_width, target_version, version_modules, vc);
     }
 }
 
