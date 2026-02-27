@@ -1,6 +1,8 @@
-Language: Cpp
-BasedOnStyle: LLVM
-IndentWidth: 4
-UseTab: Never
-BreakBeforeBraces: Linux
+AlignArrayOfStructures: Left
 AllowShortFunctionsOnASingleLine: None
+BasedOnStyle: LLVM
+BreakBeforeBraces: Linux
+ColumnLimit: 120
+IndentWidth: 4
+Language: Cpp
+UseTab: Never
