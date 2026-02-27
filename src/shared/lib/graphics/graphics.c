@@ -2,14 +2,13 @@
 
 #include <stddef.h>
 
-#define CLAMP(val, min, max)                                                   \
-    (((val) < (min)) ? (min) : (((val) > (max)) ? (max) : (val)))
+#define CLAMP(val, min, max) (((val) < (min)) ? (min) : (((val) > (max)) ? (max) : (val)))
 
-#define SWAP(a, b)                                                             \
-    do {                                                                       \
-        int t = (a);                                                           \
-        (a) = (b);                                                             \
-        (b) = t;                                                               \
+#define SWAP(a, b)                                                                                                     \
+    do {                                                                                                               \
+        int t = (a);                                                                                                   \
+        (a) = (b);                                                                                                     \
+        (b) = t;                                                                                                       \
     } while (0)
 
 Canvas canvas_create(uint32_t *pixels, int width, int height)
@@ -21,8 +20,7 @@ Canvas canvas_create(uint32_t *pixels, int width, int height)
     return (Canvas){.pixels = pixels, .width = width, .height = height};
 }
 
-void canvas_fill_rect(Canvas *self, int x0, int y0, int width, int height,
-                      uint32_t color)
+void canvas_fill_rect(Canvas *self, int x0, int y0, int width, int height, uint32_t color)
 {
     if (NULL == self->pixels)
         return;
@@ -45,18 +43,15 @@ void canvas_fill_rect(Canvas *self, int x0, int y0, int width, int height,
     }
 }
 
-void canvas_stroke_rect(Canvas *self, int x0, int y0, int width, int height,
-                        int border, uint32_t color)
+void canvas_stroke_rect(Canvas *self, int x0, int y0, int width, int height, int border, uint32_t color)
 {
     if (0 == border || NULL == self->pixels)
         return;
     if (border * 2 < width && border * 2 < height) {
         canvas_fill_rect(self, x0, y0, width, border, color);
         canvas_fill_rect(self, x0, y0 + height - border, width, border, color);
-        canvas_fill_rect(self, x0, y0 + border, border, height - (2 * border),
-                         color);
-        canvas_fill_rect(self, x0 + width - border, y0 + border, border,
-                         height - (2 * border), color);
+        canvas_fill_rect(self, x0, y0 + border, border, height - (2 * border), color);
+        canvas_fill_rect(self, x0 + width - border, y0 + border, border, height - (2 * border), color);
         return;
     }
     canvas_fill_rect(self, x0, y0, width, height, color);

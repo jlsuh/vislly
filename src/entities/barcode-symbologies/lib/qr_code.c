@@ -500,14 +500,14 @@ static inline bool determine_version(int content_bits, ErrorCorrectionLevel ec_l
 
 static inline int get_version_modules(int version)
 {
-    return VERSION_MODULES_BASE + VERSION_MODULES_STEP * version;
+    return VERSION_MODULES_BASE + (VERSION_MODULES_STEP * version);
 }
 
 static inline void emplace_finder_pattern(Canvas *c, int x, int y)
 {
     int mod_size = MODULE_DIM * dpr;
     canvas_stroke_rect(c, x, y, FINDER_PATTERN_SIZE * mod_size, FINDER_PATTERN_SIZE * mod_size, mod_size, C_BLACK);
-    canvas_fill_rect(c, x + FINDER_PATTERN_INNER_OFFSET * mod_size, y + FINDER_PATTERN_INNER_OFFSET * mod_size,
+    canvas_fill_rect(c, x + (FINDER_PATTERN_INNER_OFFSET * mod_size), y + (FINDER_PATTERN_INNER_OFFSET * mod_size),
                      FINDER_PATTERN_INNER_SIZE * mod_size, FINDER_PATTERN_INNER_SIZE * mod_size, C_BLACK);
 }
 
@@ -516,11 +516,11 @@ static inline void emplace_finder_patterns(Canvas *c, int quiet_zone_width, int 
     int top_left_x = quiet_zone_width;
     int top_left_y = quiet_zone_width;
     emplace_finder_pattern(c, top_left_x, top_left_y);
-    int top_right_x = quiet_zone_width + (version_modules - FINDER_PATTERN_SIZE) * MODULE_DIM * dpr;
+    int top_right_x = quiet_zone_width + ((version_modules - FINDER_PATTERN_SIZE) * MODULE_DIM * dpr);
     int top_right_y = quiet_zone_width;
     emplace_finder_pattern(c, top_right_x, top_right_y);
     int bottom_left_x = quiet_zone_width;
-    int bottom_left_y = quiet_zone_width + (version_modules - FINDER_PATTERN_SIZE) * MODULE_DIM * dpr;
+    int bottom_left_y = quiet_zone_width + ((version_modules - FINDER_PATTERN_SIZE) * MODULE_DIM * dpr);
     emplace_finder_pattern(c, bottom_left_x, bottom_left_y);
 }
 
@@ -529,9 +529,9 @@ static inline void emplace_timing_patterns(Canvas *c, int quiet_zone_width, int 
     int mod_size = MODULE_DIM * dpr;
     for (int i = FINDER_PATTERN_AREA_SIZE; i <= version_modules - TIMING_PATTERN_END_MARGIN; ++i) {
         uint32_t color = (i % 2 == 0) ? C_BLACK : C_WHITE;
-        canvas_fill_rect(c, quiet_zone_width + i * mod_size, quiet_zone_width + TIMING_PATTERN_COORD * mod_size,
+        canvas_fill_rect(c, quiet_zone_width + (i * mod_size), quiet_zone_width + (TIMING_PATTERN_COORD * mod_size),
                          mod_size, mod_size, color);
-        canvas_fill_rect(c, quiet_zone_width + TIMING_PATTERN_COORD * mod_size, quiet_zone_width + i * mod_size,
+        canvas_fill_rect(c, quiet_zone_width + (TIMING_PATTERN_COORD * mod_size), quiet_zone_width + (i * mod_size),
                          mod_size, mod_size, color);
     }
 }
@@ -550,12 +550,12 @@ static inline bool is_overlapping_finder_pattern(int row, int col, int version_m
 static inline void emplace_alignment_pattern(Canvas *c, int cx, int cy, int quiet_zone_width)
 {
     int mod_size = MODULE_DIM * dpr;
-    int px = quiet_zone_width + (cx - ALIGNMENT_PATTERN_CENTER_OFFSET) * mod_size;
-    int py = quiet_zone_width + (cy - ALIGNMENT_PATTERN_CENTER_OFFSET) * mod_size;
+    int px = quiet_zone_width + ((cx - ALIGNMENT_PATTERN_CENTER_OFFSET) * mod_size);
+    int py = quiet_zone_width + ((cy - ALIGNMENT_PATTERN_CENTER_OFFSET) * mod_size);
     canvas_stroke_rect(c, px, py, ALIGNMENT_PATTERN_SIZE * mod_size, ALIGNMENT_PATTERN_SIZE * mod_size, mod_size,
                        C_BLACK);
-    canvas_fill_rect(c, px + ALIGNMENT_PATTERN_CENTER_OFFSET * mod_size,
-                     py + ALIGNMENT_PATTERN_CENTER_OFFSET * mod_size, mod_size, mod_size, C_BLACK);
+    canvas_fill_rect(c, px + (ALIGNMENT_PATTERN_CENTER_OFFSET * mod_size),
+                     py + (ALIGNMENT_PATTERN_CENTER_OFFSET * mod_size), mod_size, mod_size, C_BLACK);
 }
 
 static inline void emplace_alignment_patterns(Canvas *c, int quiet_zone_width, int version, int version_modules)
@@ -694,8 +694,8 @@ static inline void emplace_codewords(Canvas *canvas, int quiet_zone_width, int v
                         is_dark_module = (interleaved_codewords[byte_index] >> bit_within_byte) & 1;
                     }
                     uint32_t module_color = is_dark_module ? C_BLACK : C_WHITE;
-                    canvas_fill_rect(canvas, quiet_zone_width + module_x * module_pixel_size,
-                                     quiet_zone_width + module_y * module_pixel_size, module_pixel_size,
+                    canvas_fill_rect(canvas, quiet_zone_width + (module_x * module_pixel_size),
+                                     quiet_zone_width + (module_y * module_pixel_size), module_pixel_size,
                                      module_pixel_size, module_color);
                     ++placed_bits;
                 }
@@ -731,7 +731,7 @@ static inline void process_qr_data(void)
         generate_interleaved_message(codeword_buffer, vc);
         int quiet_zone_width = MODULE_DIM * QUIET_ZONE_MULTIPLIER * dpr;
         int version_modules = get_version_modules(target_version);
-        int qr_dim = quiet_zone_width * 2 + version_modules * MODULE_DIM * dpr;
+        int qr_dim = (quiet_zone_width * 2) + (version_modules * MODULE_DIM * dpr);
         canvas_width = qr_dim;
         canvas_height = qr_dim;
         Canvas c = canvas_create(pixels, canvas_width, canvas_height);

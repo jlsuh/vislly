@@ -41,20 +41,16 @@ void test_versions_10_to_26(void)
 void test_versions_27_to_40(void)
 {
     int version, codewords, cci;
-    ASSERT_TRUE(determine_version(numeric_get_content_bits(4000), EC_L,
-                                  &version, &codewords, &cci));
+    ASSERT_TRUE(determine_version(numeric_get_content_bits(4000), EC_L, &version, &codewords, &cci));
     ASSERT_EQUALS(30, version);
     ASSERT_EQUALS(1735, codewords);
-    ASSERT_TRUE(determine_version(numeric_get_content_bits(3500), EC_M,
-                                  &version, &codewords, &cci));
+    ASSERT_TRUE(determine_version(numeric_get_content_bits(3500), EC_M, &version, &codewords, &cci));
     ASSERT_EQUALS(32, version);
     ASSERT_EQUALS(1541, codewords);
-    ASSERT_TRUE(determine_version(numeric_get_content_bits(2500), EC_Q,
-                                  &version, &codewords, &cci));
+    ASSERT_TRUE(determine_version(numeric_get_content_bits(2500), EC_Q, &version, &codewords, &cci));
     ASSERT_EQUALS(32, version);
     ASSERT_EQUALS(1115, codewords);
-    ASSERT_TRUE(determine_version(numeric_get_content_bits(1800), EC_H,
-                                  &version, &codewords, &cci));
+    ASSERT_TRUE(determine_version(numeric_get_content_bits(1800), EC_H, &version, &codewords, &cci));
     ASSERT_EQUALS(31, version);
     ASSERT_EQUALS(793, codewords);
 }
@@ -62,16 +58,13 @@ void test_versions_27_to_40(void)
 void test_boundary_conditions_40_L(void)
 {
     int version, codewords, cci;
-    ASSERT_TRUE(determine_version(numeric_get_content_bits(7088), EC_L,
-                                  &version, &codewords, &cci));
+    ASSERT_TRUE(determine_version(numeric_get_content_bits(7088), EC_L, &version, &codewords, &cci));
     ASSERT_EQUALS(40, version);
     ASSERT_EQUALS(2956, codewords);
-    ASSERT_TRUE(determine_version(numeric_get_content_bits(7089), EC_L,
-                                  &version, &codewords, &cci));
+    ASSERT_TRUE(determine_version(numeric_get_content_bits(7089), EC_L, &version, &codewords, &cci));
     ASSERT_EQUALS(40, version);
     ASSERT_EQUALS(2956, codewords);
-    ASSERT_FALSE(determine_version(numeric_get_content_bits(7090), EC_L,
-                                   &version, &codewords, &cci));
+    ASSERT_FALSE(determine_version(numeric_get_content_bits(7090), EC_L, &version, &codewords, &cci));
 }
 
 void test_integration_buffer_write(void)
@@ -111,11 +104,9 @@ void test_generator_polynomial_degree_68(void)
 {
     init_gf_tables();
     uint8_t expected_g_exp[] = {
-        1,   247, 159, 223, 33,  224, 93,  77,  70,  90,  160, 32,  254, 43,
-        150, 84,  101, 190, 205, 133, 52,  60,  202, 165, 220, 203, 151, 93,
-        84,  15,  84,  253, 173, 160, 89,  227, 52,  199, 97,  95,  231, 52,
-        177, 41,  125, 137, 241, 166, 225, 118, 2,   54,  32,  82,  215, 175,
-        198, 43,  238, 235, 27,  101, 184, 127, 3,   5,   8,   163, 238};
+        1,   247, 159, 223, 33, 224, 93, 77, 70,  90,  160, 32, 254, 43,  150, 84,  101, 190, 205, 133, 52, 60,  202,
+        165, 220, 203, 151, 93, 84,  15, 84, 253, 173, 160, 89, 227, 52,  199, 97,  95,  231, 52,  177, 41, 125, 137,
+        241, 166, 225, 118, 2,  54,  32, 82, 215, 175, 198, 43, 238, 235, 27,  101, 184, 127, 3,   5,   8,  163, 238};
     const uint8_t *g = compute_generator_poly(68);
     ASSERT_EQUALS(expected_g_exp[0], g[0]);
     for (int i = 1; i <= 68; ++i)
@@ -125,8 +116,7 @@ void test_generator_polynomial_degree_68(void)
 void test_reed_solomon_encoding_1_M(void)
 {
     init_gf_tables();
-    uint8_t data_block[16] = {32, 91, 11,  120, 209, 114, 220, 77,
-                              67, 64, 236, 17,  236, 17,  236, 17};
+    uint8_t data_block[16] = {32, 91, 11, 120, 209, 114, 220, 77, 67, 64, 236, 17, 236, 17, 236, 17};
     uint8_t expected_ec[10] = {196, 35, 39, 119, 235, 215, 231, 226, 93, 23};
     uint8_t ec[10];
     const uint8_t *g = compute_generator_poly(10);
@@ -138,8 +128,7 @@ void test_reed_solomon_encoding_1_M(void)
 void test_reed_solomon_encoding_40_H(void)
 {
     init_gf_tables();
-    uint8_t data_block[16] = {1, 2,  3,  4,  5,  6,  7,  8,
-                              9, 10, 11, 12, 13, 14, 15, 16};
+    uint8_t data_block[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
     uint8_t ec[30];
     const uint8_t *g = compute_generator_poly(30);
     encode_reed_solomon_block(data_block, 16, g, 30, ec);

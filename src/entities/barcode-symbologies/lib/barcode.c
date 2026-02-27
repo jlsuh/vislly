@@ -35,8 +35,7 @@ int char_to_digit(char c)
     return c - ASCII_ZERO;
 }
 
-int draw_pattern(Canvas *c, const char *const pattern, int x, int y,
-                 int module_width, int bar_height)
+int draw_pattern(Canvas *c, const char *const pattern, int x, int y, int module_width, int bar_height)
 {
     int curr_x = x;
     int i = 0;
@@ -49,8 +48,7 @@ int draw_pattern(Canvas *c, const char *const pattern, int x, int y,
     return curr_x - x;
 }
 
-int mod10_complement(const char *const data_buffer, size_t len,
-                     int odd_pos_weight, int even_pos_weight,
+int mod10_complement(const char *const data_buffer, size_t len, int odd_pos_weight, int even_pos_weight,
                      int checksum_modulo)
 {
     int dividend = 0;

@@ -39,10 +39,8 @@ bool is_digit(char c);
 bool wasm_strncmp(const char *s1, const char *s2, int n);
 char digit_to_char(int d);
 int char_to_digit(char c);
-int draw_pattern(Canvas *c, const char *const pattern, int x, int y,
-                 int module_width, int bar_height);
-int mod10_complement(const char *const data_buffer, size_t len,
-                     int odd_pos_weight, int even_pos_weight,
+int draw_pattern(Canvas *c, const char *const pattern, int x, int y, int module_width, int bar_height);
+int mod10_complement(const char *const data_buffer, size_t len, int odd_pos_weight, int even_pos_weight,
                      int checksum_modulo);
 int wasm_strlen(const char *s);
 void *wasm_memset(void *dest, int c, size_t n);
