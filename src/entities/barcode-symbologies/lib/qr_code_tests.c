@@ -2,69 +2,57 @@
 
 #include "qr_code.c"
 
+static void check_version(int data_bits, ErrorCorrectionLevel ec_level, int expected_version, int expected_codewords)
+{
+    int cci;
+    const VersionCapacity *vc = determine_version(data_bits, ec_level, &cci);
+    ASSERT_TRUE(vc != NULL);
+    if (vc != NULL) {
+        ASSERT_EQUALS(expected_version, vc->version);
+        ASSERT_EQUALS(expected_codewords, vc->data_codewords);
+    }
+}
+
 void test_versions_1_to_9(void)
 {
     int data_bits = numeric_get_content_bits(8);
-    int version, codewords, cci;
-    ASSERT_TRUE(determine_version(data_bits, EC_L, &version, &codewords, &cci));
-    ASSERT_EQUALS(1, version);
-    ASSERT_EQUALS(19, codewords);
-    ASSERT_TRUE(determine_version(data_bits, EC_M, &version, &codewords, &cci));
-    ASSERT_EQUALS(1, version);
-    ASSERT_EQUALS(16, codewords);
-    ASSERT_TRUE(determine_version(data_bits, EC_Q, &version, &codewords, &cci));
-    ASSERT_EQUALS(1, version);
-    ASSERT_EQUALS(13, codewords);
-    ASSERT_TRUE(determine_version(data_bits, EC_H, &version, &codewords, &cci));
-    ASSERT_EQUALS(1, version);
-    ASSERT_EQUALS(9, codewords);
+    check_version(data_bits, EC_L, 1, 19);
+    check_version(data_bits, EC_M, 1, 16);
+    check_version(data_bits, EC_Q, 1, 13);
+    check_version(data_bits, EC_H, 1, 9);
 }
 
 void test_versions_10_to_26(void)
 {
     int data_bits = numeric_get_content_bits(600);
-    int version, codewords, cci;
-    ASSERT_TRUE(determine_version(data_bits, EC_L, &version, &codewords, &cci));
-    ASSERT_EQUALS(10, version);
-    ASSERT_EQUALS(274, codewords);
-    ASSERT_TRUE(determine_version(data_bits, EC_M, &version, &codewords, &cci));
-    ASSERT_EQUALS(11, version);
-    ASSERT_EQUALS(254, codewords);
-    ASSERT_TRUE(determine_version(data_bits, EC_Q, &version, &codewords, &cci));
-    ASSERT_EQUALS(14, version);
-    ASSERT_EQUALS(261, codewords);
-    ASSERT_TRUE(determine_version(data_bits, EC_H, &version, &codewords, &cci));
-    ASSERT_EQUALS(16, version);
-    ASSERT_EQUALS(253, codewords);
+    check_version(data_bits, EC_L, 10, 274);
+    check_version(data_bits, EC_M, 11, 254);
+    check_version(data_bits, EC_Q, 14, 261);
+    check_version(data_bits, EC_H, 16, 253);
 }
 
 void test_versions_27_to_40(void)
 {
-    int version, codewords, cci;
-    ASSERT_TRUE(determine_version(numeric_get_content_bits(4000), EC_L, &version, &codewords, &cci));
-    ASSERT_EQUALS(30, version);
-    ASSERT_EQUALS(1735, codewords);
-    ASSERT_TRUE(determine_version(numeric_get_content_bits(3500), EC_M, &version, &codewords, &cci));
-    ASSERT_EQUALS(32, version);
-    ASSERT_EQUALS(1541, codewords);
-    ASSERT_TRUE(determine_version(numeric_get_content_bits(2500), EC_Q, &version, &codewords, &cci));
-    ASSERT_EQUALS(32, version);
-    ASSERT_EQUALS(1115, codewords);
-    ASSERT_TRUE(determine_version(numeric_get_content_bits(1800), EC_H, &version, &codewords, &cci));
-    ASSERT_EQUALS(31, version);
-    ASSERT_EQUALS(793, codewords);
+    check_version(numeric_get_content_bits(4000), EC_L, 30, 1735);
+    check_version(numeric_get_content_bits(3500), EC_M, 32, 1541);
+    check_version(numeric_get_content_bits(2500), EC_Q, 32, 1115);
+    check_version(numeric_get_content_bits(1800), EC_H, 31, 793);
 }
 
 void test_boundary_conditions_40_L(void)
 {
-    int version, codewords, cci;
-    ASSERT_TRUE(determine_version(numeric_get_content_bits(7088), EC_L, &version, &codewords, &cci));
-    ASSERT_EQUALS(40, version);
-    ASSERT_EQUALS(2956, codewords);
-    ASSERT_TRUE(determine_version(numeric_get_content_bits(7089), EC_L, &version, &codewords, &cci));
-    ASSERT_EQUALS(40, version);
-    ASSERT_EQUALS(2956, codewords);
-    ASSERT_FALSE(determine_version(numeric_get_content_bits(7090), EC_L, &version, &codewords, &cci));
+    int cci;
+    const VersionCapacity *vc;
+    vc = determine_version(numeric_get_content_bits(7088), EC_L, &cci);
+    ASSERT_TRUE(vc != NULL);
+    ASSERT_EQUALS(40, vc->version);
+    ASSERT_EQUALS(2956, vc->data_codewords);
+    vc = determine_version(numeric_get_content_bits(7089), EC_L, &cci);
+    ASSERT_TRUE(vc != NULL);
+    ASSERT_EQUALS(40, vc->version);
+    ASSERT_EQUALS(2956, vc->data_codewords);
+    vc = determine_version(numeric_get_content_bits(7090), EC_L, &cci);
+    ASSERT_TRUE(vc == NULL);
 }
 
 void test_integration_buffer_write(void)
@@ -120,7 +108,8 @@ void test_reed_solomon_encoding_1_M(void)
     uint8_t expected_ec[10] = {196, 35, 39, 119, 235, 215, 231, 226, 93, 23};
     uint8_t ec[10];
     const uint8_t *g = compute_generator_poly(10);
-    encode_reed_solomon_block(data_block, 16, g, 10, ec);
+    RSBlock block = {.data = data_block, .data_len = 16, .ec = ec, .ec_len = 10};
+    encode_rs_block(&block, g);
     for (int i = 0; i < 10; ++i)
         ASSERT_EQUALS(expected_ec[i], ec[i]);
 }
@@ -131,14 +120,16 @@ void test_reed_solomon_encoding_40_H(void)
     uint8_t data_block[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
     uint8_t ec[30];
     const uint8_t *g = compute_generator_poly(30);
-    encode_reed_solomon_block(data_block, 16, g, 30, ec);
+    RSBlock block1 = {.data = data_block, .data_len = 16, .ec = ec, .ec_len = 30};
+    encode_rs_block(&block1, g);
     uint8_t codeword[46];
     for (int i = 0; i < 16; ++i)
         codeword[i] = data_block[i];
     for (int i = 0; i < 30; ++i)
         codeword[16 + i] = ec[i];
     uint8_t remainder[30];
-    encode_reed_solomon_block(codeword, 46, g, 30, remainder);
+    RSBlock block2 = {.data = codeword, .data_len = 46, .ec = remainder, .ec_len = 30};
+    encode_rs_block(&block2, g);
     for (int i = 0; i < 30; ++i)
         ASSERT_EQUALS(0, remainder[i]);
 }

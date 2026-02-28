@@ -28,6 +28,10 @@
 #define MAX_DPR 4
 #define MIN_DPR 1
 
+#define MATH_MAX(a, b) ((a) > (b) ? (a) : (b))
+#define MATH_MIN(a, b) ((a) < (b) ? (a) : (b))
+#define MATH_ABS(x) ((x) < 0 ? -(x) : (x))
+
 extern char data_buffer[BARCODE_BUFFER_SIZE];
 extern int canvas_height;
 extern int canvas_width;

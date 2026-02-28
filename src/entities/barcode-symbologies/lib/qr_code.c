@@ -3,31 +3,43 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define MAX_QR_MODULES 177
+#define MODULE_BASE_SIZE 4
+#define QUIET_ZONE_MULTIPLIER 4
+
 #define ALIGNMENT_PATTERN_CENTER_OFFSET 2
 #define ALIGNMENT_PATTERN_SIZE 5
-#define BITS_PER_BYTE 8
-#define DIRECTION_UP -1
 #define FINDER_PATTERN_AREA_SIZE 8
 #define FINDER_PATTERN_INNER_OFFSET 2
 #define FINDER_PATTERN_INNER_SIZE 3
 #define FINDER_PATTERN_SIZE 7
-#define FORMAT_INFO_COORD 8
 #define MAX_ALIGNMENT_COORDS 7
+#define NO_ALIGNMENT_VERSION 1
+#define TIMING_PATTERN_COORD 6
+#define TIMING_PATTERN_END_MARGIN 9
+
+#define BITS_PER_BYTE 8
 #define MAX_BLOCKS 81
 #define MAX_EC_CODEWORDS_PER_BLOCK 68
 #define MAX_QR_CODEWORDS 4096
-#define MODULE_DIM 4
-#define NO_ALIGNMENT_VERSION 1
 #define QR_VERSION_COUNT 41
-#define QUIET_ZONE_MULTIPLIER 4
-#define TIMING_PATTERN_COORD 6
-#define TIMING_PATTERN_END_MARGIN 9
 #define VERSION_CAPACITY_LEN 160
+
+#define FORMAT_INFO_COORD 8
+#define FORMAT_INFO_MASK_PATTERN 0x5412
+#define FORMAT_INFO_POLY 0x537
+#define VERSION_INFO_BITS 18
 #define VERSION_INFO_EDGE_OFFSET 11
 #define VERSION_INFO_MAX_COORD 5
 #define VERSION_INFO_MIN_VERSION 7
+#define VERSION_INFO_POLY 0x1F25
 #define VERSION_MODULES_BASE 17
 #define VERSION_MODULES_STEP 4
+
+#define PENALTY_N1 3
+#define PENALTY_N2 3
+#define PENALTY_N3 40
+#define PENALTY_N4 10
 
 #define NUMERIC_CCI_BITS_1_9 10
 #define NUMERIC_CCI_BITS_10_26 12
@@ -39,6 +51,8 @@
 #define NUMERIC_MAX_TERMINATOR_LENGTH 4
 #define NUMERIC_MODE_BITS 4
 #define NUMERIC_MODE_INDICATOR 1
+
+#define DIRECTION_UP -1
 
 typedef enum { EC_L, EC_M, EC_Q, EC_H } ErrorCorrectionLevel;
 
@@ -54,6 +68,35 @@ typedef struct {
     int k_g2;
 } VersionCapacity;
 
+typedef struct {
+    Canvas *canvas;
+    const VersionCapacity *vc;
+    int version;
+    int grid_dim;
+    int quiet_zone_width;
+    int mask_pattern;
+    ErrorCorrectionLevel ec_level;
+} QRContext;
+
+typedef struct {
+    int grid_dim;
+    int version;
+    int row;
+    int col;
+    int dir;
+    int step_row;
+    int step_col;
+} QRZigZag;
+
+typedef struct {
+    const uint8_t *data;
+    uint8_t *ec;
+    int data_len;
+    int ec_len;
+} RSBlock;
+
+typedef bool (*MaskEvaluator)(int, int);
+
 static uint8_t codeword_buffer[MAX_QR_CODEWORDS];
 static int global_bit_offset = 0;
 static uint8_t interleaved_codewords[MAX_QR_CODEWORDS];
@@ -61,7 +104,16 @@ static uint8_t interleaved_codewords[MAX_QR_CODEWORDS];
 static const char *data;
 static ErrorCorrectionLevel error_correction_level;
 
+static uint8_t eval_base_grid[MAX_QR_MODULES][MAX_QR_MODULES];
+static uint8_t eval_grid[MAX_QR_MODULES][MAX_QR_MODULES];
+
+static const int EC_FORMAT_BITS[] = {1, 0, 3, 2};
+static const int FORMAT_INFO_COL_1[15] = {0, 1, 2, 3, 4, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8};
+static const int FORMAT_INFO_ROW_1[15] = {8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 4, 3, 2, 1, 0};
+static const int FORMAT_INFO_X1[15] = {8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 4, 3, 2, 1, 0};
+static const int FORMAT_INFO_Y1[15] = {0, 1, 2, 3, 4, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8};
 static const int NUMERIC_MODE_PAD_PATTERN[] = {0xEC, 0x11};
+static const uint8_t PENALTY_RULE_3_PATTERN[7] = {1, 0, 1, 1, 1, 0, 1};
 
 static const VersionCapacity VERSION_CAPACITIES[VERSION_CAPACITY_LEN] = {
     {1,  EC_L, 19,   1,  26,  19,  0,  0,   0  },
@@ -318,74 +370,71 @@ static inline const uint8_t *compute_generator_poly(int ec_block_len)
     return g;
 }
 
-static inline void encode_reed_solomon_block(const uint8_t *data_block, int data_len, const uint8_t *g, int ec_len,
-                                             uint8_t *ec)
+static inline void shift_ec_buffer(uint8_t *ec, int ec_len)
 {
-    for (int i = 0; i < ec_len; ++i)
-        ec[i] = 0;
-    for (int i = 0; i < data_len; ++i) {
-        uint8_t feedback = data_block[i] ^ ec[0];
-        for (int j = 0; j < ec_len - 1; ++j)
-            ec[j] = ec[j + 1];
-        ec[ec_len - 1] = 0;
-        if (0 != feedback)
-            for (int j = 0; j < ec_len; ++j)
-                ec[j] ^= gf_mul(feedback, g[j + 1]);
+    for (int idx = 0; idx < ec_len - 1; ++idx)
+        ec[idx] = ec[idx + 1];
+    ec[ec_len - 1] = 0;
+}
+
+static inline void apply_rs_feedback(uint8_t *ec, int ec_len, const uint8_t *g, uint8_t feedback)
+{
+    if (0 == feedback)
+        return;
+    for (int idx = 0; idx < ec_len; ++idx)
+        ec[idx] ^= gf_mul(feedback, g[idx + 1]);
+}
+
+static inline void encode_rs_block(const RSBlock *block, const uint8_t *g)
+{
+    for (int i = 0; i < block->ec_len; ++i)
+        block->ec[i] = 0;
+    for (int i = 0; i < block->data_len; ++i) {
+        uint8_t feedback = block->data[i] ^ block->ec[0];
+        shift_ec_buffer(block->ec, block->ec_len);
+        apply_rs_feedback(block->ec, block->ec_len, g, feedback);
     }
 }
 
-static inline void generate_interleaved_message(const uint8_t *data_codewords, const VersionCapacity *vc)
+static inline void generate_interleaved_codewords(const uint8_t *data_codewords, const VersionCapacity *vc)
 {
     int total_blocks = vc->num_blocks_g1 + vc->num_blocks_g2;
-    const uint8_t *data_blocks[MAX_BLOCKS];
-    uint8_t ec_blocks[MAX_BLOCKS][MAX_EC_CODEWORDS_PER_BLOCK];
-    const uint8_t *ec_blocks_ptrs[MAX_BLOCKS];
+    RSBlock blocks[MAX_BLOCKS];
+    uint8_t ec_blocks_data[MAX_BLOCKS][MAX_EC_CODEWORDS_PER_BLOCK];
+    int ec_len = vc->c_g1 - vc->k_g1;
+    int max_data_len = (vc->num_blocks_g2 > 0) ? vc->k_g2 : vc->k_g1;
     int data_offset = 0;
-    int max_data_len = 0;
-    int max_ec_len = 0;
-    for (int b = 0; b < total_blocks; ++b) {
-        int data_block_len;
-        int ec_block_len;
-        if (b < vc->num_blocks_g1) {
-            data_block_len = vc->k_g1;
-            ec_block_len = vc->c_g1 - vc->k_g1;
-        } else {
-            data_block_len = vc->k_g2;
-            ec_block_len = vc->c_g2 - vc->k_g2;
-        }
-        data_blocks[b] = &data_codewords[data_offset];
-        ec_blocks_ptrs[b] = ec_blocks[b];
-        const uint8_t *g = compute_generator_poly(ec_block_len);
-        encode_reed_solomon_block(data_blocks[b], data_block_len, g, ec_block_len, ec_blocks[b]);
-        if (data_block_len > max_data_len)
-            max_data_len = data_block_len;
-        if (ec_block_len > max_ec_len)
-            max_ec_len = ec_block_len;
-        data_offset += data_block_len;
+    int b = 0;
+    for (; b < vc->num_blocks_g1; ++b) {
+        blocks[b].data_len = vc->k_g1;
+        blocks[b].ec_len = ec_len;
+        blocks[b].data = &data_codewords[data_offset];
+        blocks[b].ec = ec_blocks_data[b];
+        encode_rs_block(&blocks[b], compute_generator_poly(ec_len));
+        data_offset += vc->k_g1;
+    }
+    for (; b < total_blocks; ++b) {
+        blocks[b].data_len = vc->k_g2;
+        blocks[b].ec_len = ec_len;
+        blocks[b].data = &data_codewords[data_offset];
+        blocks[b].ec = ec_blocks_data[b];
+        encode_rs_block(&blocks[b], compute_generator_poly(ec_len));
+        data_offset += vc->k_g2;
     }
     int len = 0;
-    for (int col = 0; col < max_data_len; ++col) {
-        for (int b = 0; b < total_blocks; ++b) {
-            int data_block_len = (b < vc->num_blocks_g1) ? vc->k_g1 : vc->k_g2;
-            if (col < data_block_len)
-                interleaved_codewords[len++] = data_blocks[b][col];
-        }
+    int total_data_cells = max_data_len * total_blocks;
+    for (int i = 0; i < total_data_cells; ++i) {
+        int col = i / total_blocks;
+        int b_idx = i % total_blocks;
+        if (col < blocks[b_idx].data_len)
+            interleaved_codewords[len++] = blocks[b_idx].data[col];
     }
-    for (int col = 0; col < max_ec_len; ++col) {
-        for (int b = 0; b < total_blocks; ++b) {
-            int ec_block_len = (b < vc->num_blocks_g1) ? vc->c_g1 - vc->k_g1 : vc->c_g2 - vc->k_g2;
-            if (col < ec_block_len)
-                interleaved_codewords[len++] = ec_blocks[b][col];
-        }
+    int total_ec_cells = ec_len * total_blocks;
+    for (int i = 0; i < total_ec_cells; ++i) {
+        int col = i / total_blocks;
+        int b_idx = i % total_blocks;
+        interleaved_codewords[len++] = blocks[b_idx].ec[col];
     }
-}
-
-static inline const VersionCapacity *get_version_capacity(int target_version, ErrorCorrectionLevel target_ec_level)
-{
-    for (int i = 0; i < VERSION_CAPACITY_LEN; ++i)
-        if (target_version == VERSION_CAPACITIES[i].version && target_ec_level == VERSION_CAPACITIES[i].ec_level)
-            return &VERSION_CAPACITIES[i];
-    return NULL;
 }
 
 static inline void append_bits(int value, int bit_count)
@@ -478,8 +527,8 @@ static inline void numeric_append_pad_codewords(int target_codewords)
         append_bits(NUMERIC_MODE_PAD_PATTERN[i % 2], BITS_PER_BYTE);
 }
 
-static inline bool determine_version(int content_bits, ErrorCorrectionLevel target_ec_level, int *out_version,
-                                     int *out_codewords, int *out_cci_bits)
+static inline const VersionCapacity *determine_version(int content_bits, ErrorCorrectionLevel target_ec_level,
+                                                       int *out_cci_bits)
 {
     for (int i = 0; i < VERSION_CAPACITY_LEN; ++i) {
         if (target_ec_level == VERSION_CAPACITIES[i].ec_level) {
@@ -488,14 +537,12 @@ static inline bool determine_version(int content_bits, ErrorCorrectionLevel targ
             int cci_bits = numeric_get_cci_bits(version);
             int data_bits = NUMERIC_MODE_BITS + cci_bits + content_bits;
             if (data_bits <= capacity_bits) {
-                *out_version = version;
-                *out_codewords = VERSION_CAPACITIES[i].data_codewords;
                 *out_cci_bits = cci_bits;
-                return true;
+                return &VERSION_CAPACITIES[i];
             }
         }
     }
-    return false;
+    return NULL;
 }
 
 static inline int get_version_modules(int version)
@@ -503,37 +550,23 @@ static inline int get_version_modules(int version)
     return VERSION_MODULES_BASE + (VERSION_MODULES_STEP * version);
 }
 
-static inline void emplace_finder_pattern(Canvas *c, int x, int y)
+static int get_format_info(ErrorCorrectionLevel ec_level, int mask_pattern)
 {
-    int mod_size = MODULE_DIM * dpr;
-    canvas_stroke_rect(c, x, y, FINDER_PATTERN_SIZE * mod_size, FINDER_PATTERN_SIZE * mod_size, mod_size, C_BLACK);
-    canvas_fill_rect(c, x + (FINDER_PATTERN_INNER_OFFSET * mod_size), y + (FINDER_PATTERN_INNER_OFFSET * mod_size),
-                     FINDER_PATTERN_INNER_SIZE * mod_size, FINDER_PATTERN_INNER_SIZE * mod_size, C_BLACK);
+    int format_data = (EC_FORMAT_BITS[ec_level] << 3) | mask_pattern;
+    int bch_checksum = format_data << 10;
+    for (int bit_idx = 14; bit_idx >= 10; --bit_idx)
+        if ((bch_checksum >> bit_idx) & 1)
+            bch_checksum ^= (FORMAT_INFO_POLY << (bit_idx - 10));
+    return ((format_data << 10) | bch_checksum) ^ FORMAT_INFO_MASK_PATTERN;
 }
 
-static inline void emplace_finder_patterns(Canvas *c, int quiet_zone_width, int version_modules)
+static int get_version_info(int version)
 {
-    int top_left_x = quiet_zone_width;
-    int top_left_y = quiet_zone_width;
-    emplace_finder_pattern(c, top_left_x, top_left_y);
-    int top_right_x = quiet_zone_width + ((version_modules - FINDER_PATTERN_SIZE) * MODULE_DIM * dpr);
-    int top_right_y = quiet_zone_width;
-    emplace_finder_pattern(c, top_right_x, top_right_y);
-    int bottom_left_x = quiet_zone_width;
-    int bottom_left_y = quiet_zone_width + ((version_modules - FINDER_PATTERN_SIZE) * MODULE_DIM * dpr);
-    emplace_finder_pattern(c, bottom_left_x, bottom_left_y);
-}
-
-static inline void emplace_timing_patterns(Canvas *c, int quiet_zone_width, int version_modules)
-{
-    int mod_size = MODULE_DIM * dpr;
-    for (int i = FINDER_PATTERN_AREA_SIZE; i <= version_modules - TIMING_PATTERN_END_MARGIN; ++i) {
-        uint32_t color = (i % 2 == 0) ? C_BLACK : C_WHITE;
-        canvas_fill_rect(c, quiet_zone_width + (i * mod_size), quiet_zone_width + (TIMING_PATTERN_COORD * mod_size),
-                         mod_size, mod_size, color);
-        canvas_fill_rect(c, quiet_zone_width + (TIMING_PATTERN_COORD * mod_size), quiet_zone_width + (i * mod_size),
-                         mod_size, mod_size, color);
-    }
+    int bch_checksum = version << 12;
+    for (int bit_idx = 17; bit_idx >= 12; --bit_idx)
+        if ((bch_checksum >> bit_idx) & 1)
+            bch_checksum ^= (VERSION_INFO_POLY << (bit_idx - 12));
+    return (version << 12) | bch_checksum;
 }
 
 static inline bool is_overlapping_finder_pattern(int row, int col, int version_modules)
@@ -545,36 +578,6 @@ static inline bool is_overlapping_finder_pattern(int row, int col, int version_m
     if (row >= version_modules - FINDER_PATTERN_AREA_SIZE && col < FINDER_PATTERN_AREA_SIZE)
         return true;
     return false;
-}
-
-static inline void emplace_alignment_pattern(Canvas *c, int cx, int cy, int quiet_zone_width)
-{
-    int mod_size = MODULE_DIM * dpr;
-    int px = quiet_zone_width + ((cx - ALIGNMENT_PATTERN_CENTER_OFFSET) * mod_size);
-    int py = quiet_zone_width + ((cy - ALIGNMENT_PATTERN_CENTER_OFFSET) * mod_size);
-    canvas_stroke_rect(c, px, py, ALIGNMENT_PATTERN_SIZE * mod_size, ALIGNMENT_PATTERN_SIZE * mod_size, mod_size,
-                       C_BLACK);
-    canvas_fill_rect(c, px + (ALIGNMENT_PATTERN_CENTER_OFFSET * mod_size),
-                     py + (ALIGNMENT_PATTERN_CENTER_OFFSET * mod_size), mod_size, mod_size, C_BLACK);
-}
-
-static inline void emplace_alignment_patterns(Canvas *c, int quiet_zone_width, int target_version, int version_modules)
-{
-    if (NO_ALIGNMENT_VERSION == target_version)
-        return;
-    const int *coords = ALIGNMENT_PATTERN_COORDS[target_version];
-    int num_coords = 0;
-    while (num_coords < MAX_ALIGNMENT_COORDS && 0 != coords[num_coords])
-        ++num_coords;
-    for (int i = 0; i < num_coords; ++i) {
-        for (int j = 0; j < num_coords; ++j) {
-            int row = coords[i];
-            int col = coords[j];
-            if (is_overlapping_finder_pattern(row, col, version_modules))
-                continue;
-            emplace_alignment_pattern(c, col, row, quiet_zone_width);
-        }
-    }
 }
 
 static inline bool is_in_timing_range(int val, int version_modules)
@@ -670,39 +673,521 @@ static inline bool is_reserved_position(int row, int col, int version, int versi
     return false;
 }
 
-static inline void emplace_codewords(Canvas *canvas, int quiet_zone_width, int version, int version_modules,
-                                     const VersionCapacity *vc)
+static bool mask_rule_0(int i, int j)
 {
-    int total_codewords = (vc->num_blocks_g1 * vc->c_g1) + (vc->num_blocks_g2 * vc->c_g2);
-    int total_bits = total_codewords * BITS_PER_BYTE;
-    int module_pixel_size = MODULE_DIM * dpr;
-    int placed_bits = 0;
-    int vertical_direction = DIRECTION_UP;
-    int path_x = version_modules - 1;
-    while (path_x > 0) {
-        if (TIMING_PATTERN_COORD == path_x)
-            --path_x;
-        for (int step_y = 0; step_y < version_modules; ++step_y) {
-            int module_y = (DIRECTION_UP == vertical_direction) ? (version_modules - 1 - step_y) : step_y;
-            for (int step_x = 0; step_x < 2; ++step_x) {
-                int module_x = path_x - step_x;
-                if (!is_reserved_position(module_y, module_x, version, version_modules)) {
-                    bool is_dark_module = false;
-                    if (placed_bits < total_bits) {
-                        int byte_index = placed_bits / BITS_PER_BYTE;
-                        int bit_within_byte = 7 - (placed_bits % BITS_PER_BYTE);
-                        is_dark_module = (interleaved_codewords[byte_index] >> bit_within_byte) & 1;
-                    }
-                    uint32_t module_color = is_dark_module ? C_BLACK : C_WHITE;
-                    canvas_fill_rect(canvas, quiet_zone_width + (module_x * module_pixel_size),
-                                     quiet_zone_width + (module_y * module_pixel_size), module_pixel_size,
-                                     module_pixel_size, module_color);
-                    ++placed_bits;
-                }
-            }
+    return 0 == ((i + j) % 2);
+}
+
+static bool mask_rule_1(int i, int _)
+{
+    return 0 == (i % 2);
+}
+
+static bool mask_rule_2(int _, int j)
+{
+    return 0 == (j % 3);
+}
+
+static bool mask_rule_3(int i, int j)
+{
+    return 0 == ((i + j) % 3);
+}
+
+static bool mask_rule_4(int i, int j)
+{
+    return 0 == (((i / 2) + (j / 3)) % 2);
+}
+
+static bool mask_rule_5(int i, int j)
+{
+    return 0 == (((i * j) % 2) + ((i * j) % 3));
+}
+
+static bool mask_rule_6(int i, int j)
+{
+    return 0 == ((((i * j) % 2) + ((i * j) % 3)) % 2);
+}
+
+static bool mask_rule_7(int i, int j)
+{
+    return 0 == ((((i + j) % 2) + ((i * j) % 3)) % 2);
+}
+
+static const MaskEvaluator MASK_EVALUATORS[8] = {mask_rule_0, mask_rule_1, mask_rule_2, mask_rule_3,
+                                                 mask_rule_4, mask_rule_5, mask_rule_6, mask_rule_7};
+
+static inline bool evaluate_mask_condition(int mask_pattern, int i, int j)
+{
+    if (mask_pattern < 0 || mask_pattern > 7)
+        return false;
+    return MASK_EVALUATORS[mask_pattern](i, j);
+}
+
+static void init_zigzag(QRZigZag *zz, int grid_dim, int version)
+{
+    zz->grid_dim = grid_dim;
+    zz->version = version;
+    zz->col = grid_dim - 1;
+    zz->dir = DIRECTION_UP;
+    zz->step_row = 0;
+    zz->step_col = 0;
+}
+
+static bool next_zigzag_coord(QRZigZag *zz, int *out_y, int *out_x)
+{
+    while (zz->col > 0) {
+        if (TIMING_PATTERN_COORD == zz->col)
+            --zz->col;
+        int module_y = (DIRECTION_UP == zz->dir) ? (zz->grid_dim - 1 - zz->step_row) : zz->step_row;
+        int module_x = zz->col - zz->step_col;
+        bool is_valid = !is_reserved_position(module_y, module_x, zz->version, zz->grid_dim);
+        ++zz->step_col;
+        zz->step_row += (zz->step_col / 2);
+        zz->step_col %= 2;
+        if (zz->step_row == zz->grid_dim) {
+            zz->step_row = 0;
+            zz->dir = -zz->dir;
+            zz->col -= 2;
         }
-        vertical_direction = -vertical_direction;
-        path_x -= 2;
+        if (is_valid) {
+            *out_y = module_y;
+            *out_x = module_x;
+            return true;
+        }
+    }
+    return false;
+}
+
+static void plot_eval_finder_pattern(int row_offset, int col_offset, int grid_size)
+{
+    int start_row = MATH_MAX(0, row_offset - 1);
+    int end_row = MATH_MIN(grid_size - 1, row_offset + 7);
+    int start_col = MATH_MAX(0, col_offset - 1);
+    int end_col = MATH_MIN(grid_size - 1, col_offset + 7);
+    for (int absolute_row = start_row; absolute_row <= end_row; ++absolute_row) {
+        for (int absolute_col = start_col; absolute_col <= end_col; ++absolute_col) {
+            int local_row = absolute_row - row_offset;
+            int local_col = absolute_col - col_offset;
+            int center_row = 3;
+            int center_col = 3;
+            int row_distance = MATH_ABS(local_row - center_row);
+            int col_distance = MATH_ABS(local_col - center_col);
+            int ring_distance = MATH_MAX(row_distance, col_distance);
+            bool is_light_ring = (4 == ring_distance || 2 == ring_distance);
+            eval_base_grid[absolute_row][absolute_col] = is_light_ring ? 0 : 1;
+        }
+    }
+}
+
+static void plot_eval_timing_patterns(int size)
+{
+    for (int i = 8; i < size - 8; ++i) {
+        eval_base_grid[6][i] = (0 == i % 2) ? 1 : 0;
+        eval_base_grid[i][6] = (0 == i % 2) ? 1 : 0;
+    }
+}
+
+static void plot_single_alignment_pattern(int center_row, int center_col)
+{
+    for (int row = center_row - 2; row <= center_row + 2; ++row) {
+        for (int col = center_col - 2; col <= center_col + 2; ++col) {
+            int row_distance = MATH_ABS(row - center_row);
+            int col_distance = MATH_ABS(col - center_col);
+            int ring_distance = MATH_MAX(row_distance, col_distance);
+            eval_base_grid[row][col] = (1 != ring_distance) ? 1 : 0;
+        }
+    }
+}
+
+static void plot_eval_alignment_patterns(int version, int grid_size)
+{
+    if (NO_ALIGNMENT_VERSION == version)
+        return;
+    const int *alignment_coords = ALIGNMENT_PATTERN_COORDS[version];
+    int coord_count = get_alignment_coords_count(alignment_coords);
+    for (int row_idx = 0; row_idx < coord_count; ++row_idx) {
+        for (int col_idx = 0; col_idx < coord_count; ++col_idx) {
+            int center_row = alignment_coords[row_idx];
+            int center_col = alignment_coords[col_idx];
+            if (!is_overlapping_finder_pattern(center_row, center_col, grid_size))
+                plot_single_alignment_pattern(center_row, center_col);
+        }
+    }
+}
+
+static void plot_eval_version_info(int version, int size)
+{
+    if (version < VERSION_INFO_MIN_VERSION)
+        return;
+    int version_bits = get_version_info(version);
+    for (int i = 0; i < VERSION_INFO_BITS; ++i) {
+        uint8_t bit = (uint8_t)((version_bits >> i) & 1);
+        int a = i / 3, b = i % 3;
+        eval_base_grid[a][size - VERSION_INFO_EDGE_OFFSET + b] = bit;
+        eval_base_grid[size - VERSION_INFO_EDGE_OFFSET + b][a] = bit;
+    }
+}
+
+static void build_base_grid(const QRContext *ctx)
+{
+    for (int r = 0; r < ctx->grid_dim; ++r)
+        for (int c = 0; c < ctx->grid_dim; ++c)
+            eval_base_grid[r][c] = 0;
+    plot_eval_finder_pattern(0, 0, ctx->grid_dim);
+    plot_eval_finder_pattern(0, ctx->grid_dim - 7, ctx->grid_dim);
+    plot_eval_finder_pattern(ctx->grid_dim - 7, 0, ctx->grid_dim);
+    plot_eval_timing_patterns(ctx->grid_dim);
+    plot_eval_alignment_patterns(ctx->version, ctx->grid_dim);
+    plot_eval_version_info(ctx->version, ctx->grid_dim);
+}
+
+static inline int calculate_consecutive_penalty(int consecutive_count)
+{
+    return (consecutive_count >= 5) ? (PENALTY_N1 + (consecutive_count - 5)) : 0;
+}
+
+static int score_penalty_rule_1(int grid_dim)
+{
+    int penalty = 0;
+    for (int i = 0; i < grid_dim; ++i) {
+        int consecutive_row_modules = 1;
+        int consecutive_col_modules = 1;
+        for (int j = 1; j < grid_dim; ++j) {
+            if (eval_grid[i][j] != eval_grid[i][j - 1]) {
+                penalty += calculate_consecutive_penalty(consecutive_row_modules);
+                consecutive_row_modules = 0;
+            }
+            ++consecutive_row_modules;
+            if (eval_grid[j][i] != eval_grid[j - 1][i]) {
+                penalty += calculate_consecutive_penalty(consecutive_col_modules);
+                consecutive_col_modules = 0;
+            }
+            ++consecutive_col_modules;
+        }
+        penalty += calculate_consecutive_penalty(consecutive_row_modules);
+        penalty += calculate_consecutive_penalty(consecutive_col_modules);
+    }
+    return penalty;
+}
+
+static inline bool is_solid_2x2_block(int row, int col)
+{
+    int block_sum =
+        eval_grid[row][col] + eval_grid[row][col + 1] + eval_grid[row + 1][col] + eval_grid[row + 1][col + 1];
+    return (0 == block_sum || 4 == block_sum);
+}
+
+static int score_penalty_rule_2(int grid_size)
+{
+    int penalty = 0;
+    for (int row = 0; row < grid_size - 1; ++row)
+        for (int col = 0; col < grid_size - 1; ++col)
+            if (is_solid_2x2_block(row, col))
+                penalty += PENALTY_N2;
+    return penalty;
+}
+
+static inline int get_module_color(int row, int col, int grid_size)
+{
+    if (row < 0)
+        return 0;
+    if (row >= grid_size)
+        return 0;
+    if (col < 0)
+        return 0;
+    if (col >= grid_size)
+        return 0;
+    return eval_grid[row][col];
+}
+
+static inline bool is_horizontal_penalty_3(int row, int col, int grid_size)
+{
+    for (int k = 0; k < 7; ++k)
+        if (eval_grid[row][col + k] != PENALTY_RULE_3_PATTERN[k])
+            return false;
+    int before_sum = 0;
+    for (int k = 1; k <= 4; ++k)
+        before_sum += get_module_color(row, col - k, grid_size);
+    int after_sum = 0;
+    for (int k = 1; k <= 4; ++k)
+        after_sum += get_module_color(row, col + 6 + k, grid_size);
+    return (0 == before_sum) || (0 == after_sum);
+}
+
+static inline bool is_vertical_penalty_3(int row, int col, int grid_size)
+{
+    for (int k = 0; k < 7; ++k)
+        if (eval_grid[row + k][col] != PENALTY_RULE_3_PATTERN[k])
+            return false;
+    int before_sum = 0;
+    for (int k = 1; k <= 4; ++k)
+        before_sum += get_module_color(row - k, col, grid_size);
+    int after_sum = 0;
+    for (int k = 1; k <= 4; ++k)
+        after_sum += get_module_color(row + 6 + k, col, grid_size);
+    return (0 == before_sum) || (0 == after_sum);
+}
+
+static int score_penalty_rule_3(int grid_size)
+{
+    int penalty = 0;
+    for (int i = 0; i < grid_size; ++i) {
+        for (int j = 0; j < grid_size - 6; ++j) {
+            if (is_horizontal_penalty_3(i, j, grid_size))
+                penalty += PENALTY_N3;
+            if (is_vertical_penalty_3(j, i, grid_size))
+                penalty += PENALTY_N3;
+        }
+    }
+    return penalty;
+}
+
+static int score_penalty_rule_4(int grid_size)
+{
+    int total_dark_modules = 0;
+    int total_modules = grid_size * grid_size;
+    for (int row = 0; row < grid_size; ++row)
+        for (int col = 0; col < grid_size; ++col)
+            if (1 == eval_grid[row][col])
+                ++total_dark_modules;
+    int dark_percentage = (total_dark_modules * 100) / total_modules;
+    int lower_bound_percent = (dark_percentage / 5) * 5;
+    int upper_bound_percent = lower_bound_percent + 5;
+    int abs_diff_lower = MATH_ABS(lower_bound_percent - 50);
+    int abs_diff_upper = MATH_ABS(upper_bound_percent - 50);
+    int min_deviation = MATH_MIN(abs_diff_lower, abs_diff_upper);
+    return (min_deviation / 5) * PENALTY_N4;
+}
+
+static void plot_eval_format_info(const QRContext *ctx)
+{
+    int format_bits = get_format_info(ctx->ec_level, ctx->mask_pattern);
+    eval_grid[8][ctx->grid_dim - 8] = 1;
+    for (int i = 0; i < 15; ++i) {
+        uint8_t bit = (uint8_t)((format_bits >> i) & 1);
+        int row_1 = FORMAT_INFO_ROW_1[i];
+        int col_1 = FORMAT_INFO_COL_1[i];
+        eval_grid[row_1][col_1] = bit;
+        int row_2 = (i < 8) ? (ctx->grid_dim - 1 - i) : 8;
+        int col_2 = (i < 8) ? 8 : (ctx->grid_dim - 15 + i);
+        eval_grid[row_2][col_2] = bit;
+    }
+}
+
+static void plot_eval_data_codewords(const QRContext *ctx)
+{
+    int total_codewords = (ctx->vc->num_blocks_g1 * ctx->vc->c_g1) + (ctx->vc->num_blocks_g2 * ctx->vc->c_g2);
+    int total_bits = total_codewords * BITS_PER_BYTE;
+    int placed_bits = 0;
+    int row, col;
+    QRZigZag zz;
+    init_zigzag(&zz, ctx->grid_dim, ctx->version);
+    while (next_zigzag_coord(&zz, &row, &col)) {
+        bool is_dark_module = false;
+        if (placed_bits < total_bits) {
+            int byte_idx = placed_bits / BITS_PER_BYTE;
+            int bit_idx = 7 - (placed_bits % BITS_PER_BYTE);
+            is_dark_module = (interleaved_codewords[byte_idx] >> bit_idx) & 1;
+        }
+        if (evaluate_mask_condition(ctx->mask_pattern, row, col))
+            is_dark_module = !is_dark_module;
+        eval_grid[row][col] = is_dark_module ? 1 : 0;
+        ++placed_bits;
+    }
+}
+
+static void populate_eval_grid(const QRContext *ctx)
+{
+    for (int row = 0; row < ctx->grid_dim; ++row)
+        for (int col = 0; col < ctx->grid_dim; ++col)
+            eval_grid[row][col] = eval_base_grid[row][col];
+    plot_eval_format_info(ctx);
+    plot_eval_data_codewords(ctx);
+}
+
+static int score_mask(QRContext *ctx)
+{
+    populate_eval_grid(ctx);
+    return score_penalty_rule_1(ctx->grid_dim) + score_penalty_rule_2(ctx->grid_dim) +
+           score_penalty_rule_3(ctx->grid_dim) + score_penalty_rule_4(ctx->grid_dim);
+}
+
+static int find_best_mask(QRContext *ctx)
+{
+    int best_mask = 0;
+    int lowest_penalty = INT32_MAX;
+    for (int mask = 0; mask < 8; ++mask) {
+        ctx->mask_pattern = mask;
+        int penalty = score_mask(ctx);
+        if (penalty < lowest_penalty) {
+            lowest_penalty = penalty;
+            best_mask = mask;
+        }
+    }
+    return best_mask;
+}
+
+static void apply_mask_to_codewords(const QRContext *ctx, int best_mask)
+{
+    int total_codewords = (ctx->vc->num_blocks_g1 * ctx->vc->c_g1) + (ctx->vc->num_blocks_g2 * ctx->vc->c_g2);
+    int total_bits = total_codewords * BITS_PER_BYTE;
+    int placed_bits = 0;
+    int row, col;
+    QRZigZag zz;
+    init_zigzag(&zz, ctx->grid_dim, ctx->version);
+    while (placed_bits < total_bits && next_zigzag_coord(&zz, &row, &col)) {
+        if (evaluate_mask_condition(best_mask, row, col)) {
+            int byte_idx = placed_bits / BITS_PER_BYTE;
+            int bit_idx = 7 - (placed_bits % BITS_PER_BYTE);
+            interleaved_codewords[byte_idx] ^= (1 << bit_idx);
+        }
+        ++placed_bits;
+    }
+}
+
+static int apply_best_data_mask(QRContext *ctx)
+{
+    build_base_grid(ctx);
+    int best_mask = find_best_mask(ctx);
+    apply_mask_to_codewords(ctx, best_mask);
+    return best_mask;
+}
+
+static inline void emplace_finder_pattern(Canvas *c, int x, int y)
+{
+    int module_size = MODULE_BASE_SIZE * dpr;
+    canvas_stroke_rect(c, x, y, FINDER_PATTERN_SIZE * module_size, FINDER_PATTERN_SIZE * module_size, module_size,
+                       C_BLACK);
+    canvas_fill_rect(c, x + (FINDER_PATTERN_INNER_OFFSET * module_size),
+                     y + (FINDER_PATTERN_INNER_OFFSET * module_size), FINDER_PATTERN_INNER_SIZE * module_size,
+                     FINDER_PATTERN_INNER_SIZE * module_size, C_BLACK);
+}
+
+static inline void emplace_finder_patterns(const QRContext *ctx)
+{
+    int top_left_x = ctx->quiet_zone_width;
+    int top_left_y = ctx->quiet_zone_width;
+    emplace_finder_pattern(ctx->canvas, top_left_x, top_left_y);
+    int top_right_x = ctx->quiet_zone_width + ((ctx->grid_dim - FINDER_PATTERN_SIZE) * MODULE_BASE_SIZE * dpr);
+    int top_right_y = ctx->quiet_zone_width;
+    emplace_finder_pattern(ctx->canvas, top_right_x, top_right_y);
+    int bottom_left_x = ctx->quiet_zone_width;
+    int bottom_left_y = ctx->quiet_zone_width + ((ctx->grid_dim - FINDER_PATTERN_SIZE) * MODULE_BASE_SIZE * dpr);
+    emplace_finder_pattern(ctx->canvas, bottom_left_x, bottom_left_y);
+}
+
+static inline void emplace_timing_patterns(const QRContext *ctx)
+{
+    int module_size = MODULE_BASE_SIZE * dpr;
+    for (int i = FINDER_PATTERN_AREA_SIZE; i <= ctx->grid_dim - TIMING_PATTERN_END_MARGIN; ++i) {
+        uint32_t color = (0 == i % 2) ? C_BLACK : C_WHITE;
+        canvas_fill_rect(ctx->canvas, ctx->quiet_zone_width + (i * module_size),
+                         ctx->quiet_zone_width + (TIMING_PATTERN_COORD * module_size), module_size, module_size, color);
+        canvas_fill_rect(ctx->canvas, ctx->quiet_zone_width + (TIMING_PATTERN_COORD * module_size),
+                         ctx->quiet_zone_width + (i * module_size), module_size, module_size, color);
+    }
+}
+
+static inline void emplace_alignment_pattern(Canvas *c, int cx, int cy, int quiet_zone_width)
+{
+    int module_size = MODULE_BASE_SIZE * dpr;
+    int px = quiet_zone_width + ((cx - ALIGNMENT_PATTERN_CENTER_OFFSET) * module_size);
+    int py = quiet_zone_width + ((cy - ALIGNMENT_PATTERN_CENTER_OFFSET) * module_size);
+    canvas_stroke_rect(c, px, py, ALIGNMENT_PATTERN_SIZE * module_size, ALIGNMENT_PATTERN_SIZE * module_size,
+                       module_size, C_BLACK);
+    canvas_fill_rect(c, px + (ALIGNMENT_PATTERN_CENTER_OFFSET * module_size),
+                     py + (ALIGNMENT_PATTERN_CENTER_OFFSET * module_size), module_size, module_size, C_BLACK);
+}
+
+static inline void emplace_alignment_patterns(const QRContext *ctx)
+{
+    if (NO_ALIGNMENT_VERSION == ctx->version)
+        return;
+    const int *coords = ALIGNMENT_PATTERN_COORDS[ctx->version];
+    int num_coords = get_alignment_coords_count(coords);
+    for (int i = 0; i < num_coords; ++i) {
+        for (int j = 0; j < num_coords; ++j) {
+            int row = coords[i];
+            int col = coords[j];
+            if (is_overlapping_finder_pattern(row, col, ctx->grid_dim))
+                continue;
+            emplace_alignment_pattern(ctx->canvas, col, row, ctx->quiet_zone_width);
+        }
+    }
+}
+
+static inline void emplace_format_info(const QRContext *ctx)
+{
+    int format_bits = get_format_info(ctx->ec_level, ctx->mask_pattern);
+    int module_size = MODULE_BASE_SIZE * dpr;
+    int dark_x = ctx->quiet_zone_width + (8 * module_size);
+    int dark_y = ctx->quiet_zone_width + ((ctx->grid_dim - 8) * module_size);
+    canvas_fill_rect(ctx->canvas, dark_x, dark_y, module_size, module_size, C_BLACK);
+    for (int i = 0; i < 15; ++i) {
+        uint8_t bit = (uint8_t)((format_bits >> i) & 1);
+        uint32_t color = bit ? C_BLACK : C_WHITE;
+        int x1 = FORMAT_INFO_X1[i];
+        int y1 = FORMAT_INFO_Y1[i];
+        int x2, y2;
+        if (i < 8) {
+            x2 = ctx->grid_dim - 1 - i;
+            y2 = 8;
+        } else {
+            x2 = 8;
+            y2 = ctx->grid_dim - 15 + i;
+        }
+        int px1 = ctx->quiet_zone_width + (x1 * module_size);
+        int py1 = ctx->quiet_zone_width + (y1 * module_size);
+        canvas_fill_rect(ctx->canvas, px1, py1, module_size, module_size, color);
+        int px2 = ctx->quiet_zone_width + (x2 * module_size);
+        int py2 = ctx->quiet_zone_width + (y2 * module_size);
+        canvas_fill_rect(ctx->canvas, px2, py2, module_size, module_size, color);
+    }
+}
+
+static inline void emplace_version_info(const QRContext *ctx)
+{
+    if (ctx->version < VERSION_INFO_MIN_VERSION)
+        return;
+    int version_bits = get_version_info(ctx->version);
+    int module_size = MODULE_BASE_SIZE * dpr;
+    for (int i = 0; i < VERSION_INFO_BITS; ++i) {
+        uint8_t bit = (uint8_t)((version_bits >> i) & 1);
+        uint32_t color = bit ? C_BLACK : C_WHITE;
+        int a = i / 3, b = i % 3;
+        int tr_x = ctx->grid_dim - VERSION_INFO_EDGE_OFFSET + b;
+        int tr_y = a;
+        canvas_fill_rect(ctx->canvas, ctx->quiet_zone_width + (tr_x * module_size),
+                         ctx->quiet_zone_width + (tr_y * module_size), module_size, module_size, color);
+        int bl_x = a;
+        int bl_y = ctx->grid_dim - VERSION_INFO_EDGE_OFFSET + b;
+        canvas_fill_rect(ctx->canvas, ctx->quiet_zone_width + (bl_x * module_size),
+                         ctx->quiet_zone_width + (bl_y * module_size), module_size, module_size, color);
+    }
+}
+
+static inline void emplace_codewords(const QRContext *ctx)
+{
+    int total_codewords = (ctx->vc->num_blocks_g1 * ctx->vc->c_g1) + (ctx->vc->num_blocks_g2 * ctx->vc->c_g2);
+    int total_bits = total_codewords * BITS_PER_BYTE;
+    int module_pixel_size = MODULE_BASE_SIZE * dpr;
+    int placed_bits = 0;
+    int row, col;
+    QRZigZag zz;
+    init_zigzag(&zz, ctx->grid_dim, ctx->version);
+    while (next_zigzag_coord(&zz, &row, &col)) {
+        bool is_dark_module = false;
+        if (placed_bits < total_bits) {
+            int byte_index = placed_bits / BITS_PER_BYTE;
+            int bit_within_byte = 7 - (placed_bits % BITS_PER_BYTE);
+            is_dark_module = (interleaved_codewords[byte_index] >> bit_within_byte) & 1;
+        } else
+            is_dark_module = evaluate_mask_condition(ctx->mask_pattern, row, col);
+        uint32_t module_color = is_dark_module ? C_BLACK : C_WHITE;
+        canvas_fill_rect(ctx->canvas, ctx->quiet_zone_width + (col * module_pixel_size),
+                         ctx->quiet_zone_width + (row * module_pixel_size), module_pixel_size, module_pixel_size,
+                         module_color);
+        ++placed_bits;
     }
 }
 
@@ -711,13 +1196,12 @@ static inline void process_qr_data(void)
     init_gf_tables();
     int len = wasm_strlen(data);
     int content_bits = numeric_get_content_bits(len);
-    int target_version = -1;
-    int target_codewords = -1;
     int target_cci_length = -1;
-    if (!determine_version(content_bits, error_correction_level, &target_version, &target_codewords,
-                           &target_cci_length)) {
+    const VersionCapacity *vc = determine_version(content_bits, error_correction_level, &target_cci_length);
+    if (!vc)
         return;
-    }
+    int target_version = vc->version;
+    int target_codewords = vc->data_codewords;
     global_bit_offset = 0;
     wasm_memset(codeword_buffer, 0, sizeof(codeword_buffer));
     append_bits(NUMERIC_MODE_INDICATOR, NUMERIC_MODE_BITS);
@@ -726,27 +1210,32 @@ static inline void process_qr_data(void)
     numeric_append_terminator(target_codewords);
     numeric_append_padding_bits();
     numeric_append_pad_codewords(target_codewords);
-    const VersionCapacity *vc = get_version_capacity(target_version, error_correction_level);
-    if (vc) {
-        generate_interleaved_message(codeword_buffer, vc);
-        int quiet_zone_width = MODULE_DIM * QUIET_ZONE_MULTIPLIER * dpr;
-        int version_modules = get_version_modules(target_version);
-        int qr_dim = (quiet_zone_width * 2) + (version_modules * MODULE_DIM * dpr);
-        canvas_width = qr_dim;
-        canvas_height = qr_dim;
-        Canvas c = canvas_create(pixels, canvas_width, canvas_height);
-        canvas_fill_rect(&c, 0, 0, canvas_width, canvas_height, C_WHITE);
-        emplace_finder_patterns(&c, quiet_zone_width, version_modules);
-        emplace_timing_patterns(&c, quiet_zone_width, version_modules);
-        emplace_alignment_patterns(&c, quiet_zone_width, target_version, version_modules);
-        emplace_codewords(&c, quiet_zone_width, target_version, version_modules, vc);
-    }
+    generate_interleaved_codewords(codeword_buffer, vc);
+    int quiet_zone_width = MODULE_BASE_SIZE * QUIET_ZONE_MULTIPLIER * dpr;
+    int version_modules = get_version_modules(target_version);
+    int qr_dim = (quiet_zone_width * 2) + (version_modules * MODULE_BASE_SIZE * dpr);
+    canvas_width = qr_dim;
+    canvas_height = qr_dim;
+    Canvas c = canvas_create(pixels, canvas_width, canvas_height);
+    canvas_fill_rect(&c, 0, 0, canvas_width, canvas_height, C_WHITE);
+    QRContext ctx = {.canvas = &c,
+                     .version = target_version,
+                     .grid_dim = version_modules,
+                     .quiet_zone_width = quiet_zone_width,
+                     .ec_level = error_correction_level,
+                     .vc = vc,
+                     .mask_pattern = 0};
+    ctx.mask_pattern = apply_best_data_mask(&ctx);
+    emplace_finder_patterns(&ctx);
+    emplace_timing_patterns(&ctx);
+    emplace_alignment_patterns(&ctx);
+    emplace_format_info(&ctx);
+    emplace_version_info(&ctx);
+    emplace_codewords(&ctx);
 }
 
 void render(void)
 {
-    canvas_width = 0;
-    canvas_height = 0;
     data = get_data_buffer();
     error_correction_level = EC_L;
     process_qr_data();
