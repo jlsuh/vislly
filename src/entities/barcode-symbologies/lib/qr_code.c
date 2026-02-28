@@ -550,7 +550,7 @@ static inline int get_version_modules(int version)
     return VERSION_MODULES_BASE + (VERSION_MODULES_STEP * version);
 }
 
-static int get_format_info(ErrorCorrectionLevel ec_level, int mask_pattern)
+static inline int get_format_info(ErrorCorrectionLevel ec_level, int mask_pattern)
 {
     int format_data = (EC_FORMAT_BITS[ec_level] << 3) | mask_pattern;
     int bch_checksum = format_data << 10;
@@ -560,7 +560,7 @@ static int get_format_info(ErrorCorrectionLevel ec_level, int mask_pattern)
     return ((format_data << 10) | bch_checksum) ^ FORMAT_INFO_MASK_PATTERN;
 }
 
-static int get_version_info(int version)
+static inline int get_version_info(int version)
 {
     int bch_checksum = version << 12;
     for (int bit_idx = 17; bit_idx >= 12; --bit_idx)
@@ -673,42 +673,42 @@ static inline bool is_reserved_position(int row, int col, int version, int versi
     return false;
 }
 
-static bool mask_rule_0(int i, int j)
+static inline bool mask_rule_0(int i, int j)
 {
     return 0 == ((i + j) % 2);
 }
 
-static bool mask_rule_1(int i, int _)
+static inline bool mask_rule_1(int i, int _)
 {
     return 0 == (i % 2);
 }
 
-static bool mask_rule_2(int _, int j)
+static inline bool mask_rule_2(int _, int j)
 {
     return 0 == (j % 3);
 }
 
-static bool mask_rule_3(int i, int j)
+static inline bool mask_rule_3(int i, int j)
 {
     return 0 == ((i + j) % 3);
 }
 
-static bool mask_rule_4(int i, int j)
+static inline bool mask_rule_4(int i, int j)
 {
     return 0 == (((i / 2) + (j / 3)) % 2);
 }
 
-static bool mask_rule_5(int i, int j)
+static inline bool mask_rule_5(int i, int j)
 {
     return 0 == (((i * j) % 2) + ((i * j) % 3));
 }
 
-static bool mask_rule_6(int i, int j)
+static inline bool mask_rule_6(int i, int j)
 {
     return 0 == ((((i * j) % 2) + ((i * j) % 3)) % 2);
 }
 
-static bool mask_rule_7(int i, int j)
+static inline bool mask_rule_7(int i, int j)
 {
     return 0 == ((((i + j) % 2) + ((i * j) % 3)) % 2);
 }
@@ -723,7 +723,7 @@ static inline bool evaluate_mask_condition(int mask_pattern, int i, int j)
     return MASK_EVALUATORS[mask_pattern](i, j);
 }
 
-static void init_zigzag(QRZigZag *zz, int grid_dim, int version)
+static inline void init_zigzag(QRZigZag *zz, int grid_dim, int version)
 {
     zz->grid_dim = grid_dim;
     zz->version = version;
@@ -733,7 +733,7 @@ static void init_zigzag(QRZigZag *zz, int grid_dim, int version)
     zz->step_col = 0;
 }
 
-static bool next_zigzag_coord(QRZigZag *zz, int *out_y, int *out_x)
+static inline bool next_zigzag_coord(QRZigZag *zz, int *out_y, int *out_x)
 {
     while (zz->col > 0) {
         if (TIMING_PATTERN_COORD == zz->col)
@@ -758,7 +758,7 @@ static bool next_zigzag_coord(QRZigZag *zz, int *out_y, int *out_x)
     return false;
 }
 
-static void plot_eval_finder_pattern(int row_offset, int col_offset, int grid_size)
+static inline void plot_eval_finder_pattern(int row_offset, int col_offset, int grid_size)
 {
     int start_row = MATH_MAX(0, row_offset - 1);
     int end_row = MATH_MIN(grid_size - 1, row_offset + 7);
@@ -779,7 +779,7 @@ static void plot_eval_finder_pattern(int row_offset, int col_offset, int grid_si
     }
 }
 
-static void plot_eval_timing_patterns(int size)
+static inline void plot_eval_timing_patterns(int size)
 {
     for (int i = 8; i < size - 8; ++i) {
         eval_base_grid[6][i] = (0 == i % 2) ? 1 : 0;
@@ -787,7 +787,7 @@ static void plot_eval_timing_patterns(int size)
     }
 }
 
-static void plot_single_alignment_pattern(int center_row, int center_col)
+static inline void plot_single_alignment_pattern(int center_row, int center_col)
 {
     for (int row = center_row - 2; row <= center_row + 2; ++row) {
         for (int col = center_col - 2; col <= center_col + 2; ++col) {
@@ -799,7 +799,7 @@ static void plot_single_alignment_pattern(int center_row, int center_col)
     }
 }
 
-static void plot_eval_alignment_patterns(int version, int grid_size)
+static inline void plot_eval_alignment_patterns(int version, int grid_size)
 {
     if (NO_ALIGNMENT_VERSION == version)
         return;
@@ -815,7 +815,7 @@ static void plot_eval_alignment_patterns(int version, int grid_size)
     }
 }
 
-static void plot_eval_version_info(int version, int size)
+static inline void plot_eval_version_info(int version, int size)
 {
     if (version < VERSION_INFO_MIN_VERSION)
         return;
@@ -828,7 +828,7 @@ static void plot_eval_version_info(int version, int size)
     }
 }
 
-static void build_base_grid(const QRContext *ctx)
+static inline void build_base_grid(const QRContext *ctx)
 {
     for (int r = 0; r < ctx->grid_dim; ++r)
         for (int c = 0; c < ctx->grid_dim; ++c)
@@ -846,7 +846,7 @@ static inline int calculate_consecutive_penalty(int consecutive_count)
     return (consecutive_count >= 5) ? (PENALTY_N1 + (consecutive_count - 5)) : 0;
 }
 
-static int score_penalty_rule_1(int grid_dim)
+static inline int score_penalty_rule_1(int grid_dim)
 {
     int penalty = 0;
     for (int i = 0; i < grid_dim; ++i) {
@@ -877,7 +877,7 @@ static inline bool is_solid_2x2_block(int row, int col)
     return (0 == block_sum || 4 == block_sum);
 }
 
-static int score_penalty_rule_2(int grid_size)
+static inline int score_penalty_rule_2(int grid_size)
 {
     int penalty = 0;
     for (int row = 0; row < grid_size - 1; ++row)
@@ -928,7 +928,7 @@ static inline bool is_vertical_penalty_3(int row, int col, int grid_size)
     return (0 == before_sum) || (0 == after_sum);
 }
 
-static int score_penalty_rule_3(int grid_size)
+static inline int score_penalty_rule_3(int grid_size)
 {
     int penalty = 0;
     for (int i = 0; i < grid_size; ++i) {
@@ -942,7 +942,7 @@ static int score_penalty_rule_3(int grid_size)
     return penalty;
 }
 
-static int score_penalty_rule_4(int grid_size)
+static inline int score_penalty_rule_4(int grid_size)
 {
     int total_dark_modules = 0;
     int total_modules = grid_size * grid_size;
@@ -959,7 +959,7 @@ static int score_penalty_rule_4(int grid_size)
     return (min_deviation / 5) * PENALTY_N4;
 }
 
-static void plot_eval_format_info(const QRContext *ctx)
+static inline void plot_eval_format_info(const QRContext *ctx)
 {
     int format_bits = get_format_info(ctx->ec_level, ctx->mask_pattern);
     eval_grid[8][ctx->grid_dim - 8] = 1;
@@ -974,7 +974,7 @@ static void plot_eval_format_info(const QRContext *ctx)
     }
 }
 
-static void plot_eval_data_codewords(const QRContext *ctx)
+static inline void plot_eval_data_codewords(const QRContext *ctx)
 {
     int total_codewords = (ctx->vc->num_blocks_g1 * ctx->vc->c_g1) + (ctx->vc->num_blocks_g2 * ctx->vc->c_g2);
     int total_bits = total_codewords * BITS_PER_BYTE;
@@ -996,7 +996,7 @@ static void plot_eval_data_codewords(const QRContext *ctx)
     }
 }
 
-static void populate_eval_grid(const QRContext *ctx)
+static inline void populate_eval_grid(const QRContext *ctx)
 {
     for (int row = 0; row < ctx->grid_dim; ++row)
         for (int col = 0; col < ctx->grid_dim; ++col)
@@ -1005,14 +1005,14 @@ static void populate_eval_grid(const QRContext *ctx)
     plot_eval_data_codewords(ctx);
 }
 
-static int score_mask(QRContext *ctx)
+static inline int score_mask(QRContext *ctx)
 {
     populate_eval_grid(ctx);
     return score_penalty_rule_1(ctx->grid_dim) + score_penalty_rule_2(ctx->grid_dim) +
            score_penalty_rule_3(ctx->grid_dim) + score_penalty_rule_4(ctx->grid_dim);
 }
 
-static int find_best_mask(QRContext *ctx)
+static inline int find_best_mask(QRContext *ctx)
 {
     int best_mask = 0;
     int lowest_penalty = INT32_MAX;
@@ -1027,7 +1027,7 @@ static int find_best_mask(QRContext *ctx)
     return best_mask;
 }
 
-static void apply_mask_to_codewords(const QRContext *ctx, int best_mask)
+static inline void apply_mask_to_codewords(const QRContext *ctx, int best_mask)
 {
     int total_codewords = (ctx->vc->num_blocks_g1 * ctx->vc->c_g1) + (ctx->vc->num_blocks_g2 * ctx->vc->c_g2);
     int total_bits = total_codewords * BITS_PER_BYTE;
@@ -1045,7 +1045,7 @@ static void apply_mask_to_codewords(const QRContext *ctx, int best_mask)
     }
 }
 
-static int apply_best_data_mask(QRContext *ctx)
+static inline int apply_best_data_mask(QRContext *ctx)
 {
     build_base_grid(ctx);
     int best_mask = find_best_mask(ctx);
