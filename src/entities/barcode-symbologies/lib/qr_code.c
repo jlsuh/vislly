@@ -53,7 +53,7 @@
 #define NUMERIC_MODE_BITS 4
 #define NUMERIC_MODE_INDICATOR 1
 
-#define DIRECTION_UP -1
+#define DIRECTION_UP 1
 
 typedef enum { EC_L, EC_M, EC_Q, EC_H } ErrorCorrectionLevel;
 
