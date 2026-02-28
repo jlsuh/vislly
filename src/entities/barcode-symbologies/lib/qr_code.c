@@ -25,6 +25,7 @@
 #define QR_VERSION_COUNT 41
 #define VERSION_CAPACITY_LEN 160
 
+#define FORMAT_INFO_BITS 15
 #define FORMAT_INFO_COORD 8
 #define FORMAT_INFO_MASK_PATTERN 0x5412
 #define FORMAT_INFO_POLY 0x537
@@ -108,10 +109,8 @@ static uint8_t eval_base_grid[MAX_QR_MODULES][MAX_QR_MODULES];
 static uint8_t eval_grid[MAX_QR_MODULES][MAX_QR_MODULES];
 
 static const int EC_FORMAT_BITS[] = {1, 0, 3, 2};
-static const int FORMAT_INFO_COL_1[15] = {0, 1, 2, 3, 4, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8};
-static const int FORMAT_INFO_ROW_1[15] = {8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 4, 3, 2, 1, 0};
-static const int FORMAT_INFO_X1[15] = {8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 4, 3, 2, 1, 0};
-static const int FORMAT_INFO_Y1[15] = {0, 1, 2, 3, 4, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8};
+static const int FORMAT_INFO_COL[FORMAT_INFO_BITS] = {0, 1, 2, 3, 4, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8};
+static const int FORMAT_INFO_ROW[FORMAT_INFO_BITS] = {8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 4, 3, 2, 1, 0};
 static const int NUMERIC_MODE_PAD_PATTERN[] = {0xEC, 0x11};
 static const uint8_t PENALTY_RULE_3_PATTERN[7] = {1, 0, 1, 1, 1, 0, 1};
 
@@ -963,13 +962,13 @@ static inline void plot_eval_format_info(const QRContext *ctx)
 {
     int format_bits = get_format_info(ctx->ec_level, ctx->mask_pattern);
     eval_grid[8][ctx->grid_dim - 8] = 1;
-    for (int i = 0; i < 15; ++i) {
+    for (int i = 0; i < FORMAT_INFO_BITS; ++i) {
         uint8_t bit = (uint8_t)((format_bits >> i) & 1);
-        int row_1 = FORMAT_INFO_ROW_1[i];
-        int col_1 = FORMAT_INFO_COL_1[i];
+        int row_1 = FORMAT_INFO_ROW[i];
+        int col_1 = FORMAT_INFO_COL[i];
         eval_grid[row_1][col_1] = bit;
         int row_2 = (i < 8) ? (ctx->grid_dim - 1 - i) : 8;
-        int col_2 = (i < 8) ? 8 : (ctx->grid_dim - 15 + i);
+        int col_2 = (i < 8) ? 8 : (ctx->grid_dim - FORMAT_INFO_BITS + i);
         eval_grid[row_2][col_2] = bit;
     }
 }
@@ -1123,18 +1122,18 @@ static inline void emplace_format_info(const QRContext *ctx)
     int dark_x = ctx->quiet_zone_width + (8 * module_size);
     int dark_y = ctx->quiet_zone_width + ((ctx->grid_dim - 8) * module_size);
     canvas_fill_rect(ctx->canvas, dark_x, dark_y, module_size, module_size, C_BLACK);
-    for (int i = 0; i < 15; ++i) {
+    for (int i = 0; i < FORMAT_INFO_BITS; ++i) {
         uint8_t bit = (uint8_t)((format_bits >> i) & 1);
         uint32_t color = bit ? C_BLACK : C_WHITE;
-        int x1 = FORMAT_INFO_X1[i];
-        int y1 = FORMAT_INFO_Y1[i];
+        int x1 = FORMAT_INFO_COL[i];
+        int y1 = FORMAT_INFO_ROW[i];
         int x2, y2;
         if (i < 8) {
             x2 = ctx->grid_dim - 1 - i;
             y2 = 8;
         } else {
             x2 = 8;
-            y2 = ctx->grid_dim - 15 + i;
+            y2 = ctx->grid_dim - FORMAT_INFO_BITS + i;
         }
         int px1 = ctx->quiet_zone_width + (x1 * module_size);
         int py1 = ctx->quiet_zone_width + (y1 * module_size);
