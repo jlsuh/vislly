@@ -25,11 +25,15 @@
 #define QR_VERSION_COUNT 41
 #define VERSION_CAPACITY_LEN 160
 
+#define FORMAT_INFO_BCH_BITS 10
 #define FORMAT_INFO_BITS 15
 #define FORMAT_INFO_COORD 8
+#define FORMAT_INFO_DATA_BITS 5
 #define FORMAT_INFO_MASK_PATTERN 0x5412
 #define FORMAT_INFO_POLY 0x537
+#define VERSION_INFO_BCH_BITS 12
 #define VERSION_INFO_BITS 18
+#define VERSION_INFO_DATA_BITS 6
 #define VERSION_INFO_EDGE_OFFSET 11
 #define VERSION_INFO_MAX_COORD 5
 #define VERSION_INFO_MIN_VERSION 7
@@ -554,20 +558,24 @@ static inline int get_version_modules(int version)
 static inline int get_format_info(ErrorCorrectionLevel ec_level, int mask_pattern)
 {
     int format_data = (EC_FORMAT_BITS[ec_level] << 3) | mask_pattern;
-    int bch_checksum = format_data << 10;
-    for (int bit_idx = 14; bit_idx >= 10; --bit_idx)
-        if ((bch_checksum >> bit_idx) & 1)
-            bch_checksum ^= (FORMAT_INFO_POLY << (bit_idx - 10));
-    return ((format_data << 10) | bch_checksum) ^ FORMAT_INFO_MASK_PATTERN;
+    int bch_remainder = format_data << FORMAT_INFO_BCH_BITS;
+    for (int i = FORMAT_INFO_DATA_BITS - 1; i >= 0; --i) {
+        int current_msb = i + FORMAT_INFO_BCH_BITS;
+        if ((bch_remainder >> current_msb) & 1)
+            bch_remainder ^= (FORMAT_INFO_POLY << i);
+    }
+    return ((format_data << FORMAT_INFO_BCH_BITS) | bch_remainder) ^ FORMAT_INFO_MASK_PATTERN;
 }
 
 static inline int get_version_info(int version)
 {
-    int bch_checksum = version << 12;
-    for (int bit_idx = 17; bit_idx >= 12; --bit_idx)
-        if ((bch_checksum >> bit_idx) & 1)
-            bch_checksum ^= (VERSION_INFO_POLY << (bit_idx - 12));
-    return (version << 12) | bch_checksum;
+    int bch_remainder = version << VERSION_INFO_BCH_BITS;
+    for (int i = VERSION_INFO_DATA_BITS - 1; i >= 0; --i) {
+        int current_msb = i + VERSION_INFO_BCH_BITS;
+        if ((bch_remainder >> current_msb) & 1)
+            bch_remainder ^= (VERSION_INFO_POLY << i);
+    }
+    return (version << VERSION_INFO_BCH_BITS) | bch_remainder;
 }
 
 static inline bool is_overlapping_finder_pattern(int row, int col, int version_modules)
