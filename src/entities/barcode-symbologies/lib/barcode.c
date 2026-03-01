@@ -17,6 +17,11 @@ bool is_digit(char c)
     return c >= ASCII_ZERO && c <= ASCII_NINE;
 }
 
+bool is_uppercased_alpha(char c)
+{
+    return c >= ASCII_UPPERCASED_A && c <= ASCII_UPPERCASED_Z;
+}
+
 bool wasm_strncmp(const char *s1, const char *s2, int n)
 {
     for (int i = 0; i < n; ++i)

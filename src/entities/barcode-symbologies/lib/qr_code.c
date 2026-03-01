@@ -3,27 +3,63 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define MAX_QR_CODEWORDS 4096
 #define MAX_QR_MODULES 177
+#define MAX_SEGMENTS 256
+#define QR_VERSION_COUNT 41
+#define VERSION_CAPACITY_LEN 160
+
 #define MODULE_BASE_SIZE 4
 #define QUIET_ZONE_MULTIPLIER 4
 
-#define ALIGNMENT_PATTERN_CENTER_OFFSET 2
-#define ALIGNMENT_PATTERN_SIZE 5
+#define BITS_PER_BYTE 8
+
+#define NUMERIC_MODE_INDICATOR 1
+#define ALPHANUMERIC_MODE_INDICATOR 2
+
+#define MAX_TERMINATOR_LENGTH 4
+
+#define CCI_BITS_NUMERIC_V1_9 10
+#define CCI_BITS_NUMERIC_V10_26 12
+#define CCI_BITS_NUMERIC_V27_40 14
+
+#define CCI_BITS_ALPHANUMERIC_V1_9 9
+#define CCI_BITS_ALPHANUMERIC_V10_26 11
+#define CCI_BITS_ALPHANUMERIC_V27_40 13
+
+#define NUMERIC_GROUP_BITS_1 4
+#define NUMERIC_GROUP_BITS_2 7
+#define NUMERIC_GROUP_BITS_3 10
+#define NUMERIC_GROUP_SIZE 3
+
+#define ALPHA_PAIR_BITS 11
+#define ALPHA_PAIR_MULTIPLIER 45
+#define ALPHA_SINGLE_BITS 6
+
+#define THRESHOLD_INITIAL_NUM_V1_9 7
+#define THRESHOLD_INITIAL_NUM_V10_26 8
+#define THRESHOLD_INITIAL_NUM_V27_40 9
+#define THRESHOLD_SWITCH_NUM_V1_9 13
+#define THRESHOLD_SWITCH_NUM_V10_26 15
+#define THRESHOLD_SWITCH_NUM_V27_40 17
+
+#define MAX_BLOCKS 81
+#define MAX_EC_CODEWORDS_PER_BLOCK 68
+
+#define DIRECTION_UP 1
+
 #define FINDER_PATTERN_AREA_SIZE 8
 #define FINDER_PATTERN_INNER_OFFSET 2
 #define FINDER_PATTERN_INNER_SIZE 3
 #define FINDER_PATTERN_SIZE 7
+
+#define ALIGNMENT_PATTERN_CENTER_OFFSET 2
+#define ALIGNMENT_PATTERN_SIZE 5
 #define MAX_ALIGNMENT_COORDS 7
 #define NO_ALIGNMENT_VERSION 1
+
 #define TIMING_PATTERN_COORD 6
 #define TIMING_PATTERN_END_MARGIN 9
-
-#define BITS_PER_BYTE 8
-#define MAX_BLOCKS 81
-#define MAX_EC_CODEWORDS_PER_BLOCK 68
-#define MAX_QR_CODEWORDS 4096
-#define QR_VERSION_COUNT 41
-#define VERSION_CAPACITY_LEN 160
 
 #define FORMAT_INFO_BCH_BITS 10
 #define FORMAT_INFO_BITS 15
@@ -31,6 +67,10 @@
 #define FORMAT_INFO_DATA_BITS 5
 #define FORMAT_INFO_MASK_PATTERN 0x5412
 #define FORMAT_INFO_POLY 0x537
+
+#define VERSION_MODULES_BASE 17
+#define VERSION_MODULES_STEP 4
+
 #define VERSION_INFO_BCH_BITS 12
 #define VERSION_INFO_BITS 18
 #define VERSION_INFO_DATA_BITS 6
@@ -38,26 +78,15 @@
 #define VERSION_INFO_MAX_COORD 5
 #define VERSION_INFO_MIN_VERSION 7
 #define VERSION_INFO_POLY 0x1F25
-#define VERSION_MODULES_BASE 17
-#define VERSION_MODULES_STEP 4
 
 #define PENALTY_N1 3
 #define PENALTY_N2 3
 #define PENALTY_N3 40
 #define PENALTY_N4 10
 
-#define NUMERIC_CCI_BITS_1_9 10
-#define NUMERIC_CCI_BITS_10_26 12
-#define NUMERIC_CCI_BITS_27_40 14
-#define NUMERIC_GROUP_BITS_1 4
-#define NUMERIC_GROUP_BITS_2 7
-#define NUMERIC_GROUP_BITS_3 10
-#define NUMERIC_GROUP_SIZE 3
-#define NUMERIC_MAX_TERMINATOR_LENGTH 4
-#define NUMERIC_MODE_BITS 4
-#define NUMERIC_MODE_INDICATOR 1
-
-#define DIRECTION_UP 1
+#define MODE_INDICATOR_BITS 4
+#define VERSION_GROUP_2_START 10
+#define VERSION_GROUP_3_START 27
 
 typedef enum { EC_L, EC_M, EC_Q, EC_H } ErrorCorrectionLevel;
 
@@ -100,13 +129,19 @@ typedef struct {
     int ec_len;
 } RSBlock;
 
+typedef struct {
+    int mode;
+    int start;
+    int len;
+} QRSegment;
+
 typedef bool (*MaskEvaluator)(int, int);
 
 static uint8_t codeword_buffer[MAX_QR_CODEWORDS];
 static int global_bit_offset = 0;
 static uint8_t interleaved_codewords[MAX_QR_CODEWORDS];
 
-static const char *data;
+static const char *qr_data;
 static ErrorCorrectionLevel error_correction_level;
 
 static uint8_t eval_base_grid[MAX_QR_MODULES][MAX_QR_MODULES];
@@ -114,11 +149,16 @@ static uint8_t eval_grid[MAX_QR_MODULES][MAX_QR_MODULES];
 
 static int module_size = 0;
 
+static QRSegment segments[MAX_SEGMENTS];
+static int num_segments = 0;
+
 static const int EC_FORMAT_BITS[] = {1, 0, 3, 2};
 static const int FORMAT_INFO_COL[FORMAT_INFO_BITS] = {0, 1, 2, 3, 4, 5, 7, 8, 8, 8, 8, 8, 8, 8, 8};
 static const int FORMAT_INFO_ROW[FORMAT_INFO_BITS] = {8, 8, 8, 8, 8, 8, 8, 8, 7, 5, 4, 3, 2, 1, 0};
-static const int NUMERIC_MODE_PAD_PATTERN[] = {0xEC, 0x11};
+static const int PAD_PATTERN[] = {0xEC, 0x11};
 static const uint8_t PENALTY_RULE_3_PATTERN[7] = {1, 0, 1, 1, 1, 0, 1};
+
+const char SPECIAL_ALPHANUMERIC_CHARS[] = " $%*+-./:";
 
 static const VersionCapacity VERSION_CAPACITIES[VERSION_CAPACITY_LEN] = {
     {1,  EC_L, 19,   1,  26,  19,  0,  0,   0  },
@@ -454,6 +494,68 @@ static inline void append_bits(int value, int bit_count)
     }
 }
 
+static inline int get_special_alpha_value(char c)
+{
+    for (int i = 0; SPECIAL_ALPHANUMERIC_CHARS[i] != '\0'; ++i)
+        if (c == SPECIAL_ALPHANUMERIC_CHARS[i])
+            return 36 + i;
+    return -1;
+}
+
+static inline int char_to_alpha_value(char c)
+{
+    if (is_digit(c))
+        return char_to_digit(c);
+    if (is_uppercased_alpha(c))
+        return c - 'A' + 10;
+    return get_special_alpha_value(c);
+}
+
+static inline bool is_numeric(char c)
+{
+    return c >= '0' && c <= '9';
+}
+
+static inline bool is_alpha_exclusive(char c)
+{
+    return !is_numeric(c) && char_to_alpha_value(c) != -1;
+}
+
+static inline int count_consecutive_numeric(const char *str, int start, int len)
+{
+    int count = 0;
+    while (start + count < len && is_numeric(str[start + count]))
+        ++count;
+    return count;
+}
+
+static inline int get_numeric_cci_bits(int version)
+{
+    if (version < VERSION_GROUP_2_START)
+        return CCI_BITS_NUMERIC_V1_9;
+    if (version < VERSION_GROUP_3_START)
+        return CCI_BITS_NUMERIC_V10_26;
+    return CCI_BITS_NUMERIC_V27_40;
+}
+
+static inline int get_alphanumeric_cci_bits(int version)
+{
+    if (version < VERSION_GROUP_2_START)
+        return CCI_BITS_ALPHANUMERIC_V1_9;
+    if (version < VERSION_GROUP_3_START)
+        return CCI_BITS_ALPHANUMERIC_V10_26;
+    return CCI_BITS_ALPHANUMERIC_V27_40;
+}
+
+static inline int get_cci_bits(int mode, int version)
+{
+    if (NUMERIC_MODE_INDICATOR == mode)
+        return get_numeric_cci_bits(version);
+    if (ALPHANUMERIC_MODE_INDICATOR == mode)
+        return get_alphanumeric_cci_bits(version);
+    return 0;
+}
+
 static inline int numeric_get_group_size(int remaining_digits)
 {
     if (remaining_digits >= NUMERIC_GROUP_SIZE)
@@ -468,22 +570,6 @@ static inline int numeric_get_bit_count_for_group(int group_len)
     if (2 == group_len)
         return NUMERIC_GROUP_BITS_2;
     return NUMERIC_GROUP_BITS_1;
-}
-
-static inline int numeric_get_terminator_length(int remaining_bits)
-{
-    if (remaining_bits > NUMERIC_MAX_TERMINATOR_LENGTH)
-        return NUMERIC_MAX_TERMINATOR_LENGTH;
-    return remaining_bits;
-}
-
-static inline int numeric_get_cci_bits(int version)
-{
-    if (version < 10)
-        return NUMERIC_CCI_BITS_1_9;
-    if (version < 27)
-        return NUMERIC_CCI_BITS_10_26;
-    return NUMERIC_CCI_BITS_27_40;
 }
 
 static inline int numeric_get_content_bits(int len)
@@ -511,43 +597,129 @@ static inline void numeric_encode_segment_data(const char *const data, int len)
     }
 }
 
-static inline void numeric_append_terminator(int target_codewords)
+static inline void alphanumeric_encode_segment_data(const char *data, int len)
+{
+    for (int i = 0; i < len; i += 2) {
+        if (i + 1 < len) {
+            int val = (char_to_alpha_value(data[i]) * ALPHA_PAIR_MULTIPLIER) + char_to_alpha_value(data[i + 1]);
+            append_bits(val, ALPHA_PAIR_BITS);
+        } else {
+            int val = char_to_alpha_value(data[i]);
+            append_bits(val, ALPHA_SINGLE_BITS);
+        }
+    }
+}
+
+static inline int get_initial_numeric_threshold(int version_group)
+{
+    if (1 == version_group)
+        return THRESHOLD_INITIAL_NUM_V1_9;
+    if (2 == version_group)
+        return THRESHOLD_INITIAL_NUM_V10_26;
+    return THRESHOLD_INITIAL_NUM_V27_40;
+}
+
+static inline int get_switch_numeric_threshold(int version_group)
+{
+    if (1 == version_group)
+        return THRESHOLD_SWITCH_NUM_V1_9;
+    if (2 == version_group)
+        return THRESHOLD_SWITCH_NUM_V10_26;
+    return THRESHOLD_SWITCH_NUM_V27_40;
+}
+
+static inline void add_segment(int mode, int start_idx)
+{
+    segments[num_segments].mode = mode;
+    segments[num_segments].start = start_idx;
+    segments[num_segments].len = 0;
+    ++num_segments;
+}
+
+static inline int determine_initial_mode(const char *data, int len, int version_group)
+{
+    int initial_num = count_consecutive_numeric(data, 0, len);
+    if (0 == initial_num)
+        return ALPHANUMERIC_MODE_INDICATOR;
+    int threshold = get_initial_numeric_threshold(version_group);
+    bool is_short_numeric = (initial_num < threshold);
+    bool has_alpha_after = (initial_num < len) && is_alpha_exclusive(data[initial_num]);
+    if (is_short_numeric && has_alpha_after)
+        return ALPHANUMERIC_MODE_INDICATOR;
+    return NUMERIC_MODE_INDICATOR;
+}
+
+static inline void segment_data(const char *data, int len, int version_group)
+{
+    num_segments = 0;
+    int current_mode = determine_initial_mode(data, len, version_group);
+    add_segment(current_mode, 0);
+    int switch_thresh = get_switch_numeric_threshold(version_group);
+    for (int i = 0; i < len; ++i) {
+        bool switch_to_num =
+            (ALPHANUMERIC_MODE_INDICATOR == current_mode) && (count_consecutive_numeric(data, i, len) >= switch_thresh);
+        bool switch_to_alpha = (NUMERIC_MODE_INDICATOR == current_mode) && is_alpha_exclusive(data[i]);
+        if (switch_to_num) {
+            current_mode = NUMERIC_MODE_INDICATOR;
+            add_segment(current_mode, i);
+        } else if (switch_to_alpha) {
+            current_mode = ALPHANUMERIC_MODE_INDICATOR;
+            add_segment(current_mode, i);
+        }
+        ++segments[num_segments - 1].len;
+    }
+}
+
+static inline int calculate_total_bits(int version)
+{
+    int total = 0;
+    for (int i = 0; i < num_segments; ++i) {
+        total += MODE_INDICATOR_BITS;
+        total += get_cci_bits(segments[i].mode, version);
+        if (NUMERIC_MODE_INDICATOR == segments[i].mode)
+            total += numeric_get_content_bits(segments[i].len);
+        else
+            total += (segments[i].len / 2) * ALPHA_PAIR_BITS + (segments[i].len % 2) * ALPHA_SINGLE_BITS;
+    }
+    return total;
+}
+
+static inline const VersionCapacity *determine_version_and_segment(const char *data, int len,
+                                                                   ErrorCorrectionLevel target_ec_level)
+{
+    for (int i = 0; i < VERSION_CAPACITY_LEN; ++i) {
+        if (target_ec_level == VERSION_CAPACITIES[i].ec_level) {
+            int version = VERSION_CAPACITIES[i].version;
+            int version_group = (version < VERSION_GROUP_2_START) ? 1 : ((version < VERSION_GROUP_3_START) ? 2 : 3);
+            segment_data(data, len, version_group);
+            int total_bits = calculate_total_bits(version);
+            int capacity_bits = VERSION_CAPACITIES[i].data_codewords * BITS_PER_BYTE;
+            if (total_bits <= capacity_bits)
+                return &VERSION_CAPACITIES[i];
+        }
+    }
+    return NULL;
+}
+
+static inline void append_terminator(int target_codewords)
 {
     int max_capacity_bits = target_codewords * BITS_PER_BYTE;
     int remaining_bits = max_capacity_bits - global_bit_offset;
-    int terminator_len = numeric_get_terminator_length(remaining_bits);
+    int terminator_len = (remaining_bits > MAX_TERMINATOR_LENGTH) ? MAX_TERMINATOR_LENGTH : remaining_bits;
     append_bits(0, terminator_len);
 }
 
-static inline void numeric_append_padding_bits(void)
+static inline void append_padding_bits(void)
 {
     int padding_bits = (BITS_PER_BYTE - (global_bit_offset % BITS_PER_BYTE)) % BITS_PER_BYTE;
     append_bits(0, padding_bits);
 }
 
-static inline void numeric_append_pad_codewords(int target_codewords)
+static inline void append_pad_codewords(int target_codewords)
 {
     int pad_bytes_needed = target_codewords - (global_bit_offset / BITS_PER_BYTE);
     for (int i = 0; i < pad_bytes_needed; ++i)
-        append_bits(NUMERIC_MODE_PAD_PATTERN[i % 2], BITS_PER_BYTE);
-}
-
-static inline const VersionCapacity *determine_version(int content_bits, ErrorCorrectionLevel target_ec_level,
-                                                       int *out_cci_bits)
-{
-    for (int i = 0; i < VERSION_CAPACITY_LEN; ++i) {
-        if (target_ec_level == VERSION_CAPACITIES[i].ec_level) {
-            int version = VERSION_CAPACITIES[i].version;
-            int capacity_bits = VERSION_CAPACITIES[i].data_codewords * BITS_PER_BYTE;
-            int cci_bits = numeric_get_cci_bits(version);
-            int data_bits = NUMERIC_MODE_BITS + cci_bits + content_bits;
-            if (data_bits <= capacity_bits) {
-                *out_cci_bits = cci_bits;
-                return &VERSION_CAPACITIES[i];
-            }
-        }
-    }
-    return NULL;
+        append_bits(PAD_PATTERN[i % 2], BITS_PER_BYTE);
 }
 
 static inline int get_version_modules(int version)
@@ -790,16 +962,18 @@ static inline void plot_eval_finder_pattern(int row_offset, int col_offset, int 
 
 static inline void plot_eval_timing_patterns(int size)
 {
-    for (int i = 8; i < size - 8; ++i) {
-        eval_base_grid[6][i] = (0 == i % 2) ? 1 : 0;
-        eval_base_grid[i][6] = (0 == i % 2) ? 1 : 0;
+    for (int i = FINDER_PATTERN_AREA_SIZE; i < size - FINDER_PATTERN_AREA_SIZE; ++i) {
+        eval_base_grid[TIMING_PATTERN_COORD][i] = (0 == i % 2) ? 1 : 0;
+        eval_base_grid[i][TIMING_PATTERN_COORD] = (0 == i % 2) ? 1 : 0;
     }
 }
 
 static inline void plot_single_alignment_pattern(int center_row, int center_col)
 {
-    for (int row = center_row - 2; row <= center_row + 2; ++row) {
-        for (int col = center_col - 2; col <= center_col + 2; ++col) {
+    for (int row = center_row - ALIGNMENT_PATTERN_CENTER_OFFSET; row <= center_row + ALIGNMENT_PATTERN_CENTER_OFFSET;
+         ++row) {
+        for (int col = center_col - ALIGNMENT_PATTERN_CENTER_OFFSET;
+             col <= center_col + ALIGNMENT_PATTERN_CENTER_OFFSET; ++col) {
             int row_distance = MATH_ABS(row - center_row);
             int col_distance = MATH_ABS(col - center_col);
             int ring_distance = MATH_MAX(row_distance, col_distance);
@@ -844,8 +1018,8 @@ static inline void build_base_grid(const QRContext *ctx)
         for (int c = 0; c < ctx->grid_dim; ++c)
             eval_base_grid[r][c] = 0;
     plot_eval_finder_pattern(0, 0, ctx->grid_dim);
-    plot_eval_finder_pattern(0, ctx->grid_dim - 7, ctx->grid_dim);
-    plot_eval_finder_pattern(ctx->grid_dim - 7, 0, ctx->grid_dim);
+    plot_eval_finder_pattern(0, ctx->grid_dim - FINDER_PATTERN_SIZE, ctx->grid_dim);
+    plot_eval_finder_pattern(ctx->grid_dim - FINDER_PATTERN_SIZE, 0, ctx->grid_dim);
     plot_eval_timing_patterns(ctx->grid_dim);
     plot_eval_alignment_patterns(ctx->version, ctx->grid_dim);
     plot_eval_version_info(ctx->version, ctx->grid_dim);
@@ -995,7 +1169,7 @@ static inline void plot_eval_data_codewords(const QRContext *ctx)
         bool is_dark_module = false;
         if (placed_bits < total_bits) {
             int byte_idx = placed_bits / BITS_PER_BYTE;
-            int bit_idx = 7 - (placed_bits % BITS_PER_BYTE);
+            int bit_idx = (BITS_PER_BYTE - 1) - (placed_bits % BITS_PER_BYTE);
             is_dark_module = (interleaved_codewords[byte_idx] >> bit_idx) & 1;
         }
         if (evaluate_mask_condition(ctx->mask_pattern, row, col))
@@ -1124,8 +1298,8 @@ static inline void emplace_alignment_patterns(const QRContext *ctx)
 static inline void emplace_format_info(const QRContext *ctx)
 {
     int format_bits = get_format_info(ctx->ec_level, ctx->mask_pattern);
-    int dark_x = ctx->quiet_zone_width + (8 * module_size);
-    int dark_y = ctx->quiet_zone_width + ((ctx->grid_dim - 8) * module_size);
+    int dark_x = ctx->quiet_zone_width + (FORMAT_INFO_COORD * module_size);
+    int dark_y = ctx->quiet_zone_width + ((ctx->grid_dim - FORMAT_INFO_COORD) * module_size);
     canvas_fill_rect(ctx->canvas, dark_x, dark_y, module_size, module_size, C_BLACK);
     for (int i = 0; i < FORMAT_INFO_BITS; ++i) {
         uint8_t bit = (uint8_t)((format_bits >> i) & 1);
@@ -1135,9 +1309,9 @@ static inline void emplace_format_info(const QRContext *ctx)
         int x2, y2;
         if (i < 8) {
             x2 = ctx->grid_dim - 1 - i;
-            y2 = 8;
+            y2 = FORMAT_INFO_COORD;
         } else {
-            x2 = 8;
+            x2 = FORMAT_INFO_COORD;
             y2 = ctx->grid_dim - FORMAT_INFO_BITS + i;
         }
         int top_left_x = ctx->quiet_zone_width + (x1 * module_size);
@@ -1184,7 +1358,7 @@ static inline void emplace_codewords(const QRContext *ctx)
             is_dark_module = evaluate_mask_condition(ctx->mask_pattern, row, col);
         } else {
             int byte_index = placed_bits / BITS_PER_BYTE;
-            int bit_within_byte = 7 - (placed_bits % BITS_PER_BYTE);
+            int bit_within_byte = (BITS_PER_BYTE - 1) - (placed_bits % BITS_PER_BYTE);
             is_dark_module = (interleaved_codewords[byte_index] >> bit_within_byte) & 1;
         }
         uint32_t module_color = is_dark_module ? C_BLACK : C_WHITE;
@@ -1197,22 +1371,26 @@ static inline void emplace_codewords(const QRContext *ctx)
 static inline void process_qr_data(void)
 {
     init_gf_tables();
-    int len = wasm_strlen(data);
-    int content_bits = numeric_get_content_bits(len);
-    int target_cci_length = -1;
-    const VersionCapacity *vc = determine_version(content_bits, error_correction_level, &target_cci_length);
+    int len = wasm_strlen(qr_data);
+    const VersionCapacity *vc = determine_version_and_segment(qr_data, len, error_correction_level);
     if (!vc)
         return;
     int target_version = vc->version;
     int target_codewords = vc->data_codewords;
     global_bit_offset = 0;
     wasm_memset(codeword_buffer, 0, sizeof(codeword_buffer));
-    append_bits(NUMERIC_MODE_INDICATOR, NUMERIC_MODE_BITS);
-    append_bits(len, target_cci_length);
-    numeric_encode_segment_data(data, len);
-    numeric_append_terminator(target_codewords);
-    numeric_append_padding_bits();
-    numeric_append_pad_codewords(target_codewords);
+    for (int i = 0; i < num_segments; ++i) {
+        QRSegment *seg = &segments[i];
+        append_bits(seg->mode, MODE_INDICATOR_BITS);
+        append_bits(seg->len, get_cci_bits(seg->mode, target_version));
+        if (NUMERIC_MODE_INDICATOR == seg->mode)
+            numeric_encode_segment_data(qr_data + seg->start, seg->len);
+        else
+            alphanumeric_encode_segment_data(qr_data + seg->start, seg->len);
+    }
+    append_terminator(target_codewords);
+    append_padding_bits();
+    append_pad_codewords(target_codewords);
     generate_interleaved_codewords(codeword_buffer, vc);
     int quiet_zone_width = module_size * QUIET_ZONE_MULTIPLIER;
     int version_modules = get_version_modules(target_version);
@@ -1239,7 +1417,7 @@ static inline void process_qr_data(void)
 
 void render(void)
 {
-    data = get_data_buffer();
+    qr_data = get_data_buffer();
     error_correction_level = EC_L;
     module_size = MODULE_BASE_SIZE * dpr;
     process_qr_data();
