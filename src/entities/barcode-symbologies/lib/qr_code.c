@@ -1013,22 +1013,22 @@ static inline int score_mask(QRContext *ctx)
            score_penalty_rule_3(ctx->grid_dim) + score_penalty_rule_4(ctx->grid_dim);
 }
 
-static inline int find_best_mask(QRContext *ctx)
+static inline int find_optimal_mask(QRContext *ctx)
 {
-    int best_mask = 0;
-    int lowest_penalty = INT32_MAX;
-    for (int mask = 0; mask < 8; ++mask) {
-        ctx->mask_pattern = mask;
-        int penalty = score_mask(ctx);
-        if (penalty < lowest_penalty) {
-            lowest_penalty = penalty;
-            best_mask = mask;
+    int optimal_mask = 0;
+    int min_penalty = INT32_MAX;
+    for (int mask_idx = 0; mask_idx < 8; ++mask_idx) {
+        ctx->mask_pattern = mask_idx;
+        int current_penalty = score_mask(ctx);
+        if (current_penalty < min_penalty) {
+            min_penalty = current_penalty;
+            optimal_mask = mask_idx;
         }
     }
-    return best_mask;
+    return optimal_mask;
 }
 
-static inline void apply_mask_to_codewords(const QRContext *ctx, int best_mask)
+static inline void apply_mask_to_codewords(const QRContext *ctx, int mask)
 {
     int total_codewords = (ctx->vc->num_blocks_g1 * ctx->vc->c_g1) + (ctx->vc->num_blocks_g2 * ctx->vc->c_g2);
     int total_bits = total_codewords * BITS_PER_BYTE;
@@ -1036,7 +1036,7 @@ static inline void apply_mask_to_codewords(const QRContext *ctx, int best_mask)
     int row, col;
     QRZigZag zz = zigzag_create(ctx->grid_dim, ctx->version);
     while (placed_bits < total_bits && next_zigzag_coord(&zz, &row, &col)) {
-        if (evaluate_mask_condition(best_mask, row, col)) {
+        if (evaluate_mask_condition(mask, row, col)) {
             int byte_idx = placed_bits / BITS_PER_BYTE;
             int bit_idx = 7 - (placed_bits % BITS_PER_BYTE);
             interleaved_codewords[byte_idx] ^= (1 << bit_idx);
@@ -1045,12 +1045,12 @@ static inline void apply_mask_to_codewords(const QRContext *ctx, int best_mask)
     }
 }
 
-static inline int apply_best_data_mask(QRContext *ctx)
+static inline int apply_best_mask(QRContext *ctx)
 {
     build_base_grid(ctx);
-    int best_mask = find_best_mask(ctx);
-    apply_mask_to_codewords(ctx, best_mask);
-    return best_mask;
+    int mask = find_optimal_mask(ctx);
+    apply_mask_to_codewords(ctx, mask);
+    return mask;
 }
 
 static inline void emplace_finder_pattern(Canvas *c, int x, int y)
@@ -1220,7 +1220,7 @@ static inline void process_qr_data(void)
                      .ec_level = error_correction_level,
                      .vc = vc,
                      .mask_pattern = 0};
-    ctx.mask_pattern = apply_best_data_mask(&ctx);
+    ctx.mask_pattern = apply_best_mask(&ctx);
     emplace_finder_patterns(&ctx);
     emplace_timing_patterns(&ctx);
     emplace_alignment_patterns(&ctx);
