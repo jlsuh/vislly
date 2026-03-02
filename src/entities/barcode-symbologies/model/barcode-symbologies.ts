@@ -24,7 +24,7 @@ function assertIsBarcodeSymbology(
 
 const CODE128_PATTERN = '[\\x00-\\x7F]*';
 const NUMERIC_PATTERN = '[0-9]*';
-const QR_ALPHANUMERIC_PATTERN = '[0-9A-Z $%*+./:-]*';
+const QR_PATTERN = '.*';
 
 type SymbologyConfig = {
   allowedPattern: string;
@@ -74,7 +74,7 @@ const BARCODE_SYMBOLOGIES: ReadonlyDeep<
     wasmFile: 'itf_14.wasm',
   },
   [BarcodeSymbology.QrCode]: {
-    allowedPattern: QR_ALPHANUMERIC_PATTERN,
+    allowedPattern: QR_PATTERN,
     inputMode: 'text',
     label: 'QR Code',
     loadingDimensions: { width: 250, height: 250 },

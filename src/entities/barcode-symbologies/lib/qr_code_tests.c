@@ -2,10 +2,14 @@
 
 #include "qr_code.c"
 
-static void check_version(int data_bits, ErrorCorrectionLevel ec_level, int expected_version, int expected_codewords)
+static void check_version(int numeric_chars, ErrorCorrectionLevel ec_level, int expected_version,
+                          int expected_codewords)
 {
-    int cci;
-    const VersionCapacity *vc = determine_version(data_bits, ec_level, &cci);
+    static char dummy_data[8192];
+    for (int i = 0; i < numeric_chars; ++i)
+        dummy_data[i] = '0';
+    dummy_data[numeric_chars] = '\0';
+    const VersionCapacity *vc = determine_version_and_segment(dummy_data, numeric_chars, ec_level);
     ASSERT_TRUE(vc != NULL);
     if (vc != NULL) {
         ASSERT_EQUALS(expected_version, vc->version);
@@ -15,54 +19,56 @@ static void check_version(int data_bits, ErrorCorrectionLevel ec_level, int expe
 
 void test_versions_1_to_9(void)
 {
-    int data_bits = numeric_get_content_bits(8);
-    check_version(data_bits, EC_L, 1, 19);
-    check_version(data_bits, EC_M, 1, 16);
-    check_version(data_bits, EC_Q, 1, 13);
-    check_version(data_bits, EC_H, 1, 9);
+    check_version(8, EC_L, 1, 19);
+    check_version(8, EC_M, 1, 16);
+    check_version(8, EC_Q, 1, 13);
+    check_version(8, EC_H, 1, 9);
 }
 
 void test_versions_10_to_26(void)
 {
-    int data_bits = numeric_get_content_bits(600);
-    check_version(data_bits, EC_L, 10, 274);
-    check_version(data_bits, EC_M, 11, 254);
-    check_version(data_bits, EC_Q, 14, 261);
-    check_version(data_bits, EC_H, 16, 253);
+    check_version(600, EC_L, 10, 274);
+    check_version(600, EC_M, 11, 254);
+    check_version(600, EC_Q, 14, 261);
+    check_version(600, EC_H, 16, 253);
 }
 
 void test_versions_27_to_40(void)
 {
-    check_version(numeric_get_content_bits(4000), EC_L, 30, 1735);
-    check_version(numeric_get_content_bits(3500), EC_M, 32, 1541);
-    check_version(numeric_get_content_bits(2500), EC_Q, 32, 1115);
-    check_version(numeric_get_content_bits(1800), EC_H, 31, 793);
+    check_version(4000, EC_L, 30, 1735);
+    check_version(3500, EC_M, 32, 1541);
+    check_version(2500, EC_Q, 32, 1115);
+    check_version(1800, EC_H, 31, 793);
 }
 
 void test_boundary_conditions_40_L(void)
 {
-    int cci;
+    static char dummy_data[8192];
+    wasm_memset(dummy_data, '0', sizeof(dummy_data));
     const VersionCapacity *vc;
-    vc = determine_version(numeric_get_content_bits(7088), EC_L, &cci);
+    vc = determine_version_and_segment(dummy_data, 7088, EC_L);
     ASSERT_TRUE(vc != NULL);
-    ASSERT_EQUALS(40, vc->version);
-    ASSERT_EQUALS(2956, vc->data_codewords);
-    vc = determine_version(numeric_get_content_bits(7089), EC_L, &cci);
+    if (vc != NULL) {
+        ASSERT_EQUALS(40, vc->version);
+        ASSERT_EQUALS(2956, vc->data_codewords);
+    }
+    vc = determine_version_and_segment(dummy_data, 7089, EC_L);
     ASSERT_TRUE(vc != NULL);
-    ASSERT_EQUALS(40, vc->version);
-    ASSERT_EQUALS(2956, vc->data_codewords);
-    vc = determine_version(numeric_get_content_bits(7090), EC_L, &cci);
+    if (vc != NULL) {
+        ASSERT_EQUALS(40, vc->version);
+        ASSERT_EQUALS(2956, vc->data_codewords);
+    }
+    vc = determine_version_and_segment(dummy_data, 7090, EC_L);
     ASSERT_TRUE(vc == NULL);
 }
 
 void test_integration_buffer_write(void)
 {
     static char data_buffer[8192];
-    for (int i = 0; i < 7089; ++i) {
+    for (int i = 0; i < 7089; ++i)
         data_buffer[i] = '0' + (i % 10);
-    }
     data_buffer[7089] = '\0';
-    data = data_buffer;
+    qr_data = data_buffer;
     error_correction_level = EC_L;
     process_qr_data();
     ASSERT_TRUE(global_bit_offset > 0);
@@ -70,7 +76,7 @@ void test_integration_buffer_write(void)
 
 void test_generator_polynomial_degree_7(void)
 {
-    init_gf_tables();
+    initialize_gf_tables();
     uint8_t expected_g_exp[] = {1, 87, 229, 146, 149, 238, 102, 21};
     const uint8_t *g = compute_generator_poly(7);
     ASSERT_EQUALS(expected_g_exp[0], g[0]);
@@ -80,7 +86,7 @@ void test_generator_polynomial_degree_7(void)
 
 void test_generator_polynomial_degree_10(void)
 {
-    init_gf_tables();
+    initialize_gf_tables();
     uint8_t expected_g_exp[] = {1, 251, 67, 46, 61, 118, 70, 64, 94, 32, 45};
     const uint8_t *g = compute_generator_poly(10);
     ASSERT_EQUALS(expected_g_exp[0], g[0]);
@@ -90,7 +96,7 @@ void test_generator_polynomial_degree_10(void)
 
 void test_generator_polynomial_degree_68(void)
 {
-    init_gf_tables();
+    initialize_gf_tables();
     uint8_t expected_g_exp[] = {
         1,   247, 159, 223, 33, 224, 93, 77, 70,  90,  160, 32, 254, 43,  150, 84,  101, 190, 205, 133, 52, 60,  202,
         165, 220, 203, 151, 93, 84,  15, 84, 253, 173, 160, 89, 227, 52,  199, 97,  95,  231, 52,  177, 41, 125, 137,
@@ -103,7 +109,7 @@ void test_generator_polynomial_degree_68(void)
 
 void test_reed_solomon_encoding_1_M(void)
 {
-    init_gf_tables();
+    initialize_gf_tables();
     uint8_t data_block[16] = {32, 91, 11, 120, 209, 114, 220, 77, 67, 64, 236, 17, 236, 17, 236, 17};
     uint8_t expected_ec[10] = {196, 35, 39, 119, 235, 215, 231, 226, 93, 23};
     uint8_t ec[10];
@@ -116,7 +122,7 @@ void test_reed_solomon_encoding_1_M(void)
 
 void test_reed_solomon_encoding_40_H(void)
 {
-    init_gf_tables();
+    initialize_gf_tables();
     uint8_t data_block[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
     uint8_t ec[30];
     const uint8_t *g = compute_generator_poly(30);

@@ -30,10 +30,9 @@ function BarcodeCanvas({
     barcodeWasm.set_dpr(dpr);
     const inputPtr = barcodeWasm.get_data_buffer();
     const wasmMem = new Uint8Array(barcodeWasm.memory.buffer);
-    for (let i = 0; i < textToRender.length; i += 1) {
-      wasmMem[inputPtr + i] = textToRender.charCodeAt(i);
-    }
-    wasmMem[inputPtr + textToRender.length] = 0;
+    const encodedText = new TextEncoder().encode(textToRender);
+    wasmMem.set(encodedText, inputPtr);
+    wasmMem[inputPtr + encodedText.length] = 0;
     barcodeWasm.render();
     const width = barcodeWasm.get_width();
     const height = barcodeWasm.get_height();

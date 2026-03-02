@@ -16,7 +16,9 @@
 
 #define NUMERIC_MODE_INDICATOR 1
 #define ALPHANUMERIC_MODE_INDICATOR 2
+#define BYTE_MODE_INDICATOR 4
 
+#define MODE_INDICATOR_BITS 4
 #define MAX_TERMINATOR_LENGTH 4
 
 #define CCI_BITS_NUMERIC_V1_9 10
@@ -27,18 +29,22 @@
 #define CCI_BITS_ALPHANUMERIC_V10_26 11
 #define CCI_BITS_ALPHANUMERIC_V27_40 13
 
+#define CCI_BITS_BYTE_V1_9 8
+#define CCI_BITS_BYTE_V10_26 16
+#define CCI_BITS_BYTE_V27_40 16
+
+#define NUMERIC_GROUP_SIZE 3
 #define NUMERIC_GROUP_BITS_1 4
 #define NUMERIC_GROUP_BITS_2 7
 #define NUMERIC_GROUP_BITS_3 10
-#define NUMERIC_GROUP_SIZE 3
 
-#define ALPHA_PAIR_BITS 11
 #define ALPHA_PAIR_MULTIPLIER 45
+#define ALPHA_PAIR_BITS 11
 #define ALPHA_SINGLE_BITS 6
 
-#define THRESHOLD_INITIAL_NUM_V1_9 7
-#define THRESHOLD_INITIAL_NUM_V10_26 8
-#define THRESHOLD_INITIAL_NUM_V27_40 9
+#define VERSION_GROUP_2_START 10
+#define VERSION_GROUP_3_START 27
+
 #define THRESHOLD_SWITCH_NUM_V1_9 13
 #define THRESHOLD_SWITCH_NUM_V10_26 15
 #define THRESHOLD_SWITCH_NUM_V27_40 17
@@ -83,10 +89,6 @@
 #define PENALTY_N2 3
 #define PENALTY_N3 40
 #define PENALTY_N4 10
-
-#define MODE_INDICATOR_BITS 4
-#define VERSION_GROUP_2_START 10
-#define VERSION_GROUP_3_START 27
 
 typedef enum { EC_L, EC_M, EC_Q, EC_H } ErrorCorrectionLevel;
 
@@ -159,6 +161,13 @@ static const int PAD_PATTERN[] = {0xEC, 0x11};
 static const uint8_t PENALTY_RULE_3_PATTERN[7] = {1, 0, 1, 1, 1, 0, 1};
 
 const char SPECIAL_ALPHANUMERIC_CHARS[] = " $%*+-./:";
+
+static const int INITIAL_THRESHOLD_ALPHA_TO_BYTE[3] = {6, 7, 8};
+static const int INITIAL_THRESHOLD_NUM_TO_BYTE[3] = {4, 4, 5};
+static const int INITIAL_THRESHOLD_NUM[3] = {7, 8, 9};
+static const int THRESH_SWITCH_BYTE_TO_ALPHA[3] = {11, 15, 16};
+static const int THRESH_SWITCH_BYTE_TO_NUM_A[3] = {6, 7, 8};
+static const int THRESH_SWITCH_BYTE_TO_NUM_B[3] = {6, 8, 9};
 
 static const VersionCapacity VERSION_CAPACITIES[VERSION_CAPACITY_LEN] = {
     {1,  EC_L, 19,   1,  26,  19,  0,  0,   0  },
@@ -378,7 +387,7 @@ static uint8_t gf_log[256];
  * @see
  * https://people.computing.clemson.edu/~jmarty/papers/IntroToGaloisFieldsAndRSCoding.pdf
  */
-static inline void init_gf_tables(void)
+static inline void initialize_gf_tables(void)
 {
     if (gf_initialized)
         return;
@@ -521,10 +530,23 @@ static inline bool is_alpha_exclusive(char c)
     return !is_numeric(c) && char_to_alpha_value(c) != -1;
 }
 
+static inline bool is_byte_exclusive(char c)
+{
+    return !is_numeric(c) && !is_alpha_exclusive(c);
+}
+
 static inline int count_consecutive_numeric(const char *str, int start, int len)
 {
     int count = 0;
     while (start + count < len && is_numeric(str[start + count]))
+        ++count;
+    return count;
+}
+
+static inline int count_consecutive_alpha_exclusive(const char *str, int start, int len)
+{
+    int count = 0;
+    while (start + count < len && is_alpha_exclusive(str[start + count]))
         ++count;
     return count;
 }
@@ -547,12 +569,23 @@ static inline int get_alphanumeric_cci_bits(int version)
     return CCI_BITS_ALPHANUMERIC_V27_40;
 }
 
+static inline int get_byte_cci_bits(int version)
+{
+    if (version < VERSION_GROUP_2_START)
+        return CCI_BITS_BYTE_V1_9;
+    if (version < VERSION_GROUP_3_START)
+        return CCI_BITS_BYTE_V10_26;
+    return CCI_BITS_BYTE_V27_40;
+}
+
 static inline int get_cci_bits(int mode, int version)
 {
     if (NUMERIC_MODE_INDICATOR == mode)
         return get_numeric_cci_bits(version);
     if (ALPHANUMERIC_MODE_INDICATOR == mode)
         return get_alphanumeric_cci_bits(version);
+    if (BYTE_MODE_INDICATOR == mode)
+        return get_byte_cci_bits(version);
     return 0;
 }
 
@@ -610,22 +643,10 @@ static inline void alphanumeric_encode_segment_data(const char *data, int len)
     }
 }
 
-static inline int get_initial_numeric_threshold(int version_group)
+static inline void byte_encode_segment_data(const char *data, int len)
 {
-    if (1 == version_group)
-        return THRESHOLD_INITIAL_NUM_V1_9;
-    if (2 == version_group)
-        return THRESHOLD_INITIAL_NUM_V10_26;
-    return THRESHOLD_INITIAL_NUM_V27_40;
-}
-
-static inline int get_switch_numeric_threshold(int version_group)
-{
-    if (1 == version_group)
-        return THRESHOLD_SWITCH_NUM_V1_9;
-    if (2 == version_group)
-        return THRESHOLD_SWITCH_NUM_V10_26;
-    return THRESHOLD_SWITCH_NUM_V27_40;
+    for (int i = 0; i < len; ++i)
+        append_bits((uint8_t)data[i], BITS_PER_BYTE);
 }
 
 static inline void add_segment(int mode, int start_idx)
@@ -636,34 +657,104 @@ static inline void add_segment(int mode, int start_idx)
     ++num_segments;
 }
 
-static inline int determine_initial_mode(const char *data, int len, int version_group)
+static inline int get_initial_mode_for_alpha(const char *data, int len, int vg)
 {
-    int initial_num = count_consecutive_numeric(data, 0, len);
-    if (0 == initial_num)
+    int count = count_consecutive_alpha_exclusive(data, 0, len);
+    if (count >= INITIAL_THRESHOLD_ALPHA_TO_BYTE[vg - 1])
         return ALPHANUMERIC_MODE_INDICATOR;
-    int threshold = get_initial_numeric_threshold(version_group);
-    bool is_short_numeric = (initial_num < threshold);
-    bool has_alpha_after = (initial_num < len) && is_alpha_exclusive(data[initial_num]);
-    if (is_short_numeric && has_alpha_after)
+    if (count < len && is_byte_exclusive(data[count]))
+        return BYTE_MODE_INDICATOR;
+    return ALPHANUMERIC_MODE_INDICATOR;
+}
+
+static inline int get_initial_mode_for_numeric(const char *data, int len, int vg)
+{
+    int count = count_consecutive_numeric(data, 0, len);
+    if (count >= len)
+        return NUMERIC_MODE_INDICATOR;
+    if (count < INITIAL_THRESHOLD_NUM_TO_BYTE[vg - 1] && is_byte_exclusive(data[count]))
+        return BYTE_MODE_INDICATOR;
+    if (count < INITIAL_THRESHOLD_NUM[vg - 1] && is_alpha_exclusive(data[count]))
         return ALPHANUMERIC_MODE_INDICATOR;
     return NUMERIC_MODE_INDICATOR;
 }
 
-static inline void segment_data(const char *data, int len, int version_group)
+static inline int determine_initial_mode(const char *data, int len, int vg)
+{
+    if (is_byte_exclusive(data[0]))
+        return BYTE_MODE_INDICATOR;
+    if (is_alpha_exclusive(data[0]))
+        return get_initial_mode_for_alpha(data, len, vg);
+    if (is_numeric(data[0]))
+        return get_initial_mode_for_numeric(data, len, vg);
+    return BYTE_MODE_INDICATOR;
+}
+
+static inline int get_mode_for_alpha_char(const char *data, int i, int len, int idx)
+{
+    if (count_consecutive_alpha_exclusive(data, i, len) >= THRESH_SWITCH_BYTE_TO_ALPHA[idx])
+        return ALPHANUMERIC_MODE_INDICATOR;
+    return BYTE_MODE_INDICATOR;
+}
+
+static inline int get_mode_for_numeric_char(const char *data, int i, int len, int idx)
+{
+    int num_count = count_consecutive_numeric(data, i, len);
+    bool followed_by_byte = (i + num_count < len) && is_byte_exclusive(data[i + num_count]);
+    const int *thresh_arr = followed_by_byte ? THRESH_SWITCH_BYTE_TO_NUM_B : THRESH_SWITCH_BYTE_TO_NUM_A;
+    if (num_count >= thresh_arr[idx])
+        return NUMERIC_MODE_INDICATOR;
+    return BYTE_MODE_INDICATOR;
+}
+
+static inline int get_next_mode_from_byte(const char *data, int i, int len, int vg)
+{
+    int idx = vg - 1;
+    if (is_alpha_exclusive(data[i]))
+        return get_mode_for_alpha_char(data, i, len, idx);
+    if (is_numeric(data[i]))
+        return get_mode_for_numeric_char(data, i, len, idx);
+    return BYTE_MODE_INDICATOR;
+}
+
+static inline int get_next_mode_from_alpha(const char *data, int i, int len, int vg)
+{
+    if (is_byte_exclusive(data[i]))
+        return BYTE_MODE_INDICATOR;
+    if (is_numeric(data[i])) {
+        int thresh = (1 == vg)   ? THRESHOLD_SWITCH_NUM_V1_9
+                     : (2 == vg) ? THRESHOLD_SWITCH_NUM_V10_26
+                                 : THRESHOLD_SWITCH_NUM_V27_40;
+        if (count_consecutive_numeric(data, i, len) >= thresh)
+            return NUMERIC_MODE_INDICATOR;
+    }
+    return ALPHANUMERIC_MODE_INDICATOR;
+}
+
+static inline int get_next_mode_from_num(const char *data, int i)
+{
+    if (is_byte_exclusive(data[i]))
+        return BYTE_MODE_INDICATOR;
+    if (is_alpha_exclusive(data[i]))
+        return ALPHANUMERIC_MODE_INDICATOR;
+    return NUMERIC_MODE_INDICATOR;
+}
+
+static inline void segment_data(const char *data, int len, int vg)
 {
     num_segments = 0;
-    int current_mode = determine_initial_mode(data, len, version_group);
+    int current_mode = determine_initial_mode(data, len, vg);
     add_segment(current_mode, 0);
-    int switch_thresh = get_switch_numeric_threshold(version_group);
     for (int i = 0; i < len; ++i) {
-        bool switch_to_num =
-            (ALPHANUMERIC_MODE_INDICATOR == current_mode) && (count_consecutive_numeric(data, i, len) >= switch_thresh);
-        bool switch_to_alpha = (NUMERIC_MODE_INDICATOR == current_mode) && is_alpha_exclusive(data[i]);
-        if (switch_to_num) {
-            current_mode = NUMERIC_MODE_INDICATOR;
-            add_segment(current_mode, i);
-        } else if (switch_to_alpha) {
-            current_mode = ALPHANUMERIC_MODE_INDICATOR;
+        int next_mode = current_mode;
+        if (BYTE_MODE_INDICATOR == current_mode)
+            next_mode = get_next_mode_from_byte(data, i, len, vg);
+        else if (ALPHANUMERIC_MODE_INDICATOR == current_mode)
+            next_mode = get_next_mode_from_alpha(data, i, len, vg);
+        else
+            next_mode = get_next_mode_from_num(data, i);
+        if (next_mode != current_mode) {
+            current_mode = next_mode;
             add_segment(current_mode, i);
         }
         ++segments[num_segments - 1].len;
@@ -678,8 +769,10 @@ static inline int calculate_total_bits(int version)
         total += get_cci_bits(segments[i].mode, version);
         if (NUMERIC_MODE_INDICATOR == segments[i].mode)
             total += numeric_get_content_bits(segments[i].len);
+        else if (ALPHANUMERIC_MODE_INDICATOR == segments[i].mode)
+            total += ((segments[i].len / 2) * ALPHA_PAIR_BITS) + ((segments[i].len % 2) * ALPHA_SINGLE_BITS);
         else
-            total += (segments[i].len / 2) * ALPHA_PAIR_BITS + (segments[i].len % 2) * ALPHA_SINGLE_BITS;
+            total += segments[i].len * BITS_PER_BYTE;
     }
     return total;
 }
@@ -988,10 +1081,10 @@ static inline void plot_eval_alignment_patterns(int version, int grid_size)
         return;
     const int *alignment_coords = ALIGNMENT_PATTERN_COORDS[version];
     int coord_count = get_alignment_coords_count(alignment_coords);
-    for (int row_idx = 0; row_idx < coord_count; ++row_idx) {
-        for (int col_idx = 0; col_idx < coord_count; ++col_idx) {
-            int center_row = alignment_coords[row_idx];
-            int center_col = alignment_coords[col_idx];
+    for (int row = 0; row < coord_count; ++row) {
+        for (int col = 0; col < coord_count; ++col) {
+            int center_row = alignment_coords[row];
+            int center_col = alignment_coords[col];
             if (!is_overlapping_finder_pattern(center_row, center_col, grid_size))
                 plot_single_alignment_pattern(center_row, center_col);
         }
@@ -1354,9 +1447,9 @@ static inline void emplace_codewords(const QRContext *ctx)
     while (next_zigzag_coord(&zz, &row, &col)) {
         bool is_dark_module;
         bool is_padding_remainder = placed_bits >= total_bits;
-        if (is_padding_remainder) {
+        if (is_padding_remainder)
             is_dark_module = evaluate_mask_condition(ctx->mask_pattern, row, col);
-        } else {
+        else {
             int byte_index = placed_bits / BITS_PER_BYTE;
             int bit_within_byte = (BITS_PER_BYTE - 1) - (placed_bits % BITS_PER_BYTE);
             is_dark_module = (interleaved_codewords[byte_index] >> bit_within_byte) & 1;
@@ -1370,7 +1463,7 @@ static inline void emplace_codewords(const QRContext *ctx)
 
 static inline void process_qr_data(void)
 {
-    init_gf_tables();
+    initialize_gf_tables();
     int len = wasm_strlen(qr_data);
     const VersionCapacity *vc = determine_version_and_segment(qr_data, len, error_correction_level);
     if (!vc)
@@ -1385,8 +1478,10 @@ static inline void process_qr_data(void)
         append_bits(seg->len, get_cci_bits(seg->mode, target_version));
         if (NUMERIC_MODE_INDICATOR == seg->mode)
             numeric_encode_segment_data(qr_data + seg->start, seg->len);
-        else
+        else if (ALPHANUMERIC_MODE_INDICATOR == seg->mode)
             alphanumeric_encode_segment_data(qr_data + seg->start, seg->len);
+        else
+            byte_encode_segment_data(qr_data + seg->start, seg->len);
     }
     append_terminator(target_codewords);
     append_padding_bits();
