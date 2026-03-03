@@ -38,7 +38,7 @@ function assertIsBarcodeType(value: unknown): asserts value is BarcodeType {
 }
 
 const BARCODE_TYPE_LABELS: Record<BarcodeType, string> = {
-  [BarcodeType.Linear]: 'Linear Barcode',
+  [BarcodeType.Linear]: 'Linear Barcodes',
   [BarcodeType.Matrix2D]: 'Matrix (2D) Codes',
 } as const;
 
