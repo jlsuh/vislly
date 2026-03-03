@@ -3,9 +3,12 @@
 import { type ChangeEvent, type JSX, Suspense, useState } from 'react';
 import {
   assertIsBarcodeSymbology,
+  assertIsBarcodeType,
   BARCODE_SYMBOLOGIES,
-  type BarcodeSymbology,
+  DEFAULT_SYMBOLOGY_BY_TYPE,
+  INITIAL_BARCODE_TYPE,
   INITIAL_SYMBOLOGY,
+  SYMBOLOGY_OPTIONS_BY_TYPE,
 } from '../model/barcode-symbologies';
 import BarcodeCanvas from './BarcodeCanvas.tsx';
 import BarcodeControls from './BarcodeControls.tsx';
@@ -17,10 +20,21 @@ function BarcodeSymbologies(): JSX.Element {
     Math.min(Math.ceil(window.devicePixelRatio || 1), 4),
   );
   const [barcodeInput, setBarcodeInput] = useState('');
-  const [selectedSymbology, setSelectedSymbology] =
-    useState<BarcodeSymbology>(INITIAL_SYMBOLOGY);
+  const [selectedBarcodeType, setSelectedBarcodeType] =
+    useState(INITIAL_BARCODE_TYPE);
+  const [selectedSymbology, setSelectedSymbology] = useState(INITIAL_SYMBOLOGY);
+
   const currentSymbology = BARCODE_SYMBOLOGIES[selectedSymbology];
   const { allowedPattern } = currentSymbology;
+  const symbologyOptions = SYMBOLOGY_OPTIONS_BY_TYPE[selectedBarcodeType];
+
+  const handleOnChangeBarcodeType = (e: ChangeEvent<HTMLSelectElement>) => {
+    const newType = e.target.value;
+    assertIsBarcodeType(newType);
+    setSelectedBarcodeType(newType);
+    setSelectedSymbology(DEFAULT_SYMBOLOGY_BY_TYPE[newType]);
+    setBarcodeInput('');
+  };
 
   const handleOnChangeBarcodeSymbology = (
     e: ChangeEvent<HTMLSelectElement>,
@@ -50,10 +64,12 @@ function BarcodeSymbologies(): JSX.Element {
           barcodeInput={barcodeInput}
           currentSymbology={currentSymbology}
           dpr={dpr}
+          selectedBarcodeType={selectedBarcodeType}
+          symbologyOptions={symbologyOptions}
           handleOnChangeBarcodeInput={handleOnChangeBarcodeInput}
           handleOnChangeBarcodeSymbology={handleOnChangeBarcodeSymbology}
+          handleOnChangeBarcodeType={handleOnChangeBarcodeType}
           handleOnChangeDpr={handleOnChangeDpr}
-          selectedSymbology={selectedSymbology}
         />
       </div>
       <div className={styles.canvasWrapper}>
