@@ -4,9 +4,11 @@ import { type ChangeEvent, type JSX, Suspense, useState } from 'react';
 import {
   assertIsBarcodeSymbology,
   assertIsBarcodeType,
+  assertIsErrorCorrectionLevel,
   BARCODE_SYMBOLOGIES,
   DEFAULT_SYMBOLOGY_BY_TYPE,
   INITIAL_BARCODE_TYPE,
+  INITIAL_ERROR_CORRECTION_LEVEL,
   INITIAL_SYMBOLOGY,
   SYMBOLOGY_OPTIONS_BY_TYPE,
 } from '../model/barcode-symbologies';
@@ -23,6 +25,8 @@ function BarcodeSymbologies(): JSX.Element {
   const [selectedBarcodeType, setSelectedBarcodeType] =
     useState(INITIAL_BARCODE_TYPE);
   const [selectedSymbology, setSelectedSymbology] = useState(INITIAL_SYMBOLOGY);
+  const [selectedErrorCorrectionLevel, setSelectedErrorCorrectionLevel] =
+    useState(INITIAL_ERROR_CORRECTION_LEVEL);
 
   const currentSymbology = BARCODE_SYMBOLOGIES[selectedSymbology];
   const { allowedPattern } = currentSymbology;
@@ -57,6 +61,14 @@ function BarcodeSymbologies(): JSX.Element {
     }
   };
 
+  const handleOnChangeErrorCorrectionLevel = (
+    e: ChangeEvent<HTMLSelectElement>,
+  ) => {
+    const newLevel = e.target.value;
+    assertIsErrorCorrectionLevel(newLevel);
+    setSelectedErrorCorrectionLevel(newLevel);
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.controls}>
@@ -65,11 +77,15 @@ function BarcodeSymbologies(): JSX.Element {
           currentSymbology={currentSymbology}
           dpr={dpr}
           selectedBarcodeType={selectedBarcodeType}
+          selectedErrorCorrectionLevel={selectedErrorCorrectionLevel}
           symbologyOptions={symbologyOptions}
           handleOnChangeBarcodeInput={handleOnChangeBarcodeInput}
           handleOnChangeBarcodeSymbology={handleOnChangeBarcodeSymbology}
           handleOnChangeBarcodeType={handleOnChangeBarcodeType}
           handleOnChangeDpr={handleOnChangeDpr}
+          handleOnChangeErrorCorrectionLevel={
+            handleOnChangeErrorCorrectionLevel
+          }
         />
       </div>
       <div className={styles.canvasWrapper}>
@@ -82,6 +98,7 @@ function BarcodeSymbologies(): JSX.Element {
             currentSymbology={currentSymbology}
             dpr={dpr}
             inputText={barcodeInput}
+            selectedErrorCorrectionLevel={selectedErrorCorrectionLevel}
           />
         </Suspense>
       </div>

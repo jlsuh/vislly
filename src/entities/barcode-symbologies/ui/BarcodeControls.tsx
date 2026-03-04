@@ -5,7 +5,8 @@ import Input from '@/shared/ui/Input/Input';
 import Select from '@/shared/ui/Select/Select';
 import {
   BARCODE_TYPE_LABELS,
-  type BarcodeType,
+  BarcodeType,
+  ErrorCorrectionLevel,
   type SymbologyConfig,
 } from '../model/barcode-symbologies';
 import styles from './barcode-controls.module.css';
@@ -15,6 +16,13 @@ const DPR_OPTIONS: ReadonlyDeep<Option[]> = [
   { label: '2x', value: '2' },
   { label: '3x', value: '3' },
   { label: '4x', value: '4' },
+];
+
+const EC_LEVEL_OPTIONS: ReadonlyDeep<Option[]> = [
+  { label: 'L (Low)', value: ErrorCorrectionLevel.L },
+  { label: 'M (Medium)', value: ErrorCorrectionLevel.M },
+  { label: 'Q (Quartile)', value: ErrorCorrectionLevel.Q },
+  { label: 'H (High)', value: ErrorCorrectionLevel.H },
 ];
 
 const BARCODE_TYPE_OPTIONS: ReadonlyDeep<Option[]> = Object.entries(
@@ -29,11 +37,15 @@ type BarcodeSymbologiesControlsProps = {
   currentSymbology: SymbologyConfig;
   dpr: number;
   selectedBarcodeType: BarcodeType;
+  selectedErrorCorrectionLevel: ErrorCorrectionLevel;
   symbologyOptions: ReadonlyDeep<Option[]>;
   handleOnChangeBarcodeInput: (e: ChangeEvent<HTMLInputElement>) => void;
   handleOnChangeBarcodeSymbology: (e: ChangeEvent<HTMLSelectElement>) => void;
   handleOnChangeBarcodeType: (e: ChangeEvent<HTMLSelectElement>) => void;
   handleOnChangeDpr: (e: ChangeEvent<HTMLSelectElement>) => void;
+  handleOnChangeErrorCorrectionLevel: (
+    e: ChangeEvent<HTMLSelectElement>,
+  ) => void;
 };
 
 function BarcodeControls({
@@ -41,14 +53,18 @@ function BarcodeControls({
   currentSymbology,
   dpr,
   selectedBarcodeType,
+  selectedErrorCorrectionLevel,
   symbologyOptions,
   handleOnChangeBarcodeInput,
   handleOnChangeBarcodeSymbology,
   handleOnChangeBarcodeType,
   handleOnChangeDpr,
+  handleOnChangeErrorCorrectionLevel,
 }: BarcodeSymbologiesControlsProps): JSX.Element {
   const { allowedPattern, inputMode, maxInputLength, inputType, value } =
     currentSymbology;
+  const isEcLevelSelectDisabled =
+    currentSymbology.type !== BarcodeType.Matrix2D;
 
   return (
     <>
@@ -66,6 +82,15 @@ function BarcodeControls({
           label="Symbology"
           options={symbologyOptions}
           value={value}
+        />
+      </div>
+      <div className={styles.row}>
+        <Select
+          disabled={isEcLevelSelectDisabled}
+          handleOnSelectChange={handleOnChangeErrorCorrectionLevel}
+          label="Error Correction Level"
+          options={EC_LEVEL_OPTIONS}
+          value={selectedErrorCorrectionLevel}
         />
         <Select
           handleOnSelectChange={handleOnChangeDpr}

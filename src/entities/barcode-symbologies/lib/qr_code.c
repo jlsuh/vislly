@@ -144,7 +144,7 @@ static int global_bit_offset = 0;
 static uint8_t interleaved_codewords[MAX_QR_CODEWORDS];
 
 static const char *qr_data;
-static ErrorCorrectionLevel error_correction_level;
+static ErrorCorrectionLevel error_correction_level = EC_M;
 
 static uint8_t eval_base_grid[MAX_QR_MODULES][MAX_QR_MODULES];
 static uint8_t eval_grid[MAX_QR_MODULES][MAX_QR_MODULES];
@@ -1510,10 +1510,16 @@ static inline void process_qr_data(void)
     emplace_codewords(&ctx);
 }
 
+__attribute__((export_name("set_error_correction_level"))) void set_error_correction_level(int level)
+{
+    if (level >= 0 && level <= 3) {
+        error_correction_level = (ErrorCorrectionLevel)level;
+    }
+}
+
 void render(void)
 {
     qr_data = get_data_buffer();
-    error_correction_level = EC_L;
     module_size = MODULE_BASE_SIZE * dpr;
     process_qr_data();
 }

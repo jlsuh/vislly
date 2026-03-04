@@ -1,22 +1,30 @@
 import { type JSX, use, useCallback, useEffect, useRef } from 'react';
-import { fetchBarcodeWasm } from '../lib/barcode-wasm.ts';
-import type { SymbologyConfig } from '../model/barcode-symbologies.ts';
+import {
+  fetchBarcodeWasm,
+  isMatrix2DBarcodeWasm,
+} from '../lib/barcode-wasm.ts';
+import type {
+  ErrorCorrectionLevel,
+  SymbologyConfig,
+} from '../model/barcode-symbologies.ts';
 import styles from './barcode-canvas.module.css';
 
 interface BarcodeCanvasProps {
   currentSymbology: SymbologyConfig;
   dpr: number;
   inputText: string;
+  selectedErrorCorrectionLevel: ErrorCorrectionLevel;
 }
 
 function BarcodeCanvas({
   currentSymbology,
   dpr,
   inputText,
+  selectedErrorCorrectionLevel,
 }: BarcodeCanvasProps): JSX.Element {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { maxInputLength, rightPaddingChar, wasmFile } = currentSymbology;
-  const barcodeWasm = use(fetchBarcodeWasm(wasmFile));
+  const { maxInputLength, rightPaddingChar, type, wasmFile } = currentSymbology;
+  const barcodeWasm = use(fetchBarcodeWasm(wasmFile, type));
 
   const renderBarcode = useCallback(() => {
     const canvas = canvasRef.current;
@@ -28,6 +36,9 @@ function BarcodeCanvas({
       textToRender = textToRender.padEnd(maxInputLength, rightPaddingChar);
     }
     barcodeWasm.set_dpr(dpr);
+    if (isMatrix2DBarcodeWasm(barcodeWasm)) {
+      barcodeWasm.set_error_correction_level(+selectedErrorCorrectionLevel);
+    }
     const inputPtr = barcodeWasm.get_data_buffer();
     const wasmMem = new Uint8Array(barcodeWasm.memory.buffer);
     const encodedText = new TextEncoder().encode(textToRender);
@@ -47,7 +58,14 @@ function BarcodeCanvas({
     );
     const imageData = new ImageData(pixelData, width, height);
     ctx.putImageData(imageData, 0, 0);
-  }, [barcodeWasm, dpr, maxInputLength, rightPaddingChar, inputText]);
+  }, [
+    barcodeWasm,
+    dpr,
+    maxInputLength,
+    rightPaddingChar,
+    inputText,
+    selectedErrorCorrectionLevel,
+  ]);
 
   useEffect(() => renderBarcode(), [renderBarcode]);
 

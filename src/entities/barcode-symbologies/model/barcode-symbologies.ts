@@ -126,19 +126,47 @@ const DEFAULT_SYMBOLOGY_BY_TYPE: ReadonlyDeep<
   [BarcodeType.Matrix2D]: BarcodeSymbology.QrCode,
 };
 
+const ErrorCorrectionLevel = {
+  L: '0',
+  M: '1',
+  Q: '2',
+  H: '3',
+} as const;
+
+type ErrorCorrectionLevel =
+  (typeof ErrorCorrectionLevel)[keyof typeof ErrorCorrectionLevel];
+
+const AVAILABLE_ERROR_CORRECTION_LEVELS = Object.values(ErrorCorrectionLevel);
+
+function assertIsErrorCorrectionLevel(
+  value: unknown,
+): asserts value is ErrorCorrectionLevel {
+  if (
+    !AVAILABLE_ERROR_CORRECTION_LEVELS.includes(value as ErrorCorrectionLevel)
+  ) {
+    throw new Error(`Invalid error correction level: ${value}`);
+  }
+}
+
 const INITIAL_SYMBOLOGY: BarcodeSymbology =
   DEFAULT_SYMBOLOGY_BY_TYPE[BarcodeType.Linear];
 
 const INITIAL_BARCODE_TYPE: BarcodeType = BarcodeType.Linear;
 
+const INITIAL_ERROR_CORRECTION_LEVEL: ErrorCorrectionLevel =
+  ErrorCorrectionLevel.M;
+
 export {
   assertIsBarcodeSymbology,
   assertIsBarcodeType,
+  assertIsErrorCorrectionLevel,
   BARCODE_SYMBOLOGIES,
   BARCODE_TYPE_LABELS,
   BarcodeType,
   DEFAULT_SYMBOLOGY_BY_TYPE,
+  ErrorCorrectionLevel,
   INITIAL_BARCODE_TYPE,
+  INITIAL_ERROR_CORRECTION_LEVEL,
   INITIAL_SYMBOLOGY,
   SYMBOLOGY_OPTIONS_BY_TYPE,
   type BarcodeSymbology,
