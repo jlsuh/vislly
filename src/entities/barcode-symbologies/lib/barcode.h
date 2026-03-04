@@ -7,6 +7,12 @@
 
 #include "graphics.h"
 
+#ifdef __wasm__
+#define WASM_EXPORT(name) __attribute__((export_name(name)))
+#else
+#define WASM_EXPORT(name)
+#endif
+
 #define ASCII_NINE '9'
 #define ASCII_UPPERCASED_A 'A'
 #define ASCII_UPPERCASED_Z 'Z'
@@ -59,5 +65,13 @@ uint32_t *get_pixel_buffer(void);
 void set_dpr(int user_dpr);
 
 extern void render(void);
+
+WASM_EXPORT("get_data_buffer") char *get_data_buffer(void);
+WASM_EXPORT("get_height") int get_height(void);
+WASM_EXPORT("get_pixel_buffer") uint32_t *get_pixel_buffer(void);
+WASM_EXPORT("get_width") int get_width(void);
+WASM_EXPORT("set_dpr") void set_dpr(int user_dpr);
+
+WASM_EXPORT("render") extern void render(void);
 
 #endif // BARCODE_H_

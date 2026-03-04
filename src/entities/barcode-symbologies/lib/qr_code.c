@@ -1510,7 +1510,8 @@ static inline void process_qr_data(void)
     emplace_codewords(&ctx);
 }
 
-__attribute__((export_name("set_error_correction_level"))) void set_error_correction_level(int level)
+WASM_EXPORT("set_error_correction_level")
+void set_error_correction_level(int level)
 {
     if (level >= 0 && level <= 3) {
         error_correction_level = (ErrorCorrectionLevel)level;

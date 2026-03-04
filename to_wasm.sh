@@ -21,15 +21,7 @@ OUT_WASM="$OUT_DIR/${FILENAME}.wasm"
 
 mkdir -p "$OUT_DIR"
 
-EXPORTS=(
-    "-Wl,--export-memory"
-    "-Wl,--export=get_data_buffer"
-    "-Wl,--export=get_height"
-    "-Wl,--export=get_pixel_buffer"
-    "-Wl,--export=get_width"
-    "-Wl,--export=render"
-    "-Wl,--export=set_dpr"
-)
+EXPORTS=("-Wl,--export-memory")
 
 read -ra ENV_CFLAGS <<<"$CFLAGS"
 read -ra ENV_WASM_FLAGS <<<"$WASMFLAGS"
