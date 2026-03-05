@@ -61,10 +61,9 @@ function BarcodeControls({
   handleOnChangeDpr,
   handleOnChangeErrorCorrectionLevel,
 }: BarcodeSymbologiesControlsProps): JSX.Element {
-  const { allowedPattern, inputMode, maxInputLength, inputType, value } =
+  const { allowedPattern, inputMode, inputType, maxInputLength, type, value } =
     currentSymbology;
-  const isEcLevelSelectDisabled =
-    currentSymbology.type !== BarcodeType.Matrix2D;
+  const isEcLevelSelectDisabled = type !== BarcodeType.Matrix2D;
 
   return (
     <>

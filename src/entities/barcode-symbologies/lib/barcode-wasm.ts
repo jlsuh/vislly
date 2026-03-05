@@ -17,14 +17,12 @@ interface BaseBarcodeWasm {
   set_dpr: (newDpr: number) => void;
 }
 
-interface LinearBarcodeWasm extends BaseBarcodeWasm {}
-
 interface Matrix2DBarcodeWasm extends BaseBarcodeWasm {
   set_error_correction_level: (level: number) => void;
 }
 
 type BarcodeWasmMap = {
-  [BarcodeType.Linear]: LinearBarcodeWasm;
+  [BarcodeType.Linear]: BaseBarcodeWasm;
   [BarcodeType.Matrix2D]: Matrix2DBarcodeWasm;
 };
 
@@ -123,6 +121,5 @@ export {
   isMatrix2DBarcodeWasm,
   type BarcodeWasmMap,
   type BaseBarcodeWasm,
-  type LinearBarcodeWasm,
   type Matrix2DBarcodeWasm,
 };

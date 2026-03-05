@@ -1513,9 +1513,8 @@ static inline void process_qr_data(void)
 WASM_EXPORT("set_error_correction_level")
 void set_error_correction_level(int level)
 {
-    if (level >= 0 && level <= 3) {
+    if (level >= 0 && level <= 3)
         error_correction_level = (ErrorCorrectionLevel)level;
-    }
 }
 
 void render(void)
