@@ -86,3 +86,12 @@
     border-width: var(--space-0-5);
   }
 }
+
+.characterCount {
+  color: var(--color-on-surface-variant);
+  font-size: var(--space-3);
+  margin-top: var(--space-1);
+  padding-right: var(--space-4);
+  text-align: right;
+  width: 100%;
+}

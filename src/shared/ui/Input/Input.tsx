@@ -9,6 +9,7 @@ import styles from './input.module.css';
 type InputSize = 'sm' | 'md' | 'lg';
 
 type InputProps = {
+  characterCount?: string;
   disabled?: boolean;
   handleOnChange: (e: ChangeEvent<HTMLInputElement>) => void;
   inputMode?: InputHTMLAttributes<HTMLInputElement>['inputMode'];
@@ -23,6 +24,7 @@ type InputProps = {
 };
 
 function Input({
+  characterCount,
   disabled,
   handleOnChange,
   inputMode,
@@ -61,6 +63,9 @@ function Input({
           <span>{label}</span>
         </legend>
       </fieldset>
+      {characterCount && (
+        <div className={styles.characterCount}>{characterCount}</div>
+      )}
     </div>
   );
 }

@@ -34,8 +34,10 @@ const BARCODE_TYPE_OPTIONS: ReadonlyDeep<Option[]> = Object.entries(
 
 type BarcodeSymbologiesControlsProps = {
   barcodeInput: string;
+  capacityWarning: boolean;
   currentSymbology: SymbologyConfig;
   dpr: number;
+  remainingChars: number | null;
   selectedBarcodeType: BarcodeType;
   selectedErrorCorrectionLevel: ErrorCorrectionLevel;
   symbologyOptions: ReadonlyDeep<Option[]>;
@@ -50,8 +52,10 @@ type BarcodeSymbologiesControlsProps = {
 
 function BarcodeControls({
   barcodeInput,
+  capacityWarning,
   currentSymbology,
   dpr,
+  remainingChars,
   selectedBarcodeType,
   selectedErrorCorrectionLevel,
   symbologyOptions,
@@ -61,9 +65,16 @@ function BarcodeControls({
   handleOnChangeDpr,
   handleOnChangeErrorCorrectionLevel,
 }: BarcodeSymbologiesControlsProps): JSX.Element {
-  const { allowedPattern, inputMode, inputType, maxInputLength, type, value } =
+  const { allowedPattern, inputMode, inputType, type, value, maxInputLength } =
     currentSymbology;
-  const isEcLevelSelectDisabled = type !== BarcodeType.Matrix2D;
+  const isMatrix2D = type === BarcodeType.Matrix2D;
+  const isEcLevelSelectDisabled = !isMatrix2D;
+  const isAtMaxCapacity = remainingChars !== null && remainingChars <= 0;
+  const showWarning = isAtMaxCapacity || capacityWarning;
+  const charCounterStr =
+    remainingChars !== null
+      ? `${barcodeInput.length} / ${barcodeInput.length + Math.max(0, remainingChars)} chars`
+      : undefined;
 
   return (
     <>
@@ -100,6 +111,7 @@ function BarcodeControls({
       </div>
       <div className={styles.row}>
         <Input
+          characterCount={charCounterStr}
           handleOnChange={handleOnChangeBarcodeInput}
           inputMode={inputMode}
           label="Barcode Data"
@@ -110,6 +122,11 @@ function BarcodeControls({
           type={inputType}
           value={barcodeInput}
         />
+        {showWarning && (
+          <div className={styles.capacityWarning}>
+            Maximum capacity reached for this text format.
+          </div>
+        )}
       </div>
     </>
   );

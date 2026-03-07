@@ -5,7 +5,7 @@
 
 #define MAX_QR_CODEWORDS 4096
 #define MAX_QR_MODULES 177
-#define MAX_SEGMENTS 256
+#define MAX_SEGMENTS 4096
 #define QR_VERSION_COUNT 41
 #define VERSION_CAPACITY_LEN 160
 
@@ -651,6 +651,8 @@ static inline void byte_encode_segment_data(const char *data, int len)
 
 static inline void add_segment(int mode, int start_idx)
 {
+    if (num_segments >= MAX_SEGMENTS)
+        return;
     segments[num_segments].mode = mode;
     segments[num_segments].start = start_idx;
     segments[num_segments].len = 0;
@@ -1515,6 +1517,22 @@ void set_error_correction_level(int level)
 {
     if (level >= 0 && level <= 3)
         error_correction_level = (ErrorCorrectionLevel)level;
+}
+
+WASM_EXPORT("get_remaining_bits")
+int get_remaining_bits(void)
+{
+    int max_codewords = 0;
+    for (int i = VERSION_CAPACITY_LEN - 1; i >= 0; --i) {
+        if (VERSION_CAPACITIES[i].ec_level == error_correction_level) {
+            max_codewords = VERSION_CAPACITIES[i].data_codewords;
+            break;
+        }
+    }
+    int max_bits = max_codewords * BITS_PER_BYTE;
+    int current_v40_bits = calculate_total_bits(40);
+    int remaining_bits = max_bits - current_v40_bits;
+    return remaining_bits;
 }
 
 void render(void)

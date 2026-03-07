@@ -18,6 +18,7 @@ interface BaseBarcodeWasm {
 }
 
 interface Matrix2DBarcodeWasm extends BaseBarcodeWasm {
+  get_remaining_bits: () => number;
   set_error_correction_level: (level: number) => void;
 }
 
@@ -40,6 +41,7 @@ const BASE_REQUIRED_FUNCTIONS: ReadonlyDeep<
 const MATRIX_2D_REQUIRED_FUNCTIONS: ReadonlyDeep<
   Exclude<keyof Matrix2DBarcodeWasm, keyof BaseBarcodeWasm>[]
 > = keysFromObject({
+  get_remaining_bits: true,
   set_error_correction_level: true,
 });
 
