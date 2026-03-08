@@ -15,10 +15,10 @@ type BarcodeSymbologiesControlsProps = {
   barcodeInput: string;
   currentSymbology: SymbologyConfig;
   dpr: number;
-  remainingChars: number | null;
   selectedBarcodeType: BarcodeType;
   selectedErrorCorrectionLevel: ErrorCorrectionLevel;
   symbologyOptions: ReadonlyDeep<Option[]>;
+  totalCapacity: number | null;
   handleOnChangeBarcodeInput: (e: ChangeEvent<HTMLInputElement>) => void;
   handleOnChangeBarcodeSymbology: (e: ChangeEvent<HTMLSelectElement>) => void;
   handleOnChangeBarcodeType: (e: ChangeEvent<HTMLSelectElement>) => void;
@@ -42,19 +42,16 @@ const EC_LEVEL_OPTIONS: ReadonlyDeep<Option[]> = [
   { label: 'H (High)', value: ErrorCorrectionLevel.H },
 ];
 
+const CALCULATING_TEXT = 'Calculating...';
+
 const BARCODE_TYPE_OPTIONS: ReadonlyDeep<Option[]> = Object.entries(
   BARCODE_TYPE_LABELS,
 ).map(([value, label]) => ({ label, value }));
-
-function composeCounter(length: number, remainingChars: number): string {
-  return `${length} / ${length + Math.max(0, remainingChars)}`;
-}
 
 function useCounterDisplay(counter: string | undefined, isAtMaxLimit: boolean) {
   const [debouncedCounter, setDebouncedCounter] = useState<string | undefined>(
     counter,
   );
-  const [isForceCleared, setIsForceCleared] = useState(false);
 
   useEffect(() => {
     if (counter === undefined) return;
@@ -63,41 +60,23 @@ function useCounterDisplay(counter: string | undefined, isAtMaxLimit: boolean) {
     return () => clearTimeout(timeoutId);
   }, [counter, debouncedCounter]);
 
-  useEffect(() => {
-    if (!isAtMaxLimit) {
-      setIsForceCleared(false);
-      return;
-    }
-    let rafId: number;
-    const forceClear = (frame: number) => {
-      if (frame > 10) {
-        setIsForceCleared(true);
-      } else {
-        rafId = requestAnimationFrame(() => forceClear(frame + 1));
-      }
-    };
-    rafId = requestAnimationFrame(() => forceClear(0));
-    return () => cancelAnimationFrame(rafId);
-  }, [isAtMaxLimit]);
+  if (isAtMaxLimit) {
+    return counter;
+  }
 
-  const isCalculating =
-    counter !== undefined && !isForceCleared && counter !== debouncedCounter;
+  const isCalculating = counter !== undefined && counter !== debouncedCounter;
 
-  return isCalculating
-    ? 'Calculating...'
-    : isAtMaxLimit
-      ? counter
-      : debouncedCounter;
+  return isCalculating ? CALCULATING_TEXT : debouncedCounter;
 }
 
 function BarcodeControls({
   barcodeInput,
   currentSymbology,
   dpr,
-  remainingChars,
   selectedBarcodeType,
   selectedErrorCorrectionLevel,
   symbologyOptions,
+  totalCapacity,
   handleOnChangeBarcodeInput,
   handleOnChangeBarcodeSymbology,
   handleOnChangeBarcodeType,
@@ -106,14 +85,15 @@ function BarcodeControls({
 }: BarcodeSymbologiesControlsProps): JSX.Element {
   const { allowedPattern, inputMode, inputType, type, value, maxInputLength } =
     currentSymbology;
+  const isAtMaxLimit =
+    totalCapacity !== null && barcodeInput.length >= totalCapacity;
   const counter =
-    remainingChars !== null
-      ? composeCounter(barcodeInput.length, remainingChars)
+    totalCapacity !== null
+      ? `${Math.min(barcodeInput.length, totalCapacity)} / ${totalCapacity}`
       : undefined;
-  const isAtMaxLimit = remainingChars !== null && remainingChars <= 0;
   const displayCounter = useCounterDisplay(counter, isAtMaxLimit);
   const characterCount =
-    remainingChars === null ? 'Calculating...' : displayCounter;
+    totalCapacity === null ? CALCULATING_TEXT : displayCounter;
 
   return (
     <>

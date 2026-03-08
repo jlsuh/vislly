@@ -48,11 +48,15 @@ function calculateModeCapacity(
   return extraItems - partialCount;
 }
 
+function getTrailingMatchLength(text: string, regex: RegExp): number {
+  return text.match(regex)?.[0].length ?? 0;
+}
+
 function getNumericCapacity(
   remainingBits: number,
   text: string,
 ): number | null {
-  const trailingDigits = text.match(/[0-9]+$/)?.[0].length ?? 0;
+  const trailingDigits = getTrailingMatchLength(text, /[0-9]+$/);
   if (trailingDigits === 0) return null;
   const precedingChar = text.slice(0, -trailingDigits).slice(-1);
   const threshold = /^[A-Z $%*+\-./:]$/.test(precedingChar) ? 17 : 8;
@@ -76,7 +80,7 @@ function getAlphanumericCapacity(
   remainingBits: number,
   text: string,
 ): number | null {
-  const trailingAlpha = text.match(/[0-9A-Z $%*+\-./:]+$/)?.[0].length ?? 0;
+  const trailingAlpha = getTrailingMatchLength(text, /[0-9A-Z $%*+\-./:]+$/);
   if (trailingAlpha === 0) return null;
   if (trailingAlpha === text.length || trailingAlpha >= 16) {
     return calculateModeCapacity(
@@ -99,19 +103,19 @@ function getMatrix2DCapacity(remainingBits: number, text: string): number {
   return Math.floor(remainingBits / 8);
 }
 
-function estimateEncodingCapacity(
+function composeTotalCapacity(
   remainingBits: number | null,
   barcodeType: BarcodeType,
-  barcodeInput: string,
   syncedInput: string = '',
-): number | null {
-  if (remainingBits === null) return null;
-  const inputLengthDelta = barcodeInput.length - syncedInput.length;
+) {
+  if (remainingBits === null) {
+    return null;
+  }
   const baseCapacity =
     barcodeType === BarcodeType.Matrix2D
       ? getMatrix2DCapacity(remainingBits, syncedInput)
       : Math.floor(remainingBits / 8);
-  return Math.max(0, baseCapacity - inputLengthDelta);
+  return syncedInput.length + baseCapacity;
 }
 
 function BarcodeSymbologies(): JSX.Element {
@@ -134,6 +138,13 @@ function BarcodeSymbologies(): JSX.Element {
   const { allowedPattern } = currentSymbology;
   const symbologyOptions = SYMBOLOGY_OPTIONS_BY_TYPE[selectedBarcodeType];
 
+  const resetBarcodeData = useCallback(() => {
+    setBarcodeInput('');
+    setSyncedInput('');
+    validBarcodeInputRef.current = '';
+    setRemainingBits(null);
+  }, []);
+
   const handleProcessComplete = useCallback(
     (bits: number, evaluatedText: string, didRollback: boolean) => {
       setRemainingBits(bits);
@@ -149,10 +160,9 @@ function BarcodeSymbologies(): JSX.Element {
     [],
   );
 
-  const estimatedCharsLeft = estimateEncodingCapacity(
+  const totalCapacity = composeTotalCapacity(
     remainingBits,
     currentSymbology.type,
-    barcodeInput,
     syncedInput,
   );
 
@@ -161,10 +171,7 @@ function BarcodeSymbologies(): JSX.Element {
     assertIsBarcodeType(newType);
     setSelectedBarcodeType(newType);
     setSelectedSymbology(DEFAULT_SYMBOLOGY_BY_TYPE[newType]);
-    setBarcodeInput('');
-    setSyncedInput('');
-    validBarcodeInputRef.current = '';
-    setRemainingBits(null);
+    resetBarcodeData();
   };
 
   const handleOnChangeBarcodeSymbology = (
@@ -173,10 +180,7 @@ function BarcodeSymbologies(): JSX.Element {
     const newSymbology = e.target.value;
     assertIsBarcodeSymbology(newSymbology);
     setSelectedSymbology(newSymbology);
-    setBarcodeInput('');
-    setSyncedInput('');
-    validBarcodeInputRef.current = '';
-    setRemainingBits(null);
+    resetBarcodeData();
   };
 
   const handleOnChangeDpr = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -184,36 +188,27 @@ function BarcodeSymbologies(): JSX.Element {
   };
 
   const handleOnChangeBarcodeInput = (e: ChangeEvent<HTMLInputElement>) => {
-    const newBarcodeInput = e.target.value;
+    const rawInput = e.target.value;
     const regex = new RegExp(`^${allowedPattern}$`);
-    const isValidPattern =
-      newBarcodeInput === '' || regex.test(newBarcodeInput);
-    if (!isValidPattern) {
-      e.target.value = barcodeInput;
-      return;
-    }
-    const inputLengthDelta = newBarcodeInput.length - barcodeInput.length;
-    if (inputLengthDelta < 0) {
-      setBarcodeInput(newBarcodeInput);
-      return;
-    }
-    if (estimatedCharsLeft !== null && estimatedCharsLeft <= 0) {
-      e.target.value = barcodeInput;
-      return;
-    }
-    if (inputLengthDelta > 1 && estimatedCharsLeft !== null) {
-      const maxDelta = Math.max(10, estimatedCharsLeft * 4);
-      if (inputLengthDelta > maxDelta) {
-        const truncated = newBarcodeInput.slice(
-          0,
-          barcodeInput.length + maxDelta,
-        );
-        setBarcodeInput(truncated);
-        e.target.value = truncated;
-        return;
+    let sanitizedInput = '';
+    if (rawInput === '' || regex.test(rawInput)) {
+      sanitizedInput = rawInput;
+    } else {
+      for (const char of rawInput) {
+        if (regex.test(sanitizedInput + char)) {
+          sanitizedInput += char;
+        }
       }
     }
-    setBarcodeInput(newBarcodeInput);
+    const currentLimit =
+      totalCapacity !== null ? totalCapacity : currentSymbology.maxInputLength;
+    if (sanitizedInput.length > currentLimit) {
+      sanitizedInput = sanitizedInput.slice(0, currentLimit);
+    }
+    if (rawInput !== sanitizedInput) {
+      e.target.value = sanitizedInput;
+    }
+    setBarcodeInput(sanitizedInput);
   };
 
   const handleOnChangeErrorCorrectionLevel = (
@@ -232,10 +227,10 @@ function BarcodeSymbologies(): JSX.Element {
           barcodeInput={barcodeInput}
           currentSymbology={currentSymbology}
           dpr={dpr}
-          remainingChars={estimatedCharsLeft}
           selectedBarcodeType={selectedBarcodeType}
           selectedErrorCorrectionLevel={selectedErrorCorrectionLevel}
           symbologyOptions={symbologyOptions}
+          totalCapacity={totalCapacity}
           handleOnChangeBarcodeInput={handleOnChangeBarcodeInput}
           handleOnChangeBarcodeSymbology={handleOnChangeBarcodeSymbology}
           handleOnChangeBarcodeType={handleOnChangeBarcodeType}
