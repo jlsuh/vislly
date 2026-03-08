@@ -39,7 +39,7 @@ function evaluateBarcodeText(
     if (isMatrix2DBarcodeWasm(barcodeWasm)) {
       return barcodeWasm.get_remaining_bits();
     }
-    return Math.max(0, maxInputLength - text.length) * 8;
+    return (maxInputLength - text.length) * 8;
   };
   let currentBits = testTextInWasm(originalText);
   let validText = originalText;
@@ -73,9 +73,11 @@ function BarcodeCanvas({
   selectedErrorCorrectionLevel,
   onProcessComplete,
 }: BarcodeCanvasProps): JSX.Element {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { maxInputLength, rightPaddingChar, type, wasmFile } = currentSymbology;
+  const { allowedPattern, maxInputLength, rightPaddingChar, type, wasmFile } =
+    currentSymbology;
+
   const barcodeWasm = use(fetchBarcodeWasm(wasmFile, type));
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const renderBarcode = useCallback(() => {
     const canvas = canvasRef.current;
@@ -83,6 +85,13 @@ function BarcodeCanvas({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     let textToRender = inputText;
+    const isValidPattern = new RegExp(`^${allowedPattern}$`).test(textToRender);
+    if (!isValidPattern) {
+      textToRender = '';
+    }
+    if (textToRender.length > maxInputLength) {
+      textToRender = textToRender.slice(0, maxInputLength);
+    }
     if (rightPaddingChar) {
       textToRender = textToRender.padEnd(maxInputLength, rightPaddingChar);
     }
@@ -113,13 +122,14 @@ function BarcodeCanvas({
       onProcessComplete(currentBits, validText, didRollback);
     }
   }, [
+    allowedPattern,
     barcodeWasm,
     dpr,
     inputText,
     maxInputLength,
+    onProcessComplete,
     rightPaddingChar,
     selectedErrorCorrectionLevel,
-    onProcessComplete,
   ]);
 
   useEffect(() => renderBarcode(), [renderBarcode]);

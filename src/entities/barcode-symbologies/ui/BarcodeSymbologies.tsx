@@ -122,13 +122,13 @@ function BarcodeSymbologies(): JSX.Element {
   const deferredBarcodeInput = useDeferredValue(barcodeInput);
   const [syncedInput, setSyncedInput] = useState('');
   const validBarcodeInputRef = useRef('');
+  const hasEclChangeRef = useRef(false);
   const [remainingBits, setRemainingBits] = useState<number | null>(null);
   const [selectedBarcodeType, setSelectedBarcodeType] =
     useState(INITIAL_BARCODE_TYPE);
   const [selectedSymbology, setSelectedSymbology] = useState(INITIAL_SYMBOLOGY);
   const [selectedErrorCorrectionLevel, setSelectedErrorCorrectionLevel] =
     useState(INITIAL_ERROR_CORRECTION_LEVEL);
-  const [capacityWarning, setCapacityWarning] = useState(false);
 
   const currentSymbology = BARCODE_SYMBOLOGIES[selectedSymbology];
   const { allowedPattern } = currentSymbology;
@@ -139,14 +139,11 @@ function BarcodeSymbologies(): JSX.Element {
       setRemainingBits(bits);
       setSyncedInput(evaluatedText);
       validBarcodeInputRef.current = evaluatedText;
-      if (didRollback) {
-        setCapacityWarning(true);
-        setBarcodeInput((prevInput) => {
-          if (prevInput.length > evaluatedText.length) {
-            return evaluatedText;
-          }
-          return prevInput;
-        });
+      if (hasEclChangeRef.current) {
+        setBarcodeInput(evaluatedText);
+        hasEclChangeRef.current = false;
+      } else if (didRollback) {
+        setBarcodeInput(evaluatedText);
       }
     },
     [],
@@ -167,7 +164,7 @@ function BarcodeSymbologies(): JSX.Element {
     setBarcodeInput('');
     setSyncedInput('');
     validBarcodeInputRef.current = '';
-    setCapacityWarning(false);
+    setRemainingBits(null);
   };
 
   const handleOnChangeBarcodeSymbology = (
@@ -179,7 +176,7 @@ function BarcodeSymbologies(): JSX.Element {
     setBarcodeInput('');
     setSyncedInput('');
     validBarcodeInputRef.current = '';
-    setCapacityWarning(false);
+    setRemainingBits(null);
   };
 
   const handleOnChangeDpr = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -191,27 +188,31 @@ function BarcodeSymbologies(): JSX.Element {
     const regex = new RegExp(`^${allowedPattern}$`);
     const isValidPattern =
       newBarcodeInput === '' || regex.test(newBarcodeInput);
-    if (!isValidPattern) return;
+    if (!isValidPattern) {
+      e.target.value = barcodeInput;
+      return;
+    }
     const inputLengthDelta = newBarcodeInput.length - barcodeInput.length;
     if (inputLengthDelta < 0) {
-      setCapacityWarning(false);
       setBarcodeInput(newBarcodeInput);
       return;
     }
-    if (estimatedCharsLeft !== null) {
-      const maxAllowedLength =
-        barcodeInput.length + Math.max(0, estimatedCharsLeft);
-      if (newBarcodeInput.length > maxAllowedLength) {
-        setCapacityWarning(true);
-        if (maxAllowedLength === barcodeInput.length) {
-          return;
-        }
-        const truncatedInput = newBarcodeInput.slice(0, maxAllowedLength);
-        setBarcodeInput(truncatedInput);
+    if (estimatedCharsLeft !== null && estimatedCharsLeft <= 0) {
+      e.target.value = barcodeInput;
+      return;
+    }
+    if (inputLengthDelta > 1 && estimatedCharsLeft !== null) {
+      const maxDelta = Math.max(10, estimatedCharsLeft * 4);
+      if (inputLengthDelta > maxDelta) {
+        const truncated = newBarcodeInput.slice(
+          0,
+          barcodeInput.length + maxDelta,
+        );
+        setBarcodeInput(truncated);
+        e.target.value = truncated;
         return;
       }
     }
-    setCapacityWarning(false);
     setBarcodeInput(newBarcodeInput);
   };
 
@@ -220,6 +221,7 @@ function BarcodeSymbologies(): JSX.Element {
   ) => {
     const newLevel = e.target.value;
     assertIsErrorCorrectionLevel(newLevel);
+    hasEclChangeRef.current = true;
     setSelectedErrorCorrectionLevel(newLevel);
   };
 
@@ -228,7 +230,6 @@ function BarcodeSymbologies(): JSX.Element {
       <div className={styles.controls}>
         <BarcodeControls
           barcodeInput={barcodeInput}
-          capacityWarning={capacityWarning}
           currentSymbology={currentSymbology}
           dpr={dpr}
           remainingChars={estimatedCharsLeft}

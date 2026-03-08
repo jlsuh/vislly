@@ -1,4 +1,4 @@
-import type { ChangeEvent, JSX } from 'react';
+import { type ChangeEvent, type JSX, useEffect, useState } from 'react';
 import type { ReadonlyDeep } from 'type-fest';
 import type { Option } from '@/shared/model/option.ts';
 import Input from '@/shared/ui/Input/Input';
@@ -13,7 +13,6 @@ import styles from './barcode-controls.module.css';
 
 type BarcodeSymbologiesControlsProps = {
   barcodeInput: string;
-  capacityWarning: boolean;
   currentSymbology: SymbologyConfig;
   dpr: number;
   remainingChars: number | null;
@@ -45,21 +44,54 @@ const EC_LEVEL_OPTIONS: ReadonlyDeep<Option[]> = [
 
 const BARCODE_TYPE_OPTIONS: ReadonlyDeep<Option[]> = Object.entries(
   BARCODE_TYPE_LABELS,
-).map(([value, label]) => ({
-  label,
-  value,
-}));
+).map(([value, label]) => ({ label, value }));
 
-function composeCounter(length: number, remainingChars: number | null): string {
-  if (remainingChars === null) {
-    throw new Error('Invalid remainingChars value');
-  }
+function composeCounter(length: number, remainingChars: number): string {
   return `${length} / ${length + Math.max(0, remainingChars)}`;
+}
+
+function useCounterDisplay(counter: string | undefined, isAtMaxLimit: boolean) {
+  const [debouncedCounter, setDebouncedCounter] = useState<string | undefined>(
+    counter,
+  );
+  const [isForceCleared, setIsForceCleared] = useState(false);
+
+  useEffect(() => {
+    if (counter === undefined) return;
+    if (counter === debouncedCounter) return;
+    const timeoutId = setTimeout(() => setDebouncedCounter(counter), 150);
+    return () => clearTimeout(timeoutId);
+  }, [counter, debouncedCounter]);
+
+  useEffect(() => {
+    if (!isAtMaxLimit) {
+      setIsForceCleared(false);
+      return;
+    }
+    let rafId: number;
+    const forceClear = (frame: number) => {
+      if (frame > 10) {
+        setIsForceCleared(true);
+      } else {
+        rafId = requestAnimationFrame(() => forceClear(frame + 1));
+      }
+    };
+    rafId = requestAnimationFrame(() => forceClear(0));
+    return () => cancelAnimationFrame(rafId);
+  }, [isAtMaxLimit]);
+
+  const isCalculating =
+    counter !== undefined && !isForceCleared && counter !== debouncedCounter;
+
+  return isCalculating
+    ? 'Calculating...'
+    : isAtMaxLimit
+      ? counter
+      : debouncedCounter;
 }
 
 function BarcodeControls({
   barcodeInput,
-  capacityWarning,
   currentSymbology,
   dpr,
   remainingChars,
@@ -74,15 +106,14 @@ function BarcodeControls({
 }: BarcodeSymbologiesControlsProps): JSX.Element {
   const { allowedPattern, inputMode, inputType, type, value, maxInputLength } =
     currentSymbology;
-  const isMatrix2D = type === BarcodeType.Matrix2D;
-  const isEcLevelSelectDisabled = !isMatrix2D;
   const counter =
     remainingChars !== null
       ? composeCounter(barcodeInput.length, remainingChars)
       : undefined;
-  const helperText = capacityWarning
-    ? 'Maximum capacity reached for this text format.'
-    : undefined;
+  const isAtMaxLimit = remainingChars !== null && remainingChars <= 0;
+  const displayCounter = useCounterDisplay(counter, isAtMaxLimit);
+  const characterCount =
+    remainingChars === null ? 'Calculating...' : displayCounter;
 
   return (
     <>
@@ -104,7 +135,7 @@ function BarcodeControls({
       </div>
       <div className={styles.row}>
         <Select
-          disabled={isEcLevelSelectDisabled}
+          disabled={type !== BarcodeType.Matrix2D}
           handleOnSelectChange={handleOnChangeErrorCorrectionLevel}
           label="Error Correction Level"
           options={EC_LEVEL_OPTIONS}
@@ -119,10 +150,8 @@ function BarcodeControls({
       </div>
       <div className={styles.row}>
         <Input
-          characterCount={counter}
+          characterCount={characterCount}
           handleOnChange={handleOnChangeBarcodeInput}
-          helperText={helperText}
-          helperTextVariant="warning"
           inputMode={inputMode}
           label="Barcode Data"
           maxLength={maxInputLength}
