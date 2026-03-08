@@ -12,8 +12,6 @@ type InputProps = {
   characterCount?: string;
   disabled?: boolean;
   handleOnChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  helperText?: string;
-  helperTextVariant?: 'default' | 'warning' | 'error';
   inputMode?: InputHTMLAttributes<HTMLInputElement>['inputMode'];
   label: string;
   maxLength?: number;
@@ -29,8 +27,6 @@ function Input({
   characterCount,
   disabled,
   handleOnChange,
-  helperText,
-  helperTextVariant = 'default',
   inputMode,
   label,
   maxLength,
@@ -43,8 +39,6 @@ function Input({
 }: InputProps): JSX.Element {
   const inputId = useId();
   const wrapperClass = `${styles.inputWrapper} ${styles[size]}`;
-  const helperClass = `${styles.helperText} ${styles[helperTextVariant]}`;
-  const showFooter = helperText || characterCount;
 
   return (
     <div className={styles.container}>
@@ -71,12 +65,9 @@ function Input({
           </legend>
         </fieldset>
       </div>
-      {showFooter && (
+      {characterCount && (
         <div className={styles.footer}>
-          <span className={helperClass}>{helperText ?? ''}</span>
-          {characterCount && (
-            <span className={styles.characterCount}>{characterCount}</span>
-          )}
+          <span className={styles.characterCount}>{characterCount}</span>
         </div>
       )}
     </div>

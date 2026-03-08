@@ -98,25 +98,8 @@
   align-items: flex-start;
   display: flex;
   gap: var(--space-2);
-  justify-content: space-between;
+  justify-content: flex-end;
   padding: 0 var(--space-1);
-}
-
-.helperText {
-  font-size: var(--space-3);
-  line-height: 1.25;
-}
-
-.default {
-  color: var(--color-on-surface-variant);
-}
-
-.warning {
-  color: var(--color-warning, #f59e0b);
-}
-
-.error {
-  color: var(--color-error, #ef4444);
 }
 
 .characterCount {
