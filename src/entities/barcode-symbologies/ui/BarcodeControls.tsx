@@ -11,6 +11,24 @@ import {
 } from '../model/barcode-symbologies';
 import styles from './barcode-controls.module.css';
 
+type BarcodeSymbologiesControlsProps = {
+  barcodeInput: string;
+  capacityWarning: boolean;
+  currentSymbology: SymbologyConfig;
+  dpr: number;
+  remainingChars: number | null;
+  selectedBarcodeType: BarcodeType;
+  selectedErrorCorrectionLevel: ErrorCorrectionLevel;
+  symbologyOptions: ReadonlyDeep<Option[]>;
+  handleOnChangeBarcodeInput: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleOnChangeBarcodeSymbology: (e: ChangeEvent<HTMLSelectElement>) => void;
+  handleOnChangeBarcodeType: (e: ChangeEvent<HTMLSelectElement>) => void;
+  handleOnChangeDpr: (e: ChangeEvent<HTMLSelectElement>) => void;
+  handleOnChangeErrorCorrectionLevel: (
+    e: ChangeEvent<HTMLSelectElement>,
+  ) => void;
+};
+
 const DPR_OPTIONS: ReadonlyDeep<Option[]> = [
   { label: '1x', value: '1' },
   { label: '2x', value: '2' },
@@ -32,23 +50,12 @@ const BARCODE_TYPE_OPTIONS: ReadonlyDeep<Option[]> = Object.entries(
   value,
 }));
 
-type BarcodeSymbologiesControlsProps = {
-  barcodeInput: string;
-  capacityWarning: boolean;
-  currentSymbology: SymbologyConfig;
-  dpr: number;
-  remainingChars: number | null;
-  selectedBarcodeType: BarcodeType;
-  selectedErrorCorrectionLevel: ErrorCorrectionLevel;
-  symbologyOptions: ReadonlyDeep<Option[]>;
-  handleOnChangeBarcodeInput: (e: ChangeEvent<HTMLInputElement>) => void;
-  handleOnChangeBarcodeSymbology: (e: ChangeEvent<HTMLSelectElement>) => void;
-  handleOnChangeBarcodeType: (e: ChangeEvent<HTMLSelectElement>) => void;
-  handleOnChangeDpr: (e: ChangeEvent<HTMLSelectElement>) => void;
-  handleOnChangeErrorCorrectionLevel: (
-    e: ChangeEvent<HTMLSelectElement>,
-  ) => void;
-};
+function composeCounter(length: number, remainingChars: number | null): string {
+  if (remainingChars === null) {
+    throw new Error('Invalid remainingChars value');
+  }
+  return `${length} / ${length + Math.max(0, remainingChars)}`;
+}
 
 function BarcodeControls({
   barcodeInput,
@@ -69,12 +76,13 @@ function BarcodeControls({
     currentSymbology;
   const isMatrix2D = type === BarcodeType.Matrix2D;
   const isEcLevelSelectDisabled = !isMatrix2D;
-  const isAtMaxCapacity = remainingChars !== null && remainingChars <= 0;
-  const showWarning = isAtMaxCapacity || capacityWarning;
-  const charCounterStr =
+  const counter =
     remainingChars !== null
-      ? `${barcodeInput.length} / ${barcodeInput.length + Math.max(0, remainingChars)} chars`
+      ? composeCounter(barcodeInput.length, remainingChars)
       : undefined;
+  const helperText = capacityWarning
+    ? 'Maximum capacity reached for this text format.'
+    : undefined;
 
   return (
     <>
@@ -111,8 +119,10 @@ function BarcodeControls({
       </div>
       <div className={styles.row}>
         <Input
-          characterCount={charCounterStr}
+          characterCount={counter}
           handleOnChange={handleOnChangeBarcodeInput}
+          helperText={helperText}
+          helperTextVariant="warning"
           inputMode={inputMode}
           label="Barcode Data"
           maxLength={maxInputLength}
@@ -122,11 +132,6 @@ function BarcodeControls({
           type={inputType}
           value={barcodeInput}
         />
-        {showWarning && (
-          <div className={styles.capacityWarning}>
-            Maximum capacity reached for this text format.
-          </div>
-        )}
       </div>
     </>
   );

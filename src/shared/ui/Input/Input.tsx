@@ -12,6 +12,8 @@ type InputProps = {
   characterCount?: string;
   disabled?: boolean;
   handleOnChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  helperText?: string;
+  helperTextVariant?: 'default' | 'warning' | 'error';
   inputMode?: InputHTMLAttributes<HTMLInputElement>['inputMode'];
   label: string;
   maxLength?: number;
@@ -27,6 +29,8 @@ function Input({
   characterCount,
   disabled,
   handleOnChange,
+  helperText,
+  helperTextVariant = 'default',
   inputMode,
   label,
   maxLength,
@@ -38,33 +42,42 @@ function Input({
   value,
 }: InputProps): JSX.Element {
   const inputId = useId();
-  const containerClass = `${styles.inputContainer} ${styles[size]}`;
+  const wrapperClass = `${styles.inputWrapper} ${styles[size]}`;
+  const helperClass = `${styles.helperText} ${styles[helperTextVariant]}`;
+  const showFooter = helperText || characterCount;
 
   return (
-    <div className={containerClass}>
-      <label className={styles.label} htmlFor={inputId}>
-        {label}
-      </label>
-      <input
-        className={styles.input}
-        disabled={disabled}
-        id={inputId}
-        inputMode={inputMode}
-        maxLength={maxLength}
-        name={name}
-        onChange={handleOnChange}
-        pattern={pattern}
-        placeholder={placeholder}
-        type={type}
-        value={value}
-      />
-      <fieldset aria-hidden="true" className={styles.fieldset}>
-        <legend className={styles.legend}>
-          <span>{label}</span>
-        </legend>
-      </fieldset>
-      {characterCount && (
-        <div className={styles.characterCount}>{characterCount}</div>
+    <div className={styles.container}>
+      <div className={wrapperClass}>
+        <label className={styles.label} htmlFor={inputId}>
+          {label}
+        </label>
+        <input
+          className={styles.input}
+          disabled={disabled}
+          id={inputId}
+          inputMode={inputMode}
+          maxLength={maxLength}
+          name={name}
+          onChange={handleOnChange}
+          pattern={pattern}
+          placeholder={placeholder}
+          type={type}
+          value={value}
+        />
+        <fieldset aria-hidden="true" className={styles.fieldset}>
+          <legend className={styles.legend}>
+            <span>{label}</span>
+          </legend>
+        </fieldset>
+      </div>
+      {showFooter && (
+        <div className={styles.footer}>
+          <span className={helperClass}>{helperText ?? ''}</span>
+          {characterCount && (
+            <span className={styles.characterCount}>{characterCount}</span>
+          )}
+        </div>
       )}
     </div>
   );
