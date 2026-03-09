@@ -1,8 +1,9 @@
 #include "barcode.h"
-#include "sjis_map.h"
 
 #include <stdbool.h>
 #include <stdint.h>
+
+#include "unicode_to_sjis.h"
 
 #define MAX_QR_CODEWORDS 4096
 #define MAX_QR_INPUT_LEN 8192
@@ -1672,20 +1673,18 @@ static inline int decode_utf8(const char *str, int *i, uint32_t *out_code_point)
     return 1;
 }
 
-static inline uint16_t lookup_sjis(uint32_t unicode)
+static inline uint16_t unicode_to_sjis(uint32_t unicode)
 {
     int left = 0;
-    int right = SJIS_MAP_SIZE - 1;
+    int right = UNICODE_TO_SJIS_SIZE - 1;
     while (left <= right) {
         int mid = left + ((right - left) / 2);
-        if (sjis_map_entries[mid].unicode == unicode) {
-            return sjis_map_entries[mid].sjis;
-        }
-        if (sjis_map_entries[mid].unicode < unicode) {
+        if (UNICODE_TO_SJIS[mid].unicode == unicode)
+            return UNICODE_TO_SJIS[mid].sjis;
+        if (UNICODE_TO_SJIS[mid].unicode < unicode)
             left = mid + 1;
-        } else {
+        else
             right = mid - 1;
-        }
     }
     return 0;
 }
@@ -1696,16 +1695,15 @@ static inline int encode_unicode_to_sjis_bytes(uint32_t unicode_code_point, uint
         output_buffer[0] = (uint8_t)unicode_code_point;
         return 1;
     }
-    uint16_t sjis_value = lookup_sjis(unicode_code_point);
-    if (sjis_value == 0) {
+    uint16_t sjis = unicode_to_sjis(unicode_code_point);
+    if (sjis == 0)
         return 0;
-    }
-    if (sjis_value > 0xFF) {
-        output_buffer[0] = (uint8_t)((sjis_value >> 8) & LSB_MASK);
-        output_buffer[1] = (uint8_t)(sjis_value & LSB_MASK);
+    if (sjis > LSB_MASK) {
+        output_buffer[0] = (uint8_t)((sjis >> 8) & LSB_MASK);
+        output_buffer[1] = (uint8_t)(sjis & LSB_MASK);
         return 2;
     }
-    output_buffer[0] = (uint8_t)(sjis_value & LSB_MASK);
+    output_buffer[0] = (uint8_t)(sjis & LSB_MASK);
     return 1;
 }
 
@@ -1734,11 +1732,10 @@ static inline bool prepare_qr_data(const char *utf8_str)
         }
         output_idx += bytes_written;
     }
-    if (!kanji_mode_enabled) {
+    if (!kanji_mode_enabled)
         fallback_to_raw_utf8(utf8_str);
-    } else {
+    else
         processed_data_len = output_idx;
-    }
     return kanji_mode_enabled;
 }
 

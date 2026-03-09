@@ -1,12 +1,14 @@
 #pragma once
 #include <stdint.h>
 
+#define UNICODE_TO_SJIS_SIZE 7037
+
 typedef struct {
     uint16_t unicode;
     uint16_t sjis;
 } SjisEntry;
 
-static const SjisEntry sjis_map_entries[] = {
+static const SjisEntry UNICODE_TO_SJIS[UNICODE_TO_SJIS_SIZE] = {
     {32,    32   },
     {33,    33   },
     {34,    34   },
@@ -7045,5 +7047,3 @@ static const SjisEntry sjis_map_entries[] = {
     {65507, 33104},
     {65509, 33167}
 };
-
-static const int SJIS_MAP_SIZE = 7037;
