@@ -58,7 +58,7 @@ typedef struct {
             tests_array[i].func();                                                                                     \
             if (current_test_passed) {                                                                                 \
                 printf(COLOR_GREEN "[ PASSED ]" COLOR_END " %s\n", tests_array[i].name);                               \
-                tests_passed++;                                                                                        \
+                ++tests_passed;                                                                                        \
             } else {                                                                                                   \
                 printf(COLOR_RED "[ FAILED ]" COLOR_END " %s\n", tests_array[i].name);                                 \
             }                                                                                                          \

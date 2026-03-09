@@ -75,7 +75,7 @@ int wasm_strlen(const char *s)
 void *wasm_memset(void *dest, int c, size_t n)
 {
     unsigned char *p = dest;
-    while (n--) {
+    while (--n) {
         *p++ = (unsigned char)c;
     }
     return dest;

@@ -219,17 +219,17 @@ static inline void compose_code_set_A(void)
         else
             symbol_buffer[next_symbol_idx++] = CODE128_SHIFT;
         symbol_buffer[next_symbol_idx++] = c - CODE128_ASCII_SPACE;
-        next_input_idx++;
+        ++next_input_idx;
         return;
     }
     if (c >= CODE128_ASCII_SPACE && c <= CODE128_ASCII_UNDERSCORE) {
         symbol_buffer[next_symbol_idx++] = c - CODE128_ASCII_SPACE;
-        next_input_idx++;
+        ++next_input_idx;
         return;
     }
     if (c >= CODE128_ASCII_NUL && c <= CODE128_MAX_CONTROL_CHAR) {
         symbol_buffer[next_symbol_idx++] = c + CODE128_CTRL_CHAR_OFFSET;
-        next_input_idx++;
+        ++next_input_idx;
         return;
     }
     if (c >= CODE128_ASCII_GRAVE_ACCENT && c <= CODE128_ASCII_DEL) {
@@ -237,7 +237,7 @@ static inline void compose_code_set_A(void)
         return;
     }
     symbol_buffer[next_symbol_idx++] = 0;
-    next_input_idx++;
+    ++next_input_idx;
 }
 
 static inline void compose_code_set_B(void)
@@ -261,16 +261,16 @@ static inline void compose_code_set_B(void)
         else
             symbol_buffer[next_symbol_idx++] = CODE128_SHIFT;
         symbol_buffer[next_symbol_idx++] = c + CODE128_CTRL_CHAR_OFFSET;
-        next_input_idx++;
+        ++next_input_idx;
         return;
     }
     if (c >= CODE128_ASCII_SPACE && c <= CODE128_ASCII_DEL) {
         symbol_buffer[next_symbol_idx++] = c - CODE128_ASCII_SPACE;
-        next_input_idx++;
+        ++next_input_idx;
         return;
     }
     symbol_buffer[next_symbol_idx++] = 0;
-    next_input_idx++;
+    ++next_input_idx;
 }
 
 static inline void compose_code_set_C(void)
