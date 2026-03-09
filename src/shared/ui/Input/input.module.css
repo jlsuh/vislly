@@ -26,18 +26,6 @@
   --padding-y: var(--space-4);
 }
 
-.inputWrapper {
-  border-radius: var(--space-2);
-  position: relative;
-  width: 100%;
-  &:has(.input:disabled) {
-    color: var(--color-on-surface-variant);
-  }
-  &:has(.input:disabled) .fieldset {
-    border-color: var(--color-surface-variant);
-  }
-}
-
 .fieldset {
   border-radius: inherit;
   border: var(--space-px) solid var(--color-outline);
@@ -48,6 +36,18 @@
   padding-left: var(--space-3);
   pointer-events: none;
   position: absolute;
+}
+
+.inputWrapper {
+  border-radius: var(--space-2);
+  position: relative;
+  width: 100%;
+  &:has(.input:disabled) {
+    color: var(--color-on-surface-variant);
+  }
+  &:has(.input:disabled) .fieldset {
+    border-color: var(--color-surface-variant);
+  }
 }
 
 .legend {
