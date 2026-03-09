@@ -1,9 +1,11 @@
 #include "barcode.h"
+#include "sjis_map.h"
 
 #include <stdbool.h>
 #include <stdint.h>
 
 #define MAX_QR_CODEWORDS 4096
+#define MAX_QR_INPUT_LEN 8192
 #define MAX_QR_MODULES 177
 #define MAX_SEGMENTS 4096
 #define QR_VERSION_COUNT 41
@@ -17,6 +19,7 @@
 #define NUMERIC_MODE_INDICATOR 1
 #define ALPHANUMERIC_MODE_INDICATOR 2
 #define BYTE_MODE_INDICATOR 4
+#define KANJI_MODE_INDICATOR 8
 
 #define MODE_INDICATOR_BITS 4
 #define MAX_TERMINATOR_LENGTH 4
@@ -33,6 +36,10 @@
 #define CCI_BITS_BYTE_V10_26 16
 #define CCI_BITS_BYTE_V27_40 16
 
+#define CCI_BITS_KANJI_V1_9 8
+#define CCI_BITS_KANJI_V10_26 10
+#define CCI_BITS_KANJI_V27_40 12
+
 #define NUMERIC_GROUP_SIZE 3
 #define NUMERIC_GROUP_BITS_1 4
 #define NUMERIC_GROUP_BITS_2 7
@@ -41,6 +48,37 @@
 #define ALPHA_PAIR_MULTIPLIER 45
 #define ALPHA_PAIR_BITS 11
 #define ALPHA_SINGLE_BITS 6
+
+#define KANJI_BITS_PER_CHAR 13
+
+#define SJIS_TRAILER_MIN 0x40
+#define SJIS_TRAILER_MAX 0xFC
+#define SJIS_TRAILER_INVALID 0x7F
+
+#define SJIS_KANJI_BLOCK_1_MIN 0x8140
+#define SJIS_KANJI_BLOCK_1_MAX 0x9FFC
+#define SJIS_KANJI_BLOCK_2_MIN 0xE040
+#define SJIS_KANJI_BLOCK_2_MAX 0xEBBF
+
+#define SJIS_KANJI_BLOCK_2_OFFSET 0xC140
+#define SJIS_KANJI_MULTIPLIER 0xC0
+#define LSB_MASK 0xFF
+
+#define UTF8_1_BYTE_MAX 0x7F
+
+#define UTF8_2_BYTE_MASK 0xE0
+#define UTF8_2_BYTE_PREFIX 0xC0
+#define UTF8_2_BYTE_DATA_MASK 0x1F
+
+#define UTF8_3_BYTE_MASK 0xF0
+#define UTF8_3_BYTE_PREFIX 0xE0
+#define UTF8_3_BYTE_DATA_MASK 0x0F
+
+#define UTF8_4_BYTE_MASK 0xF8
+#define UTF8_4_BYTE_PREFIX 0xF0
+#define UTF8_4_BYTE_DATA_MASK 0x07
+
+#define UTF8_CONTINUATION_MASK 0x3F
 
 #define VERSION_GROUP_2_START 10
 #define VERSION_GROUP_3_START 27
@@ -146,6 +184,10 @@ static uint8_t interleaved_codewords[MAX_QR_CODEWORDS];
 static const char *qr_data;
 static ErrorCorrectionLevel error_correction_level = EC_M;
 
+static bool kanji_mode_enabled = true;
+static uint8_t processed_data[MAX_QR_INPUT_LEN];
+static int processed_data_len = 0;
+
 static uint8_t eval_base_grid[MAX_QR_MODULES][MAX_QR_MODULES];
 static uint8_t eval_grid[MAX_QR_MODULES][MAX_QR_MODULES];
 
@@ -165,6 +207,9 @@ const char SPECIAL_ALPHANUMERIC_CHARS[] = " $%*+-./:";
 static const int INITIAL_THRESHOLD_ALPHA_TO_BYTE[3] = {6, 7, 8};
 static const int INITIAL_THRESHOLD_NUM_TO_BYTE[3] = {4, 4, 5};
 static const int INITIAL_THRESHOLD_NUM[3] = {7, 8, 9};
+static const int INITIAL_THRESHOLD_KANJI_TO_BYTE[3] = {5, 5, 6};
+
+static const int THRESH_SWITCH_BYTE_TO_KANJI[3] = {9, 12, 13};
 static const int THRESH_SWITCH_BYTE_TO_ALPHA[3] = {11, 15, 16};
 static const int THRESH_SWITCH_BYTE_TO_NUM_A[3] = {6, 7, 8};
 static const int THRESH_SWITCH_BYTE_TO_NUM_B[3] = {6, 8, 9};
@@ -520,22 +565,49 @@ static inline int char_to_alpha_value(char c)
     return get_special_alpha_value(c);
 }
 
-static inline bool is_numeric(char c)
+static inline bool is_numeric(uint8_t c)
 {
     return c >= '0' && c <= '9';
 }
 
-static inline bool is_alpha_exclusive(char c)
+static inline bool is_alpha_exclusive(uint8_t c)
 {
-    return !is_numeric(c) && char_to_alpha_value(c) != -1;
+    return !is_numeric(c) && char_to_alpha_value((char)c) != -1;
 }
 
-static inline bool is_byte_exclusive(char c)
+static inline bool is_valid_sjis_trailer(uint8_t b)
 {
-    return !is_numeric(c) && !is_alpha_exclusive(c);
+    if (b < SJIS_TRAILER_MIN || b > SJIS_TRAILER_MAX)
+        return false;
+    return b != SJIS_TRAILER_INVALID;
 }
 
-static inline int count_consecutive_numeric(const char *str, int start, int len)
+static inline bool is_kanji_char(const uint8_t *data, int i, int len)
+{
+    if (!kanji_mode_enabled || i + 1 >= len)
+        return false;
+    uint8_t lead_byte = data[i];
+    uint8_t trail_byte = data[i + 1];
+    if (!is_valid_sjis_trailer(trail_byte))
+        return false;
+    uint16_t val = (uint16_t)((lead_byte << 8) | trail_byte);
+    bool is_block_1 = (val >= SJIS_KANJI_BLOCK_1_MIN && val <= SJIS_KANJI_BLOCK_1_MAX);
+    bool is_block_2 = (val >= SJIS_KANJI_BLOCK_2_MIN && val <= SJIS_KANJI_BLOCK_2_MAX);
+    return is_block_1 || is_block_2;
+}
+
+static inline bool is_byte_exclusive(const uint8_t *data, int i, int len)
+{
+    if (is_numeric(data[i]))
+        return false;
+    if (is_alpha_exclusive(data[i]))
+        return false;
+    if (is_kanji_char(data, i, len))
+        return false;
+    return true;
+}
+
+static inline int count_consecutive_numeric(const uint8_t *str, int start, int len)
 {
     int count = 0;
     while (start + count < len && is_numeric(str[start + count]))
@@ -543,10 +615,18 @@ static inline int count_consecutive_numeric(const char *str, int start, int len)
     return count;
 }
 
-static inline int count_consecutive_alpha_exclusive(const char *str, int start, int len)
+static inline int count_consecutive_alpha_exclusive(const uint8_t *str, int start, int len)
 {
     int count = 0;
     while (start + count < len && is_alpha_exclusive(str[start + count]))
+        ++count;
+    return count;
+}
+
+static inline int count_consecutive_kanji(const uint8_t *str, int start, int len)
+{
+    int count = 0;
+    while (is_kanji_char(str, start + (count * 2), len))
         ++count;
     return count;
 }
@@ -578,6 +658,15 @@ static inline int get_byte_cci_bits(int version)
     return CCI_BITS_BYTE_V27_40;
 }
 
+static inline int get_kanji_cci_bits(int version)
+{
+    if (version < VERSION_GROUP_2_START)
+        return CCI_BITS_KANJI_V1_9;
+    if (version < VERSION_GROUP_3_START)
+        return CCI_BITS_KANJI_V10_26;
+    return CCI_BITS_KANJI_V27_40;
+}
+
 static inline int get_cci_bits(int mode, int version)
 {
     if (NUMERIC_MODE_INDICATOR == mode)
@@ -586,6 +675,8 @@ static inline int get_cci_bits(int mode, int version)
         return get_alphanumeric_cci_bits(version);
     if (BYTE_MODE_INDICATOR == mode)
         return get_byte_cci_bits(version);
+    if (KANJI_MODE_INDICATOR == mode)
+        return get_kanji_cci_bits(version);
     return 0;
 }
 
@@ -617,36 +708,60 @@ static inline int numeric_get_content_bits(int len)
     return total_bits;
 }
 
-static inline void numeric_encode_segment_data(const char *const data, int len)
+static inline void numeric_encode_segment_data(const uint8_t *const data, int len)
 {
     for (int i = 0; i < len; i += NUMERIC_GROUP_SIZE) {
         int remaining_digits = len - i;
         int group_len = numeric_get_group_size(remaining_digits);
         int value = 0;
         for (int j = 0; j < group_len; ++j)
-            value = (value * 10) + char_to_digit(data[i + j]);
+            value = (value * 10) + char_to_digit((char)data[i + j]);
         int bit_count = numeric_get_bit_count_for_group(group_len);
         append_bits(value, bit_count);
     }
 }
 
-static inline void alphanumeric_encode_segment_data(const char *data, int len)
+static inline void alphanumeric_encode_segment_data(const uint8_t *data, int len)
 {
+    int val;
     for (int i = 0; i < len; i += 2) {
         if (i + 1 < len) {
-            int val = (char_to_alpha_value(data[i]) * ALPHA_PAIR_MULTIPLIER) + char_to_alpha_value(data[i + 1]);
+            val = (char_to_alpha_value((char)data[i]) * ALPHA_PAIR_MULTIPLIER) + char_to_alpha_value((char)data[i + 1]);
             append_bits(val, ALPHA_PAIR_BITS);
         } else {
-            int val = char_to_alpha_value(data[i]);
+            val = char_to_alpha_value((char)data[i]);
             append_bits(val, ALPHA_SINGLE_BITS);
         }
     }
 }
 
-static inline void byte_encode_segment_data(const char *data, int len)
+static inline void byte_encode_segment_data(const uint8_t *data, int len)
 {
     for (int i = 0; i < len; ++i)
         append_bits((uint8_t)data[i], BITS_PER_BYTE);
+}
+
+static inline void kanji_encode_segment_data(const uint8_t *data, int len)
+{
+    uint16_t val;
+    uint16_t compacted;
+    uint8_t lead_byte;
+    uint8_t trail_byte;
+    for (int i = 0; i < len; ++i) {
+        lead_byte = data[i * 2];
+        trail_byte = data[(i * 2) + 1];
+        val = (uint16_t)((lead_byte << 8) | trail_byte);
+        if (val >= SJIS_KANJI_BLOCK_1_MIN && val <= SJIS_KANJI_BLOCK_1_MAX) {
+            val -= SJIS_KANJI_BLOCK_1_MIN;
+            compacted = ((val >> 8) * SJIS_KANJI_MULTIPLIER) + (val & LSB_MASK);
+        } else if (val >= SJIS_KANJI_BLOCK_2_MIN && val <= SJIS_KANJI_BLOCK_2_MAX) {
+            val -= SJIS_KANJI_BLOCK_2_OFFSET;
+            compacted = ((val >> 8) * SJIS_KANJI_MULTIPLIER) + (val & LSB_MASK);
+        } else {
+            compacted = 0;
+        }
+        append_bits(compacted, KANJI_BITS_PER_CHAR);
+    }
 }
 
 static inline void add_segment(int mode, int start_idx)
@@ -659,31 +774,54 @@ static inline void add_segment(int mode, int start_idx)
     ++num_segments;
 }
 
-static inline int get_initial_mode_for_alpha(const char *data, int len, int vg)
+static inline int get_initial_mode_for_alpha(const uint8_t *data, int len, int vg)
 {
     int count = count_consecutive_alpha_exclusive(data, 0, len);
     if (count >= INITIAL_THRESHOLD_ALPHA_TO_BYTE[vg - 1])
         return ALPHANUMERIC_MODE_INDICATOR;
-    if (count < len && is_byte_exclusive(data[count]))
+    if (count < len && is_byte_exclusive(data, count, len))
         return BYTE_MODE_INDICATOR;
+    if (count < len && is_kanji_char(data, count, len))
+        return ALPHANUMERIC_MODE_INDICATOR;
     return ALPHANUMERIC_MODE_INDICATOR;
 }
 
-static inline int get_initial_mode_for_numeric(const char *data, int len, int vg)
+static inline int get_initial_mode_for_numeric(const uint8_t *data, int len, int vg)
 {
     int count = count_consecutive_numeric(data, 0, len);
     if (count >= len)
         return NUMERIC_MODE_INDICATOR;
-    if (count < INITIAL_THRESHOLD_NUM_TO_BYTE[vg - 1] && is_byte_exclusive(data[count]))
+    if (count < INITIAL_THRESHOLD_NUM_TO_BYTE[vg - 1] && is_byte_exclusive(data, count, len))
         return BYTE_MODE_INDICATOR;
     if (count < INITIAL_THRESHOLD_NUM[vg - 1] && is_alpha_exclusive(data[count]))
         return ALPHANUMERIC_MODE_INDICATOR;
     return NUMERIC_MODE_INDICATOR;
 }
 
-static inline int determine_initial_mode(const char *data, int len, int vg)
+static inline bool is_numeric_or_alpha_exclusive(uint8_t c)
 {
-    if (is_byte_exclusive(data[0]))
+    return is_numeric(c) || is_alpha_exclusive(c);
+}
+
+static inline int get_initial_mode_for_kanji(const uint8_t *data, int len, int vg)
+{
+    int kanji_count = count_consecutive_kanji(data, 0, len);
+    int next_idx = kanji_count * 2;
+    if (next_idx == len)
+        return KANJI_MODE_INDICATOR;
+    if (kanji_count >= INITIAL_THRESHOLD_KANJI_TO_BYTE[vg - 1])
+        return KANJI_MODE_INDICATOR;
+    bool has_trailing_char = next_idx < len;
+    if (has_trailing_char && is_numeric_or_alpha_exclusive(data[next_idx]))
+        return KANJI_MODE_INDICATOR;
+    return BYTE_MODE_INDICATOR;
+}
+
+static inline int determine_initial_mode(const uint8_t *data, int len, int vg)
+{
+    if (is_kanji_char(data, 0, len))
+        return get_initial_mode_for_kanji(data, len, vg);
+    if (is_byte_exclusive(data, 0, len))
         return BYTE_MODE_INDICATOR;
     if (is_alpha_exclusive(data[0]))
         return get_initial_mode_for_alpha(data, len, vg);
@@ -692,26 +830,31 @@ static inline int determine_initial_mode(const char *data, int len, int vg)
     return BYTE_MODE_INDICATOR;
 }
 
-static inline int get_mode_for_alpha_char(const char *data, int i, int len, int idx)
+static inline int get_mode_for_alpha_char(const uint8_t *data, int i, int len, int idx)
 {
     if (count_consecutive_alpha_exclusive(data, i, len) >= THRESH_SWITCH_BYTE_TO_ALPHA[idx])
         return ALPHANUMERIC_MODE_INDICATOR;
     return BYTE_MODE_INDICATOR;
 }
 
-static inline int get_mode_for_numeric_char(const char *data, int i, int len, int idx)
+static inline int get_mode_for_numeric_char(const uint8_t *data, int i, int len, int idx)
 {
     int num_count = count_consecutive_numeric(data, i, len);
-    bool followed_by_byte = (i + num_count < len) && is_byte_exclusive(data[i + num_count]);
+    bool followed_by_byte = (i + num_count < len) && is_byte_exclusive(data, i + num_count, len);
     const int *thresh_arr = followed_by_byte ? THRESH_SWITCH_BYTE_TO_NUM_B : THRESH_SWITCH_BYTE_TO_NUM_A;
     if (num_count >= thresh_arr[idx])
         return NUMERIC_MODE_INDICATOR;
     return BYTE_MODE_INDICATOR;
 }
 
-static inline int get_next_mode_from_byte(const char *data, int i, int len, int vg)
+static inline int get_next_mode_from_byte(const uint8_t *data, int i, int len, int vg)
 {
     int idx = vg - 1;
+    if (is_kanji_char(data, i, len)) {
+        if (count_consecutive_kanji(data, i, len) >= THRESH_SWITCH_BYTE_TO_KANJI[idx])
+            return KANJI_MODE_INDICATOR;
+        return BYTE_MODE_INDICATOR;
+    }
     if (is_alpha_exclusive(data[i]))
         return get_mode_for_alpha_char(data, i, len, idx);
     if (is_numeric(data[i]))
@@ -719,9 +862,11 @@ static inline int get_next_mode_from_byte(const char *data, int i, int len, int 
     return BYTE_MODE_INDICATOR;
 }
 
-static inline int get_next_mode_from_alpha(const char *data, int i, int len, int vg)
+static inline int get_next_mode_from_alpha(const uint8_t *data, int i, int len, int vg)
 {
-    if (is_byte_exclusive(data[i]))
+    if (is_kanji_char(data, i, len))
+        return KANJI_MODE_INDICATOR;
+    if (is_byte_exclusive(data, i, len))
         return BYTE_MODE_INDICATOR;
     if (is_numeric(data[i])) {
         int thresh = (1 == vg)   ? THRESHOLD_SWITCH_NUM_V1_9
@@ -733,33 +878,50 @@ static inline int get_next_mode_from_alpha(const char *data, int i, int len, int
     return ALPHANUMERIC_MODE_INDICATOR;
 }
 
-static inline int get_next_mode_from_num(const char *data, int i)
+static inline int get_next_mode_from_num(const uint8_t *data, int i, int len)
 {
-    if (is_byte_exclusive(data[i]))
+    if (is_kanji_char(data, i, len))
+        return KANJI_MODE_INDICATOR;
+    if (is_byte_exclusive(data, i, len))
         return BYTE_MODE_INDICATOR;
     if (is_alpha_exclusive(data[i]))
         return ALPHANUMERIC_MODE_INDICATOR;
     return NUMERIC_MODE_INDICATOR;
 }
 
-static inline void segment_data(const char *data, int len, int vg)
+static inline int get_next_mode_from_kanji(const uint8_t *data, int i, int len)
+{
+    if (is_kanji_char(data, i, len))
+        return KANJI_MODE_INDICATOR;
+    if (is_byte_exclusive(data, i, len))
+        return BYTE_MODE_INDICATOR;
+    if (is_alpha_exclusive(data[i]))
+        return ALPHANUMERIC_MODE_INDICATOR;
+    return NUMERIC_MODE_INDICATOR;
+}
+
+static inline void segment_data(const uint8_t *data, int len, int vg)
 {
     num_segments = 0;
     int current_mode = determine_initial_mode(data, len, vg);
     add_segment(current_mode, 0);
-    for (int i = 0; i < len; ++i) {
+    for (int i = 0; i < len;) {
         int next_mode = current_mode;
         if (BYTE_MODE_INDICATOR == current_mode)
             next_mode = get_next_mode_from_byte(data, i, len, vg);
         else if (ALPHANUMERIC_MODE_INDICATOR == current_mode)
             next_mode = get_next_mode_from_alpha(data, i, len, vg);
-        else
-            next_mode = get_next_mode_from_num(data, i);
+        else if (NUMERIC_MODE_INDICATOR == current_mode)
+            next_mode = get_next_mode_from_num(data, i, len);
+        else if (KANJI_MODE_INDICATOR == current_mode)
+            next_mode = get_next_mode_from_kanji(data, i, len);
         if (next_mode != current_mode) {
             current_mode = next_mode;
             add_segment(current_mode, i);
         }
+        int step = (KANJI_MODE_INDICATOR == current_mode) ? 2 : 1;
         ++segments[num_segments - 1].len;
+        i += step;
     }
 }
 
@@ -773,13 +935,15 @@ static inline int calculate_total_bits(int version)
             total += numeric_get_content_bits(segments[i].len);
         else if (ALPHANUMERIC_MODE_INDICATOR == segments[i].mode)
             total += ((segments[i].len / 2) * ALPHA_PAIR_BITS) + ((segments[i].len % 2) * ALPHA_SINGLE_BITS);
+        else if (KANJI_MODE_INDICATOR == segments[i].mode)
+            total += segments[i].len * KANJI_BITS_PER_CHAR;
         else
             total += segments[i].len * BITS_PER_BYTE;
     }
     return total;
 }
 
-static inline const VersionCapacity *determine_version_and_segment(const char *data, int len,
+static inline const VersionCapacity *determine_version_and_segment(const uint8_t *data, int len,
                                                                    ErrorCorrectionLevel target_ec_level)
 {
     for (int i = 0; i < VERSION_CAPACITY_LEN; ++i) {
@@ -1463,11 +1627,127 @@ static inline void emplace_codewords(const QRContext *ctx)
     }
 }
 
+static inline int decode_utf8(const char *str, int *i, uint32_t *out_code_point)
+{
+    uint8_t lead_byte = (uint8_t)str[*i];
+    uint32_t lead_payload;
+    uint32_t continuation_1_payload;
+    uint32_t continuation_2_payload;
+    uint32_t continuation_3_payload;
+    bool is_single_byte_ascii = (lead_byte <= UTF8_1_BYTE_MAX);
+    bool is_two_byte_sequence = ((lead_byte & UTF8_2_BYTE_MASK) == UTF8_2_BYTE_PREFIX);
+    bool is_three_byte_sequence = ((lead_byte & UTF8_3_BYTE_MASK) == UTF8_3_BYTE_PREFIX);
+    bool is_four_byte_sequence = ((lead_byte & UTF8_4_BYTE_MASK) == UTF8_4_BYTE_PREFIX);
+    if (is_single_byte_ascii) {
+        *out_code_point = (uint32_t)lead_byte;
+        ++(*i);
+        return 1;
+    }
+    if (is_two_byte_sequence) {
+        lead_payload = (uint32_t)(lead_byte & UTF8_2_BYTE_DATA_MASK);
+        continuation_1_payload = (uint32_t)(str[*i + 1] & UTF8_CONTINUATION_MASK);
+        *out_code_point = (lead_payload << 6) | continuation_1_payload;
+        (*i) += 2;
+        return 2;
+    }
+    if (is_three_byte_sequence) {
+        lead_payload = (uint32_t)(lead_byte & UTF8_3_BYTE_DATA_MASK);
+        continuation_1_payload = (uint32_t)(str[*i + 1] & UTF8_CONTINUATION_MASK);
+        continuation_2_payload = (uint32_t)(str[*i + 2] & UTF8_CONTINUATION_MASK);
+        *out_code_point = (lead_payload << 12) | (continuation_1_payload << 6) | continuation_2_payload;
+        (*i) += 3;
+        return 3;
+    }
+    if (is_four_byte_sequence) {
+        lead_payload = (uint32_t)(lead_byte & UTF8_4_BYTE_DATA_MASK);
+        continuation_1_payload = (uint32_t)(str[*i + 1] & UTF8_CONTINUATION_MASK);
+        continuation_2_payload = (uint32_t)(str[*i + 2] & UTF8_CONTINUATION_MASK);
+        continuation_3_payload = (uint32_t)(str[*i + 3] & UTF8_CONTINUATION_MASK);
+        *out_code_point = (lead_payload << 18) | (continuation_1_payload << 12) | (continuation_2_payload << 6) |
+                          continuation_3_payload;
+        (*i) += 4;
+        return 4;
+    }
+    ++(*i);
+    return 1;
+}
+
+static inline uint16_t lookup_sjis(uint32_t unicode)
+{
+    int left = 0;
+    int right = SJIS_MAP_SIZE - 1;
+    while (left <= right) {
+        int mid = left + ((right - left) / 2);
+        if (sjis_map_entries[mid].unicode == unicode) {
+            return sjis_map_entries[mid].sjis;
+        }
+        if (sjis_map_entries[mid].unicode < unicode) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    return 0;
+}
+
+static inline int encode_unicode_to_sjis_bytes(uint32_t unicode_code_point, uint8_t *output_buffer)
+{
+    if (unicode_code_point <= UTF8_1_BYTE_MAX) {
+        output_buffer[0] = (uint8_t)unicode_code_point;
+        return 1;
+    }
+    uint16_t sjis_value = lookup_sjis(unicode_code_point);
+    if (sjis_value == 0) {
+        return 0;
+    }
+    if (sjis_value > 0xFF) {
+        output_buffer[0] = (uint8_t)((sjis_value >> 8) & LSB_MASK);
+        output_buffer[1] = (uint8_t)(sjis_value & LSB_MASK);
+        return 2;
+    }
+    output_buffer[0] = (uint8_t)(sjis_value & LSB_MASK);
+    return 1;
+}
+
+static inline void fallback_to_raw_utf8(const char *utf8_str)
+{
+    int index = 0;
+    while (utf8_str[index] != '\0') {
+        processed_data[index] = (uint8_t)utf8_str[index];
+        ++index;
+    }
+    processed_data_len = index;
+}
+
+static inline bool prepare_qr_data(const char *utf8_str)
+{
+    kanji_mode_enabled = true;
+    int input_idx = 0;
+    int output_idx = 0;
+    while (utf8_str[input_idx] != '\0') {
+        uint32_t unicode_code_point = 0;
+        decode_utf8(utf8_str, &input_idx, &unicode_code_point);
+        int bytes_written = encode_unicode_to_sjis_bytes(unicode_code_point, &processed_data[output_idx]);
+        if (bytes_written == 0) {
+            kanji_mode_enabled = false;
+            break;
+        }
+        output_idx += bytes_written;
+    }
+    if (!kanji_mode_enabled) {
+        fallback_to_raw_utf8(utf8_str);
+    } else {
+        processed_data_len = output_idx;
+    }
+    return kanji_mode_enabled;
+}
+
 static inline void process_qr_data(void)
 {
     initialize_gf_tables();
-    int len = wasm_strlen(qr_data);
-    const VersionCapacity *vc = determine_version_and_segment(qr_data, len, error_correction_level);
+    prepare_qr_data(qr_data);
+    int len = processed_data_len;
+    const VersionCapacity *vc = determine_version_and_segment(processed_data, len, error_correction_level);
     if (!vc)
         return;
     int target_version = vc->version;
@@ -1479,11 +1759,13 @@ static inline void process_qr_data(void)
         append_bits(seg->mode, MODE_INDICATOR_BITS);
         append_bits(seg->len, get_cci_bits(seg->mode, target_version));
         if (NUMERIC_MODE_INDICATOR == seg->mode)
-            numeric_encode_segment_data(qr_data + seg->start, seg->len);
+            numeric_encode_segment_data(processed_data + seg->start, seg->len);
         else if (ALPHANUMERIC_MODE_INDICATOR == seg->mode)
-            alphanumeric_encode_segment_data(qr_data + seg->start, seg->len);
+            alphanumeric_encode_segment_data(processed_data + seg->start, seg->len);
+        else if (KANJI_MODE_INDICATOR == seg->mode)
+            kanji_encode_segment_data(processed_data + seg->start, seg->len);
         else
-            byte_encode_segment_data(qr_data + seg->start, seg->len);
+            byte_encode_segment_data(processed_data + seg->start, seg->len);
     }
     append_terminator(target_codewords);
     append_padding_bits();

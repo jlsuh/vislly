@@ -52,6 +52,25 @@ function getTrailingMatchLength(text: string, regex: RegExp): number {
   return text.match(regex)?.[0].length ?? 0;
 }
 
+function getKanjiCapacity(remainingBits: number, text: string): number | null {
+  const trailingKanji = getTrailingMatchLength(
+    text,
+    /[\u3000-\u303F\u3040-\u309F\u30A0-\u30FF\uFF00-\uFFEF\u4E00-\u9FAF]+$/,
+  );
+  if (trailingKanji === 0) return null;
+  if (trailingKanji === text.length || trailingKanji >= 13) {
+    return calculateModeCapacity(
+      remainingBits,
+      trailingKanji,
+      1,
+      13,
+      [0],
+      [{ bits: 13, items: 1 }],
+    );
+  }
+  return null;
+}
+
 function getNumericCapacity(
   remainingBits: number,
   text: string,
@@ -96,6 +115,8 @@ function getAlphanumericCapacity(
 }
 
 function getMatrix2DCapacity(remainingBits: number, text: string): number {
+  const kanjiCapacity = getKanjiCapacity(remainingBits, text);
+  if (kanjiCapacity !== null) return kanjiCapacity;
   const numCapacity = getNumericCapacity(remainingBits, text);
   if (numCapacity !== null) return numCapacity;
   const alphaCapacity = getAlphanumericCapacity(remainingBits, text);

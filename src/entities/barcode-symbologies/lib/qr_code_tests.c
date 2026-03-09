@@ -5,7 +5,7 @@
 static void check_version(int numeric_chars, ErrorCorrectionLevel ec_level, int expected_version,
                           int expected_codewords)
 {
-    static char dummy_data[8192];
+    static uint8_t dummy_data[8192];
     for (int i = 0; i < numeric_chars; ++i)
         dummy_data[i] = '0';
     dummy_data[numeric_chars] = '\0';
@@ -17,7 +17,7 @@ static void check_version(int numeric_chars, ErrorCorrectionLevel ec_level, int 
     }
 }
 
-void test_versions_1_to_9(void)
+void capacity_is_correct_for_versions_1_through_9(void)
 {
     check_version(8, EC_L, 1, 19);
     check_version(8, EC_M, 1, 16);
@@ -25,7 +25,7 @@ void test_versions_1_to_9(void)
     check_version(8, EC_H, 1, 9);
 }
 
-void test_versions_10_to_26(void)
+void capacity_is_correct_for_versions_10_through_26(void)
 {
     check_version(600, EC_L, 10, 274);
     check_version(600, EC_M, 11, 254);
@@ -33,7 +33,7 @@ void test_versions_10_to_26(void)
     check_version(600, EC_H, 16, 253);
 }
 
-void test_versions_27_to_40(void)
+void capacity_is_correct_for_versions_27_through_40(void)
 {
     check_version(4000, EC_L, 30, 1735);
     check_version(3500, EC_M, 32, 1541);
@@ -41,9 +41,9 @@ void test_versions_27_to_40(void)
     check_version(1800, EC_H, 31, 793);
 }
 
-void test_boundary_conditions_40_L(void)
+void version_40_is_selected_for_maximum_data_length_and_fails_if_exceeded(void)
 {
-    static char dummy_data[8192];
+    static uint8_t dummy_data[8192];
     wasm_memset(dummy_data, '0', sizeof(dummy_data));
     const VersionCapacity *vc;
     vc = determine_version_and_segment(dummy_data, 7088, EC_L);
@@ -62,11 +62,11 @@ void test_boundary_conditions_40_L(void)
     ASSERT_TRUE(vc == NULL);
 }
 
-void test_integration_buffer_write(void)
+void buffer_is_written_correctly_during_processing(void)
 {
     static char data_buffer[8192];
     for (int i = 0; i < 7089; ++i)
-        data_buffer[i] = '0' + (i % 10);
+        data_buffer[i] = (char)('0' + (i % 10));
     data_buffer[7089] = '\0';
     qr_data = data_buffer;
     error_correction_level = EC_L;
@@ -74,7 +74,7 @@ void test_integration_buffer_write(void)
     ASSERT_TRUE(global_bit_offset > 0);
 }
 
-void test_generator_polynomial_degree_7(void)
+void generator_polynomial_is_computed_correctly_for_degree_7(void)
 {
     initialize_gf_tables();
     uint8_t expected_g_exp[] = {1, 87, 229, 146, 149, 238, 102, 21};
@@ -84,7 +84,7 @@ void test_generator_polynomial_degree_7(void)
         ASSERT_EQUALS(expected_g_exp[i], gf_log[g[i]]);
 }
 
-void test_generator_polynomial_degree_10(void)
+void generator_polynomial_is_computed_correctly_for_degree_10(void)
 {
     initialize_gf_tables();
     uint8_t expected_g_exp[] = {1, 251, 67, 46, 61, 118, 70, 64, 94, 32, 45};
@@ -94,7 +94,7 @@ void test_generator_polynomial_degree_10(void)
         ASSERT_EQUALS(expected_g_exp[i], gf_log[g[i]]);
 }
 
-void test_generator_polynomial_degree_68(void)
+void generator_polynomial_is_computed_correctly_for_degree_68(void)
 {
     initialize_gf_tables();
     uint8_t expected_g_exp[] = {
@@ -107,7 +107,7 @@ void test_generator_polynomial_degree_68(void)
         ASSERT_EQUALS(expected_g_exp[i], gf_log[g[i]]);
 }
 
-void test_reed_solomon_encoding_1_M(void)
+void error_correction_blocks_are_generated_correctly_for_version_1_m(void)
 {
     initialize_gf_tables();
     uint8_t data_block[16] = {32, 91, 11, 120, 209, 114, 220, 77, 67, 64, 236, 17, 236, 17, 236, 17};
@@ -120,7 +120,7 @@ void test_reed_solomon_encoding_1_M(void)
         ASSERT_EQUALS(expected_ec[i], ec[i]);
 }
 
-void test_reed_solomon_encoding_40_H(void)
+void error_correction_blocks_are_generated_correctly_for_version_40_h(void)
 {
     initialize_gf_tables();
     uint8_t data_block[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
@@ -140,18 +140,134 @@ void test_reed_solomon_encoding_40_H(void)
         ASSERT_EQUALS(0, remainder[i]);
 }
 
+static void check_bits(const char *utf8_string, ErrorCorrectionLevel ec_level, int expected_remaining_bits)
+{
+    qr_data = utf8_string;
+    error_correction_level = ec_level;
+    prepare_qr_data(qr_data);
+    segment_data(processed_data, processed_data_len, 3);
+    ASSERT_EQUALS(expected_remaining_bits, get_remaining_bits());
+}
+
+void kanji_mode_is_selected_for_pure_kanji_input(void)
+{
+    check_bits("\xE7\x82\xB9\xE8\x8C\x97", EC_L, 23606);
+    check_bits("\xE7\x82\xB9\xE8\x8C\x97", EC_M, 18630);
+    check_bits("\xE7\x82\xB9\xE8\x8C\x97", EC_Q, 13286);
+    check_bits("\xE7\x82\xB9\xE8\x8C\x97", EC_H, 10166);
+}
+
+void alphanumeric_mode_transitions_to_kanji_mode_when_kanji_is_encountered(void)
+{
+    check_bits("QR\xE7\x82\xB9", EC_L, 23591);
+    check_bits("QR\xE7\x82\xB9", EC_M, 18615);
+    check_bits("QR\xE7\x82\xB9", EC_Q, 13271);
+    check_bits("QR\xE7\x82\xB9", EC_H, 10151);
+}
+
+void byte_mode_is_kept_when_kanji_sequence_is_below_optimization_threshold(void)
+{
+    check_bits("a\xE7\x82\xB9", EC_L, 23604);
+    check_bits("a\xE7\x82\xB9", EC_M, 18628);
+    check_bits("a\xE7\x82\xB9", EC_Q, 13284);
+    check_bits("a\xE7\x82\xB9", EC_H, 10164);
+}
+
+void kanji_mode_is_selected_for_single_kanji_character(void)
+{
+    check_bits("\xE7\x82\xB9", EC_L, 23619);
+    check_bits("\xE7\x82\xB9", EC_M, 18643);
+    check_bits("\xE7\x82\xB9", EC_Q, 13299);
+    check_bits("\xE7\x82\xB9", EC_H, 10179);
+}
+
+void mode_switches_to_kanji_only_when_sequence_exceeds_optimization_threshold(void)
+{
+    check_bits("a\xE7\x82\xB9\xE7\x82\xB9\xE7\x82\xB9\xE7\x82\xB9\xE7\x82\xB9\xE7\x82\xB9\xE7\x82\xB9\xE7\x82\xB9\xE7"
+               "\x82\xB9\xE7\x82\xB9\xE7\x82\xB9\xE7\x82\xB9"
+               "a",
+               EC_M, 18444);
+    check_bits("a\xE7\x82\xB9\xE7\x82\xB9\xE7\x82\xB9\xE7\x82\xB9\xE7\x82\xB9\xE7\x82\xB9\xE7\x82\xB9\xE7\x82\xB9\xE7"
+               "\x82\xB9\xE7\x82\xB9\xE7\x82\xB9\xE7\x82\xB9\xE7\x82\xB9"
+               "a",
+               EC_M, 18431);
+}
+
+void kanji_mode_handles_shift_jis_boundary_characters(void)
+{
+    check_bits("\xE3\x80\x80\xE7\x86\x99", EC_M, 18630);
+}
+
+void perfect_fit_capacity_for_kanji_mode_at_ec_l(void)
+{
+    static char huge_utf8_l[(1817 * 3) + 1];
+    for (int i = 0; i < 1817; ++i) {
+        huge_utf8_l[i * 3] = '\xE7';
+        huge_utf8_l[(i * 3) + 1] = '\x82';
+        huge_utf8_l[(i * 3) + 2] = '\xB9';
+    }
+    huge_utf8_l[1817 * 3] = '\0';
+    check_bits(huge_utf8_l, EC_L, 11);
+}
+
+void perfect_fit_capacity_for_kanji_mode_at_ec_m(void)
+{
+    static char huge_utf8_m[(1435 * 3) + 1];
+    for (int i = 0; i < 1435; ++i) {
+        huge_utf8_m[i * 3] = '\xE7';
+        huge_utf8_m[(i * 3) + 1] = '\x82';
+        huge_utf8_m[(i * 3) + 2] = '\xB9';
+    }
+    huge_utf8_m[1435 * 3] = '\0';
+    check_bits(huge_utf8_m, EC_M, 1);
+}
+
+void perfect_fit_capacity_for_kanji_mode_at_ec_q(void)
+{
+    static char huge_utf8_q[(1024 * 3) + 1];
+    for (int i = 0; i < 1024; ++i) {
+        huge_utf8_q[i * 3] = '\xE7';
+        huge_utf8_q[(i * 3) + 1] = '\x82';
+        huge_utf8_q[(i * 3) + 2] = '\xB9';
+    }
+    huge_utf8_q[1024 * 3] = '\0';
+    check_bits(huge_utf8_q, EC_Q, 0);
+}
+
+void perfect_fit_capacity_for_kanji_mode_at_ec_h(void)
+{
+    static char huge_utf8_h[(784 * 3) + 1];
+    for (int i = 0; i < 784; ++i) {
+        huge_utf8_h[i * 3] = '\xE7';
+        huge_utf8_h[(i * 3) + 1] = '\x82';
+        huge_utf8_h[(i * 3) + 2] = '\xB9';
+    }
+    huge_utf8_h[784 * 3] = '\0';
+    check_bits(huge_utf8_h, EC_H, 0);
+}
+
 int main(void)
 {
-    TestCase qr_tests[] = {TEST_FUNC(test_versions_1_to_9),
-                           TEST_FUNC(test_versions_10_to_26),
-                           TEST_FUNC(test_versions_27_to_40),
-                           TEST_FUNC(test_boundary_conditions_40_L),
-                           TEST_FUNC(test_integration_buffer_write),
-                           TEST_FUNC(test_generator_polynomial_degree_7),
-                           TEST_FUNC(test_generator_polynomial_degree_10),
-                           TEST_FUNC(test_reed_solomon_encoding_1_M),
-                           TEST_FUNC(test_generator_polynomial_degree_68),
-                           TEST_FUNC(test_reed_solomon_encoding_40_H)};
+    TestCase qr_tests[] = {TEST_FUNC(capacity_is_correct_for_versions_1_through_9),
+                           TEST_FUNC(capacity_is_correct_for_versions_10_through_26),
+                           TEST_FUNC(capacity_is_correct_for_versions_27_through_40),
+                           TEST_FUNC(version_40_is_selected_for_maximum_data_length_and_fails_if_exceeded),
+                           TEST_FUNC(buffer_is_written_correctly_during_processing),
+                           TEST_FUNC(generator_polynomial_is_computed_correctly_for_degree_7),
+                           TEST_FUNC(generator_polynomial_is_computed_correctly_for_degree_10),
+                           TEST_FUNC(generator_polynomial_is_computed_correctly_for_degree_68),
+                           TEST_FUNC(error_correction_blocks_are_generated_correctly_for_version_1_m),
+                           TEST_FUNC(error_correction_blocks_are_generated_correctly_for_version_40_h),
+                           TEST_FUNC(kanji_mode_is_selected_for_pure_kanji_input),
+                           TEST_FUNC(alphanumeric_mode_transitions_to_kanji_mode_when_kanji_is_encountered),
+                           TEST_FUNC(byte_mode_is_kept_when_kanji_sequence_is_below_optimization_threshold),
+                           TEST_FUNC(kanji_mode_is_selected_for_single_kanji_character),
+                           TEST_FUNC(mode_switches_to_kanji_only_when_sequence_exceeds_optimization_threshold),
+                           TEST_FUNC(kanji_mode_handles_shift_jis_boundary_characters),
+                           TEST_FUNC(perfect_fit_capacity_for_kanji_mode_at_ec_l),
+                           TEST_FUNC(perfect_fit_capacity_for_kanji_mode_at_ec_m),
+                           TEST_FUNC(perfect_fit_capacity_for_kanji_mode_at_ec_q),
+                           TEST_FUNC(perfect_fit_capacity_for_kanji_mode_at_ec_h)};
     RUN_TEST_SUITE("qr_code.c", qr_tests);
     return 0;
 }
