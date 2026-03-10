@@ -115,6 +115,19 @@ function getAlphanumericCapacity(
 }
 
 function getMatrix2DCapacity(remainingBits: number, text: string): number {
+  if (text.length === 0) {
+    return calculateModeCapacity(
+      remainingBits,
+      0,
+      3,
+      10,
+      [2, 4, 7],
+      [
+        { bits: 7, items: 2 },
+        { bits: 4, items: 1 },
+      ],
+    );
+  }
   const kanjiCapacity = getKanjiCapacity(remainingBits, text);
   if (kanjiCapacity !== null) return kanjiCapacity;
   const numCapacity = getNumericCapacity(remainingBits, text);
