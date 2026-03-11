@@ -1,9 +1,7 @@
 import { type JSX, use, useCallback, useEffect, useRef } from 'react';
 import {
-  type BaseBarcodeWasm,
   fetchBarcodeWasm,
   isMatrix2DBarcodeWasm,
-  type Matrix2DBarcodeWasm,
 } from '../lib/barcode-wasm.ts';
 import type {
   ErrorCorrectionLevel,
@@ -16,54 +14,6 @@ interface BarcodeCanvasProps {
   dpr: number;
   inputText: string;
   selectedErrorCorrectionLevel: ErrorCorrectionLevel;
-  onProcessComplete?: (
-    remainingBits: number,
-    evaluatedText: string,
-    didRollback: boolean,
-  ) => void;
-}
-
-function evaluateBarcodeText(
-  originalText: string,
-  barcodeWasm: BaseBarcodeWasm | Matrix2DBarcodeWasm,
-  maxInputLength: number,
-): { currentBits: number; validText: string } {
-  const inputPtr = barcodeWasm.get_data_buffer();
-  const wasmMem = new Uint8Array(barcodeWasm.memory.buffer);
-  const textEncoder = new TextEncoder();
-  const testTextInWasm = (text: string): number => {
-    const encodedText = textEncoder.encode(text);
-    wasmMem.set(encodedText, inputPtr);
-    wasmMem[inputPtr + encodedText.length] = 0;
-    barcodeWasm.render();
-    if (isMatrix2DBarcodeWasm(barcodeWasm)) {
-      return barcodeWasm.get_remaining_bits();
-    }
-    return (maxInputLength - text.length) * 8;
-  };
-  let currentBits = testTextInWasm(originalText);
-  let validText = originalText;
-  if (currentBits < 0) {
-    let low = 0;
-    let high = originalText.length - 1;
-    let optimalBits = currentBits;
-    while (low <= high) {
-      const mid = Math.floor((low + high) / 2);
-      const testText = originalText.slice(0, mid + 1);
-      const bits = testTextInWasm(testText);
-      if (bits >= 0) {
-        validText = testText;
-        optimalBits = bits;
-        low = mid + 1;
-      } else {
-        high = mid - 1;
-      }
-    }
-    currentBits = optimalBits;
-    testTextInWasm(validText);
-  }
-
-  return { currentBits, validText };
 }
 
 function BarcodeCanvas({
@@ -71,10 +21,8 @@ function BarcodeCanvas({
   dpr,
   inputText,
   selectedErrorCorrectionLevel,
-  onProcessComplete,
 }: BarcodeCanvasProps): JSX.Element {
-  const { allowedPattern, maxInputLength, rightPaddingChar, type, wasmFile } =
-    currentSymbology;
+  const { maxInputLength, rightPaddingChar, type, wasmFile } = currentSymbology;
 
   const barcodeWasm = use(fetchBarcodeWasm(wasmFile, type));
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -85,25 +33,20 @@ function BarcodeCanvas({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     let textToRender = inputText;
-    const isValidPattern = new RegExp(`^${allowedPattern}$`).test(textToRender);
-    if (!isValidPattern) {
-      textToRender = '';
-    }
-    if (textToRender.length > maxInputLength) {
-      textToRender = textToRender.slice(0, maxInputLength);
-    }
     if (rightPaddingChar) {
       textToRender = textToRender.padEnd(maxInputLength, rightPaddingChar);
     }
+    const inputPtr = barcodeWasm.get_data_buffer();
+    const wasmMem = new Uint8Array(barcodeWasm.memory.buffer);
+    const textEncoder = new TextEncoder();
+    const encodedText = textEncoder.encode(textToRender);
+    wasmMem.set(encodedText, inputPtr);
+    wasmMem[inputPtr + encodedText.length] = 0;
     barcodeWasm.set_dpr(dpr);
     if (isMatrix2DBarcodeWasm(barcodeWasm)) {
       barcodeWasm.set_error_correction_level(+selectedErrorCorrectionLevel);
     }
-    const { currentBits, validText } = evaluateBarcodeText(
-      textToRender,
-      barcodeWasm,
-      maxInputLength,
-    );
+    barcodeWasm.render();
     const width = barcodeWasm.get_width();
     const height = barcodeWasm.get_height();
     canvas.width = width;
@@ -117,17 +60,11 @@ function BarcodeCanvas({
     );
     const imageData = new ImageData(pixelData, width, height);
     ctx.putImageData(imageData, 0, 0);
-    if (onProcessComplete) {
-      const didRollback = validText.length < textToRender.length;
-      onProcessComplete(currentBits, validText, didRollback);
-    }
   }, [
-    allowedPattern,
     barcodeWasm,
     dpr,
     inputText,
     maxInputLength,
-    onProcessComplete,
     rightPaddingChar,
     selectedErrorCorrectionLevel,
   ]);

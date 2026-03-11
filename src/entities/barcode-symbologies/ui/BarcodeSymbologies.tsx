@@ -4,17 +4,26 @@ import {
   type ChangeEvent,
   type JSX,
   Suspense,
-  useCallback,
   useDeferredValue,
+  useEffect,
   useRef,
   useState,
 } from 'react';
+import {
+  composeTotalCapacity,
+  evaluateCapacitySync,
+} from '../lib/barcode-capacity.ts';
+import {
+  findInsertionDiff,
+  findMaxValidText,
+  sanitizeInput,
+} from '../lib/barcode-input.ts';
+import { type BaseBarcodeWasm, fetchBarcodeWasm } from '../lib/barcode-wasm.ts';
 import {
   assertIsBarcodeSymbology,
   assertIsBarcodeType,
   assertIsErrorCorrectionLevel,
   BARCODE_SYMBOLOGIES,
-  BarcodeType,
   DEFAULT_SYMBOLOGY_BY_TYPE,
   INITIAL_BARCODE_TYPE,
   INITIAL_ERROR_CORRECTION_LEVEL,
@@ -26,173 +35,94 @@ import BarcodeControls from './BarcodeControls.tsx';
 import BarcodeLoadingSkeleton from './BarcodeLoadingSkeleton.tsx';
 import styles from './barcode-symbologies.module.css';
 
-function calculateModeCapacity(
-  remainingBits: number,
-  textLength: number,
-  groupSize: number,
-  bitsPerGroup: number,
-  refunds: number[],
-  thresholds: { bits: number; items: number }[],
-): number {
-  const partialCount = textLength % groupSize;
-  const virtualRemaining = remainingBits + (refunds[partialCount] ?? 0);
-  const groups = Math.floor(virtualRemaining / bitsPerGroup);
-  const leftover = virtualRemaining % bitsPerGroup;
-  let extraItems = groups * groupSize;
-  for (const { bits, items } of thresholds) {
-    if (leftover >= bits) {
-      extraItems += items;
-      break;
-    }
-  }
-  return extraItems - partialCount;
-}
-
-function getTrailingMatchLength(text: string, regex: RegExp): number {
-  return text.match(regex)?.[0].length ?? 0;
-}
-
-function getKanjiCapacity(remainingBits: number, text: string): number | null {
-  const trailingKanji = getTrailingMatchLength(
-    text,
-    /[\u3000-\u303F\u3040-\u309F\u30A0-\u30FF\uFF00-\uFFEF\u4E00-\u9FAF]+$/,
-  );
-  if (trailingKanji === 0) return null;
-  if (trailingKanji === text.length || trailingKanji >= 13) {
-    return calculateModeCapacity(
-      remainingBits,
-      trailingKanji,
-      1,
-      13,
-      [0],
-      [{ bits: 13, items: 1 }],
-    );
-  }
-  return null;
-}
-
-function getNumericCapacity(
-  remainingBits: number,
-  text: string,
-): number | null {
-  const trailingDigits = getTrailingMatchLength(text, /[0-9]+$/);
-  if (trailingDigits === 0) return null;
-  const precedingChar = text.slice(0, -trailingDigits).slice(-1);
-  const threshold = /^[A-Z $%*+\-./:]$/.test(precedingChar) ? 17 : 8;
-  if (trailingDigits === text.length || trailingDigits >= threshold) {
-    return calculateModeCapacity(
-      remainingBits,
-      trailingDigits,
-      3,
-      10,
-      [0, 4, 7],
-      [
-        { bits: 7, items: 2 },
-        { bits: 4, items: 1 },
-      ],
-    );
-  }
-  return null;
-}
-
-function getAlphanumericCapacity(
-  remainingBits: number,
-  text: string,
-): number | null {
-  const trailingAlpha = getTrailingMatchLength(text, /[0-9A-Z $%*+\-./:]+$/);
-  if (trailingAlpha === 0) return null;
-  if (trailingAlpha === text.length || trailingAlpha >= 16) {
-    return calculateModeCapacity(
-      remainingBits,
-      trailingAlpha,
-      2,
-      11,
-      [0, 6],
-      [{ bits: 6, items: 1 }],
-    );
-  }
-  return null;
-}
-
-function getMatrix2DCapacity(remainingBits: number, text: string): number {
-  if (text.length === 0) {
-    return calculateModeCapacity(
-      remainingBits,
-      0,
-      3,
-      10,
-      [2, 4, 7],
-      [
-        { bits: 7, items: 2 },
-        { bits: 4, items: 1 },
-      ],
-    );
-  }
-  const kanjiCapacity = getKanjiCapacity(remainingBits, text);
-  if (kanjiCapacity !== null) return kanjiCapacity;
-  const numCapacity = getNumericCapacity(remainingBits, text);
-  if (numCapacity !== null) return numCapacity;
-  const alphaCapacity = getAlphanumericCapacity(remainingBits, text);
-  if (alphaCapacity !== null) return alphaCapacity;
-  return Math.floor(remainingBits / 8);
-}
-
-function composeTotalCapacity(
-  remainingBits: number | null,
-  barcodeType: BarcodeType,
-  syncedInput: string = '',
-) {
-  if (remainingBits === null) {
-    return null;
-  }
-  const baseCapacity =
-    barcodeType === BarcodeType.Matrix2D
-      ? getMatrix2DCapacity(remainingBits, syncedInput)
-      : Math.floor(remainingBits / 8);
-  return syncedInput.length + baseCapacity;
-}
-
 function BarcodeSymbologies(): JSX.Element {
+  const [barcodeInput, setBarcodeInput] = useState('');
+  const [barcodeWasm, setBarcodeWasm] = useState<BaseBarcodeWasm | null>(null);
   const [dpr, setDpr] = useState(
     Math.min(Math.ceil(window.devicePixelRatio || 1), 4),
   );
-  const [barcodeInput, setBarcodeInput] = useState('');
-  const deferredBarcodeInput = useDeferredValue(barcodeInput);
-  const [syncedInput, setSyncedInput] = useState('');
-  const validBarcodeInputRef = useRef('');
-  const hasEclChangeRef = useRef(false);
   const [remainingBits, setRemainingBits] = useState<number | null>(null);
   const [selectedBarcodeType, setSelectedBarcodeType] =
     useState(INITIAL_BARCODE_TYPE);
-  const [selectedSymbology, setSelectedSymbology] = useState(INITIAL_SYMBOLOGY);
   const [selectedErrorCorrectionLevel, setSelectedErrorCorrectionLevel] =
     useState(INITIAL_ERROR_CORRECTION_LEVEL);
+  const [selectedSymbology, setSelectedSymbology] = useState(INITIAL_SYMBOLOGY);
+  const [syncedInput, setSyncedInput] = useState('');
+  const barcodeInputRef = useRef(barcodeInput);
+  const deferredBarcodeInput = useDeferredValue(barcodeInput);
 
   const currentSymbology = BARCODE_SYMBOLOGIES[selectedSymbology];
   const { allowedPattern } = currentSymbology;
   const symbologyOptions = SYMBOLOGY_OPTIONS_BY_TYPE[selectedBarcodeType];
 
-  const resetBarcodeData = useCallback(() => {
+  useEffect(() => {
+    barcodeInputRef.current = barcodeInput;
+  }, [barcodeInput]);
+
+  const resetBarcodeData = () => {
     setBarcodeInput('');
     setSyncedInput('');
-    validBarcodeInputRef.current = '';
     setRemainingBits(null);
-  }, []);
+  };
 
-  const handleProcessComplete = useCallback(
-    (bits: number, evaluatedText: string, didRollback: boolean) => {
-      setRemainingBits(bits);
-      setSyncedInput(evaluatedText);
-      validBarcodeInputRef.current = evaluatedText;
-      if (hasEclChangeRef.current) {
-        setBarcodeInput(evaluatedText);
-        hasEclChangeRef.current = false;
-      } else if (didRollback) {
-        setBarcodeInput(evaluatedText);
+  const evaluateText = (text: string) => {
+    return evaluateCapacitySync(
+      text,
+      barcodeWasm,
+      currentSymbology,
+      selectedErrorCorrectionLevel,
+    );
+  };
+
+  useEffect(() => {
+    let shouldIgnore = false;
+    const initializeWasmAndEvaluate = async () => {
+      try {
+        const wasm = await fetchBarcodeWasm(
+          currentSymbology.wasmFile,
+          currentSymbology.type,
+        );
+        if (shouldIgnore) return;
+        setBarcodeWasm(wasm);
+        const currentInput = barcodeInputRef.current;
+        const bits = evaluateCapacitySync(
+          currentInput,
+          wasm,
+          currentSymbology,
+          selectedErrorCorrectionLevel,
+        );
+        if (bits < 0) {
+          const { validText, bits: optimalBits } = findMaxValidText({
+            evaluateFn: (text: string) =>
+              evaluateCapacitySync(
+                text,
+                wasm,
+                currentSymbology,
+                selectedErrorCorrectionLevel,
+              ),
+            inserted: currentInput,
+            pattern: allowedPattern,
+            prefix: '',
+            suffix: '',
+          });
+          setBarcodeInput(validText);
+          setSyncedInput(validText);
+          setRemainingBits(optimalBits);
+        } else {
+          setRemainingBits(bits);
+          setSyncedInput(currentInput);
+        }
+      } catch (error) {
+        if (!shouldIgnore) {
+          console.error('Failed to load or evaluate Barcode WASM:', error);
+        }
       }
-    },
-    [],
-  );
+    };
+    initializeWasmAndEvaluate();
+    return () => {
+      shouldIgnore = true;
+    };
+  }, [currentSymbology, selectedErrorCorrectionLevel, allowedPattern]);
 
   const totalCapacity = composeTotalCapacity(
     remainingBits,
@@ -217,41 +147,57 @@ function BarcodeSymbologies(): JSX.Element {
     resetBarcodeData();
   };
 
-  const handleOnChangeDpr = (e: ChangeEvent<HTMLSelectElement>) => {
+  const handleOnChangeDpr = (e: ChangeEvent<HTMLSelectElement>) =>
     setDpr(+e.target.value);
-  };
-
-  const handleOnChangeBarcodeInput = (e: ChangeEvent<HTMLInputElement>) => {
-    const rawInput = e.target.value;
-    const regex = new RegExp(`^${allowedPattern}$`);
-    let sanitizedInput = '';
-    if (rawInput === '' || regex.test(rawInput)) {
-      sanitizedInput = rawInput;
-    } else {
-      for (const char of rawInput) {
-        if (regex.test(sanitizedInput + char)) {
-          sanitizedInput += char;
-        }
-      }
-    }
-    const currentLimit =
-      totalCapacity !== null ? totalCapacity : currentSymbology.maxInputLength;
-    if (sanitizedInput.length > currentLimit) {
-      sanitizedInput = sanitizedInput.slice(0, currentLimit);
-    }
-    if (rawInput !== sanitizedInput) {
-      e.target.value = sanitizedInput;
-    }
-    setBarcodeInput(sanitizedInput);
-  };
 
   const handleOnChangeErrorCorrectionLevel = (
     e: ChangeEvent<HTMLSelectElement>,
   ) => {
     const newLevel = e.target.value;
     assertIsErrorCorrectionLevel(newLevel);
-    hasEclChangeRef.current = true;
     setSelectedErrorCorrectionLevel(newLevel);
+  };
+
+  const handleOnChangeBarcodeInput = (e: ChangeEvent<HTMLInputElement>) => {
+    const target = e.target;
+    const sanitizedInput = sanitizeInput(target.value, allowedPattern);
+    if (sanitizedInput === barcodeInput) {
+      target.value = barcodeInput;
+      return;
+    }
+    const bits = evaluateText(sanitizedInput);
+    if (bits >= 0) {
+      setBarcodeInput(sanitizedInput);
+      setRemainingBits(bits);
+      setSyncedInput(sanitizedInput);
+      return;
+    }
+    const { prefix, suffix, inserted } = findInsertionDiff(
+      barcodeInput,
+      sanitizedInput,
+    );
+    if (inserted.length === 0 || !barcodeWasm) {
+      target.value = barcodeInput;
+      return;
+    }
+    const {
+      validText,
+      bits: optimalBits,
+      insertedLength,
+    } = findMaxValidText({
+      evaluateFn: evaluateText,
+      inserted,
+      pattern: allowedPattern,
+      prefix,
+      suffix,
+    });
+    setBarcodeInput(validText);
+    setRemainingBits(optimalBits);
+    setSyncedInput(validText);
+    setTimeout(() => {
+      const newPos = prefix.length + insertedLength;
+      target.setSelectionRange(newPos, newPos);
+    }, 0);
   };
 
   return (
@@ -285,7 +231,6 @@ function BarcodeSymbologies(): JSX.Element {
             dpr={dpr}
             inputText={deferredBarcodeInput}
             selectedErrorCorrectionLevel={selectedErrorCorrectionLevel}
-            onProcessComplete={handleProcessComplete}
           />
         </Suspense>
       </div>
