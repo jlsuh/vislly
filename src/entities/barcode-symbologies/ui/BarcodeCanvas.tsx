@@ -16,11 +16,7 @@ interface BarcodeCanvasProps {
   dpr: number;
   inputText: string;
   selectedErrorCorrectionLevel: ErrorCorrectionLevel;
-  onProcessComplete?: (
-    remainingBits: number,
-    evaluatedText: string,
-    didRollback: boolean,
-  ) => void;
+  onProcessComplete: (remainingBits: number, evaluatedText: string) => void;
 }
 
 function evaluateBarcodeText(
@@ -41,29 +37,8 @@ function evaluateBarcodeText(
     }
     return (maxInputLength - text.length) * 8;
   };
-  let currentBits = testTextInWasm(originalText);
-  let validText = originalText;
-  if (currentBits < 0) {
-    let low = 0;
-    let high = originalText.length - 1;
-    let optimalBits = currentBits;
-    while (low <= high) {
-      const mid = Math.floor((low + high) / 2);
-      const testText = originalText.slice(0, mid + 1);
-      const bits = testTextInWasm(testText);
-      if (bits >= 0) {
-        validText = testText;
-        optimalBits = bits;
-        low = mid + 1;
-      } else {
-        high = mid - 1;
-      }
-    }
-    currentBits = optimalBits;
-    testTextInWasm(validText);
-  }
-
-  return { currentBits, validText };
+  const currentBits = testTextInWasm(originalText);
+  return { currentBits, validText: originalText };
 }
 
 function BarcodeCanvas({
@@ -118,8 +93,7 @@ function BarcodeCanvas({
     const imageData = new ImageData(pixelData, width, height);
     ctx.putImageData(imageData, 0, 0);
     if (onProcessComplete) {
-      const didRollback = validText.length < textToRender.length;
-      onProcessComplete(currentBits, validText, didRollback);
+      onProcessComplete(currentBits, validText);
     }
   }, [
     allowedPattern,

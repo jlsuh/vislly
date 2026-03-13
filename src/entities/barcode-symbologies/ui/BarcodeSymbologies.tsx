@@ -6,7 +6,6 @@ import {
   Suspense,
   useCallback,
   useDeferredValue,
-  useRef,
   useState,
 } from 'react';
 import {
@@ -138,18 +137,15 @@ function getMatrix2DCapacity(remainingBits: number, text: string): number {
 }
 
 function composeTotalCapacity(
-  remainingBits: number | null,
+  remainingBits: number,
   barcodeType: BarcodeType,
-  syncedInput: string = '',
-) {
-  if (remainingBits === null) {
-    return null;
-  }
+  evaluatedText: string,
+): number {
   const baseCapacity =
     barcodeType === BarcodeType.Matrix2D
-      ? getMatrix2DCapacity(remainingBits, syncedInput)
+      ? getMatrix2DCapacity(remainingBits, evaluatedText)
       : Math.floor(remainingBits / 8);
-  return syncedInput.length + baseCapacity;
+  return evaluatedText.length + baseCapacity;
 }
 
 function BarcodeSymbologies(): JSX.Element {
@@ -158,10 +154,7 @@ function BarcodeSymbologies(): JSX.Element {
   );
   const [barcodeInput, setBarcodeInput] = useState('');
   const deferredBarcodeInput = useDeferredValue(barcodeInput);
-  const [syncedInput, setSyncedInput] = useState('');
-  const validBarcodeInputRef = useRef('');
-  const hasEclChangeRef = useRef(false);
-  const [remainingBits, setRemainingBits] = useState<number | null>(null);
+  const [totalCapacity, setTotalCapacity] = useState(Number.POSITIVE_INFINITY);
   const [selectedBarcodeType, setSelectedBarcodeType] =
     useState(INITIAL_BARCODE_TYPE);
   const [selectedSymbology, setSelectedSymbology] = useState(INITIAL_SYMBOLOGY);
@@ -174,30 +167,19 @@ function BarcodeSymbologies(): JSX.Element {
 
   const resetBarcodeData = useCallback(() => {
     setBarcodeInput('');
-    setSyncedInput('');
-    validBarcodeInputRef.current = '';
-    setRemainingBits(null);
+    setTotalCapacity(Number.POSITIVE_INFINITY);
   }, []);
 
   const handleProcessComplete = useCallback(
-    (bits: number, evaluatedText: string, didRollback: boolean) => {
-      setRemainingBits(bits);
-      setSyncedInput(evaluatedText);
-      validBarcodeInputRef.current = evaluatedText;
-      if (hasEclChangeRef.current) {
-        setBarcodeInput(evaluatedText);
-        hasEclChangeRef.current = false;
-      } else if (didRollback) {
-        setBarcodeInput(evaluatedText);
-      }
+    (bits: number, evaluatedText: string) => {
+      const newCapacity = composeTotalCapacity(
+        bits,
+        currentSymbology.type,
+        evaluatedText,
+      );
+      setTotalCapacity(newCapacity);
     },
-    [],
-  );
-
-  const totalCapacity = composeTotalCapacity(
-    remainingBits,
-    currentSymbology.type,
-    syncedInput,
+    [currentSymbology.type],
   );
 
   const handleOnChangeBarcodeType = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -224,25 +206,10 @@ function BarcodeSymbologies(): JSX.Element {
   const handleOnChangeBarcodeInput = (e: ChangeEvent<HTMLInputElement>) => {
     const rawInput = e.target.value;
     const regex = new RegExp(`^${allowedPattern}$`);
-    let sanitizedInput = '';
-    if (rawInput === '' || regex.test(rawInput)) {
-      sanitizedInput = rawInput;
-    } else {
-      for (const char of rawInput) {
-        if (regex.test(sanitizedInput + char)) {
-          sanitizedInput += char;
-        }
-      }
+    if (rawInput !== '' && !regex.test(rawInput)) {
+      return;
     }
-    const currentLimit =
-      totalCapacity !== null ? totalCapacity : currentSymbology.maxInputLength;
-    if (sanitizedInput.length > currentLimit) {
-      sanitizedInput = sanitizedInput.slice(0, currentLimit);
-    }
-    if (rawInput !== sanitizedInput) {
-      e.target.value = sanitizedInput;
-    }
-    setBarcodeInput(sanitizedInput);
+    setBarcodeInput(rawInput);
   };
 
   const handleOnChangeErrorCorrectionLevel = (
@@ -250,7 +217,6 @@ function BarcodeSymbologies(): JSX.Element {
   ) => {
     const newLevel = e.target.value;
     assertIsErrorCorrectionLevel(newLevel);
-    hasEclChangeRef.current = true;
     setSelectedErrorCorrectionLevel(newLevel);
   };
 

@@ -18,7 +18,7 @@ type BarcodeSymbologiesControlsProps = {
   selectedBarcodeType: BarcodeType;
   selectedErrorCorrectionLevel: ErrorCorrectionLevel;
   symbologyOptions: ReadonlyDeep<Option[]>;
-  totalCapacity: number | null;
+  totalCapacity: number;
   handleOnChangeBarcodeInput: (e: ChangeEvent<HTMLInputElement>) => void;
   handleOnChangeBarcodeSymbology: (e: ChangeEvent<HTMLSelectElement>) => void;
   handleOnChangeBarcodeType: (e: ChangeEvent<HTMLSelectElement>) => void;
@@ -83,17 +83,20 @@ function BarcodeControls({
   handleOnChangeDpr,
   handleOnChangeErrorCorrectionLevel,
 }: BarcodeSymbologiesControlsProps): JSX.Element {
-  const { allowedPattern, inputMode, inputType, type, value, maxInputLength } =
+  const { allowedPattern, inputMode, inputType, type, value } =
     currentSymbology;
+  const isCalculatingCapacity = totalCapacity === Number.POSITIVE_INFINITY;
   const isAtMaxLimit =
-    totalCapacity !== null && barcodeInput.length >= totalCapacity;
-  const counter =
-    totalCapacity !== null
-      ? `${Math.min(barcodeInput.length, totalCapacity)} / ${totalCapacity}`
-      : undefined;
+    !isCalculatingCapacity && barcodeInput.length >= totalCapacity;
+  const isOverLimit =
+    !isCalculatingCapacity && barcodeInput.length > totalCapacity;
+  const counter = !isCalculatingCapacity
+    ? `${barcodeInput.length} / ${totalCapacity}`
+    : undefined;
   const displayCounter = useCounterDisplay(counter, isAtMaxLimit);
-  const characterCount =
-    totalCapacity === null ? CALCULATING_TEXT : displayCounter;
+  const characterCount = isCalculatingCapacity
+    ? CALCULATING_TEXT
+    : displayCounter;
 
   return (
     <>
@@ -133,8 +136,8 @@ function BarcodeControls({
           characterCount={characterCount}
           handleOnChange={handleOnChangeBarcodeInput}
           inputMode={inputMode}
+          isError={isOverLimit}
           label="Barcode Data"
-          maxLength={maxInputLength}
           name="barcode-data-input"
           pattern={allowedPattern}
           placeholder="Enter barcode data"

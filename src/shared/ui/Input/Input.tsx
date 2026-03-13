@@ -13,6 +13,7 @@ type InputProps = {
   disabled?: boolean;
   handleOnChange: (e: ChangeEvent<HTMLInputElement>) => void;
   inputMode?: InputHTMLAttributes<HTMLInputElement>['inputMode'];
+  isError?: boolean;
   label: string;
   maxLength?: number;
   name?: string;
@@ -28,6 +29,7 @@ function Input({
   disabled,
   handleOnChange,
   inputMode,
+  isError = false,
   label,
   maxLength,
   name,
@@ -38,7 +40,7 @@ function Input({
   value,
 }: InputProps): JSX.Element {
   const inputId = useId();
-  const wrapperClass = `${styles.inputWrapper} ${styles[size]}`;
+  const wrapperClass = `${styles.inputWrapper} ${styles[size]} ${isError ? styles.error : ''}`;
 
   return (
     <div className={styles.container}>
