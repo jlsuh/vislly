@@ -10,4 +10,4 @@ function make<T>(validator: (value: unknown) => asserts value is T) {
   };
 }
 
-export { make, type Brand, type Branded };
+export { type Brand, type Branded, make };

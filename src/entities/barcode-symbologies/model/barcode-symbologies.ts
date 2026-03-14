@@ -162,6 +162,7 @@ export {
   assertIsErrorCorrectionLevel,
   BARCODE_SYMBOLOGIES,
   BARCODE_TYPE_LABELS,
+  type BarcodeSymbology,
   BarcodeType,
   DEFAULT_SYMBOLOGY_BY_TYPE,
   ErrorCorrectionLevel,
@@ -169,6 +170,5 @@ export {
   INITIAL_ERROR_CORRECTION_LEVEL,
   INITIAL_SYMBOLOGY,
   SYMBOLOGY_OPTIONS_BY_TYPE,
-  type BarcodeSymbology,
   type SymbologyConfig,
 };

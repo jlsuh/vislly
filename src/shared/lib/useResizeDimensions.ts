@@ -64,4 +64,4 @@ function useResizeDimensions<T extends HTMLElement>(
   return { dimensions, resizeRef };
 }
 
-export { useResizeDimensions, type ResizeDimensions };
+export { type ResizeDimensions, useResizeDimensions };

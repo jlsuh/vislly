@@ -23,8 +23,8 @@ function pxToRem(px: number): number {
 }
 
 export {
+  type CssCustomProperty,
   composeCssCustomProperty,
   getRootFontSize,
   pxToRem,
-  type CssCustomProperty,
 };

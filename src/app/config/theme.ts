@@ -29,4 +29,4 @@ const Theme: ReadonlyDeep<Record<Theme['value'], Theme>> = {
 
 const THEME_VALUES: ReadonlyDeep<Theme[]> = Object.values(Theme);
 
-export { Theme, THEME_VALUES };
+export { THEME_VALUES, Theme };

@@ -119,9 +119,9 @@ function fetchBarcodeWasm<T extends BarcodeType>(
 }
 
 export {
-  fetchBarcodeWasm,
-  isMatrix2DBarcodeWasm,
   type BarcodeWasmMap,
   type BaseBarcodeWasm,
+  fetchBarcodeWasm,
+  isMatrix2DBarcodeWasm,
   type Matrix2DBarcodeWasm,
 };

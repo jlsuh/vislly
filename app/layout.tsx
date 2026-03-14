@@ -34,4 +34,4 @@ function RootLayout({ children }: PropsWithChildren): JSX.Element {
   );
 }
 
-export { RootLayout as default, metadata };
+export { metadata, RootLayout as default };

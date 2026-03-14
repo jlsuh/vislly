@@ -100,8 +100,8 @@ export {
   INITIAL_VERTEX_NAME,
   isTerminalVertex,
   NON_TERMINAL_VERTEX_NAMES,
-  Vertex,
-  VERTEX_NAMES,
-  VertexName,
   type TerminalVertex,
+  VERTEX_NAMES,
+  Vertex,
+  VertexName,
 };

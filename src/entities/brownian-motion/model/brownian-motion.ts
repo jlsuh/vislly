@@ -85,4 +85,4 @@ class Particle {
   }
 }
 
-export { Particle, type CoefficientOfRestitution, type ParticleSettings };
+export { type CoefficientOfRestitution, Particle, type ParticleSettings };

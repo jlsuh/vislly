@@ -137,4 +137,4 @@ abstract class QuickSortStrategy extends SortingStrategy {
   }
 }
 
-export { QuickSortStrategy, type Partition };
+export { type Partition, QuickSortStrategy };
