@@ -28,13 +28,13 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.6",
-    "@types/node": "25.3.5",
+    "@biomejs/biome": "2.4.7",
+    "@types/node": "25.5.0",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "@typescript/native-preview": "7.0.0-dev.20260308.1",
+    "@typescript/native-preview": "7.0.0-dev.20260313.1",
     "babel-plugin-react-compiler": "1.0.0",
-    "dependency-cruiser": "17.3.8",
+    "dependency-cruiser": "17.3.9",
     "serve": "14.2.6",
     "type-fest": "5.4.4",
     "typescript": "5.9.3"
