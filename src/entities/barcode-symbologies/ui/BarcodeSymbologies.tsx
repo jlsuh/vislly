@@ -251,6 +251,7 @@ function BarcodeSymbologies(): JSX.Element {
             dpr={dpr}
             inputText={deferredBarcodeInput}
             selectedErrorCorrectionLevel={selectedErrorCorrectionLevel}
+            totalCapacity={totalCapacity}
             onProcessComplete={handleProcessComplete}
           />
         </Suspense>
