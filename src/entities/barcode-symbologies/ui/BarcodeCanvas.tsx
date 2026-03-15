@@ -3,7 +3,6 @@ import {
   type BaseBarcodeWasm,
   fetchBarcodeWasm,
   isMatrix2DBarcodeWasm,
-  type Matrix2DBarcodeWasm,
 } from '../lib/barcode-wasm.ts';
 import type {
   ErrorCorrectionLevel,
@@ -23,7 +22,7 @@ const TEXT_ENCODER = new TextEncoder();
 
 function evaluateBarcodeText(
   originalText: string,
-  barcodeWasm: BaseBarcodeWasm | Matrix2DBarcodeWasm,
+  barcodeWasm: BaseBarcodeWasm,
   maxInputLength: number,
 ): { currentBits: number; validText: string } {
   const inputPtr = barcodeWasm.get_data_buffer();
