@@ -21,7 +21,7 @@ import {
 } from '../model/barcode-symbologies';
 import BarcodeCanvas from './BarcodeCanvas.tsx';
 import BarcodeControls from './BarcodeControls.tsx';
-import BarcodeLoadingSkeleton from './BarcodeLoadingSkeleton.tsx';
+import { SKELETON_BY_BARCODE_TYPE } from './barcode-loading-skeletons.ts';
 import styles from './barcode-symbologies.module.css';
 
 function calculateModeCapacity(
@@ -161,8 +161,9 @@ function BarcodeSymbologies(): JSX.Element {
     useState(INITIAL_ERROR_CORRECTION_LEVEL);
 
   const currentSymbology = BARCODE_SYMBOLOGIES[selectedSymbology];
-  const { allowedPattern } = currentSymbology;
+  const { allowedPattern, type } = currentSymbology;
   const symbologyOptions = SYMBOLOGY_OPTIONS_BY_TYPE[selectedBarcodeType];
+  const LoadingSkeleton = SKELETON_BY_BARCODE_TYPE[type];
 
   const resetBarcodeData = () => {
     setBarcodeInput('');
@@ -238,9 +239,7 @@ function BarcodeSymbologies(): JSX.Element {
       </div>
       <div className={styles.canvasWrapper}>
         <Suspense
-          fallback={
-            <BarcodeLoadingSkeleton currentSymbology={currentSymbology} />
-          }
+          fallback={<LoadingSkeleton currentSymbology={currentSymbology} />}
         >
           <BarcodeCanvas
             currentSymbology={currentSymbology}

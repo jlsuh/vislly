@@ -5,15 +5,15 @@ import {
 } from '@/shared/lib/css.ts';
 import { composeRandomFlooredIntegerBetween } from '@/shared/lib/random.ts';
 import type { SymbologyConfig } from '../model/barcode-symbologies.ts';
-import styles from './barcode-loading-skeleton.module.css';
+import styles from './linear-barcode-loading-skeleton.module.css';
 
-type BarcodeLoadingSkeletonProps = { currentSymbology: SymbologyConfig };
+type LinearBarcodeLoadingSkeletonProps = { currentSymbology: SymbologyConfig };
 
 const HORIZONTAL_QUIET_ZONE = 40;
 
-function BarcodeLoadingSkeleton({
+function LinearBarcodeLoadingSkeleton({
   currentSymbology,
-}: BarcodeLoadingSkeletonProps): JSX.Element {
+}: LinearBarcodeLoadingSkeletonProps): JSX.Element {
   const { loadingDimensions } = currentSymbology;
   const { width, height } = loadingDimensions;
   const totalRenderedWidth = width + HORIZONTAL_QUIET_ZONE * 2;
@@ -30,4 +30,4 @@ function BarcodeLoadingSkeleton({
   return <div className={styles.loadingCanvas} style={loadingVariables} />;
 }
 
-export default BarcodeLoadingSkeleton;
+export default LinearBarcodeLoadingSkeleton;

@@ -102,7 +102,7 @@ const BARCODE_SYMBOLOGIES: ReadonlyDeep<
     inputMode: 'text',
     inputType: 'text',
     label: 'QR Code',
-    loadingDimensions: { width: 250, height: 250 },
+    loadingDimensions: { width: 84, height: 84 },
     maxInputLength: 7089,
     type: BarcodeType.Matrix2D,
     value: BarcodeSymbology.QrCode,
@@ -148,10 +148,10 @@ function assertIsErrorCorrectionLevel(
   }
 }
 
-const INITIAL_SYMBOLOGY: BarcodeSymbology =
-  DEFAULT_SYMBOLOGY_BY_TYPE[BarcodeType.Linear];
+const INITIAL_BARCODE_TYPE: BarcodeType = BarcodeType.Matrix2D;
 
-const INITIAL_BARCODE_TYPE: BarcodeType = BarcodeType.Linear;
+const INITIAL_SYMBOLOGY: BarcodeSymbology =
+  DEFAULT_SYMBOLOGY_BY_TYPE[INITIAL_BARCODE_TYPE];
 
 const INITIAL_ERROR_CORRECTION_LEVEL: ErrorCorrectionLevel =
   ErrorCorrectionLevel.M;

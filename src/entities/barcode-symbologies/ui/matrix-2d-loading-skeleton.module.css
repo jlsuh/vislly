@@ -1,0 +1,92 @@
+.loadingCanvas {
+  align-items: center;
+  animation: pulse 1.5s ease-in-out infinite;
+  aspect-ratio: 1 / 1;
+  background-color: #ffffff;
+  box-sizing: border-box;
+  color: #000;
+  display: flex;
+  justify-content: center;
+  height: auto;
+  max-width: 100%;
+  opacity: 0.8;
+  overflow: hidden;
+  position: absolute;
+  width: var(--loading-barcode-width, 0);
+  &::after {
+    animation: shimmer 1.5s infinite;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.6) 50%,
+      transparent 100%
+    );
+    content: "";
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    transform: translateX(-100%);
+    width: 100%;
+  }
+}
+
+.qrCode {
+  font-size: 4px;
+  height: 21em;
+  position: relative;
+  width: 21em;
+  &::after {
+    box-shadow: var(--qr-dots);
+    content: "";
+    height: 1em;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 1em;
+  }
+  &::before {
+    background: currentColor;
+    box-shadow:
+      0 0 0 1em white,
+      0 0 0 2em currentColor,
+      14em 0 0 currentColor,
+      14em 0 0 1em white,
+      14em 0 0 2em currentColor,
+      0 14em 0 currentColor,
+      0 14em 0 1em white,
+      0 14em 0 2em currentColor;
+    content: "";
+    height: 3em;
+    left: 0;
+    margin: 2em;
+    position: absolute;
+    top: 0;
+    width: 3em;
+  }
+}
+
+@keyframes shimmer {
+  0%,
+  50% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.8;
+    filter: blur(2px) contrast(1.1);
+  }
+  50% {
+    opacity: 0.3;
+    filter: blur(2px) contrast(1.1);
+  }
+  100% {
+    opacity: 0.8;
+    filter: blur(2px) contrast(1.1);
+  }
+}
