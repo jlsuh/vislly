@@ -1299,14 +1299,16 @@ static inline int score_penalty_rule_1(int grid_dim)
         for (int j = 1; j < grid_dim; ++j) {
             if (eval_grid[i][j] != eval_grid[i][j - 1]) {
                 penalty += calculate_consecutive_penalty(consecutive_row_modules);
-                consecutive_row_modules = 0;
+                consecutive_row_modules = 1;
+            } else {
+                ++consecutive_row_modules;
             }
-            ++consecutive_row_modules;
             if (eval_grid[j][i] != eval_grid[j - 1][i]) {
                 penalty += calculate_consecutive_penalty(consecutive_col_modules);
-                consecutive_col_modules = 0;
+                consecutive_col_modules = 1;
+            } else {
+                ++consecutive_col_modules;
             }
-            ++consecutive_col_modules;
         }
         penalty += calculate_consecutive_penalty(consecutive_row_modules);
         penalty += calculate_consecutive_penalty(consecutive_col_modules);
