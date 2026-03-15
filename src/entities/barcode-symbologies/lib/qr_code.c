@@ -1352,11 +1352,11 @@ static inline bool is_horizontal_penalty_3(int row, int col, int grid_size)
         if (eval_grid[row][col + k] != PENALTY_RULE_3_PATTERN[k])
             return false;
     int before_sum = 0;
-    for (int k = 1; k <= 4; ++k)
-        before_sum += get_module_color(row, col - k, grid_size);
     int after_sum = 0;
-    for (int k = 1; k <= 4; ++k)
+    for (int k = 1; k <= 4; ++k) {
+        before_sum += get_module_color(row, col - k, grid_size);
         after_sum += get_module_color(row, col + 6 + k, grid_size);
+    }
     return (0 == before_sum) || (0 == after_sum);
 }
 
@@ -1366,11 +1366,11 @@ static inline bool is_vertical_penalty_3(int row, int col, int grid_size)
         if (eval_grid[row + k][col] != PENALTY_RULE_3_PATTERN[k])
             return false;
     int before_sum = 0;
-    for (int k = 1; k <= 4; ++k)
-        before_sum += get_module_color(row - k, col, grid_size);
     int after_sum = 0;
-    for (int k = 1; k <= 4; ++k)
+    for (int k = 1; k <= 4; ++k) {
+        before_sum += get_module_color(row - k, col, grid_size);
         after_sum += get_module_color(row + 6 + k, col, grid_size);
+    }
     return (0 == before_sum) || (0 == after_sum);
 }
 
