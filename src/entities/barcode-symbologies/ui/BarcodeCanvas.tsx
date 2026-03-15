@@ -19,6 +19,8 @@ interface BarcodeCanvasProps {
   onProcessComplete: (remainingBits: number, evaluatedText: string) => void;
 }
 
+const TEXT_ENCODER = new TextEncoder();
+
 function evaluateBarcodeText(
   originalText: string,
   barcodeWasm: BaseBarcodeWasm | Matrix2DBarcodeWasm,
@@ -26,9 +28,8 @@ function evaluateBarcodeText(
 ): { currentBits: number; validText: string } {
   const inputPtr = barcodeWasm.get_data_buffer();
   const wasmMem = new Uint8Array(barcodeWasm.memory.buffer);
-  const textEncoder = new TextEncoder();
   const testTextInWasm = (text: string): number => {
-    const encodedText = textEncoder.encode(text);
+    const encodedText = TEXT_ENCODER.encode(text);
     wasmMem.set(encodedText, inputPtr);
     wasmMem[inputPtr + encodedText.length] = 0;
     barcodeWasm.render();
