@@ -4,7 +4,6 @@ import {
   type ChangeEvent,
   type JSX,
   Suspense,
-  useCallback,
   useDeferredValue,
   useState,
 } from 'react';
@@ -165,22 +164,19 @@ function BarcodeSymbologies(): JSX.Element {
   const { allowedPattern } = currentSymbology;
   const symbologyOptions = SYMBOLOGY_OPTIONS_BY_TYPE[selectedBarcodeType];
 
-  const resetBarcodeData = useCallback(() => {
+  const resetBarcodeData = () => {
     setBarcodeInput('');
     setTotalCapacity(Number.POSITIVE_INFINITY);
-  }, []);
+  };
 
-  const handleProcessComplete = useCallback(
-    (bits: number, evaluatedText: string) => {
-      const newCapacity = composeTotalCapacity(
-        bits,
-        currentSymbology.type,
-        evaluatedText,
-      );
-      setTotalCapacity(newCapacity);
-    },
-    [currentSymbology.type],
-  );
+  const handleProcessComplete = (bits: number, evaluatedText: string) => {
+    const newCapacity = composeTotalCapacity(
+      bits,
+      currentSymbology.type,
+      evaluatedText,
+    );
+    setTotalCapacity(newCapacity);
+  };
 
   const handleOnChangeBarcodeType = (e: ChangeEvent<HTMLSelectElement>) => {
     const newType = e.target.value;
