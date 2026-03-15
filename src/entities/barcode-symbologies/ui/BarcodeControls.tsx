@@ -36,10 +36,10 @@ const DPR_OPTIONS: ReadonlyDeep<Option[]> = [
 ];
 
 const EC_LEVEL_OPTIONS: ReadonlyDeep<Option[]> = [
-  { label: 'L (Low)', value: ErrorCorrectionLevel.L },
-  { label: 'M (Medium)', value: ErrorCorrectionLevel.M },
-  { label: 'Q (Quartile)', value: ErrorCorrectionLevel.Q },
-  { label: 'H (High)', value: ErrorCorrectionLevel.H },
+  { label: 'Low', value: ErrorCorrectionLevel.L },
+  { label: 'Medium', value: ErrorCorrectionLevel.M },
+  { label: 'Quartile', value: ErrorCorrectionLevel.Q },
+  { label: 'High', value: ErrorCorrectionLevel.H },
 ];
 
 const CALCULATING_TEXT = 'Calculating...';
