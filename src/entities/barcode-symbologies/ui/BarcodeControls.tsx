@@ -42,7 +42,8 @@ const EC_LEVEL_OPTIONS: ReadonlyDeep<Option[]> = [
   { label: 'High', value: ErrorCorrectionLevel.H },
 ];
 
-const CALCULATING_TEXT = 'Calculating...';
+const CALCULATING = 'Calculating...';
+const CAPACITY_EXCEEDED = 'Capacity Exceeded';
 
 const BARCODE_TYPE_OPTIONS: ReadonlyDeep<Option[]> = Object.entries(
   BARCODE_TYPE_LABELS,
@@ -69,7 +70,14 @@ function useDebouncedCounter(
 
   const isCalculating = counter !== undefined && counter !== debouncedCounter;
 
-  return isCalculating ? CALCULATING_TEXT : debouncedCounter;
+  return isCalculating ? CALCULATING : debouncedCounter;
+}
+
+function composeCounter(barcodeInput: string, totalCapacity: number) {
+  if (totalCapacity <= 0) {
+    return CAPACITY_EXCEEDED;
+  }
+  return `${barcodeInput.length} / ${totalCapacity}`;
 }
 
 function BarcodeControls({
@@ -94,12 +102,10 @@ function BarcodeControls({
   const isOverLimit =
     !isCalculatingCapacity && barcodeInput.length > totalCapacity;
   const counter = !isCalculatingCapacity
-    ? `${barcodeInput.length} / ${totalCapacity}`
+    ? composeCounter(barcodeInput, totalCapacity)
     : undefined;
   const debouncedCounter = useDebouncedCounter(counter, isAtMaxLimit);
-  const characterCount = isCalculatingCapacity
-    ? CALCULATING_TEXT
-    : debouncedCounter;
+  const characterCount = isCalculatingCapacity ? CALCULATING : debouncedCounter;
 
   return (
     <>
