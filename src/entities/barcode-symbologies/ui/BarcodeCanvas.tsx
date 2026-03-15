@@ -16,7 +16,6 @@ interface BarcodeCanvasProps {
   dpr: number;
   inputText: string;
   selectedErrorCorrectionLevel: ErrorCorrectionLevel;
-  totalCapacity: number;
   onProcessComplete: (remainingBits: number, evaluatedText: string) => void;
 }
 
@@ -67,7 +66,6 @@ function BarcodeCanvas({
   dpr,
   inputText,
   selectedErrorCorrectionLevel,
-  totalCapacity,
   onProcessComplete,
 }: BarcodeCanvasProps): JSX.Element {
   const { allowedPattern, maxInputLength, rightPaddingChar, type, wasmFile } =
@@ -77,7 +75,6 @@ function BarcodeCanvas({
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const renderBarcode = useCallback(() => {
-    if (inputText.length > totalCapacity) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -119,7 +116,6 @@ function BarcodeCanvas({
     onProcessComplete,
     rightPaddingChar,
     selectedErrorCorrectionLevel,
-    totalCapacity,
   ]);
 
   useEffect(() => renderBarcode(), [renderBarcode]);
