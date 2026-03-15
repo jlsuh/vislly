@@ -48,7 +48,10 @@ const BARCODE_TYPE_OPTIONS: ReadonlyDeep<Option[]> = Object.entries(
   BARCODE_TYPE_LABELS,
 ).map(([value, label]) => ({ label, value }));
 
-function useCounterDisplay(counter: string | undefined, isAtMaxLimit: boolean) {
+function useDebouncedCounter(
+  counter: string | undefined,
+  isAtMaxLimit: boolean,
+) {
   const [debouncedCounter, setDebouncedCounter] = useState<string | undefined>(
     counter,
   );
@@ -93,10 +96,10 @@ function BarcodeControls({
   const counter = !isCalculatingCapacity
     ? `${barcodeInput.length} / ${totalCapacity}`
     : undefined;
-  const displayCounter = useCounterDisplay(counter, isAtMaxLimit);
+  const debouncedCounter = useDebouncedCounter(counter, isAtMaxLimit);
   const characterCount = isCalculatingCapacity
     ? CALCULATING_TEXT
-    : displayCounter;
+    : debouncedCounter;
 
   return (
     <>
