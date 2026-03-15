@@ -1406,14 +1406,20 @@ static inline int score_penalty_rule_4(int grid_size)
 static inline void plot_eval_format_info(const QRContext *ctx)
 {
     int format_bits = get_format_info(ctx->ec_level, ctx->mask_pattern);
-    eval_grid[8][ctx->grid_dim - 8] = 1;
+    eval_grid[ctx->grid_dim - 8][FORMAT_INFO_COORD] = 1;
     for (int i = 0; i < FORMAT_INFO_BITS; ++i) {
         uint8_t bit = (uint8_t)((format_bits >> i) & 1);
         int row_1 = FORMAT_INFO_ROW[i];
         int col_1 = FORMAT_INFO_COL[i];
         eval_grid[row_1][col_1] = bit;
-        int row_2 = (i < 8) ? (ctx->grid_dim - 1 - i) : 8;
-        int col_2 = (i < 8) ? 8 : (ctx->grid_dim - FORMAT_INFO_BITS + i);
+        int row_2, col_2;
+        if (i < 8) {
+            row_2 = FORMAT_INFO_COORD;
+            col_2 = ctx->grid_dim - 1 - i;
+        } else {
+            row_2 = ctx->grid_dim - FORMAT_INFO_BITS + i;
+            col_2 = FORMAT_INFO_COORD;
+        }
         eval_grid[row_2][col_2] = bit;
     }
 }
