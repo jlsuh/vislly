@@ -1,9 +1,9 @@
 import Image from 'next/image';
 import type { JSX } from 'react';
+import barcodeSymbologies from '@/../public/images/barcode-symbologies.webp';
 import brownianMotion from '@/../public/images/brownian-motion.webp';
 import pathfinding from '@/../public/images/pathfinding.webp';
 import theSoundOfSorting from '@/../public/images/the-sound-of-sorting.webp';
-import wip from '@/../public/images/wip.webp';
 import PrefetchOnHoverLink from '@/shared/ui/PrefetchOnHoverLink/PrefetchOnHoverLink.tsx';
 import styles from './gallery-section.module.css';
 
@@ -17,7 +17,7 @@ function GallerySection(): JSX.Element {
             className={styles.figureImage}
             placeholder="blur"
             priority={true}
-            src={wip}
+            src={barcodeSymbologies}
           />
           <figcaption className={styles.figureCaption}>
             Barcode Symbologies
