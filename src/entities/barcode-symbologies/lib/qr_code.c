@@ -129,6 +129,10 @@
 #define PENALTY_N3 40
 #define PENALTY_N4 10
 
+#define ECI_MODE_INDICATOR 7
+#define ECI_UTF8_DESIGNATOR 26
+#define ECI_DESIGNATOR_BITS 8
+
 typedef enum { EC_L, EC_M, EC_Q, EC_H } ErrorCorrectionLevel;
 
 typedef struct {
@@ -186,6 +190,7 @@ static const char *qr_data;
 static ErrorCorrectionLevel error_correction_level = EC_M;
 
 static bool kanji_mode_enabled = true;
+static bool requires_utf8_eci = false;
 static uint8_t processed_data[MAX_QR_INPUT_LEN];
 static int processed_data_len = 0;
 
@@ -929,6 +934,8 @@ static inline void segment_data(const uint8_t *data, int len, int vg)
 static inline int calculate_total_bits(int version)
 {
     int total = 0;
+    if (requires_utf8_eci)
+        total += MODE_INDICATOR_BITS + ECI_DESIGNATOR_BITS;
     for (int i = 0; i < num_segments; ++i) {
         total += MODE_INDICATOR_BITS;
         total += get_cci_bits(segments[i].mode, version);
@@ -1717,6 +1724,7 @@ static inline int encode_unicode_to_sjis_bytes(uint32_t unicode_code_point, uint
 
 static inline void fallback_to_raw_utf8(const char *utf8_str)
 {
+    requires_utf8_eci = true;
     int index = 0;
     while (utf8_str[index] != '\0') {
         processed_data[index] = (uint8_t)utf8_str[index];
@@ -1728,6 +1736,7 @@ static inline void fallback_to_raw_utf8(const char *utf8_str)
 static inline bool prepare_qr_data(const char *utf8_str)
 {
     kanji_mode_enabled = true;
+    requires_utf8_eci = false;
     int input_idx = 0;
     int output_idx = 0;
     while (utf8_str[input_idx] != '\0') {
@@ -1759,6 +1768,10 @@ static inline void process_qr_data(void)
     int target_codewords = vc->data_codewords;
     global_bit_offset = 0;
     wasm_memset(codeword_buffer, 0, sizeof(codeword_buffer));
+    if (requires_utf8_eci) {
+        append_bits(ECI_MODE_INDICATOR, MODE_INDICATOR_BITS);
+        append_bits(ECI_UTF8_DESIGNATOR, ECI_DESIGNATOR_BITS);
+    }
     for (int i = 0; i < num_segments; ++i) {
         QRSegment *seg = &segments[i];
         append_bits(seg->mode, MODE_INDICATOR_BITS);
