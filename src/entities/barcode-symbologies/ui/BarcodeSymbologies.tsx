@@ -5,8 +5,13 @@ import {
   type JSX,
   Suspense,
   useDeferredValue,
+  useRef,
   useState,
 } from 'react';
+import type { ReadonlyDeep } from 'type-fest';
+import type { Option } from '@/shared/model/option.ts';
+import ButtonWithOptions from '@/shared/ui/ButtonWithOptions/ButtonWithOptions.tsx';
+import DownloadIcon from '@/shared/ui/DownloadIcon/DownloadIcon.tsx';
 import {
   assertIsBarcodeSymbology,
   assertIsBarcodeType,
@@ -23,6 +28,12 @@ import BarcodeCanvas from './BarcodeCanvas.tsx';
 import BarcodeControls from './BarcodeControls.tsx';
 import { SKELETON_BY_BARCODE_TYPE } from './barcode-loading-skeletons.ts';
 import styles from './barcode-symbologies.module.css';
+
+const DOWNLOAD_FORMAT_OPTIONS: ReadonlyDeep<Option[]> = [
+  { label: 'PNG', value: 'png' },
+  { label: 'JPEG', value: 'jpeg' },
+  { label: 'WebP', value: 'webp' },
+];
 
 function calculateModeCapacity(
   remainingBits: number,
@@ -159,6 +170,11 @@ function BarcodeSymbologies(): JSX.Element {
   const [selectedSymbology, setSelectedSymbology] = useState(INITIAL_SYMBOLOGY);
   const [selectedErrorCorrectionLevel, setSelectedErrorCorrectionLevel] =
     useState(INITIAL_ERROR_CORRECTION_LEVEL);
+  const [selectedFormat, setSelectedFormat] = useState<Option>(
+    DOWNLOAD_FORMAT_OPTIONS[0],
+  );
+
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const currentSymbology = BARCODE_SYMBOLOGIES[selectedSymbology];
   const { allowedPattern, type } = currentSymbology;
@@ -217,6 +233,26 @@ function BarcodeSymbologies(): JSX.Element {
     setSelectedErrorCorrectionLevel(newLevel);
   };
 
+  const handleDownload = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${currentSymbology.value}.${selectedFormat.value}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      },
+      `image/${selectedFormat.value}`,
+      1.0,
+    );
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.controls}>
@@ -237,18 +273,33 @@ function BarcodeSymbologies(): JSX.Element {
           }
         />
       </div>
-      <div className={styles.canvasWrapper}>
-        <Suspense
-          fallback={<LoadingSkeleton currentSymbology={currentSymbology} />}
-        >
-          <BarcodeCanvas
-            currentSymbology={currentSymbology}
-            dpr={dpr}
-            inputText={deferredBarcodeInput}
-            selectedErrorCorrectionLevel={selectedErrorCorrectionLevel}
-            onProcessComplete={handleProcessComplete}
+      <div className={styles.canvasAndDownloadWrapper}>
+        <div className={styles.canvasWrapper}>
+          <Suspense
+            fallback={<LoadingSkeleton currentSymbology={currentSymbology} />}
+          >
+            <BarcodeCanvas
+              canvasRef={canvasRef}
+              currentSymbology={currentSymbology}
+              dpr={dpr}
+              inputText={deferredBarcodeInput}
+              selectedErrorCorrectionLevel={selectedErrorCorrectionLevel}
+              onProcessComplete={handleProcessComplete}
+            />
+          </Suspense>
+        </div>
+        <div className={styles.downloadButtonWrapper}>
+          <ButtonWithOptions
+            disabled={!currentSymbology}
+            icon={<DownloadIcon />}
+            label="Download"
+            options={DOWNLOAD_FORMAT_OPTIONS}
+            selectedOption={selectedFormat}
+            theme="light"
+            handleOnChangeOption={setSelectedFormat}
+            handleOnClickButton={handleDownload}
           />
-        </Suspense>
+        </div>
       </div>
       <p className={styles.description}>
         ⚡️ This barcode is generated on the fly by raw{' '}

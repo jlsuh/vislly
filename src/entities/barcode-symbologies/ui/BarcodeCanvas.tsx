@@ -1,4 +1,4 @@
-import { type JSX, use, useCallback, useEffect, useRef } from 'react';
+import { type JSX, type RefObject, use, useCallback, useEffect } from 'react';
 import {
   type BaseBarcodeWasm,
   fetchBarcodeWasm,
@@ -11,6 +11,7 @@ import type {
 import styles from './barcode-canvas.module.css';
 
 interface BarcodeCanvasProps {
+  canvasRef: RefObject<HTMLCanvasElement | null>;
   currentSymbology: SymbologyConfig;
   dpr: number;
   inputText: string;
@@ -62,6 +63,7 @@ function formatBarcodeText(
 }
 
 function BarcodeCanvas({
+  canvasRef,
   currentSymbology,
   dpr,
   inputText,
@@ -72,7 +74,6 @@ function BarcodeCanvas({
     currentSymbology;
 
   const barcodeWasm = use(fetchBarcodeWasm(wasmFile, type));
-  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const renderBarcode = useCallback(() => {
     const canvas = canvasRef.current;
@@ -110,6 +111,7 @@ function BarcodeCanvas({
   }, [
     allowedPattern,
     barcodeWasm,
+    canvasRef,
     dpr,
     inputText,
     maxInputLength,
