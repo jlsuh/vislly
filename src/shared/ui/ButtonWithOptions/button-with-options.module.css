@@ -4,25 +4,17 @@
   --btn-bg-hover: color-mix(in srgb, var(--btn-bg), white 20%);
   --height: var(--space-10);
   --icon-size: var(--space-4);
-  background-color: var(--btn-fg);
-  border-radius: var(--space-1-5);
-  box-shadow: var(--elevation-level-1);
+  background: transparent;
   display: inline-flex;
   flex-wrap: wrap;
-  gap: var(--space-px);
   max-width: 100%;
-  overflow: hidden;
   position: relative;
-  transition: transform 100ms ease;
   vertical-align: middle;
   width: max-content;
   &:has(:disabled) {
     cursor: not-allowed;
     opacity: 0.5;
     pointer-events: none;
-  }
-  &:active:not(:has(:disabled)) {
-    transform: scale(0.98);
   }
 }
 
@@ -43,7 +35,9 @@
 .actionButton {
   align-items: center;
   background-color: var(--btn-bg);
+  border-radius: var(--space-1-5) 0 0 var(--space-1-5);
   border: none;
+  box-shadow: var(--elevation-level-1);
   color: var(--btn-fg);
   cursor: pointer;
   display: flex;
@@ -55,9 +49,57 @@
   justify-content: center;
   min-width: 0;
   padding: 0 var(--space-4);
-  transition: background-color 150ms ease;
+  transition:
+    background-color 150ms ease,
+    transform 100ms ease,
+    box-shadow 100ms ease;
   &:hover {
     background-color: var(--btn-bg-hover);
+  }
+  &:active {
+    transform: scale(0.98);
+    box-shadow: none;
+  }
+}
+
+.selectWrapper {
+  align-items: center;
+  background-color: var(--btn-bg);
+  border-left: var(--space-px) solid var(--btn-fg);
+  border-radius: 0 var(--space-1-5) var(--space-1-5) 0;
+  box-shadow: var(--elevation-level-1);
+  cursor: pointer;
+  display: flex;
+  flex: 1 1 max-content;
+  height: var(--height);
+  justify-content: center;
+  min-width: 0;
+  position: relative;
+  transition:
+    background-color 150ms ease,
+    transform 100ms ease,
+    box-shadow 100ms ease;
+  &:hover {
+    background-color: var(--btn-bg-hover);
+  }
+  &:active {
+    box-shadow: none;
+    transform: scale(0.98);
+  }
+  &::after {
+    background-color: var(--btn-fg);
+    content: "";
+    flex-shrink: 0;
+    height: var(--icon-size);
+    mask-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 9.95404L14.542 4.50234C14.9192 4.18806 15.4797 4.23902 15.794 4.61615C16.1082 4.99329 16.0573 5.55379 15.6801 5.86807L8.56905 11.794C8.23941 12.0687 7.76059 12.0687 7.43095 11.794L0.319858 5.86807C-0.0572765 5.55379 -0.108231 4.99329 0.206047 4.61615C0.520326 4.23902 1.08083 4.18806 1.45796 4.50234L8 9.95404Z' fill='%23495057'/%3E%3C/svg%3E");
+    mask-repeat: no-repeat;
+    mask-size: contain;
+    pointer-events: none;
+    position: absolute;
+    right: var(--space-3);
+    top: 50%;
+    transform: translateY(-50%);
+    width: var(--icon-size);
   }
 }
 
@@ -80,37 +122,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.selectWrapper {
-  align-items: center;
-  background-color: var(--btn-bg);
-  cursor: pointer;
-  display: flex;
-  flex: 1 1 max-content;
-  height: var(--height);
-  justify-content: center;
-  min-width: 0;
-  position: relative;
-  transition: background-color 150ms ease;
-  &:hover {
-    background-color: var(--btn-bg-hover);
-  }
-  &::after {
-    background-color: var(--btn-fg);
-    content: "";
-    flex-shrink: 0;
-    height: var(--icon-size);
-    mask-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 9.95404L14.542 4.50234C14.9192 4.18806 15.4797 4.23902 15.794 4.61615C16.1082 4.99329 16.0573 5.55379 15.6801 5.86807L8.56905 11.794C8.23941 12.0687 7.76059 12.0687 7.43095 11.794L0.319858 5.86807C-0.0572765 5.55379 -0.108231 4.99329 0.206047 4.61615C0.520326 4.23902 1.08083 4.18806 1.45796 4.50234L8 9.95404Z' fill='%23495057'/%3E%3C/svg%3E");
-    mask-repeat: no-repeat;
-    mask-size: contain;
-    pointer-events: none;
-    position: absolute;
-    right: var(--space-3);
-    top: 50%;
-    transform: translateY(-50%);
-    width: var(--icon-size);
-  }
 }
 
 .select {
