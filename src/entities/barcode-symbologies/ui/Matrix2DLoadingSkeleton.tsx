@@ -20,7 +20,7 @@ function isFinderPattern(x: number, y: number): boolean {
 
 function generateQrDots(): string {
   const dots: string[] = [];
-  for (let i = 0; i < TOTAL_MODULES; i++) {
+  for (let i = 0; i < TOTAL_MODULES; ++i) {
     const x = i % QR_GRID_SIZE;
     const y = Math.floor(i / QR_GRID_SIZE);
     if (!isFinderPattern(x, y) && Math.random() > 0.5) {

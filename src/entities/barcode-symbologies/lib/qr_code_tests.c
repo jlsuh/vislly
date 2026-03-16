@@ -361,7 +361,7 @@ void massive_utf8_payload_is_rejected_without_memory_corruption(void)
 {
     static char massive_input[12005];
     int offset = 0;
-    for (int i = 0; i < 3000; i++) {
+    for (int i = 0; i < 3000; ++i) {
         massive_input[offset++] = '\xF0';
         massive_input[offset++] = '\x9F';
         massive_input[offset++] = '\x9A';
