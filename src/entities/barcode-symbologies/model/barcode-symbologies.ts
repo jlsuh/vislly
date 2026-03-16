@@ -48,6 +48,7 @@ const QR_PATTERN = '.*';
 
 type SymbologyConfig = {
   allowedPattern: string;
+  horizontalQuietZone: number;
   inputMode: InputHTMLAttributes<HTMLInputElement>['inputMode'];
   inputType: InputHTMLAttributes<HTMLInputElement>['type'];
   label: string;
@@ -64,6 +65,7 @@ const BARCODE_SYMBOLOGIES: ReadonlyDeep<
 > = {
   [BarcodeSymbology.Code128]: {
     allowedPattern: CODE128_PATTERN,
+    horizontalQuietZone: 40,
     inputMode: 'text',
     inputType: 'text',
     label: 'Code 128',
@@ -75,6 +77,7 @@ const BARCODE_SYMBOLOGIES: ReadonlyDeep<
   },
   [BarcodeSymbology.Ean13]: {
     allowedPattern: NUMERIC_PATTERN,
+    horizontalQuietZone: 40,
     inputMode: 'numeric',
     inputType: 'text',
     label: 'EAN-13',
@@ -87,10 +90,11 @@ const BARCODE_SYMBOLOGIES: ReadonlyDeep<
   },
   [BarcodeSymbology.Itf14]: {
     allowedPattern: NUMERIC_PATTERN,
+    horizontalQuietZone: 50,
     inputMode: 'numeric',
     inputType: 'text',
     label: 'ITF-14',
-    loadingDimensions: { width: 528, height: 160 },
+    loadingDimensions: { width: 549, height: 160 },
     maxInputLength: 13,
     rightPaddingChar: '0',
     type: BarcodeType.Linear,
@@ -99,10 +103,11 @@ const BARCODE_SYMBOLOGIES: ReadonlyDeep<
   },
   [BarcodeSymbology.QrCode]: {
     allowedPattern: QR_PATTERN,
+    horizontalQuietZone: 0,
     inputMode: 'text',
     inputType: 'text',
     label: 'QR Code',
-    loadingDimensions: { width: 84, height: 84 },
+    loadingDimensions: { width: 116, height: 116 },
     maxInputLength: 7089,
     type: BarcodeType.Matrix2D,
     value: BarcodeSymbology.QrCode,

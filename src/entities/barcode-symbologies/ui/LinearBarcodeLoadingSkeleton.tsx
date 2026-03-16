@@ -9,19 +9,16 @@ import styles from './linear-barcode-loading-skeleton.module.css';
 
 type LinearBarcodeLoadingSkeletonProps = { currentSymbology: SymbologyConfig };
 
-const HORIZONTAL_QUIET_ZONE = 40;
-
 function LinearBarcodeLoadingSkeleton({
   currentSymbology,
 }: LinearBarcodeLoadingSkeletonProps): JSX.Element {
-  const { loadingDimensions } = currentSymbology;
+  const { loadingDimensions, horizontalQuietZone } = currentSymbology;
   const { width, height } = loadingDimensions;
-  const totalRenderedWidth = width + HORIZONTAL_QUIET_ZONE * 2;
+  const totalRenderedWidth = width + horizontalQuietZone * 2;
   const maxWidthPercentage = (width / totalRenderedWidth) * 100;
-  const aspectRatio = `${width} / ${height}`;
   const seed = composeRandomFlooredIntegerBetween(0, 100);
   const loadingVariables: CssCustomProperty = {
-    ...composeCssCustomProperty('loading-aspect-ratio', aspectRatio),
+    ...composeCssCustomProperty('loading-aspect-ratio', `${width}/${height}`),
     ...composeCssCustomProperty('loading-barcode-width', `${width}px`),
     ...composeCssCustomProperty('loading-max-width', `${maxWidthPercentage}%`),
     ...composeCssCustomProperty('seed', seed),

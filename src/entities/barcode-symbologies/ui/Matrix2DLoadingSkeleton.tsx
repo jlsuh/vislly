@@ -1,4 +1,4 @@
-import { type JSX, useMemo } from 'react';
+import type { JSX } from 'react';
 import {
   type CssCustomProperty,
   composeCssCustomProperty,
@@ -11,24 +11,23 @@ type BarcodeLoadingSkeletonProps = { currentSymbology: SymbologyConfig };
 const QR_GRID_SIZE = 21;
 const TOTAL_MODULES = QR_GRID_SIZE * QR_GRID_SIZE;
 
-function isFinderPattern(x: number, y: number): boolean {
+function isFinderPattern(x: number, y: number) {
   const inTopLeft = x <= 7 && y <= 7;
   const inTopRight = x >= 13 && y <= 7;
   const inBottomLeft = x <= 7 && y >= 13;
   return inTopLeft || inTopRight || inBottomLeft;
 }
 
-function generateQrDots(): string {
-  const dots: string[] = [];
+function generateModules() {
+  const modules: string[] = [];
   for (let i = 0; i < TOTAL_MODULES; ++i) {
     const x = i % QR_GRID_SIZE;
     const y = Math.floor(i / QR_GRID_SIZE);
     if (!isFinderPattern(x, y) && Math.random() > 0.5) {
-      dots.push(`${x}em ${y}em currentColor`);
+      modules.push(`${x}em ${y}em currentColor`);
     }
   }
-
-  return dots.join(', ');
+  return modules.join(', ');
 }
 
 function Matrix2DLoadingSkeleton({
@@ -36,12 +35,9 @@ function Matrix2DLoadingSkeleton({
 }: BarcodeLoadingSkeletonProps): JSX.Element {
   const { loadingDimensions } = currentSymbology;
   const { width } = loadingDimensions;
-
-  const qrDots = useMemo(generateQrDots, []);
-
   const loadingVariables: CssCustomProperty = {
     ...composeCssCustomProperty('loading-barcode-width', `${width}px`),
-    ...composeCssCustomProperty('qr-dots', qrDots),
+    ...composeCssCustomProperty('qr-modules', generateModules()),
   };
 
   return (

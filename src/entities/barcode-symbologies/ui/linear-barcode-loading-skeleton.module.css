@@ -54,7 +54,7 @@
   max-width: var(--loading-max-width, 100%);
   opacity: 0.8;
   overflow: hidden;
-  position: absolute;
+  position: relative;
   width: var(--loading-barcode-width, 0);
   &::after {
     animation: shimmer 1.5s infinite;

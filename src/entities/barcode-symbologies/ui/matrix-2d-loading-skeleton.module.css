@@ -5,13 +5,13 @@
   background-color: #ffffff;
   box-sizing: border-box;
   color: #000;
+  container-type: inline-size;
   display: flex;
   justify-content: center;
-  height: auto;
   max-width: 100%;
   opacity: 0.8;
   overflow: hidden;
-  position: absolute;
+  position: relative;
   width: var(--loading-barcode-width, 0);
   &::after {
     animation: shimmer 1.5s infinite;
@@ -32,12 +32,12 @@
 }
 
 .qrCode {
-  font-size: 4px;
+  font-size: calc(100cqi / 29);
   height: 21em;
   position: relative;
   width: 21em;
   &::after {
-    box-shadow: var(--qr-dots);
+    box-shadow: var(--qr-modules);
     content: "";
     height: 1em;
     left: 0;
@@ -78,15 +78,15 @@
 
 @keyframes pulse {
   0% {
-    opacity: 0.8;
     filter: blur(2px) contrast(1.1);
+    opacity: 0.8;
   }
   50% {
-    opacity: 0.3;
     filter: blur(2px) contrast(1.1);
+    opacity: 0.3;
   }
   100% {
-    opacity: 0.8;
     filter: blur(2px) contrast(1.1);
+    opacity: 0.8;
   }
 }
