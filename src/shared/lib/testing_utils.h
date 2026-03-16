@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define COLOR_GREEN "\033[32m"
 #define COLOR_RED "\033[31m"
@@ -33,6 +34,46 @@ static bool current_test_passed = true;
     do {                                                                                                               \
         if (condition) {                                                                                               \
             fprintf(stderr, "    -> FAIL: %s:%d: Condition '%s' is true\n", __FILE__, __LINE__, #condition);           \
+            current_test_passed = false;                                                                               \
+            return;                                                                                                    \
+        }                                                                                                              \
+    } while (0)
+
+#define ASSERT_NULL(ptr)                                                                                               \
+    do {                                                                                                               \
+        if ((ptr) != NULL) {                                                                                           \
+            fprintf(stderr, "    -> FAIL: %s:%d: Expected NULL, got %p\n", __FILE__, __LINE__, (void *)(ptr));         \
+            current_test_passed = false;                                                                               \
+            return;                                                                                                    \
+        }                                                                                                              \
+    } while (0)
+
+#define ASSERT_NOT_NULL(ptr)                                                                                           \
+    do {                                                                                                               \
+        if ((ptr) == NULL) {                                                                                           \
+            fprintf(stderr, "    -> FAIL: %s:%d: Expected NOT NULL, got NULL\n", __FILE__, __LINE__);                  \
+            current_test_passed = false;                                                                               \
+            return;                                                                                                    \
+        }                                                                                                              \
+    } while (0)
+
+#define ASSERT_STR_EQUALS(expected, actual)                                                                            \
+    do {                                                                                                               \
+        const char *exp_ = (expected);                                                                                 \
+        const char *act_ = (actual);                                                                                   \
+        if (exp_ == NULL || act_ == NULL || strcmp(exp_, act_) != 0) {                                                 \
+            fprintf(stderr, "    -> FAIL: %s:%d: Expected \"%s\", got \"%s\"\n", __FILE__, __LINE__,                   \
+                    exp_ ? exp_ : "NULL", act_ ? act_ : "NULL");                                                       \
+            current_test_passed = false;                                                                               \
+            return;                                                                                                    \
+        }                                                                                                              \
+    } while (0)
+
+#define ASSERT_MEM_EQUALS(expected, actual, size)                                                                      \
+    do {                                                                                                               \
+        if (memcmp((expected), (actual), (size)) != 0) {                                                               \
+            fprintf(stderr, "    -> FAIL: %s:%d: Memory mismatch over %zu bytes\n", __FILE__, __LINE__,                \
+                    (size_t)(size));                                                                                   \
             current_test_passed = false;                                                                               \
             return;                                                                                                    \
         }                                                                                                              \
