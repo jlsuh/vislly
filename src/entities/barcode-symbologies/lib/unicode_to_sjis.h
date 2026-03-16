@@ -1,4 +1,6 @@
-#pragma once
+#ifndef UNICODE_TO_SJIS_H_
+#define UNICODE_TO_SJIS_H_
+
 #include <stdint.h>
 
 #define UNICODE_TO_SJIS_SIZE 7037
@@ -7047,3 +7049,5 @@ static const SjisEntry UNICODE_TO_SJIS[UNICODE_TO_SJIS_SIZE] = {
     {65507, 33104},
     {65509, 33167}
 };
+
+#endif // UNICODE_TO_SJIS_H_
