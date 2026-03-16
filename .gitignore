@@ -1,5 +1,59 @@
-# Created by https://www.toptal.com/developers/gitignore/api/node,nextjs,macos
-# Edit at https://www.toptal.com/developers/gitignore?templates=node,nextjs,macos
+# Created by https://www.toptal.com/developers/gitignore/api/node,nextjs,macos,c
+# Edit at https://www.toptal.com/developers/gitignore?templates=node,nextjs,macos,c
+
+### C ###
+# Prerequisites
+*.d
+
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Linker output
+*.ilk
+*.map
+*.exp
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
 
 ### macOS ###
 # General
@@ -206,4 +260,4 @@ dist
 # Project specific
 dependency-graph.html
 
-# End of https://www.toptal.com/developers/gitignore/api/node,nextjs,macos
+# End of https://www.toptal.com/developers/gitignore/api/node,nextjs,macos,c
