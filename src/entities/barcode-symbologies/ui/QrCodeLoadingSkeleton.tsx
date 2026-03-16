@@ -4,7 +4,7 @@ import {
   composeCssCustomProperty,
 } from '@/shared/lib/css.ts';
 import type { SymbologyConfig } from '../model/barcode-symbologies.ts';
-import styles from './matrix-2d-loading-skeleton.module.css';
+import styles from './qr-code-loading-skeleton.module.css';
 
 type BarcodeLoadingSkeletonProps = { currentSymbology: SymbologyConfig };
 
@@ -30,7 +30,7 @@ function generateModules() {
   return modules.join(', ');
 }
 
-function Matrix2DLoadingSkeleton({
+function QrCodeLoadingSkeleton({
   currentSymbology,
 }: BarcodeLoadingSkeletonProps): JSX.Element {
   const { loadingDimensions } = currentSymbology;
@@ -47,4 +47,4 @@ function Matrix2DLoadingSkeleton({
   );
 }
 
-export default Matrix2DLoadingSkeleton;
+export default QrCodeLoadingSkeleton;

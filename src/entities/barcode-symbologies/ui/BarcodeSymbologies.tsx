@@ -26,7 +26,7 @@ import {
 } from '../model/barcode-symbologies';
 import BarcodeCanvas from './BarcodeCanvas.tsx';
 import BarcodeControls from './BarcodeControls.tsx';
-import { SKELETON_BY_BARCODE_TYPE } from './barcode-loading-skeletons.ts';
+import { SKELETON_BY_BARCODE_SYMBOLOGY } from './barcode-loading-skeletons.ts';
 import styles from './barcode-symbologies.module.css';
 
 const DOWNLOAD_FORMAT_OPTIONS: ReadonlyDeep<Option[]> = [
@@ -177,9 +177,9 @@ function BarcodeSymbologies(): JSX.Element {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const currentSymbology = BARCODE_SYMBOLOGIES[selectedSymbology];
-  const { allowedPattern, type } = currentSymbology;
+  const { allowedPattern, value } = currentSymbology;
   const symbologyOptions = SYMBOLOGY_OPTIONS_BY_TYPE[selectedBarcodeType];
-  const LoadingSkeleton = SKELETON_BY_BARCODE_TYPE[type];
+  const LoadingSkeleton = SKELETON_BY_BARCODE_SYMBOLOGY[value];
 
   const resetBarcodeData = () => {
     setBarcodeInput('');
