@@ -10,11 +10,45 @@ static void check_version(int numeric_chars, ErrorCorrectionLevel ec_level, int 
         dummy_data[i] = '0';
     dummy_data[numeric_chars] = '\0';
     const VersionCapacity *vc = determine_version_and_segment(dummy_data, numeric_chars, ec_level);
-    ASSERT_TRUE(vc != NULL);
-    if (vc != NULL) {
-        ASSERT_EQUALS(expected_version, vc->version);
-        ASSERT_EQUALS(expected_codewords, vc->data_codewords);
-    }
+    ASSERT_NOT_NULL(vc);
+    ASSERT_EQUALS(expected_version, vc->version);
+    ASSERT_EQUALS(expected_codewords, vc->data_codewords);
+}
+
+static bool check_capacity(const char *char_seq, int repeat_count, ErrorCorrectionLevel ec)
+{
+    static char test_buffer[32768];
+    int seq_len = (int)strlen(char_seq);
+    int offset = 0;
+    for (int i = 0; i < repeat_count; ++i)
+        for (int j = 0; j < seq_len; ++j)
+            test_buffer[offset++] = char_seq[j];
+    test_buffer[offset] = '\0';
+    qr_data = test_buffer;
+    error_correction_level = ec;
+    prepare_qr_data(qr_data);
+    const VersionCapacity *vc =
+        determine_version_and_segment(processed_data, processed_data_len, error_correction_level);
+    return vc != NULL;
+}
+
+static void assert_capacity_fits(const char *char_seq, int repeat_count, ErrorCorrectionLevel ec)
+{
+    ASSERT_TRUE(check_capacity(char_seq, repeat_count, ec));
+}
+
+static void assert_capacity_exceeds(const char *char_seq, int repeat_count, ErrorCorrectionLevel ec)
+{
+    ASSERT_FALSE(check_capacity(char_seq, repeat_count, ec));
+}
+
+static void check_bits(const char *utf8_string, ErrorCorrectionLevel ec_level, int expected_remaining_bits)
+{
+    qr_data = utf8_string;
+    error_correction_level = ec_level;
+    prepare_qr_data(qr_data);
+    segment_data(processed_data, processed_data_len, 3);
+    ASSERT_EQUALS(expected_remaining_bits, get_remaining_bits());
 }
 
 void determines_correct_version_for_sizes_1_to_9(void)
@@ -39,27 +73,6 @@ void determines_correct_version_for_sizes_27_to_40(void)
     check_version(3500, EC_M, 32, 1541);
     check_version(2500, EC_Q, 32, 1115);
     check_version(1800, EC_H, 31, 793);
-}
-
-void accepts_data_up_to_maximum_capacity_and_rejects_overflow(void)
-{
-    static uint8_t dummy_data[8192];
-    wasm_memset(dummy_data, '0', sizeof(dummy_data));
-    const VersionCapacity *vc;
-    vc = determine_version_and_segment(dummy_data, 7088, EC_L);
-    ASSERT_TRUE(vc != NULL);
-    if (vc != NULL) {
-        ASSERT_EQUALS(40, vc->version);
-        ASSERT_EQUALS(2956, vc->data_codewords);
-    }
-    vc = determine_version_and_segment(dummy_data, 7089, EC_L);
-    ASSERT_TRUE(vc != NULL);
-    if (vc != NULL) {
-        ASSERT_EQUALS(40, vc->version);
-        ASSERT_EQUALS(2956, vc->data_codewords);
-    }
-    vc = determine_version_and_segment(dummy_data, 7090, EC_L);
-    ASSERT_TRUE(vc == NULL);
 }
 
 void processing_valid_data_generates_a_bit_stream(void)
@@ -116,8 +129,7 @@ void error_correction_blocks_for_version_1_m_match_the_iso_standard(void)
     const uint8_t *g = compute_generator_poly(10);
     RSBlock block = {.data = data_block, .data_len = 16, .ec = ec, .ec_len = 10};
     encode_rs_block(&block, g);
-    for (int i = 0; i < 10; ++i)
-        ASSERT_EQUALS(expected_ec[i], ec[i]);
+    ASSERT_MEM_EQUALS(expected_ec, ec, sizeof(expected_ec));
 }
 
 void error_correction_blocks_for_version_40_h_match_the_iso_standard(void)
@@ -136,17 +148,8 @@ void error_correction_blocks_for_version_40_h_match_the_iso_standard(void)
     uint8_t remainder[30];
     RSBlock block2 = {.data = codeword, .data_len = 46, .ec = remainder, .ec_len = 30};
     encode_rs_block(&block2, g);
-    for (int i = 0; i < 30; ++i)
-        ASSERT_EQUALS(0, remainder[i]);
-}
-
-static void check_bits(const char *utf8_string, ErrorCorrectionLevel ec_level, int expected_remaining_bits)
-{
-    qr_data = utf8_string;
-    error_correction_level = ec_level;
-    prepare_qr_data(qr_data);
-    segment_data(processed_data, processed_data_len, 3);
-    ASSERT_EQUALS(expected_remaining_bits, get_remaining_bits());
+    uint8_t expected_remainder[30] = {0};
+    ASSERT_MEM_EQUALS(expected_remainder, remainder, sizeof(expected_remainder));
 }
 
 void encodes_pure_kanji_input_using_kanji_mode(void)
@@ -198,52 +201,160 @@ void encodes_shift_jis_boundary_characters_using_kanji_mode(void)
     check_bits("\xE3\x80\x80\xE7\x86\x99", EC_M, 18630);
 }
 
-void maximum_kanji_payload_for_ec_l_consumes_all_available_bits(void)
+void numeric_capacity_is_strictly_enforced_at_ec_l(void)
 {
-    static char huge_utf8_l[(1817 * 3) + 1];
-    for (int i = 0; i < 1817; ++i) {
-        huge_utf8_l[i * 3] = '\xE7';
-        huge_utf8_l[(i * 3) + 1] = '\x82';
-        huge_utf8_l[(i * 3) + 2] = '\xB9';
-    }
-    huge_utf8_l[1817 * 3] = '\0';
-    check_bits(huge_utf8_l, EC_L, 11);
+    assert_capacity_fits("1", 7088, EC_L);
+    assert_capacity_fits("1", 7089, EC_L);
+    assert_capacity_exceeds("1", 7090, EC_L);
 }
 
-void maximum_kanji_payload_for_ec_m_consumes_all_available_bits(void)
+void numeric_capacity_is_strictly_enforced_at_ec_m(void)
 {
-    static char huge_utf8_m[(1435 * 3) + 1];
-    for (int i = 0; i < 1435; ++i) {
-        huge_utf8_m[i * 3] = '\xE7';
-        huge_utf8_m[(i * 3) + 1] = '\x82';
-        huge_utf8_m[(i * 3) + 2] = '\xB9';
-    }
-    huge_utf8_m[1435 * 3] = '\0';
-    check_bits(huge_utf8_m, EC_M, 1);
+    assert_capacity_fits("1", 5595, EC_M);
+    assert_capacity_fits("1", 5596, EC_M);
+    assert_capacity_exceeds("1", 5597, EC_M);
 }
 
-void maximum_kanji_payload_for_ec_q_consumes_all_available_bits(void)
+void numeric_capacity_is_strictly_enforced_at_ec_q(void)
 {
-    static char huge_utf8_q[(1024 * 3) + 1];
-    for (int i = 0; i < 1024; ++i) {
-        huge_utf8_q[i * 3] = '\xE7';
-        huge_utf8_q[(i * 3) + 1] = '\x82';
-        huge_utf8_q[(i * 3) + 2] = '\xB9';
-    }
-    huge_utf8_q[1024 * 3] = '\0';
-    check_bits(huge_utf8_q, EC_Q, 0);
+    assert_capacity_fits("1", 3992, EC_Q);
+    assert_capacity_fits("1", 3993, EC_Q);
+    assert_capacity_exceeds("1", 3994, EC_Q);
 }
 
-void maximum_kanji_payload_for_ec_h_consumes_all_available_bits(void)
+void numeric_capacity_is_strictly_enforced_at_ec_h(void)
 {
-    static char huge_utf8_h[(784 * 3) + 1];
-    for (int i = 0; i < 784; ++i) {
-        huge_utf8_h[i * 3] = '\xE7';
-        huge_utf8_h[(i * 3) + 1] = '\x82';
-        huge_utf8_h[(i * 3) + 2] = '\xB9';
-    }
-    huge_utf8_h[784 * 3] = '\0';
-    check_bits(huge_utf8_h, EC_H, 0);
+    assert_capacity_fits("1", 3056, EC_H);
+    assert_capacity_fits("1", 3057, EC_H);
+    assert_capacity_exceeds("1", 3058, EC_H);
+}
+
+void alphanumeric_capacity_is_strictly_enforced_at_ec_l(void)
+{
+    assert_capacity_fits("A", 4295, EC_L);
+    assert_capacity_fits("A", 4296, EC_L);
+    assert_capacity_exceeds("A", 4297, EC_L);
+}
+
+void alphanumeric_capacity_is_strictly_enforced_at_ec_m(void)
+{
+    assert_capacity_fits("A", 3390, EC_M);
+    assert_capacity_fits("A", 3391, EC_M);
+    assert_capacity_exceeds("A", 3392, EC_M);
+}
+
+void alphanumeric_capacity_is_strictly_enforced_at_ec_q(void)
+{
+    assert_capacity_fits("A", 2419, EC_Q);
+    assert_capacity_fits("A", 2420, EC_Q);
+    assert_capacity_exceeds("A", 2421, EC_Q);
+}
+
+void alphanumeric_capacity_is_strictly_enforced_at_ec_h(void)
+{
+    assert_capacity_fits("A", 1851, EC_H);
+    assert_capacity_fits("A", 1852, EC_H);
+    assert_capacity_exceeds("A", 1853, EC_H);
+}
+
+void byte_capacity_is_strictly_enforced_at_ec_l(void)
+{
+    assert_capacity_fits("a", 2952, EC_L);
+    assert_capacity_fits("a", 2953, EC_L);
+    assert_capacity_exceeds("a", 2954, EC_L);
+}
+
+void byte_capacity_is_strictly_enforced_at_ec_m(void)
+{
+    assert_capacity_fits("a", 2330, EC_M);
+    assert_capacity_fits("a", 2331, EC_M);
+    assert_capacity_exceeds("a", 2332, EC_M);
+}
+
+void byte_capacity_is_strictly_enforced_at_ec_q(void)
+{
+    assert_capacity_fits("a", 1662, EC_Q);
+    assert_capacity_fits("a", 1663, EC_Q);
+    assert_capacity_exceeds("a", 1664, EC_Q);
+}
+
+void byte_capacity_is_strictly_enforced_at_ec_h(void)
+{
+    assert_capacity_fits("a", 1272, EC_H);
+    assert_capacity_fits("a", 1273, EC_H);
+    assert_capacity_exceeds("a", 1274, EC_H);
+}
+
+void kanji_capacity_is_strictly_enforced_at_ec_l(void)
+{
+    assert_capacity_fits("\xE6\x97\xA5", 1816, EC_L);
+    assert_capacity_fits("\xE6\x97\xA5", 1817, EC_L);
+    assert_capacity_exceeds("\xE6\x97\xA5", 1818, EC_L);
+}
+
+void kanji_capacity_is_strictly_enforced_at_ec_m(void)
+{
+    assert_capacity_fits("\xE6\x97\xA5", 1434, EC_M);
+    assert_capacity_fits("\xE6\x97\xA5", 1435, EC_M);
+    assert_capacity_exceeds("\xE6\x97\xA5", 1436, EC_M);
+}
+
+void kanji_capacity_is_strictly_enforced_at_ec_q(void)
+{
+    assert_capacity_fits("\xE6\x97\xA5", 1023, EC_Q);
+    assert_capacity_fits("\xE6\x97\xA5", 1024, EC_Q);
+    assert_capacity_exceeds("\xE6\x97\xA5", 1025, EC_Q);
+}
+
+void kanji_capacity_is_strictly_enforced_at_ec_h(void)
+{
+    assert_capacity_fits("\xE6\x97\xA5", 783, EC_H);
+    assert_capacity_fits("\xE6\x97\xA5", 784, EC_H);
+    assert_capacity_exceeds("\xE6\x97\xA5", 785, EC_H);
+}
+
+void utf8_eci_fallback_applies_capacity_penalty_at_boundary(void)
+{
+    static char edge_case_buffer[8192];
+    int offset = 0;
+    for (int i = 0; i < 2950; ++i)
+        edge_case_buffer[offset++] = 'a';
+    edge_case_buffer[offset++] = '\xC3';
+    edge_case_buffer[offset++] = '\xA9';
+    edge_case_buffer[offset] = '\0';
+    qr_data = edge_case_buffer;
+    error_correction_level = EC_L;
+    prepare_qr_data(qr_data);
+    const VersionCapacity *vc =
+        determine_version_and_segment(processed_data, processed_data_len, error_correction_level);
+    ASSERT_NOT_NULL(vc);
+    edge_case_buffer[offset++] = 'a';
+    edge_case_buffer[offset] = '\0';
+    qr_data = edge_case_buffer;
+    prepare_qr_data(qr_data);
+    vc = determine_version_and_segment(processed_data, processed_data_len, error_correction_level);
+    ASSERT_NULL(vc);
+}
+
+void standard_payloads_do_not_trigger_eci_fallback(void)
+{
+    qr_data = "hello world 123 \xE7\x82\xB9";
+    prepare_qr_data(qr_data);
+    ASSERT_FALSE(requires_utf8_eci);
+}
+
+void extended_latin_character_triggers_utf8_eci_fallback(void)
+{
+    qr_data = "caf\xC3\xA9";
+    prepare_qr_data(qr_data);
+    ASSERT_TRUE(requires_utf8_eci);
+}
+
+void emoji_payload_triggers_utf8_eci_fallback(void)
+{
+    qr_data = "Hello \xF0\x9F\x9A\x80";
+    prepare_qr_data(qr_data);
+    ASSERT_TRUE(requires_utf8_eci);
 }
 
 void massive_utf8_payload_is_rejected_without_memory_corruption(void)
@@ -268,7 +379,6 @@ int main(void)
     TestCase qr_tests[] = {TEST_FUNC(determines_correct_version_for_sizes_1_to_9),
                            TEST_FUNC(determines_correct_version_for_sizes_10_to_26),
                            TEST_FUNC(determines_correct_version_for_sizes_27_to_40),
-                           TEST_FUNC(accepts_data_up_to_maximum_capacity_and_rejects_overflow),
                            TEST_FUNC(processing_valid_data_generates_a_bit_stream),
                            TEST_FUNC(generator_polynomial_of_degree_7_matches_the_iso_standard),
                            TEST_FUNC(generator_polynomial_of_degree_10_matches_the_iso_standard),
@@ -281,10 +391,26 @@ int main(void)
                            TEST_FUNC(encodes_single_kanji_character_using_kanji_mode),
                            TEST_FUNC(switches_to_kanji_mode_only_when_sequence_exceeds_optimization_threshold),
                            TEST_FUNC(encodes_shift_jis_boundary_characters_using_kanji_mode),
-                           TEST_FUNC(maximum_kanji_payload_for_ec_l_consumes_all_available_bits),
-                           TEST_FUNC(maximum_kanji_payload_for_ec_m_consumes_all_available_bits),
-                           TEST_FUNC(maximum_kanji_payload_for_ec_q_consumes_all_available_bits),
-                           TEST_FUNC(maximum_kanji_payload_for_ec_h_consumes_all_available_bits),
+                           TEST_FUNC(numeric_capacity_is_strictly_enforced_at_ec_l),
+                           TEST_FUNC(numeric_capacity_is_strictly_enforced_at_ec_m),
+                           TEST_FUNC(numeric_capacity_is_strictly_enforced_at_ec_q),
+                           TEST_FUNC(numeric_capacity_is_strictly_enforced_at_ec_h),
+                           TEST_FUNC(alphanumeric_capacity_is_strictly_enforced_at_ec_l),
+                           TEST_FUNC(alphanumeric_capacity_is_strictly_enforced_at_ec_m),
+                           TEST_FUNC(alphanumeric_capacity_is_strictly_enforced_at_ec_q),
+                           TEST_FUNC(alphanumeric_capacity_is_strictly_enforced_at_ec_h),
+                           TEST_FUNC(byte_capacity_is_strictly_enforced_at_ec_l),
+                           TEST_FUNC(byte_capacity_is_strictly_enforced_at_ec_m),
+                           TEST_FUNC(byte_capacity_is_strictly_enforced_at_ec_q),
+                           TEST_FUNC(byte_capacity_is_strictly_enforced_at_ec_h),
+                           TEST_FUNC(kanji_capacity_is_strictly_enforced_at_ec_l),
+                           TEST_FUNC(kanji_capacity_is_strictly_enforced_at_ec_m),
+                           TEST_FUNC(kanji_capacity_is_strictly_enforced_at_ec_q),
+                           TEST_FUNC(kanji_capacity_is_strictly_enforced_at_ec_h),
+                           TEST_FUNC(utf8_eci_fallback_applies_capacity_penalty_at_boundary),
+                           TEST_FUNC(standard_payloads_do_not_trigger_eci_fallback),
+                           TEST_FUNC(extended_latin_character_triggers_utf8_eci_fallback),
+                           TEST_FUNC(emoji_payload_triggers_utf8_eci_fallback),
                            TEST_FUNC(massive_utf8_payload_is_rejected_without_memory_corruption)};
     RUN_TEST_SUITE("qr_code.c", qr_tests);
     return 0;
