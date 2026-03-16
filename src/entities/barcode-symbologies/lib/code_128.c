@@ -73,7 +73,7 @@ static const char *const PATTERN_WIDTHS[CODE128_PATTERN_WIDTHS_LEN] = {
     "11110100010", "10111011110", "10111101110", "11101011110", "11110101110", "11010000100", "11010010000",
     "11010011100", "11000111010"};
 
-static Keyword KEYWORDS[CODE128_KEYWORDS_LEN] = {
+static const Keyword KEYWORDS[CODE128_KEYWORDS_LEN] = {
     {"NUL",  3, 64,                     CODE128_CODE_SET_A  },
     {"SOH",  3, 65,                     CODE128_CODE_SET_A  },
     {"STX",  3, 66,                     CODE128_CODE_SET_A  },
@@ -300,7 +300,7 @@ static inline int compose_checksum(void)
     return dividend % CODE128_CHECKSUM_MODULO;
 }
 
-static SymbolComposer code_set_composers[] = {compose_code_set_A, compose_code_set_B, compose_code_set_C};
+static const SymbolComposer code_set_composers[] = {compose_code_set_A, compose_code_set_B, compose_code_set_C};
 
 void render(void)
 {

@@ -208,7 +208,7 @@ static const int FORMAT_INFO_ROW[FORMAT_INFO_BITS] = {8, 8, 8, 8, 8, 8, 8, 8, 7,
 static const int PAD_PATTERN[] = {0xEC, 0x11};
 static const uint8_t PENALTY_RULE_3_PATTERN[7] = {1, 0, 1, 1, 1, 0, 1};
 
-const char SPECIAL_ALPHANUMERIC_CHARS[] = " $%*+-./:";
+static const char SPECIAL_ALPHANUMERIC_CHARS[] = " $%*+-./:";
 
 static const int INITIAL_THRESHOLD_ALPHA_TO_BYTE[3] = {6, 7, 8};
 static const int INITIAL_THRESHOLD_NUM_TO_BYTE[3] = {4, 4, 5};
