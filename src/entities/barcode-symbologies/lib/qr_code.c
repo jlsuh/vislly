@@ -6,7 +6,7 @@
 #include "unicode_to_sjis.h"
 
 #define MAX_QR_CODEWORDS 4096
-#define MAX_QR_INPUT_LEN 8192
+#define MAX_QR_INPUT_LEN 32768
 #define MAX_QR_MODULES 177
 #define MAX_SEGMENTS 4096
 #define QR_VERSION_COUNT 41
@@ -1727,6 +1727,8 @@ static inline void fallback_to_raw_utf8(const char *utf8_str)
     requires_utf8_eci = true;
     int index = 0;
     while (utf8_str[index] != '\0') {
+        if (index >= MAX_QR_INPUT_LEN)
+            break;
         processed_data[index] = (uint8_t)utf8_str[index];
         ++index;
     }
@@ -1740,6 +1742,10 @@ static inline bool prepare_qr_data(const char *utf8_str)
     int input_idx = 0;
     int output_idx = 0;
     while (utf8_str[input_idx] != '\0') {
+        if (output_idx + 2 >= MAX_QR_INPUT_LEN) {
+            kanji_mode_enabled = false;
+            break;
+        }
         uint32_t unicode_code_point = 0;
         decode_utf8(utf8_str, &input_idx, &unicode_code_point);
         int bytes_written = encode_unicode_to_sjis_bytes(unicode_code_point, &processed_data[output_idx]);
