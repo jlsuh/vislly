@@ -50,5 +50,5 @@ tidy:
 	clang-tidy --fix $(ALL_SRC_FILES) -- $(INCLUDES)
 
 qrtest:
-	@$(CC) $(CFLAGS) $(BARCODE_LIB_DIR)/qr_code_tests.c $(BARCODE_COMMON_SRC) $(GRAPHICS_SRC) -o $(QR_TEST_OUT)
-	@./$(QR_TEST_OUT); EXIT_STATUS=$$?; rm -f $(QR_TEST_OUT); exit $$EXIT_STATUS
+	@$(CC) -g -O1 -fsanitize=address -fno-omit-frame-pointer $(CFLAGS) $(BARCODE_LIB_DIR)/qr_code_tests.c $(BARCODE_COMMON_SRC) $(GRAPHICS_SRC) -o $(QR_TEST_OUT)
+	@./$(QR_TEST_OUT); EXIT_STATUS=$$?; rm -rf $(QR_TEST_OUT) $(QR_TEST_OUT).dSYM; exit $$EXIT_STATUS
