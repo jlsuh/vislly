@@ -24,19 +24,24 @@
   border: var(--space-px) solid var(--color-outline);
   display: flex;
   flex-direction: column;
-  position: relative;
   padding: var(--padding-wrapper);
+  position: relative;
+  width: 100%;
 }
 
 .rangeLabel {
   color: var(--color-secondary);
   font-size: var(--font-size-label);
-  margin-bottom: var(--margin-bottom);
   line-height: 1.2;
+  margin-bottom: var(--margin-bottom);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   & strong {
     color: var(--color-on-surface);
-    font-weight: 600;
     font-size: var(--font-size-value);
+    font-weight: 600;
     margin-left: var(--space-1);
   }
 }
@@ -44,8 +49,8 @@
 .rangeInput {
   accent-color: var(--color-primary);
   cursor: pointer;
-  width: 100%;
   display: block;
+  width: 100%;
   &:disabled {
     cursor: not-allowed;
     opacity: 0.6;
