@@ -10,7 +10,6 @@
   max-width: 100%;
   position: relative;
   vertical-align: middle;
-  width: max-content;
   &:has(:disabled) {
     cursor: not-allowed;
     opacity: 0.5;
@@ -103,36 +102,16 @@
   }
 }
 
-@media (max-width: 479px) {
-  .container {
-    align-items: stretch;
-    flex-direction: column;
-  }
-  .actionButton,
-  .selectWrapper {
-    flex: 0 0 auto;
-  }
-  .actionButton {
-    border-radius: var(--space-1-5) var(--space-1-5) 0 0;
-  }
-  .selectWrapper {
-    border-left: none;
-    border-radius: 0 0 var(--space-1-5) var(--space-1-5);
-    border-top: var(--space-px) solid var(--btn-fg);
-  }
-}
-
 .iconWrapper {
   align-items: center;
   display: flex;
   flex-shrink: 0;
   justify-content: center;
-}
-
-.iconWrapper svg {
-  display: block;
-  height: var(--space-5);
-  width: var(--space-5);
+  & svg {
+    display: block;
+    height: var(--space-5);
+    width: var(--space-5);
+  }
 }
 
 .label {
@@ -169,5 +148,21 @@
   & option {
     background-color: var(--btn-bg);
     color: var(--btn-fg);
+  }
+}
+
+@container (max-width: 280px) {
+  .label {
+    display: none;
+  }
+
+  .select {
+    color: transparent;
+    padding: 0;
+  }
+
+  .selectWrapper::after {
+    right: 50%;
+    transform: translate(50%, -50%);
   }
 }
