@@ -17,6 +17,7 @@ import {
   assertIsBarcodeType,
   assertIsErrorCorrectionLevel,
   BARCODE_SYMBOLOGIES,
+  type BarcodeSymbology,
   BarcodeType,
   DEFAULT_SYMBOLOGY_BY_TYPE,
   INITIAL_BARCODE_TYPE,
@@ -175,11 +176,15 @@ function BarcodeSymbologies(): JSX.Element {
   );
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const loadedSymbologiesRef = useRef<Set<BarcodeSymbology>>(new Set());
 
   const currentSymbology = BARCODE_SYMBOLOGIES[selectedSymbology];
   const { allowedPattern, value } = currentSymbology;
-  const symbologyOptions = SYMBOLOGY_OPTIONS_BY_TYPE[selectedBarcodeType];
+  const isSymbologyLoading =
+    totalCapacity === Number.POSITIVE_INFINITY &&
+    !loadedSymbologiesRef.current.has(selectedSymbology);
   const LoadingSkeleton = SKELETON_BY_BARCODE_SYMBOLOGY[value];
+  const symbologyOptions = SYMBOLOGY_OPTIONS_BY_TYPE[selectedBarcodeType];
 
   const resetBarcodeData = () => {
     setBarcodeInput('');
@@ -187,6 +192,7 @@ function BarcodeSymbologies(): JSX.Element {
   };
 
   const handleProcessComplete = (bits: number, evaluatedText: string) => {
+    loadedSymbologiesRef.current.add(currentSymbology.value);
     const newCapacity = composeTotalCapacity(
       bits,
       currentSymbology.type,
@@ -290,7 +296,7 @@ function BarcodeSymbologies(): JSX.Element {
         </div>
         <div className={styles.downloadButtonWrapper}>
           <ButtonWithOptions
-            disabled={!currentSymbology}
+            disabled={isSymbologyLoading}
             icon={<DownloadIcon />}
             label="Download"
             options={DOWNLOAD_FORMAT_OPTIONS}
