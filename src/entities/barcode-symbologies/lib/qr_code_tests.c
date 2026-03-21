@@ -8,7 +8,7 @@ static void check_version(int numeric_chars, ErrorCorrectionLevel ec_level, int 
     static uint8_t dummy_data[8192];
     for (int i = 0; i < numeric_chars; ++i)
         dummy_data[i] = '0';
-    dummy_data[numeric_chars] = '\0';
+    dummy_data[numeric_chars] = NULL_TERMINATOR;
     const VersionCapacity *vc = determine_version_and_segment(dummy_data, numeric_chars, ec_level);
     ASSERT_NOT_NULL(vc);
     ASSERT_EQUALS(expected_version, vc->version);
@@ -23,13 +23,13 @@ static bool check_capacity(const char *char_seq, int repeat_count, ErrorCorrecti
     for (int i = 0; i < repeat_count; ++i)
         for (int j = 0; j < seq_len; ++j)
             test_buffer[offset++] = char_seq[j];
-    test_buffer[offset] = '\0';
+    test_buffer[offset] = NULL_TERMINATOR;
     qr_data = test_buffer;
     error_correction_level = ec;
     prepare_qr_data(qr_data);
     const VersionCapacity *vc =
         determine_version_and_segment(processed_data, processed_data_len, error_correction_level);
-    return vc != NULL;
+    return NULL != vc;
 }
 
 static void assert_capacity_fits(const char *char_seq, int repeat_count, ErrorCorrectionLevel ec)
@@ -80,7 +80,7 @@ void processing_valid_data_generates_a_bit_stream(void)
     static char data_buffer[8192];
     for (int i = 0; i < 7089; ++i)
         data_buffer[i] = (char)('0' + (i % 10));
-    data_buffer[7089] = '\0';
+    data_buffer[7089] = NULL_TERMINATOR;
     qr_data = data_buffer;
     error_correction_level = EC_L;
     process_qr_data();
@@ -321,7 +321,7 @@ void utf8_eci_fallback_applies_capacity_penalty_at_boundary(void)
         edge_case_buffer[offset++] = 'a';
     edge_case_buffer[offset++] = '\xC3';
     edge_case_buffer[offset++] = '\xA9';
-    edge_case_buffer[offset] = '\0';
+    edge_case_buffer[offset] = NULL_TERMINATOR;
     qr_data = edge_case_buffer;
     error_correction_level = EC_L;
     prepare_qr_data(qr_data);
@@ -329,7 +329,7 @@ void utf8_eci_fallback_applies_capacity_penalty_at_boundary(void)
         determine_version_and_segment(processed_data, processed_data_len, error_correction_level);
     ASSERT_NOT_NULL(vc);
     edge_case_buffer[offset++] = 'a';
-    edge_case_buffer[offset] = '\0';
+    edge_case_buffer[offset] = NULL_TERMINATOR;
     qr_data = edge_case_buffer;
     prepare_qr_data(qr_data);
     vc = determine_version_and_segment(processed_data, processed_data_len, error_correction_level);
@@ -367,7 +367,7 @@ void massive_utf8_payload_is_rejected_without_memory_corruption(void)
         massive_input[offset++] = '\x9A';
         massive_input[offset++] = '\x80';
     }
-    massive_input[offset] = '\0';
+    massive_input[offset] = NULL_TERMINATOR;
     qr_data = massive_input;
     error_correction_level = EC_M;
     process_qr_data();

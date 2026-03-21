@@ -40,6 +40,19 @@ static const char *const ENCODING_TABLE[DIGITS_COUNT][EAN13_ENCODING_TYPES_COUNT
     {"0001011", "0010111", "1110100"}
 };
 
+typedef struct {
+    Canvas *c;
+    int y;
+    int module_width;
+    int bar_height;
+} Ean13Context;
+
+typedef struct {
+    size_t start_index;
+    size_t end_index;
+    const char *parity_pattern;
+} GroupConfig;
+
 static inline int get_integer_encoding_type(char c)
 {
     if (EAN13_ENC_L_CHAR == c)
@@ -49,18 +62,17 @@ static inline int get_integer_encoding_type(char c)
     return EAN13_ENC_R;
 }
 
-static inline int draw_group(Canvas *c, int x, int y, int module_width, int bar_height, size_t group_start_index,
-                             size_t group_end_index, const char *parity_pattern)
+static inline int draw_group(const Ean13Context *ctx, int x, GroupConfig cfg)
 {
     int curr_x_offset = 0;
     const char *code = NULL;
-    for (size_t i = group_start_index; i <= group_end_index; ++i) {
+    for (size_t i = cfg.start_index; i <= cfg.end_index; ++i) {
         int digit = char_to_digit(data_buffer[i]);
         int encoding_idx = EAN13_ENC_R;
-        if (NULL != parity_pattern)
-            encoding_idx = get_integer_encoding_type(parity_pattern[i - group_start_index]);
+        if (NULL != cfg.parity_pattern)
+            encoding_idx = get_integer_encoding_type(cfg.parity_pattern[i - cfg.start_index]);
         code = ENCODING_TABLE[digit][encoding_idx];
-        curr_x_offset += draw_pattern(c, code, x + curr_x_offset, y, module_width, bar_height);
+        curr_x_offset += draw_pattern(ctx->c, code, x + curr_x_offset, ctx->y, ctx->module_width, ctx->bar_height);
     }
     return curr_x_offset;
 }
@@ -83,12 +95,13 @@ void render(void)
     int curr_y = vertical_quiet_zone_px;
     int first_digit = char_to_digit(data_buffer[0]);
     const char *const parity_pattern = PARITY_PATTERNS[first_digit];
+    Ean13Context ctx = {.c = &c, .y = curr_y, .module_width = module_width_px, .bar_height = regular_bar_height_px};
     curr_x += draw_pattern(&c, EAN13_MARKER_START, curr_x, curr_y, module_width_px, marker_bar_height_px);
-    curr_x +=
-        draw_group(&c, curr_x, curr_y, module_width_px, regular_bar_height_px, 1, EAN13_GROUP_LEN, parity_pattern);
+    GroupConfig left_group = {1, EAN13_GROUP_LEN, parity_pattern};
+    curr_x += draw_group(&ctx, curr_x, left_group);
     curr_x += draw_pattern(&c, EAN13_MARKER_CENTER, curr_x, curr_y, module_width_px, marker_bar_height_px);
-    curr_x += draw_group(&c, curr_x, curr_y, module_width_px, regular_bar_height_px, EAN13_GROUP_LEN + 1,
-                         (EAN13_GROUP_LEN * 2) - 1, NULL);
+    GroupConfig right_group = {EAN13_GROUP_LEN + 1, (EAN13_GROUP_LEN * 2) - 1, NULL};
+    curr_x += draw_group(&ctx, curr_x, right_group);
     curr_x +=
         draw_pattern(&c, ENCODING_TABLE[checksum][EAN13_ENC_R], curr_x, curr_y, module_width_px, regular_bar_height_px);
     curr_x += draw_pattern(&c, EAN13_MARKER_END, curr_x, curr_y, module_width_px, marker_bar_height_px);

@@ -3,8 +3,6 @@
 
 #include <stdint.h>
 
-#define SUCCESS 0
-#define FAILURE -1
 #define CANVAS_NULL ((Canvas){0})
 
 #define RGBA(r, g, b, a)                                                                                               \

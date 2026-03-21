@@ -556,8 +556,8 @@ static inline void append_bits(int value, int bit_count)
 
 static inline int get_special_alpha_value(char c)
 {
-    for (int i = 0; SPECIAL_ALPHANUMERIC_CHARS[i] != '\0'; ++i)
-        if (c == SPECIAL_ALPHANUMERIC_CHARS[i])
+    for (int i = 0; NULL_TERMINATOR != SPECIAL_ALPHANUMERIC_CHARS[i]; ++i)
+        if (SPECIAL_ALPHANUMERIC_CHARS[i] == c)
             return 36 + i;
     return -1;
 }
@@ -578,14 +578,14 @@ static inline bool is_numeric(uint8_t c)
 
 static inline bool is_alpha_exclusive(uint8_t c)
 {
-    return !is_numeric(c) && char_to_alpha_value((char)c) != -1;
+    return !is_numeric(c) && -1 != char_to_alpha_value((char)c);
 }
 
 static inline bool is_valid_sjis_trailer(uint8_t b)
 {
     if (b < SJIS_TRAILER_MIN || b > SJIS_TRAILER_MAX)
         return false;
-    return b != SJIS_TRAILER_INVALID;
+    return SJIS_TRAILER_INVALID != b;
 }
 
 static inline bool is_kanji_char(const uint8_t *data, int i, int len)
@@ -955,7 +955,7 @@ static inline const VersionCapacity *determine_version_and_segment(const uint8_t
                                                                    ErrorCorrectionLevel target_ec_level)
 {
     for (int i = 0; i < VERSION_CAPACITY_LEN; ++i) {
-        if (target_ec_level == VERSION_CAPACITIES[i].ec_level) {
+        if (VERSION_CAPACITIES[i].ec_level == target_ec_level) {
             int version = VERSION_CAPACITIES[i].version;
             int version_group = (version < VERSION_GROUP_2_START) ? 1 : ((version < VERSION_GROUP_3_START) ? 2 : 3);
             segment_data(data, len, version_group);
@@ -1123,42 +1123,42 @@ static inline bool is_reserved_position(int row, int col, int version, int versi
 
 static inline bool mask_rule_0(int i, int j)
 {
-    return 0 == ((i + j) % 2);
+    return (i + j) % 2 == 0;
 }
 
 static inline bool mask_rule_1(int i, int _)
 {
-    return 0 == (i % 2);
+    return i % 2 == 0;
 }
 
 static inline bool mask_rule_2(int _, int j)
 {
-    return 0 == (j % 3);
+    return j % 3 == 0;
 }
 
 static inline bool mask_rule_3(int i, int j)
 {
-    return 0 == ((i + j) % 3);
+    return (i + j) % 3 == 0;
 }
 
 static inline bool mask_rule_4(int i, int j)
 {
-    return 0 == (((i / 2) + (j / 3)) % 2);
+    return (i / 2 + j / 3) % 2 == 0;
 }
 
 static inline bool mask_rule_5(int i, int j)
 {
-    return 0 == (((i * j) % 2) + ((i * j) % 3));
+    return (i * j % 2) + (i * j % 3) == 0;
 }
 
 static inline bool mask_rule_6(int i, int j)
 {
-    return 0 == ((((i * j) % 2) + ((i * j) % 3)) % 2);
+    return (i * j % 2 + i * j % 3) % 2 == 0;
 }
 
 static inline bool mask_rule_7(int i, int j)
 {
-    return 0 == ((((i + j) % 2) + ((i * j) % 3)) % 2);
+    return ((i + j) % 2 + i * j % 3) % 2 == 0;
 }
 
 static const MaskEvaluator MASK_EVALUATORS[8] = {mask_rule_0, mask_rule_1, mask_rule_2, mask_rule_3,
@@ -1230,8 +1230,8 @@ static inline void plot_eval_finder_pattern(int row_offset, int col_offset, int 
 static inline void plot_eval_timing_patterns(int size)
 {
     for (int i = FINDER_PATTERN_AREA_SIZE; i < size - FINDER_PATTERN_AREA_SIZE; ++i) {
-        eval_base_grid[TIMING_PATTERN_COORD][i] = (0 == i % 2) ? 1 : 0;
-        eval_base_grid[i][TIMING_PATTERN_COORD] = (0 == i % 2) ? 1 : 0;
+        eval_base_grid[TIMING_PATTERN_COORD][i] = (i % 2 == 0) ? 1 : 0;
+        eval_base_grid[i][TIMING_PATTERN_COORD] = (i % 2 == 0) ? 1 : 0;
     }
 }
 
@@ -1356,7 +1356,7 @@ static inline int get_module_color(int row, int col, int grid_size)
 static inline bool is_horizontal_penalty_3(int row, int col, int grid_size)
 {
     for (int k = 0; k < 7; ++k)
-        if (eval_grid[row][col + k] != PENALTY_RULE_3_PATTERN[k])
+        if (PENALTY_RULE_3_PATTERN[k] != eval_grid[row][col + k])
             return false;
     int before_sum = 0;
     int after_sum = 0;
@@ -1370,7 +1370,7 @@ static inline bool is_horizontal_penalty_3(int row, int col, int grid_size)
 static inline bool is_vertical_penalty_3(int row, int col, int grid_size)
 {
     for (int k = 0; k < 7; ++k)
-        if (eval_grid[row + k][col] != PENALTY_RULE_3_PATTERN[k])
+        if (PENALTY_RULE_3_PATTERN[k] != eval_grid[row + k][col])
             return false;
     int before_sum = 0;
     int after_sum = 0;
@@ -1535,7 +1535,7 @@ static inline void emplace_finder_patterns(const QRContext *ctx)
 static inline void emplace_timing_patterns(const QRContext *ctx)
 {
     for (int i = FINDER_PATTERN_AREA_SIZE; i <= ctx->grid_dim - TIMING_PATTERN_END_MARGIN; ++i) {
-        uint32_t color = (0 == i % 2) ? C_BLACK : C_WHITE;
+        uint32_t color = (i % 2 == 0) ? C_BLACK : C_WHITE;
         canvas_fill_rect(ctx->canvas, ctx->quiet_zone_width + (i * module_size),
                          ctx->quiet_zone_width + (TIMING_PATTERN_COORD * module_size), module_size, module_size, color);
         canvas_fill_rect(ctx->canvas, ctx->quiet_zone_width + (TIMING_PATTERN_COORD * module_size),
@@ -1711,7 +1711,7 @@ static inline int encode_unicode_to_sjis_bytes(uint32_t unicode_code_point, uint
         return 1;
     }
     uint16_t sjis = unicode_to_sjis(unicode_code_point);
-    if (sjis == 0)
+    if (0 == sjis)
         return 0;
     if (sjis > LSB_MASK) {
         output_buffer[0] = (uint8_t)((sjis >> 8) & LSB_MASK);
@@ -1726,7 +1726,7 @@ static inline void fallback_to_raw_utf8(const char *utf8_str)
 {
     requires_utf8_eci = true;
     int index = 0;
-    while (utf8_str[index] != '\0') {
+    while (NULL_TERMINATOR != utf8_str[index]) {
         if (index >= MAX_QR_INPUT_LEN)
             break;
         processed_data[index] = (uint8_t)utf8_str[index];
@@ -1741,7 +1741,7 @@ static inline bool prepare_qr_data(const char *utf8_str)
     requires_utf8_eci = false;
     int input_idx = 0;
     int output_idx = 0;
-    while (utf8_str[input_idx] != '\0') {
+    while (NULL_TERMINATOR != utf8_str[input_idx]) {
         if (output_idx + 2 >= MAX_QR_INPUT_LEN) {
             kanji_mode_enabled = false;
             break;
@@ -1749,7 +1749,7 @@ static inline bool prepare_qr_data(const char *utf8_str)
         uint32_t unicode_code_point = 0;
         decode_utf8(utf8_str, &input_idx, &unicode_code_point);
         int bytes_written = encode_unicode_to_sjis_bytes(unicode_code_point, &processed_data[output_idx]);
-        if (bytes_written == 0) {
+        if (0 == bytes_written) {
             kanji_mode_enabled = false;
             break;
         }

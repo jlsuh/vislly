@@ -12,9 +12,19 @@ int dpr = 1;
 int symbol_buffer[BARCODE_BUFFER_SIZE];
 uint32_t pixels[MAX_WIDTH * MAX_HEIGHT];
 
+bool is_control_char(char c)
+{
+    return c >= NULL_TERMINATOR && c <= ASCII_MAX_CONTROL_CHAR;
+}
+
 bool is_digit(char c)
 {
     return c >= ASCII_ZERO && c <= ASCII_NINE;
+}
+
+bool is_lowercased_alpha(char c)
+{
+    return c >= ASCII_LOWERCASED_A && c <= ASCII_LOWERCASED_Z;
 }
 
 bool is_uppercased_alpha(char c)
@@ -44,8 +54,8 @@ int draw_pattern(Canvas *c, const char *const pattern, int x, int y, int module_
 {
     int curr_x = x;
     int i = 0;
-    while (pattern[i] != NULL_TERMINATOR) {
-        if (pattern[i] == '1')
+    while (NULL_TERMINATOR != pattern[i]) {
+        if (BAR == pattern[i])
             canvas_fill_rect(c, curr_x, y, module_width, bar_height, C_BLACK);
         curr_x += module_width;
         ++i;

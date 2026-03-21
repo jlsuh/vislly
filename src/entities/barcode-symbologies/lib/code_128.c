@@ -6,14 +6,10 @@
 
 #define CODE128_ASCII_DEL 127
 #define CODE128_ASCII_GRAVE_ACCENT 96
-#define CODE128_ASCII_LOWER_A 97
-#define CODE128_ASCII_LOWER_Z 122
-#define CODE128_ASCII_NUL 0
 #define CODE128_ASCII_SPACE 32
 #define CODE128_ASCII_UNDERSCORE 95
 #define CODE128_CARET '^'
 #define CODE128_CTRL_CHAR_OFFSET 64
-#define CODE128_MAX_CONTROL_CHAR 31
 
 #define CODE128_CHECKSUM_MODULO 103
 #define CODE128_MODULES_PER_SYMBOL 11
@@ -41,12 +37,20 @@
 #define CODE128_KEYWORDS_LEN 37
 #define CODE128_PATTERN_WIDTHS_LEN 107
 
+#define CODE128_KEYWORD_NOT_FOUND -1
+
 typedef struct {
     const char *key;
     int len;
     int value;
     int dest_code_set;
 } Keyword;
+
+typedef struct {
+    int target_set;
+    int target_code;
+    int symbol_val;
+} ShiftConfig;
 
 static int curr_code_set;
 static int data_len;
@@ -146,11 +150,11 @@ static inline bool should_switch_to_code_set_C(const char *buf, int idx, int tot
 static inline int match_keyword(const char *data_buffer, int idx)
 {
     if (CODE128_CARET != data_buffer[idx])
-        return -1;
+        return CODE128_KEYWORD_NOT_FOUND;
     for (int k = 0; k < CODE128_KEYWORDS_LEN; ++k)
         if (wasm_strncmp(&data_buffer[idx + 1], KEYWORDS[k].key, KEYWORDS[k].len))
             return k;
-    return -1;
+    return CODE128_KEYWORD_NOT_FOUND;
 }
 
 static inline void switch_code_set(int new_subset, int symbol)
@@ -165,110 +169,144 @@ static inline void fallback_fnc4_in_code_set_C(void)
     symbol_buffer[next_symbol_idx++] = CODE128_FNC4_CODE_SET_B;
 }
 
+static inline void handle_keyword_transition(int dest_code_set)
+{
+    if (dest_code_set == curr_code_set)
+        return;
+    if (CODE128_CODE_SET_A == dest_code_set)
+        switch_code_set(CODE128_CODE_SET_A, CODE128_CODE_A);
+    else if (CODE128_CODE_SET_B == dest_code_set)
+        switch_code_set(CODE128_CODE_SET_B, CODE128_CODE_B);
+}
+
+static inline void handle_keyword_value(int value)
+{
+    if (CODE128_SENTINEL_FNC_4 != value) {
+        symbol_buffer[next_symbol_idx++] = value;
+        return;
+    }
+    if (CODE128_CODE_SET_A == curr_code_set)
+        symbol_buffer[next_symbol_idx++] = CODE128_FNC4_CODE_SET_A;
+    else if (CODE128_CODE_SET_B == curr_code_set)
+        symbol_buffer[next_symbol_idx++] = CODE128_FNC4_CODE_SET_B;
+    else
+        fallback_fnc4_in_code_set_C();
+}
+
 static inline bool parse_keyword(void)
 {
     int keyword_idx = match_keyword(data_buffer, next_input_idx);
-    if (-1 == keyword_idx)
+    if (CODE128_KEYWORD_NOT_FOUND == keyword_idx)
         return false;
     Keyword keyword = KEYWORDS[keyword_idx];
-    if (keyword.dest_code_set != curr_code_set)
-        switch (keyword.dest_code_set) {
-        case CODE128_CODE_SET_A:
-            switch_code_set(CODE128_CODE_SET_A, CODE128_CODE_A);
-            break;
-        case CODE128_CODE_SET_B:
-            switch_code_set(CODE128_CODE_SET_B, CODE128_CODE_B);
-            break;
-        }
-    if (CODE128_SENTINEL_FNC_4 != keyword.value)
-        symbol_buffer[next_symbol_idx++] = keyword.value;
-    else
-        switch (curr_code_set) {
-        case CODE128_CODE_SET_A:
-            symbol_buffer[next_symbol_idx++] = CODE128_FNC4_CODE_SET_A;
-            break;
-        case CODE128_CODE_SET_B:
-            symbol_buffer[next_symbol_idx++] = CODE128_FNC4_CODE_SET_B;
-            break;
-        default:
-            fallback_fnc4_in_code_set_C();
-            break;
-        }
+    handle_keyword_transition(keyword.dest_code_set);
+    handle_keyword_value(keyword.value);
     next_input_idx += 1 + keyword.len;
     return true;
 }
 
-static inline void compose_code_set_A(void)
+static inline bool try_shift_or_switch(bool matches, bool next_matches, ShiftConfig cfg)
+{
+    if (!matches)
+        return false;
+    if (next_matches)
+        switch_code_set(cfg.target_set, cfg.target_code);
+    else
+        symbol_buffer[next_symbol_idx++] = CODE128_SHIFT;
+    symbol_buffer[next_symbol_idx++] = cfg.symbol_val;
+    ++next_input_idx;
+    return true;
+}
+
+static inline bool try_simple_emit(bool matches, int symbol_val)
+{
+    if (!matches)
+        return false;
+    symbol_buffer[next_symbol_idx++] = symbol_val;
+    ++next_input_idx;
+    return true;
+}
+
+static inline bool handle_common_composition_preamble(int *idx)
 {
     if (parse_keyword())
-        return;
-    int idx = next_input_idx;
-    if (should_switch_to_code_set_C(data_buffer, idx, data_len)) {
+        return true;
+    *idx = next_input_idx;
+    if (should_switch_to_code_set_C(data_buffer, *idx, data_len)) {
         switch_code_set(CODE128_CODE_SET_C, CODE128_CODE_C);
-        return;
+        return true;
     }
-    char c = data_buffer[idx];
-    if (c >= CODE128_ASCII_LOWER_A && c <= CODE128_ASCII_LOWER_Z) {
-        bool next_is_lower = false;
-        if (idx + 1 < data_len) {
-            char next_char = data_buffer[idx + 1];
-            next_is_lower = (next_char >= CODE128_ASCII_LOWER_A && next_char <= CODE128_ASCII_LOWER_Z);
-        }
-        if (next_is_lower)
-            switch_code_set(CODE128_CODE_SET_B, CODE128_CODE_B);
-        else
-            symbol_buffer[next_symbol_idx++] = CODE128_SHIFT;
-        symbol_buffer[next_symbol_idx++] = c - CODE128_ASCII_SPACE;
-        ++next_input_idx;
-        return;
-    }
-    if (c >= CODE128_ASCII_SPACE && c <= CODE128_ASCII_UNDERSCORE) {
-        symbol_buffer[next_symbol_idx++] = c - CODE128_ASCII_SPACE;
-        ++next_input_idx;
-        return;
-    }
-    if (c >= CODE128_ASCII_NUL && c <= CODE128_MAX_CONTROL_CHAR) {
-        symbol_buffer[next_symbol_idx++] = c + CODE128_CTRL_CHAR_OFFSET;
-        ++next_input_idx;
-        return;
-    }
+    return false;
+}
+
+static inline bool try_compose_A_lower(char c, int idx)
+{
+    bool matches = is_lowercased_alpha(c);
+    bool next_matches = (idx + 1 < data_len) && is_lowercased_alpha(data_buffer[idx + 1]);
+    ShiftConfig cfg = {CODE128_CODE_SET_B, CODE128_CODE_B, c - CODE128_ASCII_SPACE};
+    return try_shift_or_switch(matches, next_matches, cfg);
+}
+
+static inline bool try_compose_A_space_underscore(char c)
+{
+    return try_simple_emit(c >= CODE128_ASCII_SPACE && c <= CODE128_ASCII_UNDERSCORE, c - CODE128_ASCII_SPACE);
+}
+
+static inline bool try_compose_A_control(char c)
+{
+    return try_simple_emit(is_control_char(c), c + CODE128_CTRL_CHAR_OFFSET);
+}
+
+static inline bool try_compose_A_grave_del(char c)
+{
     if (c >= CODE128_ASCII_GRAVE_ACCENT && c <= CODE128_ASCII_DEL) {
         switch_code_set(CODE128_CODE_SET_B, CODE128_CODE_B);
-        return;
+        return true;
     }
+    return false;
+}
+
+static inline void compose_code_set_A(void)
+{
+    int idx = 0;
+    if (handle_common_composition_preamble(&idx))
+        return;
+    char c = data_buffer[idx];
+    if (try_compose_A_lower(c, idx))
+        return;
+    if (try_compose_A_space_underscore(c))
+        return;
+    if (try_compose_A_control(c))
+        return;
+    if (try_compose_A_grave_del(c))
+        return;
     symbol_buffer[next_symbol_idx++] = 0;
     ++next_input_idx;
 }
 
+static inline bool try_compose_B_control(char c, int idx)
+{
+    bool matches = is_control_char(c);
+    bool next_matches = (idx + 1 < data_len) && is_control_char(data_buffer[idx + 1]);
+    ShiftConfig cfg = {CODE128_CODE_SET_A, CODE128_CODE_A, c + CODE128_CTRL_CHAR_OFFSET};
+    return try_shift_or_switch(matches, next_matches, cfg);
+}
+
+static inline bool try_compose_B_printable(char c)
+{
+    return try_simple_emit(c >= CODE128_ASCII_SPACE && c <= CODE128_ASCII_DEL, c - CODE128_ASCII_SPACE);
+}
+
 static inline void compose_code_set_B(void)
 {
-    if (parse_keyword())
+    int idx = 0;
+    if (handle_common_composition_preamble(&idx))
         return;
-    int idx = next_input_idx;
-    if (should_switch_to_code_set_C(data_buffer, idx, data_len)) {
-        switch_code_set(CODE128_CODE_SET_C, CODE128_CODE_C);
-        return;
-    }
     char c = data_buffer[idx];
-    if (c >= CODE128_ASCII_NUL && c <= CODE128_MAX_CONTROL_CHAR) {
-        bool next_is_ctrl = false;
-        if (idx + 1 < data_len) {
-            char next_char = data_buffer[idx + 1];
-            next_is_ctrl = (next_char >= CODE128_ASCII_NUL && next_char <= CODE128_MAX_CONTROL_CHAR);
-        }
-        if (next_is_ctrl)
-            switch_code_set(CODE128_CODE_SET_A, CODE128_CODE_A);
-        else
-            symbol_buffer[next_symbol_idx++] = CODE128_SHIFT;
-        symbol_buffer[next_symbol_idx++] = c + CODE128_CTRL_CHAR_OFFSET;
-        ++next_input_idx;
+    if (try_compose_B_control(c, idx))
         return;
-    }
-    if (c >= CODE128_ASCII_SPACE && c <= CODE128_ASCII_DEL) {
-        symbol_buffer[next_symbol_idx++] = c - CODE128_ASCII_SPACE;
-        ++next_input_idx;
+    if (try_compose_B_printable(c))
         return;
-    }
     symbol_buffer[next_symbol_idx++] = 0;
     ++next_input_idx;
 }
@@ -280,7 +318,7 @@ static inline void compose_code_set_C(void)
     int idx = next_input_idx;
     if (!is_optimizable_with_code_set_C(data_buffer, idx, 2, data_len)) {
         char c = data_buffer[idx];
-        if (c >= CODE128_ASCII_NUL && c <= CODE128_MAX_CONTROL_CHAR)
+        if (is_control_char(c))
             switch_code_set(CODE128_CODE_SET_A, CODE128_CODE_A);
         else
             switch_code_set(CODE128_CODE_SET_B, CODE128_CODE_B);
@@ -302,6 +340,20 @@ static inline int compose_checksum(void)
 
 static const SymbolComposer code_set_composers[] = {compose_code_set_A, compose_code_set_B, compose_code_set_C};
 
+static inline int determine_initial_code_set(void)
+{
+    if (should_start_with_code_set_C(data_buffer, data_len))
+        return CODE128_CODE_SET_C;
+    int keyword_idx = match_keyword(data_buffer, 0);
+    if (CODE128_KEYWORD_NOT_FOUND != keyword_idx) {
+        if (CODE128_CODE_SET_A == KEYWORDS[keyword_idx].dest_code_set)
+            return CODE128_CODE_SET_A;
+    } else if (0 < data_len && is_control_char(data_buffer[0])) {
+        return CODE128_CODE_SET_A;
+    }
+    return CODE128_CODE_SET_B;
+}
+
 void render(void)
 {
     int module_width_px = BASE_MODULE_WIDTH_PX * dpr;
@@ -311,15 +363,7 @@ void render(void)
     data_len = wasm_strlen(data_buffer);
     next_symbol_idx = 0;
     next_input_idx = 0;
-    curr_code_set = CODE128_CODE_SET_B;
-    int keyword_idx = match_keyword(data_buffer, 0);
-    if (should_start_with_code_set_C(data_buffer, data_len))
-        curr_code_set = CODE128_CODE_SET_C;
-    else if (-1 != keyword_idx) {
-        if (CODE128_CODE_SET_A == KEYWORDS[keyword_idx].dest_code_set)
-            curr_code_set = CODE128_CODE_SET_A;
-    } else if (0 < data_len && data_buffer[0] >= CODE128_ASCII_NUL && data_buffer[0] <= CODE128_MAX_CONTROL_CHAR)
-        curr_code_set = CODE128_CODE_SET_A;
+    curr_code_set = determine_initial_code_set();
     switch_code_set(curr_code_set, CODE128_START_A + curr_code_set);
     while (next_input_idx < data_len)
         code_set_composers[curr_code_set]();

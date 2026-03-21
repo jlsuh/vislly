@@ -13,10 +13,14 @@
 #define WASM_EXPORT(name)
 #endif
 
+#define ASCII_LOWERCASED_A 'a'
+#define ASCII_LOWERCASED_Z 'z'
+#define ASCII_MAX_CONTROL_CHAR 31
 #define ASCII_NINE '9'
 #define ASCII_UPPERCASED_A 'A'
 #define ASCII_UPPERCASED_Z 'Z'
 #define ASCII_ZERO '0'
+#define BAR '1'
 #define DIGITS_COUNT 10
 #define NULL_TERMINATOR '\0'
 
@@ -47,7 +51,9 @@ extern int dpr;
 extern int symbol_buffer[BARCODE_BUFFER_SIZE];
 extern uint32_t pixels[MAX_WIDTH * MAX_HEIGHT];
 
+bool is_control_char(char c);
 bool is_digit(char c);
+bool is_lowercased_alpha(char c);
 bool is_uppercased_alpha(char c);
 bool wasm_strncmp(const char *s1, const char *s2, int n);
 char digit_to_char(int d);

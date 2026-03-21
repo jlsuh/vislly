@@ -2,6 +2,8 @@
 
 #include <stddef.h>
 
+#define NO_BORDER 0
+
 #define CLAMP(val, min, max) (((val) < (min)) ? (min) : (((val) > (max)) ? (max) : (val)))
 
 #define SWAP(a, b)                                                                                                     \
@@ -45,7 +47,7 @@ void canvas_fill_rect(Canvas *self, int x0, int y0, int width, int height, uint3
 
 void canvas_stroke_rect(Canvas *self, int x0, int y0, int width, int height, int border, uint32_t color)
 {
-    if (0 == border || NULL == self->pixels)
+    if (NO_BORDER == border || NULL == self->pixels)
         return;
     if (border * 2 < width && border * 2 < height) {
         canvas_fill_rect(self, x0, y0, width, border, color);
