@@ -1,25 +1,10 @@
-import type { ComponentType } from 'react';
-import type { ReadonlyDeep } from 'type-fest';
-import {
-  BarcodeSymbology,
-  type SymbologyConfig,
-} from '../model/barcode-symbologies';
+import { BarcodeSymbology } from '../model/barcode-symbologies';
+import type { BarcodeLoadingSkeleton } from './barcode-loading-skeleton.ts';
 import Ean13BarcodeLoadingSkeleton from './Ean13BarcodeLoadingSkeleton.tsx';
 import ean13Styles from './ean13-barcode-loading-skeleton.module.css';
 import LinearBarcodeLoadingSkeleton from './LinearBarcodeLoadingSkeleton';
 import linearStyles from './linear-barcode-loading-skeleton.module.css';
 import QrCodeLoadingSkeleton from './QrCodeLoadingSkeleton.tsx';
-
-type BarcodeLoadingSkeletonProps = {
-  canvasClassName: string | null;
-  currentSymbology: ReadonlyDeep<SymbologyConfig>;
-  fontName: string;
-};
-
-type BarcodeLoadingSkeleton = {
-  canvasClassName: string | null;
-  Component: ComponentType<BarcodeLoadingSkeletonProps>;
-};
 
 const SKELETON_BY_BARCODE_SYMBOLOGY: Record<
   BarcodeSymbology,
@@ -43,4 +28,4 @@ const SKELETON_BY_BARCODE_SYMBOLOGY: Record<
   },
 };
 
-export { type BarcodeLoadingSkeletonProps, SKELETON_BY_BARCODE_SYMBOLOGY };
+export { SKELETON_BY_BARCODE_SYMBOLOGY };

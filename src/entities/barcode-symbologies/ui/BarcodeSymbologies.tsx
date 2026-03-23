@@ -28,8 +28,8 @@ import {
 } from '../model/barcode-symbologies';
 import BarcodeCanvas from './BarcodeCanvas.tsx';
 import BarcodeControls from './BarcodeControls.tsx';
-import { SKELETON_BY_BARCODE_SYMBOLOGY } from './barcode-loading-skeletons.ts';
 import styles from './barcode-symbologies.module.css';
+import { SKELETON_BY_BARCODE_SYMBOLOGY } from './skeleton-by-barcode-symbology.ts';
 
 const DOWNLOAD_FORMAT_OPTIONS: ReadonlyDeep<Option[]> = [
   { label: 'PNG', value: 'png' },

@@ -5,7 +5,7 @@ import {
 } from '@/shared/lib/css.ts';
 import { composeRandomFlooredIntegerBetween } from '@/shared/lib/random.ts';
 import { generateRandomNumericStringOfLength } from '@/shared/lib/string.ts';
-import type { BarcodeLoadingSkeletonProps } from './barcode-loading-skeletons.ts';
+import type { BarcodeLoadingSkeletonProps } from './barcode-loading-skeleton.ts';
 import styles from './ean13-barcode-loading-skeleton.module.css';
 
 type Ean13BarcodeLoadingSkeletonProps = BarcodeLoadingSkeletonProps;

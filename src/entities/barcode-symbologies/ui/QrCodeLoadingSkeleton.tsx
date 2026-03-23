@@ -3,7 +3,7 @@ import {
   type CssCustomProperty,
   composeCssCustomProperty,
 } from '@/shared/lib/css.ts';
-import type { BarcodeLoadingSkeletonProps } from './barcode-loading-skeletons.ts';
+import type { BarcodeLoadingSkeletonProps } from './barcode-loading-skeleton';
 import styles from './qr-code-loading-skeleton.module.css';
 
 type QrCodeLoadingSkeletonProps = Omit<
