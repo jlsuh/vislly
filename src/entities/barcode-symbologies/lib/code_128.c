@@ -358,7 +358,6 @@ void render(void)
 {
     int module_width_px = BASE_MODULE_WIDTH_PX * dpr;
     int bar_height_px = BASE_BAR_HEIGHT_PX * dpr;
-    int vertical_quiet_zone_px = BASE_VERTICAL_QUIET_ZONE_PX * dpr;
     int horizontal_quiet_zone_px = HORIZONTAL_QUIET_ZONE_MULTIPLIER * module_width_px;
     data_len = wasm_strlen(data_buffer);
     next_symbol_idx = 0;
@@ -370,13 +369,19 @@ void render(void)
     symbol_buffer[next_symbol_idx++] = compose_checksum();
     symbol_buffer[next_symbol_idx++] = CODE128_STOP;
     int total_modules = (next_symbol_idx * CODE128_MODULES_PER_SYMBOL) + 2;
+    int text_bounding_height = SYMBOL_TEXT_BOUNDING_HEIGHT * dpr;
+    int padding_top = SYMBOL_TEXT_PADDING_TOP_Y * dpr;
+    int quiet_zone = BASE_VERTICAL_QUIET_ZONE_PX * dpr;
+    int content_height = bar_height_px + padding_top + text_bounding_height;
     canvas_width = (total_modules * module_width_px) + (2 * horizontal_quiet_zone_px);
-    canvas_height = bar_height_px + (2 * vertical_quiet_zone_px);
+    canvas_height = quiet_zone + content_height + quiet_zone;
     Canvas c = canvas_create(pixels, canvas_width, canvas_height);
     canvas_fill_rect(&c, 0, 0, canvas_width, canvas_height, C_WHITE);
     int curr_x = horizontal_quiet_zone_px;
-    int curr_y = vertical_quiet_zone_px;
+    int curr_y = quiet_zone;
     for (int i = 0; i < next_symbol_idx; ++i)
         curr_x += draw_pattern(&c, PATTERN_WIDTHS[symbol_buffer[i]], curr_x, curr_y, module_width_px, bar_height_px);
     canvas_fill_rect(&c, curr_x, curr_y, 2 * module_width_px, bar_height_px, C_BLACK);
+    int text_y = curr_y + bar_height_px + padding_top;
+    draw_centered_text(&c, data_buffer, 0, canvas_width, text_y);
 }

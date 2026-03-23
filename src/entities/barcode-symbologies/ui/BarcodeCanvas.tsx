@@ -4,6 +4,11 @@ import {
   fetchBarcodeWasm,
   isMatrix2DBarcodeWasm,
 } from '../lib/barcode-wasm.ts';
+import {
+  DEFAULT_FONT,
+  type RasterizedFont,
+  rasterizeSystemFont,
+} from '../lib/font-rasterizer.ts';
 import type {
   ErrorCorrectionLevel,
   SymbologyConfig,
@@ -20,6 +25,15 @@ interface BarcodeCanvasProps {
 }
 
 const TEXT_ENCODER = new TextEncoder();
+
+let cachedSystemFont: RasterizedFont | null = null;
+
+function getSystemFont() {
+  if (cachedSystemFont === null) {
+    cachedSystemFont = rasterizeSystemFont(DEFAULT_FONT);
+  }
+  return cachedSystemFont;
+}
 
 function evaluateBarcodeText(
   originalText: string,
@@ -86,6 +100,12 @@ function BarcodeCanvas({
       maxInputLength,
       rightPaddingChar,
     );
+    const fontToUse = getSystemFont();
+    const wasmMem = new Uint8Array(barcodeWasm.memory.buffer);
+    const widthsPtr = barcodeWasm.get_custom_font_widths_buffer();
+    wasmMem.set(fontToUse.widths, widthsPtr);
+    const glyphsPtr = barcodeWasm.get_custom_font_glyphs_buffer();
+    wasmMem.set(fontToUse.glyphs, glyphsPtr);
     barcodeWasm.set_dpr(dpr);
     if (isMatrix2DBarcodeWasm(barcodeWasm)) {
       barcodeWasm.set_error_correction_level(+selectedErrorCorrectionLevel);
@@ -115,9 +135,9 @@ function BarcodeCanvas({
     dpr,
     inputText,
     maxInputLength,
-    onProcessComplete,
     rightPaddingChar,
     selectedErrorCorrectionLevel,
+    onProcessComplete,
   ]);
 
   useEffect(() => renderBarcode(), [renderBarcode]);

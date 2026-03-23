@@ -12,6 +12,9 @@ int dpr = 1;
 int symbol_buffer[BARCODE_BUFFER_SIZE];
 uint32_t pixels[MAX_WIDTH * MAX_HEIGHT];
 
+uint8_t custom_font_glyphs[CUSTOM_FONT_GLYPH_COUNT * CUSTOM_FONT_GLYPH_SIZE * CUSTOM_FONT_GLYPH_SIZE];
+uint8_t custom_font_widths[CUSTOM_FONT_GLYPH_COUNT];
+
 bool is_control_char(char c)
 {
     return c >= NULL_TERMINATOR && c <= ASCII_MAX_CONTROL_CHAR;
@@ -118,4 +121,44 @@ void set_dpr(int user_dpr)
     else if (user_dpr > MAX_DPR)
         user_dpr = MAX_DPR;
     dpr = user_dpr;
+}
+
+uint8_t *get_custom_font_widths_buffer(void)
+{
+    return custom_font_widths;
+}
+
+uint8_t *get_custom_font_glyphs_buffer(void)
+{
+    return custom_font_glyphs;
+}
+
+static inline CanvasFont get_standard_font(void)
+{
+    return (CanvasFont){.size = CUSTOM_FONT_GLYPH_SIZE, .widths = custom_font_widths, .glyphs = custom_font_glyphs};
+}
+
+static inline float get_text_scale(CanvasFont font)
+{
+    float target_font_height_px = (float)(SYMBOL_FONT_SIZE * dpr);
+    return target_font_height_px / (float)font.size;
+}
+
+int measure_text(const char *text)
+{
+    CanvasFont font = get_standard_font();
+    return canvas_measure_text(text, font, get_text_scale(font), 0.0f);
+}
+
+void draw_text(Canvas *c, const char *text, int x, int y)
+{
+    CanvasFont font = get_standard_font();
+    canvas_draw_text(c, text, x, y, font, get_text_scale(font), C_BLACK, 0.0f);
+}
+
+void draw_centered_text(Canvas *c, const char *text, int bounding_x, int bounding_width, int y)
+{
+    int text_width = measure_text(text);
+    int text_x = bounding_x + (bounding_width - text_width) / 2;
+    draw_text(c, text, text_x, y);
 }

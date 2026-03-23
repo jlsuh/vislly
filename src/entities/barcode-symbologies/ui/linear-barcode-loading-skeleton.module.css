@@ -43,19 +43,39 @@
     0 0,
     100% 0,
     calc(var(--seed) * 23px) 0;
-  background-repeat: no-repeat, no-repeat, repeat;
+  background-repeat: no-repeat, no-repeat, repeat-x;
   background-size:
-    5px 100%,
-    5px 100%,
-    auto;
+    5px calc(160 / 194 * 100%),
+    5px calc(160 / 194 * 100%),
+    auto calc(160 / 194 * 100%);
   box-sizing: border-box;
+  container-type: inline-size;
   display: block;
   height: auto;
-  max-width: var(--loading-max-width, 100%);
+  max-width: var(--loading-max-width);
   opacity: 0.8;
-  overflow: hidden;
   position: relative;
-  width: var(--loading-barcode-width, 0);
+  width: var(--loading-barcode-width);
+  clip-path: inset(0 0 -25% 0);
+  &::before {
+    color: #000;
+    content: var(--loading-text);
+    display: flex;
+    filter: blur(1.5px);
+    font-family: var(--loading-font-family);
+    font-size: var(--loading-font-size);
+    justify-content: center;
+    left: 0.02em;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    padding-left: 0.08em;
+    position: absolute;
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+    top: calc(166 / 194 * 100%);
+    width: 100%;
+    transform-origin: top center;
+    transform: scaleY(1.075);
+  }
   &::after {
     animation: shimmer 1.5s infinite;
     background: linear-gradient(

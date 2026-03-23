@@ -9,6 +9,8 @@ const INITIAL_MEMORY_PAGES = 1024;
 
 interface BaseBarcodeWasm {
   memory: WebAssembly.Memory;
+  get_custom_font_glyphs_buffer: () => number;
+  get_custom_font_widths_buffer: () => number;
   get_data_buffer: () => number;
   get_height: () => number;
   get_pixel_buffer: () => number;
@@ -30,6 +32,8 @@ type BarcodeWasmMap = {
 const BASE_REQUIRED_FUNCTIONS: ReadonlyDeep<
   Exclude<keyof BaseBarcodeWasm, 'memory'>[]
 > = keysFromObject({
+  get_custom_font_glyphs_buffer: true,
+  get_custom_font_widths_buffer: true,
   get_data_buffer: true,
   get_height: true,
   get_pixel_buffer: true,

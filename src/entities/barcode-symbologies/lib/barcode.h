@@ -24,9 +24,6 @@
 #define DIGITS_COUNT 10
 #define NULL_TERMINATOR '\0'
 
-#define C_BLACK 0xFF000000
-#define C_WHITE 0xFFFFFFFF
-
 #define MAX_WIDTH 13000
 #define MAX_HEIGHT 1200
 
@@ -40,6 +37,13 @@
 #define MAX_DPR 4
 #define MIN_DPR 1
 
+#define SYMBOL_FONT_SIZE 46
+#define SYMBOL_TEXT_BOUNDING_HEIGHT 32
+#define SYMBOL_TEXT_PADDING_TOP_Y 2
+
+#define CUSTOM_FONT_GLYPH_COUNT 95
+#define CUSTOM_FONT_GLYPH_SIZE 64
+
 #define MATH_MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MATH_MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MATH_ABS(x) ((x) < 0 ? -(x) : (x))
@@ -50,6 +54,9 @@ extern int canvas_width;
 extern int dpr;
 extern int symbol_buffer[BARCODE_BUFFER_SIZE];
 extern uint32_t pixels[MAX_WIDTH * MAX_HEIGHT];
+
+extern uint8_t custom_font_glyphs[CUSTOM_FONT_GLYPH_COUNT * CUSTOM_FONT_GLYPH_SIZE * CUSTOM_FONT_GLYPH_SIZE];
+extern uint8_t custom_font_widths[CUSTOM_FONT_GLYPH_COUNT];
 
 bool is_control_char(char c);
 bool is_digit(char c);
@@ -70,13 +77,21 @@ int get_width(void);
 uint32_t *get_pixel_buffer(void);
 void set_dpr(int user_dpr);
 
-extern void render(void);
+uint8_t *get_custom_font_widths_buffer(void);
+uint8_t *get_custom_font_glyphs_buffer(void);
+
+int measure_text(const char *text);
+void draw_text(Canvas *c, const char *text, int x, int y);
+void draw_centered_text(Canvas *c, const char *text, int bounding_x, int bounding_width, int y);
 
 WASM_EXPORT("get_data_buffer") char *get_data_buffer(void);
 WASM_EXPORT("get_height") int get_height(void);
 WASM_EXPORT("get_pixel_buffer") uint32_t *get_pixel_buffer(void);
 WASM_EXPORT("get_width") int get_width(void);
 WASM_EXPORT("set_dpr") void set_dpr(int user_dpr);
+
+WASM_EXPORT("get_custom_font_widths_buffer") uint8_t *get_custom_font_widths_buffer(void);
+WASM_EXPORT("get_custom_font_glyphs_buffer") uint8_t *get_custom_font_glyphs_buffer(void);
 
 WASM_EXPORT("render") extern void render(void);
 

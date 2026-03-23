@@ -3,10 +3,13 @@ import {
   type CssCustomProperty,
   composeCssCustomProperty,
 } from '@/shared/lib/css.ts';
-import type { SymbologyConfig } from '../model/barcode-symbologies.ts';
+import type { BarcodeLoadingSkeletonProps } from './barcode-loading-skeletons.ts';
 import styles from './qr-code-loading-skeleton.module.css';
 
-type BarcodeLoadingSkeletonProps = { currentSymbology: SymbologyConfig };
+type QrCodeLoadingSkeletonProps = Omit<
+  BarcodeLoadingSkeletonProps,
+  'canvasClassName'
+>;
 
 const QR_GRID_SIZE = 21;
 const TOTAL_MODULES = QR_GRID_SIZE * QR_GRID_SIZE;
@@ -32,7 +35,7 @@ function generateModules() {
 
 function QrCodeLoadingSkeleton({
   currentSymbology,
-}: BarcodeLoadingSkeletonProps): JSX.Element {
+}: QrCodeLoadingSkeletonProps): JSX.Element {
   const { loadingDimensions } = currentSymbology;
   const { width } = loadingDimensions;
   const loadingVariables: CssCustomProperty = {

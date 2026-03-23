@@ -48,6 +48,7 @@ const QR_PATTERN = '.*';
 
 type SymbologyConfig = {
   allowedPattern: string;
+  checksumDigits?: number;
   horizontalQuietZone: number;
   inputMode: InputHTMLAttributes<HTMLInputElement>['inputMode'];
   inputType: InputHTMLAttributes<HTMLInputElement>['type'];
@@ -65,11 +66,12 @@ const BARCODE_SYMBOLOGIES: ReadonlyDeep<
 > = {
   [BarcodeSymbology.Code128]: {
     allowedPattern: CODE128_PATTERN,
+    checksumDigits: 1,
     horizontalQuietZone: 40,
     inputMode: 'text',
     inputType: 'text',
     label: 'Code 128',
-    loadingDimensions: { width: 140, height: 160 },
+    loadingDimensions: { width: 140, height: 194 },
     maxInputLength: 64,
     type: BarcodeType.Linear,
     value: BarcodeSymbology.Code128,
@@ -77,11 +79,12 @@ const BARCODE_SYMBOLOGIES: ReadonlyDeep<
   },
   [BarcodeSymbology.Ean13]: {
     allowedPattern: NUMERIC_PATTERN,
+    checksumDigits: 1,
     horizontalQuietZone: 40,
     inputMode: 'numeric',
     inputType: 'text',
     label: 'EAN-13',
-    loadingDimensions: { width: 380, height: 184 },
+    loadingDimensions: { width: 380, height: 194 },
     maxInputLength: 12,
     rightPaddingChar: '0',
     type: BarcodeType.Linear,
@@ -90,11 +93,12 @@ const BARCODE_SYMBOLOGIES: ReadonlyDeep<
   },
   [BarcodeSymbology.Itf14]: {
     allowedPattern: NUMERIC_PATTERN,
+    checksumDigits: 1,
     horizontalQuietZone: 50,
     inputMode: 'numeric',
     inputType: 'text',
     label: 'ITF-14',
-    loadingDimensions: { width: 549, height: 160 },
+    loadingDimensions: { width: 549, height: 194 },
     maxInputLength: 13,
     rightPaddingChar: '0',
     type: BarcodeType.Linear,
@@ -124,13 +128,6 @@ const SYMBOLOGY_OPTIONS_BY_TYPE: ReadonlyDeep<Record<BarcodeType, Option[]>> = {
     .map(({ label, value }) => ({ label, value })),
 };
 
-const DEFAULT_SYMBOLOGY_BY_TYPE: ReadonlyDeep<
-  Record<BarcodeType, BarcodeSymbology>
-> = {
-  [BarcodeType.Linear]: BarcodeSymbology.Code128,
-  [BarcodeType.Matrix2D]: BarcodeSymbology.QrCode,
-};
-
 const ErrorCorrectionLevel = {
   L: '0',
   M: '1',
@@ -153,7 +150,14 @@ function assertIsErrorCorrectionLevel(
   }
 }
 
-const INITIAL_BARCODE_TYPE: BarcodeType = BarcodeType.Matrix2D;
+const INITIAL_BARCODE_TYPE: BarcodeType = BarcodeType.Linear;
+
+const DEFAULT_SYMBOLOGY_BY_TYPE: ReadonlyDeep<
+  Record<BarcodeType, BarcodeSymbology>
+> = {
+  [BarcodeType.Linear]: BarcodeSymbology.Code128,
+  [BarcodeType.Matrix2D]: BarcodeSymbology.QrCode,
+};
 
 const INITIAL_SYMBOLOGY: BarcodeSymbology =
   DEFAULT_SYMBOLOGY_BY_TYPE[INITIAL_BARCODE_TYPE];

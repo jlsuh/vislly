@@ -84,14 +84,17 @@ void render(void)
     int wide_space = ITF14_WIDE_SPACE_BASE * dpr;
     int bar_height_px = BASE_BAR_HEIGHT_PX * dpr;
     int horizontal_quiet_zone = HORIZONTAL_QUIET_ZONE_MULTIPLIER * narrow_space;
+    int text_bounding_height = SYMBOL_TEXT_BOUNDING_HEIGHT * dpr;
+    int padding_top = SYMBOL_TEXT_PADDING_TOP_Y * dpr;
     int vertical_quiet_zone = BASE_VERTICAL_QUIET_ZONE_PX * dpr;
     int pair_width = (2 * wide_bar + 3 * narrow_bar) + (2 * wide_space + 3 * narrow_space);
     int content_body_width = 7 * pair_width;
     int start_code_total_width = (2 * narrow_bar) + (2 * narrow_space);
     int stop_code_total_width = wide_bar + narrow_space + narrow_bar;
     int content_width_px = start_code_total_width + content_body_width + stop_code_total_width;
+    int content_height = bar_height_px + padding_top + text_bounding_height;
     canvas_width = (2 * horizontal_quiet_zone) + content_width_px;
-    canvas_height = bar_height_px + (2 * vertical_quiet_zone);
+    canvas_height = vertical_quiet_zone + content_height + vertical_quiet_zone;
     Canvas c = canvas_create(pixels, canvas_width, canvas_height);
     canvas_fill_rect(&c, 0, 0, canvas_width, canvas_height, C_WHITE);
     int checksum = mod10_complement(data_buffer, ITF14_CHECKSUM_INDEX, ITF14_ODD_POS_WEIGHT, ITF14_EVEN_POS_WEIGHT,
@@ -109,4 +112,6 @@ void render(void)
     curr_x += draw_start_pattern(&ctx, curr_x);
     curr_x += draw_interleaved_2_of_5(&ctx, curr_x, ITF14_START_INDEX, ITF14_CHECKSUM_INDEX);
     curr_x += draw_stop_pattern(&ctx, curr_x);
+    int text_y = curr_y + bar_height_px + padding_top;
+    draw_centered_text(&c, data_buffer, 0, canvas_width, text_y);
 }

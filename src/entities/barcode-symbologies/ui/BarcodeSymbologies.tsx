@@ -12,6 +12,7 @@ import type { ReadonlyDeep } from 'type-fest';
 import type { Option } from '@/shared/model/option.ts';
 import ButtonWithOptions from '@/shared/ui/ButtonWithOptions/ButtonWithOptions.tsx';
 import DownloadIcon from '@/shared/ui/DownloadIcon/DownloadIcon.tsx';
+import { DEFAULT_FONT } from '../lib/font-rasterizer.ts';
 import {
   assertIsBarcodeSymbology,
   assertIsBarcodeType,
@@ -183,7 +184,8 @@ function BarcodeSymbologies(): JSX.Element {
   const isSymbologyLoading =
     totalCapacity === Number.POSITIVE_INFINITY &&
     !loadedSymbologiesRef.current.has(selectedSymbology);
-  const LoadingSkeleton = SKELETON_BY_BARCODE_SYMBOLOGY[value];
+  const { canvasClassName, Component: LoadingSkeleton } =
+    SKELETON_BY_BARCODE_SYMBOLOGY[value];
   const symbologyOptions = SYMBOLOGY_OPTIONS_BY_TYPE[selectedBarcodeType];
 
   const resetBarcodeData = () => {
@@ -282,7 +284,13 @@ function BarcodeSymbologies(): JSX.Element {
       <div className={styles.canvasAndDownloadWrapper}>
         <div className={styles.canvasWrapper}>
           <Suspense
-            fallback={<LoadingSkeleton currentSymbology={currentSymbology} />}
+            fallback={
+              <LoadingSkeleton
+                canvasClassName={canvasClassName}
+                currentSymbology={currentSymbology}
+                fontName={DEFAULT_FONT}
+              />
+            }
           >
             <BarcodeCanvas
               canvasRef={canvasRef}

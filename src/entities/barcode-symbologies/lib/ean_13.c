@@ -77,32 +77,57 @@ static inline int draw_group(const Ean13Context *ctx, int x, GroupConfig cfg)
     return curr_x_offset;
 }
 
+static void extract_text_segment(char *dest, size_t start, size_t len)
+{
+    for (size_t i = 0; i < len; ++i)
+        dest[i] = data_buffer[start + i];
+    dest[len] = '\0';
+}
+
 void render(void)
 {
     int module_width_px = BASE_MODULE_WIDTH_PX * dpr;
     int regular_bar_height_px = BASE_BAR_HEIGHT_PX * dpr;
     int marker_extra_height = (int)(((float)regular_bar_height_px * EAN13_MARKER_EXTRA_HEIGHT_SCALAR) + 0.5f);
     int marker_bar_height_px = regular_bar_height_px + marker_extra_height;
-    int vertical_quiet_zone_px = BASE_VERTICAL_QUIET_ZONE_PX * dpr;
     int horizontal_quiet_zone_px = HORIZONTAL_QUIET_ZONE_MULTIPLIER * module_width_px;
+    int text_bounding_height = SYMBOL_TEXT_BOUNDING_HEIGHT * dpr;
+    int padding_top = SYMBOL_TEXT_PADDING_TOP_Y * dpr;
+    int quiet_zone = BASE_VERTICAL_QUIET_ZONE_PX * dpr;
+    int max_content_height = MATH_MAX(marker_bar_height_px, regular_bar_height_px + padding_top + text_bounding_height);
     canvas_width = (EAN13_TOTAL_MODULES * module_width_px) + (2 * horizontal_quiet_zone_px);
-    canvas_height = marker_bar_height_px + (2 * vertical_quiet_zone_px);
+    canvas_height = quiet_zone + max_content_height + quiet_zone;
     Canvas c = canvas_create(pixels, canvas_width, canvas_height);
     canvas_fill_rect(&c, 0, 0, canvas_width, canvas_height, C_WHITE);
     int checksum = mod10_complement(data_buffer, EAN13_CHECKSUM_INDEX, EAN13_ODD_POS_WEIGHT, EAN13_EVEN_POS_WEIGHT,
                                     EAN13_CHECKSUM_MODULO);
+    data_buffer[EAN13_CHECKSUM_INDEX] = digit_to_char(checksum);
     int curr_x = horizontal_quiet_zone_px;
-    int curr_y = vertical_quiet_zone_px;
+    int curr_y = quiet_zone;
     int first_digit = char_to_digit(data_buffer[0]);
     const char *const parity_pattern = PARITY_PATTERNS[first_digit];
     Ean13Context ctx = {.c = &c, .y = curr_y, .module_width = module_width_px, .bar_height = regular_bar_height_px};
+    int start_marker_x = curr_x;
     curr_x += draw_pattern(&c, EAN13_MARKER_START, curr_x, curr_y, module_width_px, marker_bar_height_px);
+    int left_group_start_x = curr_x;
     GroupConfig left_group = {1, EAN13_GROUP_LEN, parity_pattern};
     curr_x += draw_group(&ctx, curr_x, left_group);
+    int left_group_width = curr_x - left_group_start_x;
     curr_x += draw_pattern(&c, EAN13_MARKER_CENTER, curr_x, curr_y, module_width_px, marker_bar_height_px);
+    int right_group_start_x = curr_x;
     GroupConfig right_group = {EAN13_GROUP_LEN + 1, (EAN13_GROUP_LEN * 2) - 1, NULL};
     curr_x += draw_group(&ctx, curr_x, right_group);
     curr_x +=
         draw_pattern(&c, ENCODING_TABLE[checksum][EAN13_ENC_R], curr_x, curr_y, module_width_px, regular_bar_height_px);
+    int right_group_width = curr_x - right_group_start_x;
     curr_x += draw_pattern(&c, EAN13_MARKER_END, curr_x, curr_y, module_width_px, marker_bar_height_px);
+    int text_y = curr_y + regular_bar_height_px + padding_top;
+    char segment[EAN13_GROUP_LEN + 1];
+    extract_text_segment(segment, 0, 1);
+    int segment_width = measure_text(segment);
+    draw_text(&c, segment, start_marker_x - segment_width - (2 * module_width_px), text_y);
+    extract_text_segment(segment, 1, EAN13_GROUP_LEN);
+    draw_centered_text(&c, segment, left_group_start_x, left_group_width, text_y);
+    extract_text_segment(segment, EAN13_GROUP_LEN + 1, EAN13_GROUP_LEN);
+    draw_centered_text(&c, segment, right_group_start_x, right_group_width, text_y);
 }

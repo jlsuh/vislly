@@ -9,6 +9,7 @@ import styles from './input.module.css';
 type InputSize = 'sm' | 'md' | 'lg';
 
 type InputProps = {
+  accept?: string;
   characterCount?: string;
   disabled?: boolean;
   handleOnChange: (e: ChangeEvent<HTMLInputElement>) => void;
@@ -21,10 +22,11 @@ type InputProps = {
   placeholder?: string;
   size?: InputSize;
   type?: InputHTMLAttributes<HTMLInputElement>['type'];
-  value: string;
+  value?: string;
 };
 
 function Input({
+  accept,
   characterCount,
   disabled,
   handleOnChange,
@@ -49,6 +51,7 @@ function Input({
           {label}
         </label>
         <input
+          accept={accept}
           className={styles.input}
           disabled={disabled}
           id={inputId}
