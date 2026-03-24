@@ -150,7 +150,7 @@ function assertIsErrorCorrectionLevel(
   }
 }
 
-const INITIAL_BARCODE_TYPE: BarcodeType = BarcodeType.Linear;
+const INITIAL_BARCODE_TYPE: BarcodeType = BarcodeType.Matrix2D;
 
 const DEFAULT_SYMBOLOGY_BY_TYPE: ReadonlyDeep<
   Record<BarcodeType, BarcodeSymbology>
