@@ -1,5 +1,5 @@
 1:"$Sreact.fragment"
-2:I[97367,["/vislly/_next/static/chunks/ff1a16fafef87110.js","/vislly/_next/static/chunks/d2be314c3ece3fbe.js"],"OutletBoundary"]
+2:I[97367,["/vislly/_next/static/chunks/0v-is9~v6p9oc.js","/vislly/_next/static/chunks/0d3shmwh5_nmn.js"],"OutletBoundary"]
 3:"$Sreact.suspense"
-0:{"buildId":"WTbLuo0ZsubBssPneUyZz","rsc":["$","$1","c",{"children":["$undefined",null,["$","$L2",null,{"children":["$","$3",null,{"name":"Next.MetadataOutlet","children":"$@4"}]}]]}],"loading":null,"isPartial":false}
+0:{"rsc":["$","$1","c",{"children":["$undefined",null,["$","$L2",null,{"children":["$","$3",null,{"name":"Next.MetadataOutlet","children":"$@4"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"P-DZM9WTLrPml_YDKZRvK"}
 4:null
