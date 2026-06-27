@@ -1,7 +1,6 @@
+import type { ReadonlyDeep } from 'type-fest';
 import { keysFromObject } from '@/shared/lib/array.ts';
 import { fetchWasmModule } from '@/shared/lib/wasm.ts';
-import '@/shared/polyfill/upsert.ts';
-import type { ReadonlyDeep } from 'type-fest';
 import { BarcodeType } from '../model/barcode-symbologies.ts';
 
 const GRAPHICS_LIB = 'graphics.wasm';

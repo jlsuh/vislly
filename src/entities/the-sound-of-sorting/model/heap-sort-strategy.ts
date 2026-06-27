@@ -1,5 +1,4 @@
 import { GREEN, RED } from '@/shared/lib/rgba.ts';
-import '@/shared/polyfill/upsert.ts';
 import {
   type HighlightGroup,
   SortingStrategy,
