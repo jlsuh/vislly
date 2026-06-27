@@ -70,11 +70,11 @@ function Input({
           </legend>
         </fieldset>
       </div>
-      {characterCount && (
+      {characterCount ? (
         <div className={styles.footer}>
           <span className={styles.characterCount}>{characterCount}</span>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

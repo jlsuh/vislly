@@ -26,9 +26,9 @@ function Dialog({ children, footer, header, id }: DialogProps): JSX.Element {
   return (
     <dialog className={styles.dialog} id={id} onClick={handleOnClickBackdrop}>
       <div className={styles.container}>
-        {header && <header className={styles.header}>{header}</header>}
+        {header ? <header className={styles.header}>{header}</header> : null}
         <div className={styles.body}>{children}</div>
-        {footer && <footer className={styles.footer}>{footer}</footer>}
+        {footer ? <footer className={styles.footer}>{footer}</footer> : null}
       </div>
     </dialog>
   );

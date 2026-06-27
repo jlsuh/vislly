@@ -55,7 +55,7 @@ function ButtonWithOptions({
         onClick={handleOnClickButton}
         type="button"
       >
-        {icon && <span className={styles.iconWrapper}>{icon}</span>}
+        {icon ? <span className={styles.iconWrapper}>{icon}</span> : null}
         <span className={styles.label}>{label}</span>
       </button>
       <div className={styles.selectWrapper}>

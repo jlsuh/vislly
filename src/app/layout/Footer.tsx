@@ -11,11 +11,11 @@ function Footer(): JSX.Element {
         <span className={styles.copyrightNotice}>
           Copyright &copy; {currentYear} Joel Suh
         </span>
-        {lastDeployDate && (
+        {lastDeployDate ? (
           <span className={styles.deployNotice}>
             Last deploy: {lastDeployDate}
           </span>
-        )}
+        ) : null}
       </div>
     </footer>
   );
