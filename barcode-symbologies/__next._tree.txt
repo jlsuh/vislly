@@ -2,4 +2,4 @@
 :HL["/vislly/_next/static/chunks/3qcg2y22safg-.css","style"]
 :HL["/vislly/_next/static/chunks/02idcc3h11kw_.css","style"]
 :HL["/vislly/_next/static/chunks/2j_w0t35r8831.css","style"]
-0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"barcode-symbologies","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"Jy3e60YZDd0bpdBJq_5UQ"}
+0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"barcode-symbologies","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"J33VdHqh02sHIzYC5GhiQ"}
