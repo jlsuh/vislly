@@ -16,6 +16,9 @@
         "noUselessStringConcat": "error",
         "useSimplifiedLogicExpression": "error"
       },
+      "performance": {
+        "noJsxPropsBind": "off"
+      },
       "suspicious": {
         "noDuplicateProperties": "off"
       },
