@@ -1,5 +1,5 @@
 1:"$Sreact.fragment"
-2:I[97367,["/vislly/_next/static/chunks/0v-is9~v6p9oc.js","/vislly/_next/static/chunks/0d3shmwh5_nmn.js"],"OutletBoundary"]
+2:I[97367,["/vislly/_next/static/chunks/2ryihqx-7p1c7.js","/vislly/_next/static/chunks/14mrh2-p_w84d.js"],"OutletBoundary"]
 3:"$Sreact.suspense"
-0:{"rsc":["$","$1","c",{"children":[["$","section",null,{"children":[["$","h1",null,{"children":"Not Found"}],["$","q",null,{"children":"The journey in search of what is missing sometimes leads us to ourselves."}]]}],null,["$","$L2",null,{"children":["$","$3",null,{"name":"Next.MetadataOutlet","children":"$@4"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"P-DZM9WTLrPml_YDKZRvK"}
+0:{"rsc":["$","$1","c",{"children":[["$","section",null,{"children":[["$","h1",null,{"children":"Not Found"}],["$","q",null,{"children":"The journey in search of what is missing sometimes leads us to ourselves."}]]}],null,["$","$L2",null,{"children":["$","$3",null,{"name":"Next.MetadataOutlet","children":"$@4"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"QogKAc1D4JTaGY_RVhE_3"}
 4:null
