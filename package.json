@@ -7,11 +7,11 @@
     "biome:ci": "biome ci .",
     "biome:format": "biome check --write --unsafe .",
     "biome:migrate": "biome migrate --write",
-    "build": "bun clean && tsc && bun depc:report && next build --turbopack",
+    "build": "bun clean && tsgo && bun depc:report && next build --turbopack",
     "clean": "rm -rf ./out/ ./.next/",
     "depc:ci": "bun depc:report && bun depc:metrics && bun depc:gen",
-    "depc:gen": "depcruise . -I '^src|^app' -T dot | dot -T svg | depcruise-wrap-stream-in-html > ./dependency-graph.html && bun depc:open",
-    "depc:genl": "depcruise . -I '^src|^app' -S 2 -T dot | dot -T svg | depcruise-wrap-stream-in-html > ./dependency-graph.html && bun depc:open",
+    "depc:gen": "depcruise . -I '^src|^app' -T dot | dot -T svg | depcruise-wrap-stream-in-html > ./dependency-graph.html",
+    "depc:genl": "depcruise . -I '^src|^app' -S 2 -T dot | dot -T svg | depcruise-wrap-stream-in-html > ./dependency-graph.html",
     "depc:metrics": "depcruise . -I '^src|^app' --metrics -T metrics",
     "depc:open": "open ./dependency-graph.html || start ./dependency-graph.html",
     "depc:report": "depcruise . -I '^src|^app'",
@@ -37,6 +37,6 @@
     "dependency-cruiser": "18.0.0",
     "serve": "14.2.6",
     "type-fest": "5.7.0",
-    "typescript": "7.0.1-rc"
+    "typescript": "6.0.3"
   }
 }
